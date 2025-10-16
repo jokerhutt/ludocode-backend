@@ -10,6 +10,7 @@ class LudocodeBackendApplicationTests {
 
 	@Test
 	fun contextLoads() {
+
 	}
 
 }
