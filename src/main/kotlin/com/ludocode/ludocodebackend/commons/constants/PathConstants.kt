@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.commons
+package com.ludocode.ludocodebackend.commons.constants
 
 object PathConstants {
 

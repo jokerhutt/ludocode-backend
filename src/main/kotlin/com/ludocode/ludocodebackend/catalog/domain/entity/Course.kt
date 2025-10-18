@@ -6,19 +6,19 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import org.hibernate.annotations.UuidGenerator
+import java.util.UUID
 
 @Entity
 @Table(name = "course")
 class Course (
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Int? = null,
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @UuidGenerator
+    val id: UUID? = null,
 
     @Column(name = "title")
     val title: String? = null,
-
-    @Column(name = "img_src")
-    val imgSrc: String? = null,
 
 )

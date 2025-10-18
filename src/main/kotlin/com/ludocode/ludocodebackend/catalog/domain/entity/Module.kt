@@ -6,22 +6,25 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import org.hibernate.annotations.UuidGenerator
+import java.util.UUID
 
 @Entity
 @Table(name = "module")
 class Module (
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Int? = null,
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @UuidGenerator
+    val id: UUID? = null,
 
     @Column(name = "title")
     var title: String? = null,
 
     @Column(name = "course_id")
-    var courseId: Int? = null,
+    var courseId: UUID? = null,
 
-    @Column(name = "orderIndex")
+    @Column(name = "order_index")
     var orderIndex: Int? = null,
 
     )
