@@ -11,14 +11,12 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
 
     @Query(
         value = """
-        SELECT 
-            lesson.id          AS id,
-            lesson.title       AS title,
-            lesson.order_index AS orderIndex,
+        SELECT lesson.id AS id, lesson.title AS title, lesson.order_index AS orderIndex,
             EXISTS (
                 SELECT 1
                 FROM lesson_completion lessonCompletion
-                WHERE lessonCompletion.lesson_id = lesson.id AND lessonCompletion.user_id = :userId
+                WHERE lessonCompletion.lesson_id = lesson.id 
+                AND lessonCompletion.user_id = :userId
             ) AS isCompleted
         FROM lesson lesson
         WHERE lesson.module_id = :moduleId

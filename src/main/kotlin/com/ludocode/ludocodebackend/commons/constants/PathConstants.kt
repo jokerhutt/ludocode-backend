@@ -14,6 +14,7 @@ object PathConstants {
     const val COURSES_ALL : String = "$COURSES/all"
     const val MODULES_COURSE_ID : String = "$MODULES/{courseId}"
     const val LESSONS_MODULE_ID : String = "$LESSONS/{moduleId}"
+    const val COURSE_TREE : String = "$COURSES/{courseId}/{userId}/tree"
 
 
 
