@@ -8,6 +8,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.response.ModuleResponse
 import com.ludocode.ludocodebackend.catalog.app.service.CatalogService
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -26,7 +27,7 @@ class CatalogController(private val catalogService: CatalogService) {
     }
 
     @GetMapping(PathConstants.COURSE_TREE)
-    fun getCourseTree(@PathVariable courseId: UUID, @PathVariable userId: UUID): ResponseEntity<CourseTreeResponse> {
+    fun getCourseTree(@PathVariable courseId: UUID, @AuthenticationPrincipal(expression = "id") userId: UUID): ResponseEntity<CourseTreeResponse> {
         return ResponseEntity.ok(catalogService.getCourseTree(userId, courseId))
     }
 
@@ -41,7 +42,7 @@ class CatalogController(private val catalogService: CatalogService) {
     }
 
     @GetMapping(PathConstants.LESSONS_MODULE_ID)
-    fun getLessonsByModuleId(@PathVariable userId: UUID, @PathVariable moduleId: UUID) : ResponseEntity<List<LessonResponse>> {
+    fun getLessonsByModuleId(@PathVariable moduleId: UUID, @AuthenticationPrincipal(expression = "id") userId: UUID) : ResponseEntity<List<LessonResponse>> {
         return ResponseEntity.ok(catalogService.getLessonsByModuleId(moduleId, userId))
     }
 
@@ -51,7 +52,7 @@ class CatalogController(private val catalogService: CatalogService) {
     }
 
     @GetMapping(PathConstants.LESSONS_IDS)
-    fun getLessonsByIdList(@PathVariable userId: UUID, @RequestParam lessonIds: List<UUID>) : ResponseEntity<List<LessonResponse>> {
+    fun getLessonsByIdList(@RequestParam lessonIds: List<UUID>, @AuthenticationPrincipal(expression = "id") userId: UUID) : ResponseEntity<List<LessonResponse>> {
         return ResponseEntity.ok(catalogService.getLessonsByIds(lessonIds, userId))
     }
 
