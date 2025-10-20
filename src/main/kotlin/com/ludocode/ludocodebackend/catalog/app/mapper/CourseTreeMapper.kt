@@ -17,33 +17,37 @@ class CourseTreeMapper (private val basicMapper: BasicMapper) {
 
         val modules = byModule.entries
             .sortedBy { it.value.first().getModuleOrder() }
-            .map { (_, group) ->
-                val head = group.first()
-                ModuleNodeResponse(
-                    module = ModuleResponse(
-                        id = head.getModuleId(),
-                        title = head.getModuleTitle(),
-                        courseId = head.getCourseId(),
-                        orderIndex = head.getModuleOrder()
-                    ),
-                    lessons = group
-                        .filter { it.getLessonId() != null }
-                        .sortedBy { it.getLessonOrder() }
-                        .map { r ->
-                            LessonResponse(
-                                id = r.getLessonId()!!,
-                                title = r.getLessonTitle()!!,
-                                orderIndex = r.getLessonOrder()!!,
-                                isCompleted = r.getIsCompleted()
-                            )
-                        }
-                )
-            }
+            .map { (_, group) -> toModuleNodeResponse(group)}
 
         return CourseTreeResponse(
             id = requireNotNull(course.id),
             title = requireNotNull(course.title),
             modules = modules
+        )
+    }
+
+    private fun toModuleNodeResponse(group: List<ModuleLessonProjection>): ModuleNodeResponse {
+        val head = group.first()
+        return ModuleNodeResponse(
+            module = ModuleResponse(
+                id = head.getModuleId(),
+                title = head.getModuleTitle(),
+                courseId = head.getCourseId(),
+                orderIndex = head.getModuleOrder()
+            ),
+            lessons = group
+                .filter { it.getLessonId() != null }
+                .sortedBy { it.getLessonOrder() }
+                .map { toLessonResponse(it) }
+        )
+    }
+
+    private fun toLessonResponse(row: ModuleLessonProjection): LessonResponse {
+        return LessonResponse(
+            id = row.getLessonId()!!,
+            title = row.getLessonTitle()!!,
+            orderIndex = row.getLessonOrder()!!,
+            isCompleted = row.getIsCompleted()
         )
     }
 
