@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.user.app.mapper.UserMapper
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserUseCase
 import com.ludocode.ludocodebackend.user.domain.entity.ExternalAccount
 import com.ludocode.ludocodebackend.user.domain.entity.User
+import com.ludocode.ludocodebackend.user.infra.repository.ExternalAccountRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -53,4 +54,10 @@ class UserService(
     override fun getById(id: UUID): UserResponse {
        return userMapper.toUserResponse(userRepository.findById(id).orElseThrow())
     }
+
+    fun getUsersByIds(userIds: List<UUID>): List<UserResponse> {
+        val users = userRepository.findAllByIdIn(userIds)
+        return userMapper.toUserResponseList(users)
+    }
+
 }

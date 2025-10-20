@@ -22,6 +22,13 @@ class JwtCookieAuthenticationFilter(
     private val jwtService: JwtService
 ) : OncePerRequestFilter() {   // extend this to actually hook into Spring Security
 
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
+        val path = request.requestURI
+        return path.startsWith("/internal") ||
+                path.startsWith("/api/v1/google-login") ||
+                path.startsWith("/actuator")
+    }
+
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(
         req: HttpServletRequest,

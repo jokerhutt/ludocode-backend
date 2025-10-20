@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.user.app.service
+package com.ludocode.ludocodebackend.user.infra.repository
 
 import com.ludocode.ludocodebackend.user.domain.entity.ExternalAccount
 import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
