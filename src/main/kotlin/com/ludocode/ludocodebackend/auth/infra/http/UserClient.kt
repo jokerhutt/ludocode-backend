@@ -1,0 +1,33 @@
+package com.ludocode.ludocodebackend.auth.infra.http
+
+import com.ludocode.ludocodebackend.auth.app.port.out.UserPort
+import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants
+import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants.USERS
+import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants.USERS_FIND_CREATE
+import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants.USER_SERVICE_BASE
+import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
+import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.jpa.domain.AbstractPersistable_.id
+import org.springframework.stereotype.Component
+import org.springframework.web.client.RestTemplate
+import java.util.UUID
+
+@Component
+class UserClient(
+    private val rest: RestTemplate,
+) : UserPort {
+
+    override fun findOrCreate(req: FindOrCreateUserRequest): UserResponse {
+        val url = "$USER_SERVICE_BASE$USERS$USERS_FIND_CREATE"
+        val resp = rest.postForEntity(url, req, UserResponse::class.java)
+        return resp.body ?: error("User service returned empty body")
+    }
+
+    override fun getById(id: UUID): UserResponse {
+        val url = "$USER_SERVICE_BASE$USERS/$id"
+        val resp = rest.getForEntity(url, UserResponse::class.java)
+        return resp.body ?: error("User service returned empty body")
+    }
+
+}

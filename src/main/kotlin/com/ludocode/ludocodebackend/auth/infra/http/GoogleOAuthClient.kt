@@ -1,7 +1,7 @@
-package com.ludocode.ludocodebackend.auth.api.infra.http
+package com.ludocode.ludocodebackend.auth.infra.http
 
 import com.ludocode.ludocodebackend.auth.api.dto.GoogleTokenResponse
-import com.ludocode.ludocodebackend.auth.app.port.GoogleAuthOutboundPort
+import com.ludocode.ludocodebackend.auth.app.port.out.GoogleAuthOutboundPort
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders

@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.auth.app.port
+package com.ludocode.ludocodebackend.auth.app.port.out
 
 import com.ludocode.ludocodebackend.auth.api.dto.GoogleTokenResponse
 

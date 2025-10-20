@@ -23,6 +23,12 @@ object PathConstants {
 
 
 
+    const val AUTH : String = "$API_V1/auth"
+    const val GOOGLE_LOGIN : String = "/google-login"
+    const val AUTH_ME : String = "/me"
+
+
+
 
 
 
