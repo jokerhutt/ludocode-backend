@@ -8,6 +8,7 @@ import com.ludocode.ludocodebackend.catalog.app.mapper.CourseTreeMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.ExerciseMapper
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
+import com.ludocode.ludocodebackend.catalog.infra.projection.ExerciseFlatProjection
 import com.ludocode.ludocodebackend.catalog.infra.projection.ModuleLessonProjection
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseRepository
@@ -37,8 +38,8 @@ class CatalogService(
     }
 
     fun getExercisesByLessonId (lessonId: UUID): List<ExerciseResponse> {
-        val exercises: List<Exercise> = exerciseRepository.findAllByLessonId(lessonId)
-        return exerciseMapper.toExerciseResponseList(exercises)
+       val exercisesWithOptionsFlat: List<ExerciseFlatProjection> = exerciseRepository.getFlatExercisesWithOptions(lessonId)
+       return exerciseMapper.toLessonExercises(exercisesWithOptionsFlat)
     }
 
 }
