@@ -9,6 +9,7 @@ import java.util.UUID
 
 interface ModuleRepository : JpaRepository<Module, UUID> {
 
+    fun findAllByCourseId(courseId: UUID): List<Module>
 
     @Query(
         value = """
