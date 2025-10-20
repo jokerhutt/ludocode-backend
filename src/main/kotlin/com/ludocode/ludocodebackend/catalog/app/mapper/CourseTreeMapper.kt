@@ -10,7 +10,7 @@ import com.ludocode.ludocodebackend.commons.mapper.BasicMapper
 import org.springframework.stereotype.Component
 
 @Component
-class CourseTreeMapper (private val basicMapper: BasicMapper) {
+class CourseTreeMapper (private val basicMapper: BasicMapper, private val courseMapper: CourseMapper) {
 
     fun toCourseTree(course: Course, rows: List<ModuleLessonProjection>): CourseTreeResponse {
         val byModule = rows.groupBy { it.getModuleId() }
@@ -20,8 +20,7 @@ class CourseTreeMapper (private val basicMapper: BasicMapper) {
             .map { (_, group) -> toModuleNodeResponse(group)}
 
         return CourseTreeResponse(
-            id = requireNotNull(course.id),
-            title = requireNotNull(course.title),
+            course = courseMapper.toCourseResponse(course),
             modules = modules
         )
     }
