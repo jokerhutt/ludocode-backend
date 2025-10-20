@@ -3,6 +3,8 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseOptionRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.LessonRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
 import com.ludocode.ludocodebackend.progress.infra.LessonCompletionRepository
@@ -62,7 +64,9 @@ abstract class AbstractIntegrationTest {
     @Autowired lateinit var courseRepository: CourseRepository
     @Autowired lateinit var lessonRepository: LessonRepository
     @Autowired lateinit var moduleRepository: ModuleRepository
+    @Autowired lateinit var exerciseRepository: ExerciseRepository
     @Autowired lateinit var lessonCompletionRepository: LessonCompletionRepository
+    @Autowired lateinit var exerciseOptionRepository: ExerciseOptionRepository
 
     @Autowired
     protected lateinit var jdbc: JdbcTemplate
@@ -79,6 +83,8 @@ abstract class AbstractIntegrationTest {
             """
         TRUNCATE TABLE 
           lesson_completion,
+          exercise_option,
+          exercise,
           lesson, 
           module, 
           course, 
