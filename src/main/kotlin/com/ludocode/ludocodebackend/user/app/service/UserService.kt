@@ -60,4 +60,11 @@ class UserService(
         return userMapper.toUserResponseList(users)
     }
 
+    @Transactional
+    fun updateCourse(userId: UUID, newCourseId: UUID) : UserResponse {
+        val user = userRepository.findById(userId).orElseThrow()
+        user.currentCourse = newCourseId
+        return userMapper.toUserResponse(user)
+    }
+
 }

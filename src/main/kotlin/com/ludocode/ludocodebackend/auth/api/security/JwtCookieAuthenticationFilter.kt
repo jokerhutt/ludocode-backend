@@ -48,7 +48,6 @@ class JwtCookieAuthenticationFilter(
                 // invalid token → silently ignore
             }
         }
-
         chain.doFilter(req, res)
     }
 }

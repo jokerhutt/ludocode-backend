@@ -18,7 +18,7 @@ class Course (
     @UuidGenerator
     val id: UUID? = null,
 
-    @Column(name = "title")
+    @Column(name = "course_name")
     val title: String? = null,
 
 )

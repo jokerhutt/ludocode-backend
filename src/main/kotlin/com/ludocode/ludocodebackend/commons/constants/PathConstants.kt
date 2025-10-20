@@ -29,7 +29,9 @@ object PathConstants {
 
 
     const val USERS : String = "$API_V1/users"
-    const val USERS_IDS : String = "$API_V1/ids"
+    const val USERS_IDS : String = "/ids"
+
+    const val UPDATE_COURSE : String = "/update/course"
 
 
 
