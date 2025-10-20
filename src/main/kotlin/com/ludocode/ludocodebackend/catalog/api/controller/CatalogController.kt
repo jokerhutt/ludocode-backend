@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
@@ -42,6 +43,16 @@ class CatalogController(private val catalogService: CatalogService) {
     @GetMapping(PathConstants.LESSONS_MODULE_ID)
     fun getLessonsByModuleId(@PathVariable userId: UUID, @PathVariable moduleId: UUID) : ResponseEntity<List<LessonResponse>> {
         return ResponseEntity.ok(catalogService.getLessonsByModuleId(moduleId, userId))
+    }
+
+    @GetMapping(PathConstants.MODULES_IDS)
+    fun getModulesByIdList(@RequestParam moduleIds: List<UUID>) : ResponseEntity<List<ModuleResponse>> {
+        return ResponseEntity.ok(catalogService.getModulesByIds(moduleIds))
+    }
+
+    @GetMapping(PathConstants.LESSONS_IDS)
+    fun getLessonsByIdList(@PathVariable userId: UUID, @RequestParam lessonIds: List<UUID>) : ResponseEntity<List<LessonResponse>> {
+        return ResponseEntity.ok(catalogService.getLessonsByIds(lessonIds, userId))
     }
 
 

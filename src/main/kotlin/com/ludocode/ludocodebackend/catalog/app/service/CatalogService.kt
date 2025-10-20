@@ -12,6 +12,7 @@ import com.ludocode.ludocodebackend.catalog.app.mapper.LessonMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.ModuleMapper
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
+import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.infra.projection.ExerciseFlatProjection
 import com.ludocode.ludocodebackend.catalog.infra.projection.ModuleLessonProjection
 import com.ludocode.ludocodebackend.catalog.infra.projection.UserLessonProjection
@@ -41,6 +42,8 @@ class CatalogService(
         return courseMapper.toCourseResponseList(courseRepository.findAll())
     }
 
+
+
     fun getCourseTree (userId: UUID, courseId: UUID): CourseTreeResponse {
         val course: Course = courseRepository.findById(courseId).orElseThrow()
         val modulesWithLessons: List<ModuleLessonProjection> = moduleRepository.findCourseTree(courseId, userId)
@@ -59,6 +62,16 @@ class CatalogService(
 
     fun getLessonsByModuleId (moduleId: UUID, userId: UUID): List<LessonResponse> {
         val lessons: List<UserLessonProjection> = lessonRepository.findUserLessons(moduleId, userId)
+        return lessonMapper.toLessonResponseList(lessons)
+    }
+
+    fun getModulesByIds (moduleIds: List<UUID>) : List<ModuleResponse> {
+        val modules: List<Module> = moduleRepository.findAllByIdIn(moduleIds)
+        return moduleMapper.toModuleResponseList(modules)
+    }
+
+    fun getLessonsByIds (lessonIds: List<UUID>, userId: UUID): List<LessonResponse> {
+        val lessons: List<UserLessonProjection> = lessonRepository.findUserLessonsByIds(lessonIds, userId)
         return lessonMapper.toLessonResponseList(lessons)
     }
 

@@ -11,6 +11,8 @@ interface ModuleRepository : JpaRepository<Module, UUID> {
 
     fun findAllByCourseId(courseId: UUID): List<Module>
 
+    fun findAllByIdIn(ids: List<UUID>): List<Module>
+
     @Query(
         value = """
         SELECT 
