@@ -3,23 +3,26 @@ package com.ludocode.ludocodebackend.progress.app.mapper
 import com.ludocode.ludocodebackend.commons.mapper.BasicMapper
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
+import com.ludocode.ludocodebackend.progress.infra.projection.CourseProgressWithModuleProjection
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 @Component
 class CourseProgressMapper (private val basicMapper: BasicMapper) {
 
     //TODO check this !! stuff for course progress
 
-    fun toCourseProgressResponse(courseProgress: CourseProgress): CourseProgressResponse =
+    fun toCourseProgressResponse(courseProgress: CourseProgressWithModuleProjection): CourseProgressResponse =
         basicMapper.one(courseProgress) {
             CourseProgressResponse(
-                courseId = courseProgress.id.courseId!!,
-                userId = courseProgress.id.userId!!,
-                currentLessonId = courseProgress.currentLessonId!!
+                courseId = courseProgress.courseId(),
+                userId = courseProgress.userId(),
+                currentLessonId = courseProgress.currentLessonId(),
+                moduleId = courseProgress.moduleId()!!
             )
         }
 
-    fun toCourseProgressResponseList(courseProgressList: List<CourseProgress>): List<CourseProgressResponse> =
+    fun toCourseProgressResponseList(courseProgressList: List<CourseProgressWithModuleProjection>): List<CourseProgressResponse> =
         basicMapper.list(courseProgressList) {courseProgress ->
             toCourseProgressResponse(courseProgress)
         }

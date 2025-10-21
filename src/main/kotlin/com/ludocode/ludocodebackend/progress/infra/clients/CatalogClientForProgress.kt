@@ -19,5 +19,11 @@ class CatalogClientForProgress (
         return resp.body ?: error("Could not find first lesson")
     }
 
+    override fun findModuleIdForLesson(lessonId: UUID): UUID? {
+        val url = "$catalogServiceBaseUrl$ICATALOG/$lessonId/module"
+        val resp = rest.getForEntity(url, UUID::class.java)
+        return resp.body ?: error("Could not find Module ID")
+    }
+
 
 }

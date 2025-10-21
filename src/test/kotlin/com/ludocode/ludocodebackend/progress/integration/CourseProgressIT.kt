@@ -8,7 +8,7 @@ import com.ludocode.ludocodebackend.commons.constants.PathConstants.USER_COURSE_
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
-import com.ludocode.ludocodebackend.progress.infra.CourseProgressRepository
+import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import io.restassured.RestAssured.given

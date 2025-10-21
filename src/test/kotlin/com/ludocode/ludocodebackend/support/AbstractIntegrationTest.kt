@@ -3,8 +3,8 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.infra.repository.*
-import com.ludocode.ludocodebackend.progress.infra.CourseProgressRepository
-import com.ludocode.ludocodebackend.progress.infra.LessonCompletionRepository
+import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
+import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import io.restassured.RestAssured

@@ -4,7 +4,7 @@ import com.ludocode.ludocodebackend.commons.constants.PathConstants.UPDATE_COURS
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
-import com.ludocode.ludocodebackend.progress.infra.CourseProgressRepository
+import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.user.api.dto.request.ChangeCourseRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UpdatedCourseResponse

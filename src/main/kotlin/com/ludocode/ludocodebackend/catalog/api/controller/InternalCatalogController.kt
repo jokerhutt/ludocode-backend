@@ -20,4 +20,9 @@ class InternalCatalogController (
         return ResponseEntity.ok(catalogUseCase.findFirstLessonIdInCourse(courseId))
     }
 
+    @GetMapping(InternalPathConstants.ILESSON_MODULE_ID)
+    fun getModuleIdForLesson(@PathVariable lessonId: UUID) : ResponseEntity<UUID> {
+        return ResponseEntity.ok(catalogUseCase.findModuleIdForLesson(lessonId))
+    }
+
 }

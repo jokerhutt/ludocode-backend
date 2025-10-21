@@ -51,6 +51,13 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
 
 
     @Query(
+        "SELECT module_id FROM lesson WHERE id = :lessonId",
+        nativeQuery = true
+    )
+    fun findModuleIdForLesson(lessonId: UUID): UUID?
+
+
+    @Query(
         value = """
     select l.id
     from lesson l

@@ -43,6 +43,10 @@ class CatalogService(
        return lessonRepository.findFirstLessonIdInCourse(courseId)
     }
 
+    override fun findModuleIdForLesson(lessonId: UUID): UUID? {
+       return lessonRepository.findModuleIdForLesson(lessonId)
+    }
+
     fun getAllCourses (): List<CourseResponse> {
         return courseMapper.toCourseResponseList(courseRepository.findAll())
     }
