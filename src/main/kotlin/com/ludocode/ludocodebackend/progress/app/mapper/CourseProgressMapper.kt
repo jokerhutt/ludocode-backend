@@ -13,8 +13,8 @@ class CourseProgressMapper (private val basicMapper: BasicMapper) {
     fun toCourseProgressResponse(courseProgress: CourseProgress): CourseProgressResponse =
         basicMapper.one(courseProgress) {
             CourseProgressResponse(
-                courseId = courseProgress.id.courseId,
-                userId = courseProgress.id.userId,
+                courseId = courseProgress.id.courseId!!,
+                userId = courseProgress.id.userId!!,
                 currentLessonId = courseProgress.currentLessonId!!
             )
         }

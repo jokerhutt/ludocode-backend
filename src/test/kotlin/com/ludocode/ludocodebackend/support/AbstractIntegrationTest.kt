@@ -28,8 +28,11 @@ abstract class AbstractIntegrationTest {
 
 
     lateinit var pythonCourse: Course
+    lateinit var swiftCourse: Course
     lateinit var pyModule1: Module
     lateinit var pyModule2: Module
+    lateinit var swiftModule1: Module
+    lateinit var swiftModuleLessons: List<Lesson>
     lateinit var pyModule1Lessons: List<Lesson>
     lateinit var pyModule2Lessons: List<Lesson>
     lateinit var user1: User
@@ -113,6 +116,9 @@ abstract class AbstractIntegrationTest {
         pyModule1 = moduleRepository.save(Module(title = "Variables", courseId = pythonCourse.id, orderIndex = 1))
         pyModule2 = moduleRepository.save(Module(title = "Conditionals", courseId = pythonCourse.id, orderIndex = 2))
 
+        swiftCourse = courseRepository.save(Course(title = "Swift"))
+        swiftModule1 = moduleRepository.save(Module(title = "Variables", courseId = swiftCourse.id, orderIndex = 1))
+
         pyModule1Lessons = lessonRepository.saveAll(
             listOf(
             Lesson(title = "Variables I", moduleId = pyModule1.id, orderIndex = 1),
@@ -130,6 +136,13 @@ abstract class AbstractIntegrationTest {
                 Lesson(title = "Switch", moduleId = pyModule2.id, orderIndex = 4),
             )
         )
+
+        swiftModuleLessons = lessonRepository.saveAll(listOf(
+            Lesson(title = "Variables I", moduleId = swiftModule1.id, orderIndex = 1),
+            Lesson(title = "Variables II", moduleId = swiftModule1.id, orderIndex = 2),
+            Lesson(title = "Data Types I", moduleId = swiftModule1.id, orderIndex = 3),
+            Lesson(title = "Data Types II", moduleId = swiftModule1.id, orderIndex = 4),
+        ))
 
     }
 

@@ -1,5 +1,8 @@
 package com.ludocode.ludocodebackend.user.app.service
 
+import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
+import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.mapper.UserMapper
@@ -66,5 +69,9 @@ class UserService(
         user.currentCourse = newCourseId
         return userMapper.toUserResponse(user)
     }
+
+
+
+
 
 }
