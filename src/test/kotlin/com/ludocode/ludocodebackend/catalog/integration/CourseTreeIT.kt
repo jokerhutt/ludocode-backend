@@ -43,8 +43,9 @@ class CourseTreeIT : AbstractIntegrationTest() {
 
     private fun submitGetCourseTree (courseId: UUID, userId: UUID): CourseTreeResponse {
         return given()
+            .header("X-Test-User-Id", userId.toString())
             .`when`()
-            .get("${PathConstants.CATALOG}/courses/$courseId/$userId/tree")
+            .get("${PathConstants.CATALOG}/courses/$courseId/tree")
             .then()
             .statusCode(200)
             .extract()

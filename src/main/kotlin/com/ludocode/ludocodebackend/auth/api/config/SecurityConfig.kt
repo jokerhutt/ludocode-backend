@@ -4,12 +4,14 @@ import com.ludocode.ludocodebackend.auth.api.security.JwtCookieAuthenticationFil
 import com.ludocode.ludocodebackend.commons.constants.PublicEndpointConstants
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
+@Profile("!test")
 class SecurityConfig(
     private val jwtFilter: JwtCookieAuthenticationFilter
 ) {

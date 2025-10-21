@@ -25,7 +25,7 @@ class UserController(private val userService: UserService) {
 
     @PatchMapping(PathConstants.UPDATE_COURSE)
     fun updateCurrentCourse(
-        @RequestBody request: ChangeCourseRequest, @AuthenticationPrincipal(expression = "id") userId: UUID
+        @RequestBody request: ChangeCourseRequest, @AuthenticationPrincipal userId: UUID
     ): ResponseEntity<UserResponse> {
         return ResponseEntity.ok(userService.updateCourse(userId, request.newCourseId))
     }

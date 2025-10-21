@@ -2,15 +2,12 @@ package com.ludocode.ludocodebackend.support
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
-import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
-import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseOptionRepository
-import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseRepository
-import com.ludocode.ludocodebackend.catalog.infra.repository.LessonRepository
-import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.*
+import com.ludocode.ludocodebackend.progress.infra.CourseProgressRepository
 import com.ludocode.ludocodebackend.progress.infra.LessonCompletionRepository
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
-import io.restassured.RestAssured;
+import io.restassured.RestAssured
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,22 +15,23 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import java.time.OffsetDateTime
 
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 @Import(TestSecurityConfig::class)
 abstract class AbstractIntegrationTest {
 
-    @Autowired
-    private lateinit var userRepository: UserRepository
+
     lateinit var pythonCourse: Course
     lateinit var pyModule1: Module
     lateinit var pyModule2: Module
     lateinit var pyModule1Lessons: List<Lesson>
     lateinit var pyModule2Lessons: List<Lesson>
-
     lateinit var user1: User
 
 
@@ -61,6 +59,8 @@ abstract class AbstractIntegrationTest {
     @LocalServerPort
     protected var port: Int = 0
 
+    @Autowired lateinit var courseProgressRepository: CourseProgressRepository
+    @Autowired lateinit var userRepository: UserRepository
     @Autowired lateinit var courseRepository: CourseRepository
     @Autowired lateinit var lessonRepository: LessonRepository
     @Autowired lateinit var moduleRepository: ModuleRepository
@@ -83,12 +83,13 @@ abstract class AbstractIntegrationTest {
             """
         TRUNCATE TABLE 
           lesson_completion,
+          course_progress,
+          ludo_user,
           exercise_option,
           exercise,
           lesson, 
           module, 
-          course, 
-          ludo_user
+          course
         RESTART IDENTITY CASCADE
         """.trimIndent()
         )
@@ -99,6 +100,9 @@ abstract class AbstractIntegrationTest {
     }
 
     protected fun initializeUsers () {
+
+
+
         user1 = userRepository.save(
             User(firstName = "John", lastName = "Doe", pfpSrc = "Test", createdAt = OffsetDateTime.now(), currentCourse = pythonCourse.id, email = "email@google.com"))
     }

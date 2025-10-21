@@ -1,15 +1,44 @@
 package com.ludocode.ludocodebackend.support
 
+import jakarta.servlet.FilterChain
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Profile
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
+import org.springframework.web.filter.OncePerRequestFilter
+import java.util.UUID
 
 @TestConfiguration
+@Profile("test")
 class TestSecurityConfig {
     @Bean
-    fun filterChain(http: HttpSecurity): SecurityFilterChain =
-        http.csrf { it.disable() }
+    fun testFilterChain(http: HttpSecurity): SecurityFilterChain {
+        http
+            .csrf { it.disable() }
             .authorizeHttpRequests { it.anyRequest().permitAll() }
-            .build()
+            .addFilterBefore(HeaderAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
+        return http.build()
+    }
+
+    private object HeaderAuthFilter : OncePerRequestFilter() {
+        override fun doFilterInternal(req: HttpServletRequest, res: HttpServletResponse, chain: FilterChain) {
+            val header = req.getHeader("X-Test-User-Id")
+            if (header != null && SecurityContextHolder.getContext().authentication == null) {
+                val principal = try { UUID.fromString(header) } catch (_: Exception) { null }
+                if (principal != null) {
+                    val auth = UsernamePasswordAuthenticationToken(principal, null, emptyList())
+                    auth.details = WebAuthenticationDetailsSource().buildDetails(req)
+                    SecurityContextHolder.getContext().authentication = auth
+                }
+            }
+            chain.doFilter(req, res)
+        }
+    }
 }

@@ -27,7 +27,7 @@ class AuthController(private val authService: AuthService) {
 
     @GetMapping(PathConstants.AUTH_ME)
     fun getCurrentUser(
-        @AuthenticationPrincipal(expression = "id") userId: UUID
+        @AuthenticationPrincipal userId: UUID
     ) : ResponseEntity<UserResponse> {
         return ResponseEntity.ok(authService.getAuthenticatedUser(userId))
     }

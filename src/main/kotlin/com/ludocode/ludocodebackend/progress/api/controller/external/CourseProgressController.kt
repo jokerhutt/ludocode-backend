@@ -12,7 +12,7 @@ import java.util.UUID
 class CourseProgressController {
 
     @GetMapping(PathConstants.USER_COURSE_PROGRESS)
-    fun getCourseProgressList (@AuthenticationPrincipal(expression = "id") userId: UUID) {
+    fun getCourseProgressList (@AuthenticationPrincipal userId: UUID) {
 
     }
 

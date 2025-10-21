@@ -71,15 +71,6 @@ class ExercisesIT : AbstractIntegrationTest() {
             assertThat(res.lessonId).isEqualTo(lesson2.id)
         }
 
-
-
-
-
-
-
-
-
-
     }
 
     private fun submitGetExercisesByLessonId(lessonId: UUID): List<ExerciseResponse> =
