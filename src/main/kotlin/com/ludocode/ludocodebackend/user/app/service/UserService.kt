@@ -4,9 +4,11 @@ import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
+import com.ludocode.ludocodebackend.user.api.dto.response.UpdatedCourseResponse
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.mapper.UserMapper
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserUseCase
+import com.ludocode.ludocodebackend.user.app.port.out.CourseProgressPort
 import com.ludocode.ludocodebackend.user.domain.entity.ExternalAccount
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.infra.repository.ExternalAccountRepository
@@ -20,7 +22,8 @@ import java.util.UUID
 class UserService(
     private val userRepository: UserRepository,              // ✅ JPA direct
     private val externalAccountRepository: ExternalAccountRepository, // ✅ JPA direct
-    private val userMapper: UserMapper
+    private val userMapper: UserMapper,
+    private val courseProgressPort: CourseProgressPort
 ) : UserUseCase {
 
     @Transactional
@@ -64,10 +67,13 @@ class UserService(
     }
 
     @Transactional
-    fun updateCourse(userId: UUID, newCourseId: UUID) : UserResponse {
+    fun updateCourse(userId: UUID, newCourseId: UUID) : UpdatedCourseResponse {
         val user = userRepository.findById(userId).orElseThrow()
         user.currentCourse = newCourseId
-        return userMapper.toUserResponse(user)
+        val userResponse = userMapper.toUserResponse(user)
+        val courseProgressResponse = courseProgressPort.findOrCreate(userId, newCourseId)
+        return UpdatedCourseResponse(user = userResponse, courseProgess = courseProgressResponse)
+
     }
 
 

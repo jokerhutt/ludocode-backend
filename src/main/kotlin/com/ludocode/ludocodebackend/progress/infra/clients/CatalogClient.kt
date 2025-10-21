@@ -15,7 +15,7 @@ class CatalogClient (
 ): CatalogPort {
 
     override fun findFirstLessonIdInCourse(courseId: UUID): UUID? {
-        val url = "$catalogServiceBaseUrl$ICATALOG$IFIRST_LESSON_ID/$courseId"
+        val url = "$catalogServiceBaseUrl$ICATALOG/$courseId/first"
         val resp = rest.getForEntity(url, UUID::class.java)
         return resp.body ?: error("Could not find first lesson")
     }

@@ -14,6 +14,9 @@ object InternalPathConstants {
     const val ICATALOG: String = "$INTERNAL_V1/catalog"
     const val IFIRST_LESSON_ID: String = "/{courseId}/first"
 
+    const val ICOURSEPROGRESS: String = "$INTERNAL_V1/progress/course"
+    const val ICOURSEPROGRESSFINDCREATE: String = "/{courseId}/{userId}"
+
 
 
 

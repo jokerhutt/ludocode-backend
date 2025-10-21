@@ -21,7 +21,7 @@ import org.springframework.test.context.DynamicPropertySource
 import java.time.OffsetDateTime
 
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
 @Import(TestSecurityConfig::class)
 abstract class AbstractIntegrationTest {
@@ -77,7 +77,7 @@ abstract class AbstractIntegrationTest {
     @BeforeEach
     fun restAssuredBase() {
         RestAssured.baseURI = "http://localhost"
-        RestAssured.port = port
+        RestAssured.port = 18080
     }
 
     @BeforeEach

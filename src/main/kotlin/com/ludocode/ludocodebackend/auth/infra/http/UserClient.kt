@@ -17,6 +17,7 @@ class UserClient(
 ) : UserPort {
 
     override fun findOrCreate(req: FindOrCreateUserRequest): UserResponse {
+
         val url = "$userServiceBaseUrl$IUSERS$IUSERS_FIND_CREATE"
         val resp = rest.postForEntity(url, req, UserResponse::class.java)
         return resp.body ?: error("User service returned empty body")

@@ -21,7 +21,7 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
     @Query(
         value = """
         INSERT INTO course_progress (user_id, course_id, current_lesson_id, created_at)
-        VALUES (:userId, :courseId, :firstLessonId, now(), 0)
+        VALUES (:userId, :courseId, :firstLessonId, now())
         ON CONFLICT (user_id, course_id) DO UPDATE
           SET current_lesson_id = COALESCE(course_progress.current_lesson_id, EXCLUDED.current_lesson_id)
         """,
