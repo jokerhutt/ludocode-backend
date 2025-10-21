@@ -31,4 +31,6 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
 
 
 
+
+
 }

@@ -31,6 +31,10 @@ class CourseProgressService(
 
     }
 
+    fun findCourseProgressList(userId: UUID) : List<CourseProgressResponse> {
+        return courseProgressMapper.toCourseProgressResponseList(courseProgressRepository.findAllByIdUserId(userId))
+    }
+
 
 
 

@@ -30,8 +30,14 @@ object PathConstants {
 
     const val USERS : String = "$API_V1/users"
     const val USERS_IDS : String = "/ids"
-
     const val UPDATE_COURSE : String = "/update/course"
+
+
+    const val PROGRESS : String = "$API_V1/progress"
+    const val PROGRESS_COURSE : String = "$PROGRESS/course"
+
+    const val USER_COURSE_PROGRESS : String = "/list"
+
 
 
 

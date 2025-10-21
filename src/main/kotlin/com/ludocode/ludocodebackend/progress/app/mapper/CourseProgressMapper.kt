@@ -19,4 +19,9 @@ class CourseProgressMapper (private val basicMapper: BasicMapper) {
             )
         }
 
+    fun toCourseProgressResponseList(courseProgressList: List<CourseProgress>): List<CourseProgressResponse> =
+        basicMapper.list(courseProgressList) {courseProgress ->
+            toCourseProgressResponse(courseProgress)
+        }
+
 }
