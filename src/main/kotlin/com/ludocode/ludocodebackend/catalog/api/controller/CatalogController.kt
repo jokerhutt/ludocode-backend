@@ -27,7 +27,7 @@ class CatalogController(private val catalogService: CatalogService) {
     }
 
     @GetMapping(PathConstants.COURSE_TREE)
-    fun getCourseTree(@PathVariable courseId: UUID, @AuthenticationPrincipal userId: UUID): ResponseEntity<CourseTreeResponse> {
+    fun getCourseTree(@PathVariable courseId: UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<CourseTreeResponse> {
         return ResponseEntity.ok(catalogService.getCourseTree(userId, courseId))
     }
 
@@ -42,7 +42,7 @@ class CatalogController(private val catalogService: CatalogService) {
     }
 
     @GetMapping(PathConstants.LESSONS_MODULE_ID)
-    fun getLessonsByModuleId(@PathVariable moduleId: UUID, @AuthenticationPrincipal userId: UUID) : ResponseEntity<List<LessonResponse>> {
+    fun getLessonsByModuleId(@PathVariable moduleId: UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<List<LessonResponse>> {
         return ResponseEntity.ok(catalogService.getLessonsByModuleId(moduleId, userId))
     }
 
@@ -52,7 +52,7 @@ class CatalogController(private val catalogService: CatalogService) {
     }
 
     @GetMapping(PathConstants.LESSONS_IDS)
-    fun getLessonsByIdList(@RequestParam lessonIds: List<UUID>, @AuthenticationPrincipal userId: UUID) : ResponseEntity<List<LessonResponse>> {
+    fun getLessonsByIdList(@RequestParam lessonIds: List<UUID>, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<List<LessonResponse>> {
         return ResponseEntity.ok(catalogService.getLessonsByIds(lessonIds, userId))
     }
 

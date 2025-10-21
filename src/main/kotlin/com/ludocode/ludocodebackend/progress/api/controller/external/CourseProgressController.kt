@@ -15,7 +15,7 @@ import java.util.UUID
 class CourseProgressController(private val courseProgressService: CourseProgressService) {
 
     @GetMapping(PathConstants.USER_COURSE_PROGRESS)
-    fun getCourseProgressList (@AuthenticationPrincipal userId: UUID): ResponseEntity<List<CourseProgressResponse>> {
+    fun getCourseProgressList (@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<List<CourseProgressResponse>> {
         return ResponseEntity.ok(courseProgressService.findCourseProgressList(userId))
     }
 
