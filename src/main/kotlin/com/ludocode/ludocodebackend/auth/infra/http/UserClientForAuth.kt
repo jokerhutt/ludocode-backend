@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.auth.infra.http
 
-import com.ludocode.ludocodebackend.auth.app.port.out.UserPort
+import com.ludocode.ludocodebackend.auth.app.port.out.UserPortForAuth
 import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants.IUSERS
 import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants.IUSERS_FIND_CREATE
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
@@ -11,10 +11,10 @@ import org.springframework.web.client.RestTemplate
 import java.util.UUID
 
 @Component
-class UserClient(
+class UserClientForAuth(
     private val rest: RestTemplate,
     @Value("\${user.service.base-url}") private val userServiceBaseUrl: String
-) : UserPort {
+) : UserPortForAuth {
 
     override fun findOrCreate(req: FindOrCreateUserRequest): UserResponse {
 

@@ -3,8 +3,7 @@ package com.ludocode.ludocodebackend.progress.app.service
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.progress.app.mapper.CourseProgressMapper
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressUseCase
-import com.ludocode.ludocodebackend.progress.app.port.out.CatalogPort
-import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
+import com.ludocode.ludocodebackend.progress.app.port.out.CatalogPortForProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.infra.CourseProgressRepository
 import jakarta.transaction.Transactional
@@ -14,7 +13,7 @@ import java.util.UUID
 @Service
 class CourseProgressService(
     private val courseProgressRepository: CourseProgressRepository,
-    private val catalogPort: CatalogPort,
+    private val catalogPortForProgress: CatalogPortForProgress,
     private val courseProgressMapper: CourseProgressMapper
 ) : CourseProgressUseCase {
 
@@ -22,7 +21,7 @@ class CourseProgressService(
     override fun findOrCreate(userId: UUID, courseId: UUID) : CourseProgressResponse {
 
         val courseProgressId = CourseProgressId(userId, courseId)
-        val firstLessonOfCourse = catalogPort.findFirstLessonIdInCourse(courseId)
+        val firstLessonOfCourse = catalogPortForProgress.findFirstLessonIdInCourse(courseId)
 
         courseProgressRepository.upsert(userId, courseId, firstLessonOfCourse!!)
 

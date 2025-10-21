@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.auth.app.service
 
 import com.ludocode.ludocodebackend.auth.app.port.out.GoogleAuthOutboundPort
-import com.ludocode.ludocodebackend.auth.app.port.out.UserPort
+import com.ludocode.ludocodebackend.auth.app.port.out.UserPortForAuth
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
@@ -13,7 +13,7 @@ import java.util.UUID
 @Service
 class AuthService(
     private val googleAuth: GoogleAuthOutboundPort,
-    private val userPort: UserPort,
+    private val userPortForAuth: UserPortForAuth,
     private val jwtService: JwtService,
     private val authCookieService: AuthCookieService
 ) {
@@ -33,7 +33,7 @@ class AuthService(
         val avatar = claims.getStringClaim("picture")
 
         // 3) Ask User microservice to findOrCreate the user
-        val user = userPort.findOrCreate(
+        val user = userPortForAuth.findOrCreate(
             FindOrCreateUserRequest(
                 provider = AuthProvider.GOOGLE,
                 providerUserId = providerSub,
@@ -53,7 +53,7 @@ class AuthService(
     }
 
     fun getAuthenticatedUser (id: UUID) : UserResponse {
-        return userPort.getById(id)
+        return userPortForAuth.getById(id)
     }
 
 
