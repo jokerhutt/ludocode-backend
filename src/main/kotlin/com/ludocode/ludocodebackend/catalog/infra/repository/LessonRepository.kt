@@ -49,4 +49,18 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
         @Param("userId") userId: UUID
     ): List<UserLessonProjection>
 
+
+    @Query(
+        value = """
+    select l.id
+    from lesson l
+    join module m on m.id = l.module_id
+    where m.course_id = :courseId
+    order by m.order_index asc, l.order_index asc
+    limit 1
+  """,
+        nativeQuery = true
+    )
+    fun findFirstLessonIdInCourse(@Param("courseId") courseId: UUID): UUID?
+
 }

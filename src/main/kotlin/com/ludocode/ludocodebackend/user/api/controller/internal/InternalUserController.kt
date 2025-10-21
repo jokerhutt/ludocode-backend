@@ -13,17 +13,17 @@ import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
 @RestController
-@RequestMapping(InternalPathConstants.USERS)
+@RequestMapping(InternalPathConstants.IUSERS)
 class InternalUserController(
     private val userUseCase: UserUseCase
 ) {
 
-    @PostMapping(InternalPathConstants.USERS_FIND_CREATE)
+    @PostMapping(InternalPathConstants.IUSERS_FIND_CREATE)
     fun findOrCreate(@RequestBody req: FindOrCreateUserRequest): ResponseEntity<UserResponse> {
         return ResponseEntity.ok(userUseCase.findOrCreate(req))
     }
 
-    @GetMapping(InternalPathConstants.USER_ID)
+    @GetMapping(InternalPathConstants.IUSER_ID)
     fun getById(id: UUID) : ResponseEntity<UserResponse> {
         return ResponseEntity.ok(userUseCase.getById(id))
     }

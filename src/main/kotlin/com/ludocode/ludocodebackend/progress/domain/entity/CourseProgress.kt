@@ -1,0 +1,24 @@
+package com.ludocode.ludocodebackend.progress.domain.entity
+
+import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
+import jakarta.persistence.Column
+import jakarta.persistence.EmbeddedId
+import jakarta.persistence.Entity
+import jakarta.persistence.Table
+import java.time.OffsetDateTime
+import java.util.UUID
+
+@Entity
+@Table(name = "course_progress")
+class CourseProgress (
+
+    @EmbeddedId
+    val id: CourseProgressId,
+
+    @Column(name = "created_at", nullable = false)
+    val createdAt: OffsetDateTime = OffsetDateTime.now(),
+
+    @Column(name = "current_lesson_id")
+    val currentLessonId: UUID? = null
+
+)

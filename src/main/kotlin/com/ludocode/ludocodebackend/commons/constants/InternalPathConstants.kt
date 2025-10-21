@@ -4,9 +4,15 @@ object InternalPathConstants {
 
 
     const val INTERNAL_V1: String = "/internal/v1"
-    const val USERS: String = "$INTERNAL_V1/users"
-    const val USERS_FIND_CREATE: String = "/find-create"
-    const val USER_ID: String = "/{userId}"
+
+
+    const val IUSERS: String = "$INTERNAL_V1/users"
+    const val IUSERS_FIND_CREATE: String = "/find-create"
+    const val IUSER_ID: String = "/{userId}"
+
+
+    const val ICATALOG: String = "$INTERNAL_V1/catalog"
+    const val IFIRST_LESSON_ID: String = "/{courseId}/first"
 
 
 

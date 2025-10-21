@@ -10,6 +10,7 @@ import com.ludocode.ludocodebackend.catalog.app.mapper.CourseTreeMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.ExerciseMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.LessonMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.ModuleMapper
+import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogUseCase
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
@@ -36,13 +37,15 @@ class CatalogService(
     private val moduleMapper: ModuleMapper,
     private val lessonRepository: LessonRepository,
     private val lessonMapper: LessonMapper
-) {
+) : CatalogUseCase {
+
+    override fun findFirstLessonIdInCourse(courseId: UUID): UUID? {
+       return lessonRepository.findFirstLessonIdInCourse(courseId)
+    }
 
     fun getAllCourses (): List<CourseResponse> {
         return courseMapper.toCourseResponseList(courseRepository.findAll())
     }
-
-
 
     fun getCourseTree (userId: UUID, courseId: UUID): CourseTreeResponse {
         val course: Course = courseRepository.findById(courseId).orElseThrow()
