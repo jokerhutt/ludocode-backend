@@ -3,8 +3,8 @@ package com.ludocode.ludocodebackend.progress.infra.projection
 import java.util.UUID
 
 interface CourseProgressWithModuleProjection {
-    fun courseId(): UUID
-    fun userId(): UUID
-    fun currentLessonId(): UUID
-    fun moduleId(): UUID?
+    fun getCourseId(): UUID
+    fun getUserId(): UUID
+    fun getCurrentLessonId(): UUID
+    fun getModuleId(): UUID?
 }

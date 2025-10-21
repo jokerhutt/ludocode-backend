@@ -47,7 +47,11 @@ class CourseProgressIT : AbstractIntegrationTest() {
         val courseProgress2 = response[1]
 
         assertThat(courseProgress1.currentLessonId).isEqualTo(pyModule2Lessons[2].id)
+        assertThat(courseProgress1.moduleId).isEqualTo(pyModule2.id)
+        assertThat(courseProgress1.moduleId).isEqualTo(pyModule2Lessons[2].moduleId)
         assertThat(courseProgress2.currentLessonId).isEqualTo(swiftModuleLessons[2].id)
+        assertThat(courseProgress2.moduleId).isEqualTo(swiftModule1.id)
+        assertThat(courseProgress2.moduleId).isEqualTo(swiftModuleLessons[2].moduleId)
 
     }
 
