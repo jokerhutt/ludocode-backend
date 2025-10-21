@@ -1,20 +1,22 @@
 package com.ludocode.ludocodebackend.user.integration
 
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.UPDATE_COURSE
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
+import com.ludocode.ludocodebackend.progress.infra.CourseProgressRepository
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.user.api.dto.request.ChangeCourseRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UpdatedCourseResponse
 import io.restassured.RestAssured.given
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.springframework.beans.factory.annotation.Autowired
 import java.util.UUID
 import kotlin.test.Test
 
 class UpdateCourseIT : AbstractIntegrationTest() {
+
 
     @BeforeEach
     fun seed () {
@@ -33,7 +35,7 @@ class UpdateCourseIT : AbstractIntegrationTest() {
         user.currentCourse = pythonCourse.id!!
         userRepository.save(user)
 
-        val response = submitPatchUpdateCurrentCourse(userId = user.id!!, newCourseId = swiftCourse.id!!)
+        val response = submitPostUpdateCurrentCourse(userId = user.id!!, newCourseId = swiftCourse.id!!)
 
         assertThat(response).isNotNull()
 
@@ -48,7 +50,26 @@ class UpdateCourseIT : AbstractIntegrationTest() {
 
     }
 
-    private fun submitPatchUpdateCurrentCourse(userId: UUID, newCourseId: UUID): UpdatedCourseResponse =
+    @Test
+    fun updateCourse_createsNewCourseProgress() {
+
+        courseProgressRepository.deleteAll()
+        val user = user1
+        val newCourse = pythonCourse
+        val firstLessonOfCourse = pyModule1Lessons[0]
+
+        val response = submitPostUpdateCurrentCourse(user.id!!, newCourse.id!!)
+
+        assertThat(response).isNotNull()
+        assertThat(response.user.id).isEqualTo(user.id)
+        assertThat(response.user.currentCourse).isEqualTo(newCourse.id)
+        assertThat(response.courseProgess.courseId).isEqualTo(newCourse.id)
+        assertThat(response.courseProgess.currentLessonId).isEqualTo(firstLessonOfCourse.id)
+
+    }
+
+
+    private fun submitPostUpdateCurrentCourse(userId: UUID, newCourseId: UUID): UpdatedCourseResponse =
         given()
             .header("X-Test-User-Id", userId.toString())
             .contentType(io.restassured.http.ContentType.JSON)
