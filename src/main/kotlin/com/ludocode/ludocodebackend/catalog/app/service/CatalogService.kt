@@ -1,13 +1,13 @@
 package com.ludocode.ludocodebackend.catalog.app.service
 
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseTreeResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.LessonResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.ModuleResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTreeResponse
 import com.ludocode.ludocodebackend.catalog.app.mapper.CourseMapper
-import com.ludocode.ludocodebackend.catalog.app.mapper.CourseTreeMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.ExerciseMapper
+import com.ludocode.ludocodebackend.catalog.app.mapper.FlatCourseTreeMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.LessonMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.ModuleMapper
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogUseCase
@@ -15,7 +15,6 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.infra.projection.ExerciseFlatProjection
-import com.ludocode.ludocodebackend.catalog.infra.projection.ModuleLessonProjection
 import com.ludocode.ludocodebackend.catalog.infra.projection.UserLessonProjection
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseRepository
@@ -31,12 +30,12 @@ class CatalogService(
     private val courseMapper: CourseMapper,
     private val courseRepository: CourseRepository,
     private val moduleRepository: ModuleRepository,
-    private val courseTreeMapper: CourseTreeMapper,
     private val exerciseRepository: ExerciseRepository,
     private val exerciseMapper: ExerciseMapper,
     private val moduleMapper: ModuleMapper,
     private val lessonRepository: LessonRepository,
-    private val lessonMapper: LessonMapper
+    private val lessonMapper: LessonMapper,
+    private val flatCourseTreeMapper: FlatCourseTreeMapper
 ) : CatalogUseCase {
 
     override fun findFirstLessonIdInCourse(courseId: UUID): UUID? {
@@ -51,10 +50,9 @@ class CatalogService(
         return courseMapper.toCourseResponseList(courseRepository.findAll())
     }
 
-    fun getCourseTree (userId: UUID, courseId: UUID): CourseTreeResponse {
-        val course: Course = courseRepository.findById(courseId).orElseThrow()
-        val modulesWithLessons: List<ModuleLessonProjection> = moduleRepository.findCourseTree(courseId, userId)
-        return courseTreeMapper.toCourseTree(course, modulesWithLessons)
+    fun getFlatCourseTree(courseId: UUID): FlatCourseTreeResponse {
+        val rows = moduleRepository.findFlatCourseTree(courseId)
+        return flatCourseTreeMapper.toFlatTree(courseId, rows)
     }
 
     fun getExercisesByLessonId (lessonId: UUID): List<ExerciseResponse> {

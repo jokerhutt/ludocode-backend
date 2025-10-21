@@ -1,10 +1,10 @@
 package com.ludocode.ludocodebackend.catalog.api.controller
 
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseTreeResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.LessonResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.ModuleResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTreeResponse
 import com.ludocode.ludocodebackend.catalog.app.service.CatalogService
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import org.springframework.http.ResponseEntity
@@ -27,8 +27,8 @@ class CatalogController(private val catalogService: CatalogService) {
     }
 
     @GetMapping(PathConstants.COURSE_TREE)
-    fun getCourseTree(@PathVariable courseId: UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<CourseTreeResponse> {
-        return ResponseEntity.ok(catalogService.getCourseTree(userId, courseId))
+    fun getCourseTree(@PathVariable courseId: UUID): ResponseEntity<FlatCourseTreeResponse> {
+        return ResponseEntity.ok(catalogService.getFlatCourseTree(courseId))
     }
 
     @GetMapping(PathConstants.EXERCISES_LESSON_ID)

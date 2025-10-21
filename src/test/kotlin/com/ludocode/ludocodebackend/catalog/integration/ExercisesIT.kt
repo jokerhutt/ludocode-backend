@@ -1,7 +1,5 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
-import com.jayway.jsonpath.TypeRef
-import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseTreeResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption

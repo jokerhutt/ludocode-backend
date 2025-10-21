@@ -1,10 +1,8 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
-import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseTreeResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.response.ModuleNodeResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.response.ModuleResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTreeResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatModule
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
-import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.user.domain.entity.User
@@ -29,19 +27,18 @@ class CourseTreeIT : AbstractIntegrationTest() {
         val course: Course = pythonCourse
 
         // == ACT == //
-        val response: CourseTreeResponse = submitGetCourseTree(course.id!!, user.id!!)
+        val response: FlatCourseTreeResponse = submitGetCourseTree(course.id!!, user.id!!)
 
         // == ASSERT == //
         assertThat(response.modules).isNotEmpty()
 
-        for (moduleNode: ModuleNodeResponse in response.modules) {
-            assertThat(moduleNode.module.title).isNotNull()
-            assertThat(moduleNode.lessons).isNotEmpty()
+        for (module: FlatModule in response.modules) {
+            assertThat(module.lessons).isNotEmpty()
         }
 
     }
 
-    private fun submitGetCourseTree (courseId: UUID, userId: UUID): CourseTreeResponse {
+    private fun submitGetCourseTree (courseId: UUID, userId: UUID): FlatCourseTreeResponse {
         return given()
             .header("X-Test-User-Id", userId.toString())
             .`when`()
@@ -49,7 +46,7 @@ class CourseTreeIT : AbstractIntegrationTest() {
             .then()
             .statusCode(200)
             .extract()
-            .`as`(CourseTreeResponse::class.java)
+            .`as`(FlatCourseTreeResponse::class.java)
     }
 
 
