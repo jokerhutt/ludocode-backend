@@ -30,6 +30,10 @@ class CourseProgressService(
         return courseProgressMapper.toCourseProgressResponseList(courseProgressRepository.findAllProgressWithModulesByUser(userId))
     }
 
+    fun findCourseProgress(userId: UUID, courseId: UUID): CourseProgressResponse {
+        return courseProgressMapper.toCourseProgressResponse(courseProgressRepository.findProgressWithModule(userId, courseId)!!)
+    }
+
 
 
 

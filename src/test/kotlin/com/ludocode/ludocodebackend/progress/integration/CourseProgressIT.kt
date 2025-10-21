@@ -1,20 +1,14 @@
 package com.ludocode.ludocodebackend.progress.integration
 
-import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
-import com.ludocode.ludocodebackend.catalog.domain.entity.Course
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROGRESS_COURSE
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.USER_COURSE_PROGRESS
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
-import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import io.restassured.RestAssured.given
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.springframework.beans.factory.annotation.Autowired
 import java.util.UUID
 import kotlin.test.Test
 
