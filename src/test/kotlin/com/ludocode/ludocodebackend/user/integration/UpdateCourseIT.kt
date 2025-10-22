@@ -4,14 +4,12 @@ import com.ludocode.ludocodebackend.commons.constants.PathConstants.UPDATE_COURS
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
-import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.user.api.dto.request.ChangeCourseRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UpdatedCourseResponse
 import io.restassured.RestAssured.given
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.springframework.beans.factory.annotation.Autowired
 import java.util.UUID
 import kotlin.test.Test
 
@@ -40,7 +38,7 @@ class UpdateCourseIT : AbstractIntegrationTest() {
         assertThat(response).isNotNull()
 
         val userResponse = response.user
-        val courseProgressResponse = response.courseProgess
+        val courseProgressResponse = response.courseProgress
 
         assertThat(userResponse.id).isEqualTo(user.id)
         assertThat(userResponse.currentCourse).isEqualTo(swiftCourse.id)
@@ -63,8 +61,8 @@ class UpdateCourseIT : AbstractIntegrationTest() {
         assertThat(response).isNotNull()
         assertThat(response.user.id).isEqualTo(user.id)
         assertThat(response.user.currentCourse).isEqualTo(newCourse.id)
-        assertThat(response.courseProgess.courseId).isEqualTo(newCourse.id)
-        assertThat(response.courseProgess.currentLessonId).isEqualTo(firstLessonOfCourse.id)
+        assertThat(response.courseProgress.courseId).isEqualTo(newCourse.id)
+        assertThat(response.courseProgress.currentLessonId).isEqualTo(firstLessonOfCourse.id)
 
     }
 

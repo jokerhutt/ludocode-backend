@@ -69,7 +69,7 @@ class UserService(
         user.currentCourse = newCourseId
         val userResponse = userMapper.toUserResponse(user)
         val courseProgressResponse = courseProgressPortForUser.findOrCreate(userId, newCourseId)
-        return UpdatedCourseResponse(user = userResponse, courseProgess = courseProgressResponse)
+        return UpdatedCourseResponse(user = userResponse, courseProgress = courseProgressResponse)
 
     }
 
