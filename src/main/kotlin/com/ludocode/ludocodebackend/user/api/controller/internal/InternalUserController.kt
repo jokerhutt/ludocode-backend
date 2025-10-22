@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserUseCase
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -24,8 +25,8 @@ class InternalUserController(
     }
 
     @GetMapping(InternalPathConstants.IUSER_ID)
-    fun getById(id: UUID) : ResponseEntity<UserResponse> {
-        return ResponseEntity.ok(userUseCase.getById(id))
+    fun getById(@PathVariable userId: UUID) : ResponseEntity<UserResponse> {
+        return ResponseEntity.ok(userUseCase.getById(userId))
     }
 
 

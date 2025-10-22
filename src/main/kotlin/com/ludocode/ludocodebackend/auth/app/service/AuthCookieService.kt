@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.auth.app.service
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
 import org.springframework.stereotype.Component
 
@@ -39,15 +40,18 @@ class AuthCookieService {
         request.cookies?.firstOrNull { it.name == cookieName }?.value
 
     private fun addCookie(response: HttpServletResponse, value: String, maxAgeSeconds: Long) {
-        val cookie = ResponseCookie.from(cookieName, value)
+        val b = ResponseCookie.from(cookieName, value)
             .httpOnly(true)
             .secure(secure)
-            .sameSite(sameSite)
+            .sameSite(sameSite)   // "Lax" for same-site localhost; use "None" + secure=true for cross-site
             .path(cookiePath)
-            .domain(if (cookieDomain.isBlank()) null else cookieDomain)
             .maxAge(maxAgeSeconds)
-            .build()
 
-        response.addHeader("Set-Cookie", cookie.toString())
+        if (cookieDomain.isNotBlank()) {
+            b.domain(cookieDomain)   // only set when nonblank; never set for localhost
+        }
+
+        val header = b.build().toString()
+        response.addHeader(HttpHeaders.SET_COOKIE, header)
     }
 }

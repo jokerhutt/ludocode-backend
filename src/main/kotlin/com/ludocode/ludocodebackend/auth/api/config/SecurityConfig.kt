@@ -28,6 +28,7 @@ class SecurityConfig(
                 it.requestMatchers(*PublicEndpointConstants.PUBLIC_ENDPOINTS).permitAll()
                 it.requestMatchers("/internal/**").permitAll()
                 it.requestMatchers("/actuator/**").permitAll()
+                it.requestMatchers("/api/v1/auth/me").authenticated()
                 it.anyRequest().authenticated()
             }
             .httpBasic { it.disable() }

@@ -44,9 +44,10 @@ class JwtCookieAuthenticationFilter(
                 val auth = UsernamePasswordAuthenticationToken(principal, null, emptyList<GrantedAuthority>())
                 auth.details = WebAuthenticationDetailsSource().buildDetails(req)
                 SecurityContextHolder.getContext().authentication = auth
-            } catch (_: ResponseStatusException) {
-                // invalid token → silently ignore
-            }
+            } catch (e: Exception) {
+            println("JWT invalid: ${e.message}")
+            // swallow silently
+        }
         }
         chain.doFilter(req, res)
     }
