@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.progress.api.controller.internal
 
 import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
+import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressUseCase
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PatchMapping
@@ -18,7 +19,7 @@ class InternalCourseProgressController (
 ) {
 
     @PostMapping(InternalPathConstants.ICOURSEPROGRESSFINDCREATE)
-    fun findOrCreate(@PathVariable courseId: UUID, @PathVariable userId: UUID) : ResponseEntity<CourseProgressResponse> {
+    fun findOrCreate(@PathVariable courseId: UUID, @PathVariable userId: UUID) : ResponseEntity<CourseProgressResponseWithEnrolled> {
         return ResponseEntity.ok(courseProgressUseCase.findOrCreate(userId, courseId))
     }
 

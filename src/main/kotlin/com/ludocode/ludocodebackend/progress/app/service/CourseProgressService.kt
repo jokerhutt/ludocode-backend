@@ -1,10 +1,10 @@
 package com.ludocode.ludocodebackend.progress.app.service
 
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
+import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
 import com.ludocode.ludocodebackend.progress.app.mapper.CourseProgressMapper
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressUseCase
 import com.ludocode.ludocodebackend.progress.app.port.out.CatalogPortForProgress
-import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -18,25 +18,25 @@ class CourseProgressService(
 ) : CourseProgressUseCase {
 
     @Transactional
-    override fun findOrCreate(userId: UUID, courseId: UUID) : CourseProgressResponse {
+    override fun findOrCreate(userId: UUID, courseId: UUID) : CourseProgressResponseWithEnrolled {
         val firstLessonOfCourse = catalogPortForProgress.findFirstLessonIdInCourse(courseId)
         courseProgressRepository.upsert(userId, courseId, firstLessonOfCourse!!)
         val userCourseProgress = courseProgressRepository.findProgressWithModule(userId, courseId)
-        return courseProgressMapper.toCourseProgressResponse(userCourseProgress!!)
+        val enrolled = courseProgressRepository.findAllCourseIdsForUser(userId)
+        return courseProgressMapper.toCourseProgressResponseWithEnrolled(userCourseProgress!!, enrolled)
 
     }
 
-    fun findCourseProgressList(userId: UUID) : List<CourseProgressResponse> {
-        return courseProgressMapper.toCourseProgressResponseList(courseProgressRepository.findAllProgressWithModulesByUser(userId))
+    fun getEnrolledCourseIds(userId: UUID) : List<UUID> {
+        return courseProgressRepository.findAllCourseIdsForUser(userId)
+    }
+
+    fun findCourseProgressList(courseIds: List<UUID>, userId: UUID) : List<CourseProgressResponse> {
+        return courseProgressMapper.toCourseProgressResponseList(courseProgressRepository.findAllProgressWithModulesByUserAndCourses(userId, courseIds))
     }
 
     fun findCourseProgress(userId: UUID, courseId: UUID): CourseProgressResponse {
-        return courseProgressMapper.toCourseProgressResponse(courseProgressRepository.findProgressWithModule(userId, courseId)!!)
+        return courseProgressMapper.toCourseProgressResponse(courseProgressRepository.findProgressWithModule(userId, courseId))
     }
-
-
-
-
-
 
 }

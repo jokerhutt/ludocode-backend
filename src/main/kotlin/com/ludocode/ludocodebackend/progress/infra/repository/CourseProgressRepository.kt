@@ -19,18 +19,37 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
         """,
         nativeQuery = true
     )
-    fun findProgressWithModule(userId: UUID, courseId: UUID): CourseProgressWithModuleProjection?
+    fun findProgressWithModule(userId: UUID, courseId: UUID): CourseProgressWithModuleProjection
+
 
     @Query(
         value = """
-        select cp.course_id, cp.user_id, cp.current_lesson_id, l.module_id
-        from course_progress cp
-        left join lesson l on l.id = cp.current_lesson_id
-        where cp.user_id = :userId
-        """,
+    select cp.course_id
+    from course_progress cp
+    where cp.user_id = :userId
+    """,
         nativeQuery = true
     )
-    fun findAllProgressWithModulesByUser(userId: UUID): List<CourseProgressWithModuleProjection>
+    fun findAllCourseIdsForUser(userId: UUID): List<UUID>
+
+    @Query(
+        value = """
+    select 
+      cp.course_id         as courseId,
+      cp.user_id           as userId,
+      cp.current_lesson_id as currentLessonId,
+      l.module_id          as moduleId
+    from course_progress cp
+    left join lesson l on l.id = cp.current_lesson_id
+    where cp.user_id = :userId
+      and cp.course_id in (:courseIds)
+  """,
+        nativeQuery = true
+    )
+    fun findAllProgressWithModulesByUserAndCourses(
+        userId: UUID,
+        courseIds: List<UUID>
+    ): List<CourseProgressWithModuleProjection>
 
     @Modifying
     @Query(

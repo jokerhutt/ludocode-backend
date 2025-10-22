@@ -19,7 +19,7 @@ class UserMapper (private val basicMapper: BasicMapper){
                 pfpSrc = it.pfpSrc!!,
                 email = it.email!!,
                 createdAt = it.createdAt!!,
-                currentCourse = it.currentCourse
+                currentCourse = it.currentCourse  // already nullable UUID?
             )
         }
 

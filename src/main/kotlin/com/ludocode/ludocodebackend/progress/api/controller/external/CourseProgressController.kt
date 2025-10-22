@@ -3,11 +3,13 @@ package com.ludocode.ludocodebackend.progress.api.controller.external
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.progress.app.service.CourseProgressService
+import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
@@ -16,8 +18,13 @@ import java.util.UUID
 class CourseProgressController(private val courseProgressService: CourseProgressService) {
 
     @GetMapping(PathConstants.USER_COURSE_PROGRESS_LIST)
-    fun getCourseProgressList (@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<List<CourseProgressResponse>> {
-        return ResponseEntity.ok(courseProgressService.findCourseProgressList(userId))
+    fun getProgressByCourseIds(@RequestParam courseIds: List<UUID>, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<List<CourseProgressResponse>> {
+        return ResponseEntity.ok(courseProgressService.findCourseProgressList(courseIds, userId))
+    }
+
+    @GetMapping(PathConstants.ENROLLED_IDS)
+    fun getEnrolledCourseIds(@AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<List<UUID>> {
+        return ResponseEntity.ok(courseProgressService.getEnrolledCourseIds(userId))
     }
 
     @GetMapping(PathConstants.USER_COURSE_PROGRESS)

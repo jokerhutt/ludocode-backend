@@ -2,8 +2,10 @@ package com.ludocode.ludocodebackend.progress.app.mapper
 
 import com.ludocode.ludocodebackend.commons.mapper.BasicMapper
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
+import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
 import com.ludocode.ludocodebackend.progress.infra.projection.CourseProgressWithModuleProjection
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 @Component
 class CourseProgressMapper (private val basicMapper: BasicMapper) {
@@ -16,7 +18,8 @@ class CourseProgressMapper (private val basicMapper: BasicMapper) {
                 courseId = courseProgress.getCourseId(),
                 userId = courseProgress.getUserId(),
                 currentLessonId = courseProgress.getCurrentLessonId(),
-                moduleId = courseProgress.getModuleId()!!
+                moduleId = courseProgress.getModuleId()!!,
+                id = courseProgress.getCourseId()
             )
         }
 
@@ -24,5 +27,9 @@ class CourseProgressMapper (private val basicMapper: BasicMapper) {
         basicMapper.list(courseProgressList) {courseProgress ->
             toCourseProgressResponse(courseProgress)
         }
+
+    fun toCourseProgressResponseWithEnrolled(courseProgress: CourseProgressWithModuleProjection, enrolled: List<UUID>) : CourseProgressResponseWithEnrolled {
+        return CourseProgressResponseWithEnrolled(toCourseProgressResponse(courseProgress), enrolled)
+    }
 
 }

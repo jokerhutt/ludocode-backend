@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.user.infra.client
 
 import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants.ICOURSEPROGRESS
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
+import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
 import com.ludocode.ludocodebackend.user.app.port.out.CourseProgressPortForUser
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -14,9 +15,9 @@ class CourseProgressClientForUser (
     @Value("\${course-progress.service.base-url}") private val courseServiceBaseUrl: String
 ): CourseProgressPortForUser {
 
-    override fun findOrCreate(userId: UUID, courseId: UUID): CourseProgressResponse {
+    override fun findOrCreate(userId: UUID, courseId: UUID): CourseProgressResponseWithEnrolled {
         val url = "$courseServiceBaseUrl$ICOURSEPROGRESS/$courseId/$userId"
-        val resp = rest.postForEntity(url, null, CourseProgressResponse::class.java)
+        val resp = rest.postForEntity(url, null, CourseProgressResponseWithEnrolled::class.java)
         return resp.body ?: error("Could not find course progress")
     }
 
