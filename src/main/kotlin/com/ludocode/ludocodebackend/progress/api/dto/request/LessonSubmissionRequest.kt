@@ -4,5 +4,5 @@ import java.util.UUID
 
 data class LessonSubmissionRequest(
     val lessonId: UUID,
-
+    val submissions: List<ExerciseSubmissionRequest>
 )
