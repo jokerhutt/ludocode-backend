@@ -56,6 +56,25 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
     )
     fun findModuleIdForLesson(lessonId: UUID): UUID?
 
+    @Query(
+        """
+    WITH ordered AS (
+      SELECT l.id AS lesson_id,
+             LEAD(l.id) OVER (
+               PARTITION BY m.course_id
+               ORDER BY m.order_index, l.order_index
+             ) AS next_id
+      FROM lesson l
+      JOIN module m ON m.id = l.module_id
+    )
+    SELECT next_id
+    FROM ordered
+    WHERE lesson_id = :currentLesson
+    """,
+        nativeQuery = true
+    )
+    fun findNextLessonId(@Param("currentLesson") currentLesson: UUID): UUID?
+
 
     @Query(
         value = """

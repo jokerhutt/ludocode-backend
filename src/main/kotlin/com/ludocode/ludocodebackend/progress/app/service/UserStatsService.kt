@@ -12,4 +12,10 @@ class UserStatsService(private val userStatsRepository: UserStatsRepository) {
         return userStatsRepository.findById(userId).orElseThrow()
     }
 
+
+
+    fun updateUserStats(userId: UUID, newPoints: Int, newStreak: Int) {
+
+    }
+
 }
