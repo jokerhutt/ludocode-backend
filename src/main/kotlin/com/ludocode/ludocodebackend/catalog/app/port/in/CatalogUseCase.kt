@@ -7,5 +7,6 @@ interface CatalogUseCase {
     fun findFirstLessonIdInCourse(courseId: UUID): UUID?
     fun findModuleIdForLesson(lessonId: UUID): UUID?
     fun findNextLessonId(currentLessonId: UUID): UUID?
+    fun findCourseIdForLesson(lessonId: UUID): UUID?
 
 }

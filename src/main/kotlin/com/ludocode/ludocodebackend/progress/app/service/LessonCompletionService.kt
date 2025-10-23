@@ -27,15 +27,35 @@ class LessonCompletionService(
     private val exerciseAttemptRepository: ExerciseAttemptRepository,
     private val attemptOptionRepository: AttemptOptionRepository,
     private val lessonCompletionRepository: LessonCompletionRepository,
-    private val userStatsService: UserStatsService
+    private val userStatsService: UserStatsService,
+    private val courseProgressService: CourseProgressService
 ) {
 
     @Transactional
     fun submitLessonCompletion (request: LessonSubmissionRequest, userId: UUID) : LessonCompletionPacket {
+        val currentLessonId = request.id
 
-        if (isSubmissionDuplicate(request.id)) return LessonCompletionPacket(content = null, status = LessonCompletionStatus.DUPLICATE)
+        if (isSubmissionDuplicate(currentLessonId)) return LessonCompletionPacket(content = null, status = LessonCompletionStatus.DUPLICATE)
 
-        val currentLessonId = request.lessonId
+        val lessonCompletion = addPointsAndCommitSubmission(request, userId)
+        val scoreForLesson = lessonCompletion.score!!
+
+        val nextLessonId: UUID? = catalogPortForProgress.findNextLessonId(currentLessonId)
+
+
+        val newStats = userStatsService.apply(StatsDelta(userId = userId, pointsDelta = scoreForLesson, streakAction = StreakAction.NONE))
+        val newCourseProgress = courseProgressService.updateLesson(userId, newLessonId = nextLessonId ?: currentLessonId)
+        val responseContent = LessonCompletionResponse(newStats, newCourseProgress)
+
+        if (isCourseComplete(nextLessonId)) return LessonCompletionPacket(content = responseContent, status = LessonCompletionStatus.COURSE_COMPLETE)
+        return LessonCompletionPacket(content = responseContent, status = LessonCompletionStatus.OK)
+
+    }
+
+    @Transactional
+    fun addPointsAndCommitSubmission (request: LessonSubmissionRequest, userId: UUID): LessonCompletion {
+
+        val currentLessonId = request.id
 
         var scoreForLesson = 0
         var isPerfectLesson = true
@@ -66,22 +86,11 @@ class LessonCompletionService(
         if (isPerfectLesson) scoreForLesson += 10
 
         val completion = LessonCompletion(userId = userId, score = scoreForLesson, completedAt = OffsetDateTime.now(), lessonId = currentLessonId)
-
         lessonCompletionRepository.save(completion)
         exerciseAttemptRepository.saveAll(exerciseAttempts)
         attemptOptionRepository.saveAll(attemptOptions)
 
-        val nextLessonId: UUID? = catalogPortForProgress.findNextLessonId(currentLessonId)
-
-
-        if (isCourseComplete(nextLessonId)) return LessonCompletionPacket(content = null, status = LessonCompletionStatus.COURSE_COMPLETE)
-
-        val newStats = userStatsService.apply(StatsDelta(userId = userId, pointsDelta = scoreForLesson, streakAction = StreakAction.NONE))
-
-
-
-
-
+        return completion
     }
 
     private fun isCourseComplete (nextLessonId: UUID?): Boolean = nextLessonId == null

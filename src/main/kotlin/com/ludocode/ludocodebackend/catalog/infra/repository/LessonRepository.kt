@@ -56,6 +56,8 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
     )
     fun findModuleIdForLesson(lessonId: UUID): UUID?
 
+
+
     @Query(
         """
     WITH ordered AS (
@@ -74,6 +76,17 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
         nativeQuery = true
     )
     fun findNextLessonId(@Param("currentLesson") currentLesson: UUID): UUID?
+
+    @Query(
+        """
+        select m.course_id
+        from lesson l
+        join module m on m.id = l.module_id
+        where l.id = :lessonId
+        """,
+        nativeQuery = true
+    )
+    fun findCourseIdByLesson(@Param("lessonId") lessonId: UUID): UUID?
 
 
     @Query(
