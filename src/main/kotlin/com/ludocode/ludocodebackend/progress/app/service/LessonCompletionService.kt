@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.progress.app.service
 
+import com.ludocode.ludocodebackend.progress.api.dto.internal.StatsDelta
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseAttemptRequest
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseSubmissionRequest
 import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionRequest
@@ -10,6 +11,7 @@ import com.ludocode.ludocodebackend.progress.domain.entity.AttemptOption
 import com.ludocode.ludocodebackend.progress.domain.entity.ExerciseAttempt
 import com.ludocode.ludocodebackend.progress.domain.entity.LessonCompletion
 import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
+import com.ludocode.ludocodebackend.progress.domain.enums.StreakAction
 import com.ludocode.ludocodebackend.progress.infra.repository.AttemptOptionRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.ExerciseAttemptRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
@@ -24,15 +26,14 @@ class LessonCompletionService(
     private val catalogPortForProgress: CatalogPortForProgress,
     private val exerciseAttemptRepository: ExerciseAttemptRepository,
     private val attemptOptionRepository: AttemptOptionRepository,
-    private val lessonCompletionRepository: LessonCompletionRepository
+    private val lessonCompletionRepository: LessonCompletionRepository,
+    private val userStatsService: UserStatsService
 ) {
 
     @Transactional
     fun submitLessonCompletion (request: LessonSubmissionRequest, userId: UUID) : LessonCompletionPacket {
 
-        if (lessonCompletionRepository.existsById(request.id)) {
-            return LessonCompletionPacket(content = null, status = LessonCompletionStatus.DUPLICATE)
-        }
+        if (isSubmissionDuplicate(request.id)) return LessonCompletionPacket(content = null, status = LessonCompletionStatus.DUPLICATE)
 
         val currentLessonId = request.lessonId
 
@@ -72,11 +73,19 @@ class LessonCompletionService(
 
         val nextLessonId: UUID? = catalogPortForProgress.findNextLessonId(currentLessonId)
 
-        if (nextLessonId == null) {
-            return LessonCompletionPacket(content = null, status = LessonCompletionStatus.COURSE_COMPLETE)
-        }
+
+        if (isCourseComplete(nextLessonId)) return LessonCompletionPacket(content = null, status = LessonCompletionStatus.COURSE_COMPLETE)
+
+        val newStats = userStatsService.apply(StatsDelta(userId = userId, pointsDelta = scoreForLesson, streakAction = StreakAction.NONE))
+
+
+
+
 
     }
+
+    private fun isCourseComplete (nextLessonId: UUID?): Boolean = nextLessonId == null
+    private fun isSubmissionDuplicate (submissionId: UUID): Boolean = lessonCompletionRepository.existsById(submissionId)
 
     private fun computeScoreForAttempt (attempt: ExerciseAttemptRequest, isPerfect: Boolean) : Int {
         if (isPerfect) {

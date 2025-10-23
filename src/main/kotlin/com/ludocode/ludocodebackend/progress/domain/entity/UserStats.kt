@@ -14,7 +14,6 @@ class UserStats (
     @Column(name = "user_id")
     var userId: UUID,
 
-    @Column(nullable = false) var hearts: Int = 0,
     @Column(nullable = false) var coins: Int = 0,
     @Column(nullable = false) var streak: Int = 0
 
