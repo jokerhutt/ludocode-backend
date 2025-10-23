@@ -18,7 +18,7 @@ class UserStatsService(private val userStatsRepository: UserStatsRepository) {
     @Transactional
     fun apply(delta: StatsDelta): UserStats {
         val stats = userStatsRepository.findById(delta.userId).orElseGet {
-            userStatsRepository.save(UserStats(delta.userId, 0, 0, 0))
+            userStatsRepository.save(UserStats(delta.userId, 0, 0))
         }
         stats.coins += delta.pointsDelta
         when (delta.streakAction) {
