@@ -40,8 +40,12 @@ class CourseProgressService(
     }
 
     @Transactional
-    fun updateLesson(userId: UUID, courseId: UUID, newLessonId: UUID) : CourseProgressResponse {
-        courseProgressRepository.setCurrentLesson(userId = userId, courseId = courseId, newLessonId = newLessonId)
+    fun updateLesson(userId: UUID, courseId: UUID, newLessonId: UUID?) : CourseProgressResponse {
+        if (newLessonId != null) {
+            courseProgressRepository.setCurrentLesson(userId = userId, courseId = courseId, newLessonId = newLessonId)
+        } else {
+            courseProgressRepository.markCourseComplete(userId, courseId)
+        }
         return findCourseProgress(userId, courseId)
     }
 

@@ -22,6 +22,7 @@ import com.ludocode.ludocodebackend.user.api.dto.request.ChangeCourseRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UpdatedCourseResponse
 import io.restassured.RestAssured.given
 import org.assertj.core.api.Assertions.assertThat
+import java.math.BigDecimal
 
 import java.util.UUID
 import kotlin.test.Test
@@ -102,7 +103,8 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         assertThat(content.newCourseProgress.courseId).isEqualTo(pythonCourse.id)
         assertThat(content.newCourseProgress.moduleId).isEqualTo(pyModule2.id)
         assertThat(content.newCourseProgress.userId).isEqualTo(user1.id)
-
+        assertThat(content.accuracy).isGreaterThan(BigDecimal("0.00"))
+        assertThat(content.accuracy).isLessThan(BigDecimal("1.00"))
         assertThat(content.updatedCompletedLesson.id).isEqualTo(lesson1.id)
         assertThat(content.updatedCompletedLesson.isCompleted).isEqualTo(true)
 
@@ -175,7 +177,8 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         assertThat(content.newCourseProgress.currentLessonId).isEqualTo(lesson1.id)
         assertThat(content.newCourseProgress.moduleId).isEqualTo(pyModule2.id)
         assertThat(content.newStats.coins).isGreaterThan(0)
-
+        assertThat(content.accuracy).isGreaterThan(BigDecimal("0.00"))
+        assertThat(content.accuracy).isLessThan(BigDecimal("1.00"))
         assertThat(content.updatedCompletedLesson.id).isEqualTo(lesson1.id)
         assertThat(content.updatedCompletedLesson.isCompleted).isEqualTo(true)
 
@@ -254,6 +257,9 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         assertThat(content.newCourseProgress.courseId).isEqualTo(pythonCourse.id)
         assertThat(content.newCourseProgress.moduleId).isEqualTo(pyModule1.id)
         assertThat(content.newCourseProgress.userId).isEqualTo(user1.id)
+        assertThat(content.accuracy).isGreaterThan(BigDecimal("0.00"))
+        assertThat(content.accuracy).isLessThan(BigDecimal("1.00"))
+        
 
         assertThat(content.updatedCompletedLesson.id).isEqualTo(lesson1.id)
         assertThat(content.updatedCompletedLesson.isCompleted).isEqualTo(true)
@@ -276,3 +282,5 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
 
 }
+
+

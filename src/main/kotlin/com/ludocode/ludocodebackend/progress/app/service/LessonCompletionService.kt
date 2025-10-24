@@ -19,6 +19,8 @@ import com.ludocode.ludocodebackend.progress.infra.repository.ExerciseAttemptRep
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -46,16 +48,14 @@ class LessonCompletionService(
 
         if (isSubmissionDuplicate(currentLessonId)) return LessonCompletionPacket(content = null, status = LessonCompletionStatus.DUPLICATE)
 
-
-
         val lessonCompletion = addPointsAndCommitSubmission(request, userId)
         val scoreForLesson = lessonCompletion.score!!
 
         val newStats = userStatsService.apply(StatsDelta(userId = userId, pointsDelta = scoreForLesson, streakAction = StreakAction.NONE))
-        val newCourseProgress = courseProgressService.updateLesson(userId, newLessonId = nextLessonId ?: currentLessonId, courseId = courseId)
+        val newCourseProgress = courseProgressService.updateLesson(userId, newLessonId = nextLessonId, courseId = courseId)
         val updatedLessonCompletion = catalogPortForProgress.findLessonResponseById(currentLessonId, userId)
         if (!updatedLessonCompletion.isCompleted) updatedLessonCompletion.isCompleted = true
-        val responseContent = LessonCompletionResponse(newStats, newCourseProgress, updatedLessonCompletion)
+        val responseContent = LessonCompletionResponse(newStats, newCourseProgress, updatedLessonCompletion, accuracy = lessonCompletion.accuracy)
 
         if (isCourseComplete(nextLessonId)) return LessonCompletionPacket(content = responseContent, status = LessonCompletionStatus.COURSE_COMPLETE)
         return LessonCompletionPacket(content = responseContent, status = LessonCompletionStatus.OK)
@@ -70,15 +70,23 @@ class LessonCompletionService(
         var scoreForLesson = 0
         var isPerfectLesson = true
 
+        var total = 0
+        var correct = 0
+
         val exerciseAttempts: MutableList<ExerciseAttempt> = mutableListOf()
         val attemptOptions: MutableList<AttemptOption> = mutableListOf()
 
         for (submission: ExerciseSubmissionRequest in request.submissions) {
             var scoreForSubmission: Int = 0
-            var isPerfect: Boolean = submission.attempts.size == 1
+            val attemptsSize = submission.attempts.size
+            total += attemptsSize
+            var isPerfect: Boolean = attemptsSize == 1
             if (!isPerfect) isPerfectLesson = false
 
             for (attempt: ExerciseAttemptRequest in submission.attempts) {
+
+                if (attempt.isCorrect) correct += 1
+
                 scoreForSubmission += computeScoreForAttempt(attempt, isPerfect)
                 val attemptId: UUID = UUID.randomUUID()
                 val parsedAnswer = attempt.answer.joinToString(" ")
@@ -95,7 +103,10 @@ class LessonCompletionService(
 
         if (isPerfectLesson) scoreForLesson += 10
 
-        val completion = LessonCompletion(id = request.id, userId = userId, score = scoreForLesson, completedAt = OffsetDateTime.now(), lessonId = currentLessonId)
+        val accuracy = BigDecimal(correct)
+            .divide(BigDecimal(total), 2, RoundingMode.HALF_UP)
+
+        val completion = LessonCompletion(id = request.id, userId = userId, score = scoreForLesson, completedAt = OffsetDateTime.now(), lessonId = currentLessonId, accuracy = accuracy)
         lessonCompletionRepository.save(completion)
         exerciseAttemptRepository.saveAll(exerciseAttempts)
         attemptOptionRepository.saveAll(attemptOptions)

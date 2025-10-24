@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import org.hibernate.annotations.UuidGenerator
+import java.math.BigDecimal
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -25,6 +26,9 @@ class LessonCompletion(
 
     @Column(name = "score")
     var score: Int? = null,
+
+    @Column(name = "accuracy")
+    var accuracy: BigDecimal,
 
     @Column(name = "completed_at")
     var completedAt: OffsetDateTime? = null

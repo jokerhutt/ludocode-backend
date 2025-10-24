@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.progress.infra.projection.CourseProgressWith
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import java.util.UUID
 
 interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgressId> {
@@ -76,6 +77,21 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
         nativeQuery = true
     )
     fun upsert(userId: UUID, courseId: UUID, firstLessonId: UUID): Int
+
+    @Modifying
+    @Query(
+        value = """
+        UPDATE course_progress
+        SET is_complete = true
+        WHERE user_id = :userId
+        AND course_id = :courseId
+    """,
+        nativeQuery = true
+    )
+    fun markCourseComplete(
+        @Param("userId") userId: UUID,
+        @Param("courseId") courseId: UUID
+    )
 
 
 
