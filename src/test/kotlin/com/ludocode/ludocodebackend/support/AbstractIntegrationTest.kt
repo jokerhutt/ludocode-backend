@@ -3,8 +3,11 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.infra.repository.*
+import com.ludocode.ludocodebackend.progress.infra.repository.AttemptOptionRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
+import com.ludocode.ludocodebackend.progress.infra.repository.ExerciseAttemptRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
+import com.ludocode.ludocodebackend.progress.infra.repository.UserStatsRepository
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import io.restassured.RestAssured
@@ -70,6 +73,9 @@ abstract class AbstractIntegrationTest {
     @Autowired lateinit var exerciseRepository: ExerciseRepository
     @Autowired lateinit var lessonCompletionRepository: LessonCompletionRepository
     @Autowired lateinit var exerciseOptionRepository: ExerciseOptionRepository
+    @Autowired lateinit var userStatsRepository: UserStatsRepository
+    @Autowired lateinit var exerciseAttemptRepository: ExerciseAttemptRepository
+    @Autowired lateinit var attemptOptionRepository: AttemptOptionRepository
 
     @Autowired
     protected lateinit var jdbc: JdbcTemplate
@@ -85,8 +91,11 @@ abstract class AbstractIntegrationTest {
         jdbc.execute(
             """
         TRUNCATE TABLE 
+          attempt_option,
+          exercise_attempt,
           lesson_completion,
           course_progress,
+          user_stats,
           ludo_user,
           exercise_option,
           exercise,

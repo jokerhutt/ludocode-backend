@@ -15,9 +15,7 @@ import java.util.UUID
 class LessonCompletion(
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @UuidGenerator
-    val id: UUID? = null,
+    val id: UUID,
 
     @Column(name = "user_id")
     var userId: UUID? = null,

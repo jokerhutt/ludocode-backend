@@ -14,9 +14,7 @@ import java.util.UUID
 class ExerciseAttempt (
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @UuidGenerator
-    val id: UUID? = null,
+    val id: UUID,
 
     @Column(name = "content")
     var content: String? = null,

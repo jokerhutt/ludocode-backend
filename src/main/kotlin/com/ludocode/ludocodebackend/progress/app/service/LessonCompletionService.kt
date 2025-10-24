@@ -1,5 +1,7 @@
 package com.ludocode.ludocodebackend.progress.app.service
 
+import com.ludocode.ludocodebackend.catalog.api.dto.internal.LessonTreeWithIdDTO
+import com.ludocode.ludocodebackend.catalog.infra.projection.LessonIdTreeProjection
 import com.ludocode.ludocodebackend.progress.api.dto.internal.StatsDelta
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseAttemptRequest
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseSubmissionRequest
@@ -33,18 +35,24 @@ class LessonCompletionService(
 
     @Transactional
     fun submitLessonCompletion (request: LessonSubmissionRequest, userId: UUID) : LessonCompletionPacket {
-        val currentLessonId = request.id
+
+        val currentLessonMD : LessonTreeWithIdDTO = catalogPortForProgress.findLessonIdTree(request.lessonId)
+            ?: throw IllegalStateException("Lesson not found: ${request.lessonId}")
+
+        val currentLessonId = currentLessonMD.lessonId
+        val currentModuleId = currentLessonMD.moduleId
+        val nextLessonId = currentLessonMD.nextLessonId
+        val courseId = currentLessonMD.courseId
 
         if (isSubmissionDuplicate(currentLessonId)) return LessonCompletionPacket(content = null, status = LessonCompletionStatus.DUPLICATE)
+
+
 
         val lessonCompletion = addPointsAndCommitSubmission(request, userId)
         val scoreForLesson = lessonCompletion.score!!
 
-        val nextLessonId: UUID? = catalogPortForProgress.findNextLessonId(currentLessonId)
-
-
         val newStats = userStatsService.apply(StatsDelta(userId = userId, pointsDelta = scoreForLesson, streakAction = StreakAction.NONE))
-        val newCourseProgress = courseProgressService.updateLesson(userId, newLessonId = nextLessonId ?: currentLessonId)
+        val newCourseProgress = courseProgressService.updateLesson(userId, newLessonId = nextLessonId ?: currentLessonId, courseId = courseId)
         val responseContent = LessonCompletionResponse(newStats, newCourseProgress)
 
         if (isCourseComplete(nextLessonId)) return LessonCompletionPacket(content = responseContent, status = LessonCompletionStatus.COURSE_COMPLETE)
@@ -55,7 +63,7 @@ class LessonCompletionService(
     @Transactional
     fun addPointsAndCommitSubmission (request: LessonSubmissionRequest, userId: UUID): LessonCompletion {
 
-        val currentLessonId = request.id
+        val currentLessonId = request.lessonId
 
         var scoreForLesson = 0
         var isPerfectLesson = true
@@ -85,7 +93,7 @@ class LessonCompletionService(
 
         if (isPerfectLesson) scoreForLesson += 10
 
-        val completion = LessonCompletion(userId = userId, score = scoreForLesson, completedAt = OffsetDateTime.now(), lessonId = currentLessonId)
+        val completion = LessonCompletion(id = request.id, userId = userId, score = scoreForLesson, completedAt = OffsetDateTime.now(), lessonId = currentLessonId)
         lessonCompletionRepository.save(completion)
         exerciseAttemptRepository.saveAll(exerciseAttempts)
         attemptOptionRepository.saveAll(attemptOptions)

@@ -36,16 +36,14 @@ class CourseProgressService(
     }
 
     fun findCourseProgress(userId: UUID, courseId: UUID): CourseProgressResponse {
-        return courseProgressMapper.toCourseProgressResponse(courseProgressRepository.findProgressWithModule(userId, courseId))
+        return courseProgressMapper.toCourseProgressResponse(courseProgressRepository.findProgressWithModule(userId, courseId) ?: throw IllegalStateException("progress not found"))
     }
 
     @Transactional
-    fun updateLesson(userId: UUID, newLessonId: UUID) : CourseProgressResponse {
-        val courseId = catalogPortForProgress.findCourseIdForLesson(newLessonId)
-            ?: throw throw IllegalArgumentException("Invalid lessonId: $newLessonId")
-
+    fun updateLesson(userId: UUID, courseId: UUID, newLessonId: UUID) : CourseProgressResponse {
         courseProgressRepository.setCurrentLesson(userId = userId, courseId = courseId, newLessonId = newLessonId)
         return findCourseProgress(userId, courseId)
     }
+
 
 }

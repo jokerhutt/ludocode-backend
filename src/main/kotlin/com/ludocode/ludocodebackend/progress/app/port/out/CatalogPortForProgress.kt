@@ -1,5 +1,7 @@
 package com.ludocode.ludocodebackend.progress.app.port.out
 
+import com.ludocode.ludocodebackend.catalog.api.dto.internal.LessonTreeWithIdDTO
+import com.ludocode.ludocodebackend.catalog.infra.projection.LessonIdTreeProjection
 import java.util.UUID
 
 interface CatalogPortForProgress {
@@ -7,4 +9,5 @@ interface CatalogPortForProgress {
     fun findModuleIdForLesson(lessonId: UUID): UUID?
     fun findCourseIdForLesson(lessonId: UUID): UUID?
     fun findNextLessonId(lessonId: UUID): UUID?
+    fun findLessonIdTree(lessonId: UUID): LessonTreeWithIdDTO?
 }
