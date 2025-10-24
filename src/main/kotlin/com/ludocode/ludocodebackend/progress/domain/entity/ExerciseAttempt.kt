@@ -7,25 +7,22 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import org.hibernate.annotations.UuidGenerator
-import java.time.OffsetDateTime
 import java.util.UUID
 
 @Entity
-@Table(name = "lesson_completion")
-class LessonCompletion(
+@Table(name = "exercise_attempt")
+class ExerciseAttempt (
 
     @Id
     val id: UUID,
 
-    @Column(name = "user_id")
-    var userId: UUID? = null,
+    @Column(name = "content")
+    var content: String? = null,
 
-    @Column(name = "lesson_id")
-    var lessonId: UUID? = null,
+    @Column(name = "answer_order")
+    var answer_order: Int? = null,
 
-    @Column(name = "score")
-    var score: Int? = null,
+    @Column(name = "exercise_id")
+    var exerciseId: UUID? = null
 
-    @Column(name = "completed_at")
-    var completedAt: OffsetDateTime? = null
 )

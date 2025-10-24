@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.catalog.infra.repository
 
 import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
+import com.ludocode.ludocodebackend.catalog.infra.projection.LessonIdTreeProjection
 import com.ludocode.ludocodebackend.catalog.infra.projection.UserLessonProjection
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -57,6 +58,38 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
     fun findModuleIdForLesson(lessonId: UUID): UUID?
 
 
+
+    @Query(
+        """
+    WITH ordered AS (
+      SELECT l.id AS lesson_id,
+             LEAD(l.id) OVER (
+               PARTITION BY m.course_id
+               ORDER BY m.order_index, l.order_index
+             ) AS next_id
+      FROM lesson l
+      JOIN module m ON m.id = l.module_id
+    )
+    SELECT next_id
+    FROM ordered
+    WHERE lesson_id = :currentLesson
+    """,
+        nativeQuery = true
+    )
+    fun findNextLessonId(@Param("currentLesson") currentLesson: UUID): UUID?
+
+    @Query(
+        """
+        select m.course_id
+        from lesson l
+        join module m on m.id = l.module_id
+        where l.id = :lessonId
+        """,
+        nativeQuery = true
+    )
+    fun findCourseIdByLesson(@Param("lessonId") lessonId: UUID): UUID?
+
+
     @Query(
         value = """
     select l.id
@@ -69,5 +102,26 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
         nativeQuery = true
     )
     fun findFirstLessonIdInCourse(@Param("courseId") courseId: UUID): UUID?
+
+    @Query(
+        """
+    WITH ordered AS (
+      SELECT l.id AS lessonId,
+             m.id AS moduleId,
+             m.course_id AS courseId,
+             LEAD(l.id) OVER (
+               PARTITION BY m.course_id
+               ORDER BY m.order_index, l.order_index, l.id
+             ) AS nextLessonId
+      FROM lesson l
+      JOIN module m ON l.module_id = m.id
+    )
+    SELECT lessonId, moduleId, courseId, nextLessonId
+    FROM ordered
+    WHERE lessonId = :lessonId
+    """,
+        nativeQuery = true
+    )
+    fun findLessonIdTree(@Param("lessonId") lessonId: UUID): LessonIdTreeProjection?
 
 }

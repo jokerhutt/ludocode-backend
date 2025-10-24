@@ -1,6 +1,8 @@
 package com.ludocode.ludocodebackend.catalog.api.controller
 
+import com.ludocode.ludocodebackend.catalog.api.dto.internal.LessonTreeWithIdDTO
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogUseCase
+import com.ludocode.ludocodebackend.catalog.infra.projection.LessonIdTreeProjection
 import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -15,6 +17,11 @@ class InternalCatalogController (
     private val catalogUseCase: CatalogUseCase
 ) {
 
+    @GetMapping(InternalPathConstants.ILESSON_ID_TREE)
+    fun getFullLesson(@PathVariable lessonId: UUID) : ResponseEntity<LessonTreeWithIdDTO> {
+        return ResponseEntity.ok(catalogUseCase.findLessonIdTree(lessonId))
+    }
+
     @GetMapping(InternalPathConstants.IFIRST_LESSON_ID)
     fun getFirstLessonIdInCourse(@PathVariable courseId: UUID) : ResponseEntity<UUID> {
         return ResponseEntity.ok(catalogUseCase.findFirstLessonIdInCourse(courseId))
@@ -23,6 +30,16 @@ class InternalCatalogController (
     @GetMapping(InternalPathConstants.ILESSON_MODULE_ID)
     fun getModuleIdForLesson(@PathVariable lessonId: UUID) : ResponseEntity<UUID> {
         return ResponseEntity.ok(catalogUseCase.findModuleIdForLesson(lessonId))
+    }
+
+    @GetMapping(InternalPathConstants.ILESSON_COURSE_ID)
+    fun getCourseIdForLesson(@PathVariable lessonId: UUID) : ResponseEntity<UUID> {
+        return ResponseEntity.ok(catalogUseCase.findCourseIdForLesson(lessonId))
+    }
+
+    @GetMapping(InternalPathConstants.INEXT_LESSON_ID)
+    fun getNextLessonId(@PathVariable lessonId: UUID) : ResponseEntity<UUID> {
+        return ResponseEntity.ok(catalogUseCase.findNextLessonId(lessonId))
     }
 
 }

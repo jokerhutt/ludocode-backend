@@ -31,9 +31,13 @@ class TestSecurityConfig {
         override fun doFilterInternal(req: HttpServletRequest, res: HttpServletResponse, chain: FilterChain) {
             val header = req.getHeader("X-Test-User-Id")
             if (header != null && SecurityContextHolder.getContext().authentication == null) {
-                val principal = try { UUID.fromString(header) } catch (_: Exception) { null }
-                if (principal != null) {
-                    val auth = UsernamePasswordAuthenticationToken(principal, null, emptyList())
+                val uid = runCatching { UUID.fromString(header) }.getOrNull()
+                if (uid != null) {
+                    val auth = UsernamePasswordAuthenticationToken(
+                        AuthUser(uid),
+                        null,
+                        emptyList()
+                    )
                     auth.details = WebAuthenticationDetailsSource().buildDetails(req)
                     SecurityContextHolder.getContext().authentication = auth
                 }

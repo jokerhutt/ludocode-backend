@@ -24,12 +24,14 @@ class CourseProgressIT : AbstractIntegrationTest() {
 
         val user: User = user1
 
-        courseProgressRepository.saveAll(listOf(
+        val progressList = courseProgressRepository.saveAll(listOf(
             CourseProgress(id = CourseProgressId(user.id!!, pythonCourse.id!!), currentLessonId = pyModule2Lessons[2].id),
             CourseProgress(id = CourseProgressId(user.id!!, swiftCourse.id!!), currentLessonId = swiftModuleLessons[2].id)
         ))
 
-        val response = submitGetCourseProgressList(user.id!!)
+        val enrolledIds : List<UUID> = progressList.map { progress -> progress.id.courseId!! }
+
+        val response = submitGetCourseProgressList(user.id!!, enrolledIds)
 
         assertThat(response.size).isEqualTo(2)
         for (res: CourseProgressResponse in response) {
@@ -55,18 +57,19 @@ class CourseProgressIT : AbstractIntegrationTest() {
         val user: User = user1
         courseProgressRepository.deleteAll()
 
-        val response = submitGetCourseProgressList(user.id!!)
+        val response = submitGetCourseProgressList(user.id!!, listOf())
 
         assertThat(response).isEmpty()
 
     }
 
 
-    private fun submitGetCourseProgressList(userId: UUID): List<CourseProgressResponse> =
+    private fun submitGetCourseProgressList(userId: UUID, courseIds: List<UUID>): List<CourseProgressResponse> =
         given()
             .header("X-Test-User-Id", userId.toString())
+            .queryParam("courseIds", courseIds)
             .`when`()
-            .get("$PROGRESS_COURSE/list")
+            .get("$PROGRESS_COURSE/ids")
             .then()
             .statusCode(200)
             .extract()
