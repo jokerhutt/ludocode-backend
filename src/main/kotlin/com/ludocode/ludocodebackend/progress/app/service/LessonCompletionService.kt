@@ -52,12 +52,15 @@ class LessonCompletionService(
         val scoreForLesson = lessonCompletion.score!!
 
         val newStats = userStatsService.apply(StatsDelta(userId = userId, pointsDelta = scoreForLesson, streakAction = StreakAction.NONE))
-        val newCourseProgress = courseProgressService.updateLesson(userId, newLessonId = nextLessonId, courseId = courseId)
+        val newCourseProgressWithCompletion = courseProgressService.updateLesson(userId, newLessonId = nextLessonId, courseId = courseId)
+        val newCourseProgress = newCourseProgressWithCompletion!!.courseProgressResponse
+        val isFirstCompletion = newCourseProgressWithCompletion!!.isFirstCompletion
         val updatedLessonCompletion = catalogPortForProgress.findLessonResponseById(currentLessonId, userId)
         if (!updatedLessonCompletion.isCompleted) updatedLessonCompletion.isCompleted = true
         val responseContent = LessonCompletionResponse(newStats, newCourseProgress, updatedLessonCompletion, accuracy = lessonCompletion.accuracy)
 
-        if (isCourseComplete(nextLessonId)) return LessonCompletionPacket(content = responseContent, status = LessonCompletionStatus.COURSE_COMPLETE)
+        if (isFirstCompletion) return LessonCompletionPacket(content = responseContent, status = LessonCompletionStatus.COURSE_COMPLETE)
+
         return LessonCompletionPacket(content = responseContent, status = LessonCompletionStatus.OK)
 
     }

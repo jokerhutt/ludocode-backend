@@ -80,18 +80,14 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
 
     @Modifying
     @Query(
-        value = """
-        UPDATE course_progress
-        SET is_complete = true
-        WHERE user_id = :userId
-        AND course_id = :courseId
-    """,
-        nativeQuery = true
+        """
+    update course_progress
+       set is_complete = true
+       where user_id = :userId
+       and course_id = :courseId
+    """, nativeQuery = true
     )
-    fun markCourseComplete(
-        @Param("userId") userId: UUID,
-        @Param("courseId") courseId: UUID
-    )
+    fun markCourseComplete(userId: UUID, courseId: UUID): Int
 
 
 

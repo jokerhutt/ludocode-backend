@@ -1,10 +1,12 @@
 package com.ludocode.ludocodebackend.progress.app.service
 
+import com.ludocode.ludocodebackend.progress.api.dto.internal.CourseProgressWithCompletion
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
 import com.ludocode.ludocodebackend.progress.app.mapper.CourseProgressMapper
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressUseCase
 import com.ludocode.ludocodebackend.progress.app.port.out.CatalogPortForProgress
+import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -40,13 +42,18 @@ class CourseProgressService(
     }
 
     @Transactional
-    fun updateLesson(userId: UUID, courseId: UUID, newLessonId: UUID?) : CourseProgressResponse {
+    fun updateLesson(userId: UUID, courseId: UUID, newLessonId: UUID?) : CourseProgressWithCompletion? {
+        var isFirstCompletion = false
         if (newLessonId != null) {
             courseProgressRepository.setCurrentLesson(userId = userId, courseId = courseId, newLessonId = newLessonId)
         } else {
-            courseProgressRepository.markCourseComplete(userId, courseId)
+            val courseProgress = courseProgressRepository.findById(CourseProgressId(userId, courseId)).orElseThrow()
+            if (courseProgress.isComplete == false) {
+                courseProgressRepository.markCourseComplete(userId, courseId)
+                isFirstCompletion = true
+            }
         }
-        return findCourseProgress(userId, courseId)
+        return CourseProgressWithCompletion(findCourseProgress(userId, courseId), isFirstCompletion)
     }
 
 
