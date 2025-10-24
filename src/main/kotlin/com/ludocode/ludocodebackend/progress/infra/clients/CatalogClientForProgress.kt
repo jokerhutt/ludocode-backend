@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.progress.infra.clients
 
 import com.ludocode.ludocodebackend.catalog.api.dto.internal.LessonTreeWithIdDTO
+import com.ludocode.ludocodebackend.catalog.api.dto.response.LessonResponse
 import com.ludocode.ludocodebackend.catalog.infra.projection.LessonIdTreeProjection
 import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants.ICATALOG
 import com.ludocode.ludocodebackend.progress.app.port.out.CatalogPortForProgress
@@ -26,6 +27,12 @@ class CatalogClientForProgress (
         val url = "$catalogServiceBaseUrl$ICATALOG/$lessonId/module"
         val resp = rest.getForEntity(url, UUID::class.java)
         return resp.body ?: error("Could not find Module ID")
+    }
+
+    override fun findLessonResponseById(lessonId: UUID, userId: UUID): LessonResponse {
+        val url = "$catalogServiceBaseUrl$ICATALOG/$lessonId/$userId/get"
+        val resp = rest.getForEntity(url, LessonResponse::class.java)
+        return resp.body ?: error("Could not find lesson response")
     }
 
 

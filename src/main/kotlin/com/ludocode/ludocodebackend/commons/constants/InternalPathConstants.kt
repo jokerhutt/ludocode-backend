@@ -13,6 +13,7 @@ object InternalPathConstants {
 
     const val ICATALOG: String = "$INTERNAL_V1/catalog"
     const val IFIRST_LESSON_ID: String = "/{courseId}/first"
+    const val ILESSON_BY_ID: String = "/{lessonId}/{userId}/get"
     const val ILESSON_ID_TREE: String = "/{lessonId}/tree"
     const val ILESSON_MODULE_ID: String = "/{lessonId}/module"
     const val ILESSON_COURSE_ID: String = "/{lessonId}/course"

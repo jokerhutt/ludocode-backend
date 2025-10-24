@@ -106,6 +106,9 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         assertThat(content.newCourseProgress.moduleId).isEqualTo(pyModule2.id)
         assertThat(content.newCourseProgress.userId).isEqualTo(user1.id)
 
+        assertThat(content.updatedCompletedLesson.id).isEqualTo(lesson1.id)
+        assertThat(content.updatedCompletedLesson.isCompleted).isEqualTo(true)
+
     }
 
     @Test
@@ -178,6 +181,9 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         assertThat(content.newCourseProgress.currentLessonId).isEqualTo(lesson1.id)
         assertThat(content.newCourseProgress.moduleId).isEqualTo(pyModule2.id)
         assertThat(content.newStats.coins).isGreaterThan(0)
+
+        assertThat(content.updatedCompletedLesson.id).isEqualTo(lesson1.id)
+        assertThat(content.updatedCompletedLesson.isCompleted).isEqualTo(true)
 
 
     }
@@ -257,6 +263,9 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         assertThat(content.newCourseProgress.courseId).isEqualTo(pythonCourse.id)
         assertThat(content.newCourseProgress.moduleId).isEqualTo(pyModule1.id)
         assertThat(content.newCourseProgress.userId).isEqualTo(user1.id)
+
+        assertThat(content.updatedCompletedLesson.id).isEqualTo(lesson1.id)
+        assertThat(content.updatedCompletedLesson.isCompleted).isEqualTo(true)
 
 
 

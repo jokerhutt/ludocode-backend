@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.catalog.api.controller
 
 import com.ludocode.ludocodebackend.catalog.api.dto.internal.LessonTreeWithIdDTO
+import com.ludocode.ludocodebackend.catalog.api.dto.response.LessonResponse
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogUseCase
 import com.ludocode.ludocodebackend.catalog.infra.projection.LessonIdTreeProjection
 import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants
@@ -20,6 +21,11 @@ class InternalCatalogController (
     @GetMapping(InternalPathConstants.ILESSON_ID_TREE)
     fun getFullLesson(@PathVariable lessonId: UUID) : ResponseEntity<LessonTreeWithIdDTO> {
         return ResponseEntity.ok(catalogUseCase.findLessonIdTree(lessonId))
+    }
+
+    @GetMapping(InternalPathConstants.ILESSON_BY_ID)
+    fun getLessonResponseById(@PathVariable lessonId: UUID, @PathVariable userId: UUID) : ResponseEntity<LessonResponse> {
+        return ResponseEntity.ok(catalogUseCase.findLessonResponseById(lessonId, userId))
     }
 
     @GetMapping(InternalPathConstants.IFIRST_LESSON_ID)

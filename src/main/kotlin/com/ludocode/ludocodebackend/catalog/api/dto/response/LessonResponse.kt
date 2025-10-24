@@ -6,5 +6,5 @@ data class LessonResponse(
     val id: UUID,
     val title: String,
     val orderIndex: Int,
-    val isCompleted: Boolean
+    var isCompleted: Boolean
 )

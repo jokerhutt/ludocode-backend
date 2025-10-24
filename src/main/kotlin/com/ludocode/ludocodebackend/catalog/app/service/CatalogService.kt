@@ -57,6 +57,10 @@ class CatalogService(
         return LessonTreeWithIdDTO(raw.lessonId, raw.moduleId, raw.courseId, raw.nextLessonId)
     }
 
+    override fun findLessonResponseById(lessonId: UUID, userId: UUID): LessonResponse {
+        return lessonMapper.toLessonResponse(lessonRepository.findUserLesson(lessonId, userId) ?: throw IllegalStateException("No lesson"))
+    }
+
     fun getAllCourses (): List<CourseResponse> {
         return courseMapper.toCourseResponseList(courseRepository.findAll())
     }

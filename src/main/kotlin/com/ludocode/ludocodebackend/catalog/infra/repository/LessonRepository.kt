@@ -32,6 +32,28 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
 
     @Query(
         value = """
+    SELECT l.id AS id,
+           l.title AS title,
+           l.order_index AS orderIndex,
+           EXISTS (
+               SELECT 1
+               FROM lesson_completion lc
+               WHERE lc.lesson_id = l.id
+                 AND lc.user_id = :userId
+           ) AS isCompleted
+    FROM lesson l
+    WHERE l.id = :lessonId
+    """,
+        nativeQuery = true
+    )
+    fun findUserLesson(
+        @Param("lessonId") lessonId: UUID,
+        @Param("userId") userId: UUID
+    ): UserLessonProjection?
+
+
+    @Query(
+        value = """
     SELECT lesson.id AS id, lesson.title AS title, lesson.order_index AS orderIndex,
         EXISTS (
             SELECT 1
