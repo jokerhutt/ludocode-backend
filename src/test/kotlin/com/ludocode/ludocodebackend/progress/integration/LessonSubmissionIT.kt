@@ -108,6 +108,80 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
     }
 
+    @Test
+    fun submitLesson_endOfCourse_returnsEndOfCourse() {
+
+        val userStats = userStatsRepository.save(UserStats(user1.id!!, 0, 0))
+
+        val lesson1: Lesson = pyModule2Lessons[3]
+
+        courseProgressRepository.saveAll(listOf(
+            CourseProgress(id = CourseProgressId(user1.id!!, pythonCourse.id!!), currentLessonId = lesson1.id),
+            CourseProgress(id = CourseProgressId(user1.id!!, swiftCourse.id!!), currentLessonId = swiftModuleLessons[2].id)
+        ))
+
+        val exercises = exerciseRepository.saveAll(listOf(
+            Exercise(title = "Complete the expression", prompt = "let sum = ___ + 4", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
+            Exercise(title = "Create a variable with a value of 'House'", prompt = "const ___ = ___", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
+            ))
+
+        val exerciseOptions = exerciseOptionRepository.saveAll(listOf(
+            ExerciseOption(content = "4", answerOrder = 1, exerciseId = exercises[0].id),
+            ExerciseOption(content = "4", answerOrder = null, exerciseId = exercises[0].id),
+
+            ExerciseOption(content = "house", answerOrder = 1, exerciseId = exercises[1].id),
+            ExerciseOption(content = "'house'", answerOrder = 2, exerciseId = exercises[1].id),
+
+            ))
+
+        val sub1 = ExerciseSubmissionRequest(
+            exerciseId = exercises[0].id!!,
+            attempts = listOf(
+                ExerciseAttemptRequest(
+                    exerciseId = exercises[0].id!!,
+                    isCorrect = true,
+                    answer = listOf("let", "sum", "=", "4"),
+                    optionIds = listOf(exerciseOptions[0].id!!)  // correct
+                )
+            )
+        )
+
+// For exercise 1 → user tried once WRONG, then tried again and got it RIGHT
+        val sub2 = ExerciseSubmissionRequest(
+            exerciseId = exercises[1].id!!,
+            attempts = listOf(
+                ExerciseAttemptRequest(
+                    exerciseId = exercises[1].id!!,
+                    isCorrect = false,
+                    answer = listOf("const", "x", "=", "house"), // wrong
+                    optionIds = listOf(exerciseOptions[2].id!!)   // wrong one
+                ),
+                ExerciseAttemptRequest(
+                    exerciseId = exercises[1].id!!,
+                    isCorrect = true,
+                    answer = listOf("const", "x", "=", "'house'"),
+                    optionIds = listOf(exerciseOptions[3].id!!)   // correct one
+                )
+            )
+        )
+
+        val submissions: List<ExerciseSubmissionRequest> = listOf(sub1, sub2)
+        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), pyModule1.id!!, lesson1.id!!, submissions = submissions)
+
+        val response = submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
+
+        assertThat(response).isNotNull()
+
+        val content = response.content!!
+        assertThat(response.status).isEqualTo(LessonCompletionStatus.COURSE_COMPLETE)
+        assertThat(content.newCourseProgress.courseId).isEqualTo(pythonCourse.id)
+        assertThat(content.newCourseProgress.currentLessonId).isEqualTo(lesson1.id)
+        assertThat(content.newCourseProgress.moduleId).isEqualTo(pyModule2.id)
+        assertThat(content.newStats.coins).isGreaterThan(0)
+
+
+    }
+
 
     @Test
     fun submitLesson_returnsNextLesson() {
