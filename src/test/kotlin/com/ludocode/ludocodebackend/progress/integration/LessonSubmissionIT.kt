@@ -66,7 +66,6 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
                     exerciseId = exercises[0].id!!,
                     isCorrect = true,
                     answer = listOf("let", "sum", "=", "4"),
-                    optionIds = listOf(exerciseOptions[0].id!!)  // correct
                 )
             )
         )
@@ -79,13 +78,11 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
                     exerciseId = exercises[1].id!!,
                     isCorrect = false,
                     answer = listOf("const", "x", "=", "house"), // wrong
-                    optionIds = listOf(exerciseOptions[2].id!!)   // wrong one
                 ),
                 ExerciseAttemptRequest(
                     exerciseId = exercises[1].id!!,
                     isCorrect = true,
                     answer = listOf("const", "x", "=", "'house'"),
-                    optionIds = listOf(exerciseOptions[3].id!!)   // correct one
                 )
             )
         )
@@ -144,7 +141,6 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
                     exerciseId = exercises[0].id!!,
                     isCorrect = true,
                     answer = listOf("let", "sum", "=", "4"),
-                    optionIds = listOf(exerciseOptions[0].id!!)  // correct
                 )
             )
         )
@@ -157,13 +153,11 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
                     exerciseId = exercises[1].id!!,
                     isCorrect = false,
                     answer = listOf("const", "x", "=", "house"), // wrong
-                    optionIds = listOf(exerciseOptions[2].id!!)   // wrong one
                 ),
                 ExerciseAttemptRequest(
                     exerciseId = exercises[1].id!!,
                     isCorrect = true,
                     answer = listOf("const", "x", "=", "'house'"),
-                    optionIds = listOf(exerciseOptions[3].id!!)   // correct one
                 )
             )
         )
@@ -224,7 +218,6 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
                     exerciseId = exercises[0].id!!,
                     isCorrect = true,
                     answer = listOf("let", "sum", "=", "4"),
-                    optionIds = listOf(exerciseOptions[0].id!!)  // correct
                 )
             )
         )
@@ -237,13 +230,11 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
                     exerciseId = exercises[1].id!!,
                     isCorrect = false,
                     answer = listOf("const", "x", "=", "house"), // wrong
-                    optionIds = listOf(exerciseOptions[2].id!!)   // wrong one
                 ),
                 ExerciseAttemptRequest(
                     exerciseId = exercises[1].id!!,
                     isCorrect = true,
                     answer = listOf("const", "x", "=", "'house'"),
-                    optionIds = listOf(exerciseOptions[3].id!!)   // correct one
                 )
             )
         )

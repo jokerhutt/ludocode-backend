@@ -85,8 +85,8 @@ class LessonCompletionService(
                 val exerciseAttempt = ExerciseAttempt(id = attemptId, content = parsedAnswer, exerciseId = attempt.exerciseId)
                 exerciseAttempts.add(exerciseAttempt)
 
-                for (optionId: UUID in attempt.optionIds) {
-                    attemptOptions.add(AttemptOption(attemptId = attemptId, optionId = optionId))
+                for (token: String in attempt.answer) {
+                    attemptOptions.add(AttemptOption(attemptId = attemptId, token = token))
                 }
 
             }

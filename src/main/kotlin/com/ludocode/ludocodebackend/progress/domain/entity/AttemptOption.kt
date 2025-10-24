@@ -21,7 +21,8 @@ class AttemptOption (
     @Column(name = "attempt_id")
     var attemptId: UUID? = null,
 
-    var optionId: UUID? = null
+    @Column(name = "token")
+    var token: String? = null
 
 
     )
