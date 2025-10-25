@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.progress.app.service
 import com.ludocode.ludocodebackend.progress.api.dto.internal.StatsDelta
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserStatsResponse
 import com.ludocode.ludocodebackend.progress.app.mapper.UserStatsMapper
+import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStatsUseCase
 import com.ludocode.ludocodebackend.progress.domain.entity.UserStats
 import com.ludocode.ludocodebackend.progress.domain.enums.StreakAction
 import com.ludocode.ludocodebackend.progress.infra.repository.UserStatsRepository
@@ -13,10 +14,16 @@ import java.util.UUID
 @Service
 class UserStatsService(private val userStatsRepository: UserStatsRepository,
                        private val userStatsMapper: UserStatsMapper
-) {
+) : UserStatsUseCase {
 
     fun getUserStatsList (userIds: List<UUID>) : List<UserStatsResponse> {
         return userStatsMapper.toUserStatsResponseList(userStatsRepository.findAllById(userIds))
+    }
+
+    @Transactional
+    override fun findOrCreateStats (userId: UUID) : UserStatsResponse {
+        userStatsRepository.upsertUserStats(userId)
+        return userStatsMapper.toUserStatsResponse(userStatsRepository.findById(userId).orElseThrow())
     }
 
     @Transactional
@@ -31,12 +38,6 @@ class UserStatsService(private val userStatsRepository: UserStatsRepository,
             else -> {}
         }
         return userStatsMapper.toUserStatsResponse(userStatsRepository.save(stats))
-    }
-
-
-
-    fun updateUserStats(userId: UUID, newPoints: Int, newStreak: Int) {
-
     }
 
 }

@@ -22,6 +22,9 @@ object InternalPathConstants {
     const val ICOURSEPROGRESS: String = "$INTERNAL_V1/progress/course"
     const val ICOURSEPROGRESSFINDCREATE: String = "/{courseId}/{userId}"
 
+    const val ISTATSPROGRESS: String = "$INTERNAL_V1/progress/stats"
+    const val ISTATSUPSERT: String = "/{userId}/upsert"
+
 
 
 

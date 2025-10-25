@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.auth.api.controller.external
 
 import com.ludocode.ludocodebackend.auth.api.dto.TokenDto
+import com.ludocode.ludocodebackend.auth.api.dto.response.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.app.service.AuthService
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
@@ -21,7 +22,7 @@ class AuthController(private val authService: AuthService) {
     @PostMapping(PathConstants.GOOGLE_LOGIN)
     fun loginWithGoogle(
         @RequestBody tokenDto: TokenDto, response: HttpServletResponse
-    ) : ResponseEntity<UserResponse> {
+    ) : ResponseEntity<UserLoginResponse> {
         return ResponseEntity.ok(authService.loginWithGoogle(tokenDto.code, response))
     }
 

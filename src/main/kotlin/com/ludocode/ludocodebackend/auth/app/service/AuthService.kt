@@ -1,7 +1,9 @@
 package com.ludocode.ludocodebackend.auth.app.service
 
+import com.ludocode.ludocodebackend.auth.api.dto.response.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.app.port.out.GoogleAuthOutboundPort
 import com.ludocode.ludocodebackend.auth.app.port.out.UserPortForAuth
+import com.ludocode.ludocodebackend.auth.app.port.out.UserStatsPortForAuth
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
@@ -15,10 +17,11 @@ class AuthService(
     private val googleAuth: GoogleAuthOutboundPort,
     private val userPortForAuth: UserPortForAuth,
     private val jwtService: JwtService,
-    private val authCookieService: AuthCookieService
+    private val authCookieService: AuthCookieService,
+    private val userStatsPortForAuth: UserStatsPortForAuth
 ) {
 
-    fun loginWithGoogle(code: String, response: HttpServletResponse): UserResponse {
+    fun loginWithGoogle(code: String, response: HttpServletResponse): UserLoginResponse {
 
         // 1) Exchange code with Google for tokens
         val googleTokens = googleAuth.exchangeCodeForAccessToken(code)
@@ -45,21 +48,17 @@ class AuthService(
             )
         )
 
+        val stats = userStatsPortForAuth.findOrCreateStats(user.id)
+
         // 4) Sign JWT + set cookie
         val jwt = jwtService.createToken(user.id)
         authCookieService.setJwt(response, jwt)
 
-        return user
+        return UserLoginResponse(user, stats)
     }
 
     fun getAuthenticatedUser (id: UUID) : UserResponse {
         return userPortForAuth.getById(id)
     }
-
-
-
-
-
-
 
 }
