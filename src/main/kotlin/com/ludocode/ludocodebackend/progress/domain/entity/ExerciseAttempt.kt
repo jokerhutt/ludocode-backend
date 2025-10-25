@@ -16,13 +16,13 @@ class ExerciseAttempt (
     @Id
     val id: UUID,
 
-    @Column(name = "content")
-    var content: String? = null,
-
-    @Column(name = "answer_order")
-    var answer_order: Int? = null,
+    @Column(name = "user_id")
+    var userId: UUID? = null,
 
     @Column(name = "exercise_id")
-    var exerciseId: UUID? = null
+    var exerciseId: UUID? = null,
+
+    @Column(name = "score")
+    val score: Int
 
 )

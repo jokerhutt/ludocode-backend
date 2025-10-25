@@ -42,7 +42,6 @@ class LessonCompletionService(
             ?: throw IllegalStateException("Lesson not found: ${request.lessonId}")
 
         val currentLessonId = currentLessonMD.lessonId
-        val currentModuleId = currentLessonMD.moduleId
         val nextLessonId = currentLessonMD.nextLessonId
         val courseId = currentLessonMD.courseId
 
@@ -90,10 +89,10 @@ class LessonCompletionService(
 
                 if (attempt.isCorrect) correct += 1
 
-                scoreForSubmission += computeScoreForAttempt(attempt, isPerfect)
+                val scoreForAttempt = computeScoreForAttempt(attempt, isPerfect)
+                scoreForSubmission += scoreForAttempt
                 val attemptId: UUID = UUID.randomUUID()
-                val parsedAnswer = attempt.answer.joinToString(" ")
-                val exerciseAttempt = ExerciseAttempt(id = attemptId, content = parsedAnswer, exerciseId = attempt.exerciseId)
+                val exerciseAttempt = ExerciseAttempt(id = attemptId, score = scoreForAttempt, userId = userId, exerciseId = attempt.exerciseId)
                 exerciseAttempts.add(exerciseAttempt)
 
                 for (token: String in attempt.answer) {

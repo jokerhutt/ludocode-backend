@@ -89,7 +89,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         )
 
         val submissions: List<ExerciseSubmissionRequest> = listOf(sub1, sub2)
-        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), pyModule1.id!!, lesson1.id!!, submissions = submissions)
+        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), lesson1.id!!, submissions = submissions)
 
         val response = submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
 
@@ -165,7 +165,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         )
 
         val submissions: List<ExerciseSubmissionRequest> = listOf(sub1, sub2)
-        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), pyModule1.id!!, lesson1.id!!, submissions = submissions)
+        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), lesson1.id!!, submissions = submissions)
 
         val response = submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
 
@@ -243,7 +243,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         )
 
         val submissions: List<ExerciseSubmissionRequest> = listOf(sub1, sub2)
-        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), pyModule1.id!!, lesson1.id!!, submissions = submissions)
+        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), lesson1.id!!, submissions = submissions)
 
         val response = submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
 

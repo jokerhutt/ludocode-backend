@@ -23,6 +23,7 @@ object PathConstants {
 
 
 
+
     const val AUTH : String = "$API_V1/auth"
     const val GOOGLE_LOGIN : String = "/google-login"
     const val AUTH_ME : String = "/me"
@@ -35,9 +36,12 @@ object PathConstants {
 
     const val PROGRESS : String = "$API_V1/progress"
     const val PROGRESS_COURSE : String = "$PROGRESS/course"
+    const val PROGRESS_STATS : String = "$PROGRESS/stats"
 
     const val PROGRESS_COMPLETION : String = "$PROGRESS/completion"
     const val SUBMIT_COMPLETION : String = "/submit"
+
+    const val STATS_BY_USER_ID : String = "/{userId}"
 
     const val USER_COURSE_PROGRESS_LIST : String = "/ids"
     const val ENROLLED_IDS : String = "/enrolled"
