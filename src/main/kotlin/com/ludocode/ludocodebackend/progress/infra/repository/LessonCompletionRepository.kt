@@ -18,14 +18,8 @@ interface LessonCompletionRepository : JpaRepository<LessonCompletion, UUID> {
     """, nativeQuery = true)
     fun deleteLessonCompletionsForUserAndCourse(userId: UUID, courseId: UUID)
 
-    @Modifying
-    @Query(""" 
-        select 
-        from lesson_completion
-        where user_id = :userId
-        and course_id = :courseId
-    """, nativeQuery = true)
-    fun getLessonCompletionsForUserAndCourse(userId: UUID, courseId: UUID): List<LessonCompletion>
+    fun existsByIdAndIsDeletedFalse(id: UUID): Boolean
+
 
 
 }

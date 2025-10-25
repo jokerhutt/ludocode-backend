@@ -68,11 +68,6 @@ class LessonCompletionService(
     }
 
     @Transactional
-    fun deleteLessonCompletionsForUser (userId: UUID, courseId: UUID) {
-        lessonCompletionRepository.deleteLessonCompletionsForUserAndCourse(userId, courseId)
-    }
-
-    @Transactional
     fun addPointsAndCommitSubmission (request: LessonSubmissionRequest, userId: UUID, courseId: UUID): LessonCompletion {
 
         val currentLessonId = request.lessonId
@@ -123,8 +118,7 @@ class LessonCompletionService(
         return completion
     }
 
-    private fun isCourseComplete (nextLessonId: UUID?): Boolean = nextLessonId == null
-    private fun isSubmissionDuplicate (submissionId: UUID): Boolean = lessonCompletionRepository.existsById(submissionId)
+    private fun isSubmissionDuplicate (submissionId: UUID): Boolean = lessonCompletionRepository.existsByIdAndIsDeletedFalse(submissionId)
 
     private fun computeScoreForAttempt (attempt: ExerciseAttemptRequest, isPerfect: Boolean) : Int {
         if (isPerfect) {
