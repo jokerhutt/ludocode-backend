@@ -42,6 +42,7 @@ object PathConstants {
     const val SUBMIT_COMPLETION : String = "/submit"
 
     const val STATS_BY_USER_ID : String = "/{userId}"
+    const val STATS_BY_USER_IDS : String = "/ids"
 
     const val USER_COURSE_PROGRESS_LIST : String = "/ids"
     const val ENROLLED_IDS : String = "/enrolled"

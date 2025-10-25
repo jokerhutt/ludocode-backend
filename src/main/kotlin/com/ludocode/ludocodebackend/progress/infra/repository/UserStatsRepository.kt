@@ -7,5 +7,4 @@ import java.util.UUID
 interface UserStatsRepository : JpaRepository<UserStats, UUID> {
 
 
-
 }

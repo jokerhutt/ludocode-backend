@@ -1,6 +1,8 @@
 package com.ludocode.ludocodebackend.progress.app.service
 
 import com.ludocode.ludocodebackend.progress.api.dto.internal.StatsDelta
+import com.ludocode.ludocodebackend.progress.api.dto.response.UserStatsResponse
+import com.ludocode.ludocodebackend.progress.app.mapper.UserStatsMapper
 import com.ludocode.ludocodebackend.progress.domain.entity.UserStats
 import com.ludocode.ludocodebackend.progress.domain.enums.StreakAction
 import com.ludocode.ludocodebackend.progress.infra.repository.UserStatsRepository
@@ -9,14 +11,20 @@ import org.springframework.stereotype.Service
 import java.util.UUID
 
 @Service
-class UserStatsService(private val userStatsRepository: UserStatsRepository) {
+class UserStatsService(private val userStatsRepository: UserStatsRepository,
+                       private val userStatsMapper: UserStatsMapper
+) {
 
     fun getUserStats (userId: UUID) : UserStats {
         return userStatsRepository.findById(userId).orElseThrow()
     }
 
+    fun getUserStatsList (userIds: List<UUID>) : List<UserStatsResponse> {
+        return userStatsMapper.toUserStatsResponseList(userStatsRepository.findAllById(userIds))
+    }
+
     @Transactional
-    fun apply(delta: StatsDelta): UserStats {
+    fun apply(delta: StatsDelta): UserStatsResponse {
         val stats = userStatsRepository.findById(delta.userId).orElseGet {
             userStatsRepository.save(UserStats(delta.userId, 0, 0))
         }
@@ -26,7 +34,7 @@ class UserStatsService(private val userStatsRepository: UserStatsRepository) {
             StreakAction.RESET -> stats.streak = 0
             else -> {}
         }
-        return userStatsRepository.save(stats)
+        return userStatsMapper.toUserStatsResponse(userStatsRepository.save(stats))
     }
 
 
