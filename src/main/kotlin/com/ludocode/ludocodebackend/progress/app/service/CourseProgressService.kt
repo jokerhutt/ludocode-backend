@@ -8,6 +8,7 @@ import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressUseCase
 import com.ludocode.ludocodebackend.progress.app.port.out.CatalogPortForProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
+import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -16,7 +17,8 @@ import java.util.UUID
 class CourseProgressService(
     private val courseProgressRepository: CourseProgressRepository,
     private val catalogPortForProgress: CatalogPortForProgress,
-    private val courseProgressMapper: CourseProgressMapper
+    private val courseProgressMapper: CourseProgressMapper,
+    private val lessonCompletionRepository: LessonCompletionRepository,
 ) : CourseProgressUseCase {
 
     @Transactional
@@ -27,6 +29,14 @@ class CourseProgressService(
         val enrolled = courseProgressRepository.findAllCourseIdsForUser(userId)
         return courseProgressMapper.toCourseProgressResponseWithEnrolled(userCourseProgress!!, enrolled)
 
+    }
+
+    @Transactional
+    fun resetUserCourseProgress(userId: UUID, courseId: UUID) : CourseProgressResponse {
+        lessonCompletionRepository.deleteLessonCompletionsForUserAndCourse(userId, courseId)
+        val firstLessonIdInCourse = catalogPortForProgress.findFirstLessonIdInCourse(courseId) ?: throw IllegalStateException("Couldnt find first lesson")
+        courseProgressRepository.resetCourseProgressForUser(userId, courseId, firstLessonIdInCourse)
+        return findCourseProgress(userId, courseId)
     }
 
     fun getEnrolledCourseIds(userId: UUID) : List<UUID> {
