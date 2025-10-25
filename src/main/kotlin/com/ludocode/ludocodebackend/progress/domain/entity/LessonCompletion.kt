@@ -31,5 +31,12 @@ class LessonCompletion(
     var accuracy: BigDecimal,
 
     @Column(name = "completed_at")
-    var completedAt: OffsetDateTime? = null
+    var completedAt: OffsetDateTime? = null,
+
+    @Column(name = "is_deleted")
+    var isDeleted: Boolean? = false,
+
+    @Column(name = "course_id")
+    var courseId: UUID? = null
+
 )

@@ -20,6 +20,27 @@ class CourseProgressIT : AbstractIntegrationTest() {
     }
 
     @Test
+    fun resetCourseProgress_returnsCleared () {
+
+        val user: User = user1
+
+        val progressList = courseProgressRepository.saveAll(listOf(
+            CourseProgress(id = CourseProgressId(user.id!!, pythonCourse.id!!), currentLessonId = pyModule2Lessons[2].id),
+            CourseProgress(id = CourseProgressId(user.id!!, swiftCourse.id!!), currentLessonId = swiftModuleLessons[2].id)
+        ))
+
+        val courseToReset = progressList[0]
+
+        val response = submitResetCourseProgress(user.id!!, courseToReset.id!!.courseId!!)
+
+        assertThat(response).isNotNull()
+        assertThat(response.courseId).isEqualTo(courseToReset.id.courseId)
+        assertThat(response.moduleId).isEqualTo(pyModule1.id)
+        assertThat(response.currentLessonId).isEqualTo(pyModule1Lessons[0].id)
+
+    }
+
+    @Test
     fun getCourseProgressList_returnsExisting () {
 
         val user: User = user1
@@ -75,6 +96,16 @@ class CourseProgressIT : AbstractIntegrationTest() {
             .extract()
             .`as`(Array<CourseProgressResponse>::class.java)
             .toList()
+
+    private fun submitResetCourseProgress(userId: UUID, courseId: UUID):CourseProgressResponse =
+        given()
+            .header("X-Test-User-Id", userId.toString())
+            .`when`()
+            .post("$PROGRESS_COURSE/$courseId/reset")
+            .then()
+            .statusCode(200)
+            .extract()
+            .`as`(CourseProgressResponse::class.java)
 
 
 

@@ -46,7 +46,7 @@ class LessonCompletionService(
 
         if (isSubmissionDuplicate(currentLessonId)) return LessonCompletionPacket(content = null, status = LessonCompletionStatus.DUPLICATE)
 
-        val lessonCompletion = addPointsAndCommitSubmission(request, userId)
+        val lessonCompletion = addPointsAndCommitSubmission(request, userId, courseId)
         val scoreForLesson = lessonCompletion.score!!
 
         val newStats = userStatsService.apply(StatsDelta(userId = userId, pointsDelta = scoreForLesson, streakAction = StreakAction.NONE))
@@ -68,7 +68,7 @@ class LessonCompletionService(
     }
 
     @Transactional
-    fun addPointsAndCommitSubmission (request: LessonSubmissionRequest, userId: UUID): LessonCompletion {
+    fun addPointsAndCommitSubmission (request: LessonSubmissionRequest, userId: UUID, courseId: UUID): LessonCompletion {
 
         val currentLessonId = request.lessonId
 
@@ -110,7 +110,7 @@ class LessonCompletionService(
         val accuracy = BigDecimal(correct)
             .divide(BigDecimal(total), 2, RoundingMode.HALF_UP)
 
-        val completion = LessonCompletion(id = request.id, userId = userId, score = scoreForLesson, completedAt = OffsetDateTime.now(), lessonId = currentLessonId, accuracy = accuracy)
+        val completion = LessonCompletion(id = request.id, userId = userId, score = scoreForLesson, completedAt = OffsetDateTime.now(), lessonId = currentLessonId, accuracy = accuracy, courseId = courseId)
         lessonCompletionRepository.save(completion)
         exerciseAttemptRepository.saveAll(exerciseAttempts)
         attemptOptionRepository.saveAll(attemptOptions)
@@ -118,8 +118,7 @@ class LessonCompletionService(
         return completion
     }
 
-    private fun isCourseComplete (nextLessonId: UUID?): Boolean = nextLessonId == null
-    private fun isSubmissionDuplicate (submissionId: UUID): Boolean = lessonCompletionRepository.existsById(submissionId)
+    private fun isSubmissionDuplicate (submissionId: UUID): Boolean = lessonCompletionRepository.existsByIdAndIsDeletedFalse(submissionId)
 
     private fun computeScoreForAttempt (attempt: ExerciseAttemptRequest, isPerfect: Boolean) : Int {
         if (isPerfect) {

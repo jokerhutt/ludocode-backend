@@ -18,7 +18,8 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
            EXISTS (
                SELECT 1
                FROM lesson_completion lc
-               WHERE lc.lesson_id = l.id
+               WHERE lc.is_deleted = false
+                 AND lc.lesson_id = l.id
                  AND lc.user_id = :userId
            ) AS isCompleted
     FROM lesson l
@@ -38,7 +39,8 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
         EXISTS (
             SELECT 1
             FROM lesson_completion lessonCompletion
-            WHERE lessonCompletion.lesson_id = lesson.id 
+            WHERE lessonCompletion.is_deleted = false
+            AND lessonCompletion.lesson_id = lesson.id 
             AND lessonCompletion.user_id = :userId
         ) AS isCompleted
     FROM lesson lesson
