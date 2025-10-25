@@ -42,13 +42,15 @@ class CourseProgressService(
     }
 
     @Transactional
-    fun updateLesson(userId: UUID, courseId: UUID, newLessonId: UUID?) : CourseProgressWithCompletion? {
+    fun updateLesson(userId: UUID, courseId: UUID, isCompleted: Boolean, newLessonId: UUID?) : CourseProgressWithCompletion? {
+        if (isCompleted) return CourseProgressWithCompletion(findCourseProgress(userId, courseId), false)
+
         var isFirstCompletion = false
         if (newLessonId != null) {
             courseProgressRepository.setCurrentLesson(userId = userId, courseId = courseId, newLessonId = newLessonId)
         } else {
             val courseProgress = courseProgressRepository.findById(CourseProgressId(userId, courseId)).orElseThrow()
-            if (courseProgress.isComplete == false) {
+            if (!courseProgress.isComplete) {
                 courseProgressRepository.markCourseComplete(userId, courseId)
                 isFirstCompletion = true
             }

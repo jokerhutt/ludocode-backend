@@ -1,7 +1,6 @@
 package com.ludocode.ludocodebackend.progress.app.service
 
 import com.ludocode.ludocodebackend.catalog.api.dto.internal.LessonTreeWithIdDTO
-import com.ludocode.ludocodebackend.catalog.infra.projection.LessonIdTreeProjection
 import com.ludocode.ludocodebackend.progress.api.dto.internal.StatsDelta
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseAttemptRequest
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseSubmissionRequest
@@ -51,12 +50,16 @@ class LessonCompletionService(
         val scoreForLesson = lessonCompletion.score!!
 
         val newStats = userStatsService.apply(StatsDelta(userId = userId, pointsDelta = scoreForLesson, streakAction = StreakAction.NONE))
-        val newCourseProgressWithCompletion = courseProgressService.updateLesson(userId, newLessonId = nextLessonId, courseId = courseId)
+
+        val submittedLesson = catalogPortForProgress.findLessonResponseById(currentLessonId, userId)
+        val isCompleted = submittedLesson.isCompleted
+        if (!submittedLesson.isCompleted) submittedLesson.isCompleted = true
+        val newCourseProgressWithCompletion = courseProgressService.updateLesson(userId, newLessonId = nextLessonId, isCompleted = isCompleted, courseId = courseId)
+
         val newCourseProgress = newCourseProgressWithCompletion!!.courseProgressResponse
         val isFirstCompletion = newCourseProgressWithCompletion!!.isFirstCompletion
-        val updatedLessonCompletion = catalogPortForProgress.findLessonResponseById(currentLessonId, userId)
-        if (!updatedLessonCompletion.isCompleted) updatedLessonCompletion.isCompleted = true
-        val responseContent = LessonCompletionResponse(newStats, newCourseProgress, updatedLessonCompletion, accuracy = lessonCompletion.accuracy)
+
+        val responseContent = LessonCompletionResponse(newStats, newCourseProgress, submittedLesson, accuracy = lessonCompletion.accuracy)
 
         if (isFirstCompletion) return LessonCompletionPacket(content = responseContent, status = LessonCompletionStatus.COURSE_COMPLETE)
 
@@ -98,7 +101,6 @@ class LessonCompletionService(
                 for (token: String in attempt.answer) {
                     attemptOptions.add(AttemptOption(attemptId = attemptId, token = token))
                 }
-
             }
             scoreForLesson += scoreForSubmission
         }
