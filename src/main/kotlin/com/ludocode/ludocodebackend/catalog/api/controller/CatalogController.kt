@@ -36,16 +36,6 @@ class CatalogController(private val catalogService: CatalogService) {
         return ResponseEntity.ok(catalogService.getExercisesByLessonId(lessonId));
     }
 
-    @GetMapping(PathConstants.MODULES_COURSE_ID)
-    fun getModulesByCourseId(@PathVariable courseId: UUID) : ResponseEntity<List<ModuleResponse>> {
-        return ResponseEntity.ok(catalogService.getModulesByCourseId(courseId))
-    }
-
-    @GetMapping(PathConstants.LESSONS_MODULE_ID)
-    fun getLessonsByModuleId(@PathVariable moduleId: UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<List<LessonResponse>> {
-        return ResponseEntity.ok(catalogService.getLessonsByModuleId(moduleId, userId))
-    }
-
     @GetMapping(PathConstants.MODULES_IDS)
     fun getModulesByIdList(@RequestParam moduleIds: List<UUID>) : ResponseEntity<List<ModuleResponse>> {
         return ResponseEntity.ok(catalogService.getModulesByIds(moduleIds))

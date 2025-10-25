@@ -16,11 +16,6 @@ import java.util.UUID
 @RequestMapping(PathConstants.PROGRESS_STATS)
 class UserStatsController(private val userStatsService: UserStatsService) {
 
-    @GetMapping(PathConstants.STATS_BY_USER_ID)
-    fun getStatsForUser (@PathVariable userId: UUID) : ResponseEntity<UserStats> {
-        return ResponseEntity.ok(userStatsService.getUserStats(userId))
-    }
-
     @GetMapping(PathConstants.STATS_BY_USER_IDS)
     fun getStatsListByUserIds (@RequestParam userIds: List<UUID>) : ResponseEntity<List<UserStatsResponse>> {
         return ResponseEntity.ok(userStatsService.getUserStatsList(userIds))

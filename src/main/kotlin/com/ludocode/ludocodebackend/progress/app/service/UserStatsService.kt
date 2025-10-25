@@ -15,10 +15,6 @@ class UserStatsService(private val userStatsRepository: UserStatsRepository,
                        private val userStatsMapper: UserStatsMapper
 ) {
 
-    fun getUserStats (userId: UUID) : UserStats {
-        return userStatsRepository.findById(userId).orElseThrow()
-    }
-
     fun getUserStatsList (userIds: List<UUID>) : List<UserStatsResponse> {
         return userStatsMapper.toUserStatsResponseList(userStatsRepository.findAllById(userIds))
     }

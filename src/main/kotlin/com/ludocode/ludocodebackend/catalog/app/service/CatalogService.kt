@@ -75,16 +75,6 @@ class CatalogService(
        return exerciseMapper.toLessonExercises(exercisesWithOptionsFlat)
     }
 
-    fun getModulesByCourseId (courseId: UUID): List<ModuleResponse> {
-        val modules = moduleRepository.findAllByCourseId(courseId)
-        return moduleMapper.toModuleResponseList(modules)
-    }
-
-    fun getLessonsByModuleId (moduleId: UUID, userId: UUID): List<LessonResponse> {
-        val lessons: List<UserLessonProjection> = lessonRepository.findUserLessons(moduleId, userId)
-        return lessonMapper.toLessonResponseList(lessons)
-    }
-
     fun getModulesByIds (moduleIds: List<UUID>) : List<ModuleResponse> {
         val modules: List<Module> = moduleRepository.findAllByIdIn(moduleIds)
         return moduleMapper.toModuleResponseList(modules)

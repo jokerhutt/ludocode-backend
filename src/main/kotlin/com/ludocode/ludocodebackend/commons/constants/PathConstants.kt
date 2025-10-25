@@ -11,24 +11,15 @@ object PathConstants {
     const val MODULES : String = "/modules"
     const val LESSONS : String = "/lessons"
     const val EXERCISES : String = "/exercises"
-
     const val MODULES_IDS : String = "$MODULES/ids"
     const val LESSONS_IDS : String = "$LESSONS/ids"
-
     const val COURSES_ALL : String = "$COURSES/all"
-    const val MODULES_COURSE_ID : String = "$MODULES/{courseId}"
-    const val LESSONS_MODULE_ID : String = "$LESSONS/all/{moduleId}"
     const val EXERCISES_LESSON_ID : String = "$EXERCISES/{lessonId}"
     const val COURSE_TREE : String = "$COURSES/{courseId}/tree"
-
-
-
 
     const val AUTH : String = "$API_V1/auth"
     const val GOOGLE_LOGIN : String = "/google-login"
     const val AUTH_ME : String = "/me"
-
-
     const val USERS : String = "$API_V1/users"
     const val USERS_IDS : String = "/ids"
     const val UPDATE_COURSE : String = "/update/course"
@@ -37,26 +28,10 @@ object PathConstants {
     const val PROGRESS : String = "$API_V1/progress"
     const val PROGRESS_COURSE : String = "$PROGRESS/course"
     const val PROGRESS_STATS : String = "$PROGRESS/stats"
-
     const val PROGRESS_COMPLETION : String = "$PROGRESS/completion"
     const val SUBMIT_COMPLETION : String = "/submit"
-
-    const val STATS_BY_USER_ID : String = "/{userId}"
     const val STATS_BY_USER_IDS : String = "/ids"
-
-    const val USER_COURSE_PROGRESS_LIST : String = "/ids"
+    const val COURSE_PROGRESS_BY_COURSE_IDS : String = "/ids"
     const val ENROLLED_IDS : String = "/enrolled"
-    const val USER_COURSE_PROGRESS: String = "/{courseId}"
-
-
-
-
-
-
-
-
-
-
-
 
 }
