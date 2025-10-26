@@ -1,7 +1,9 @@
 package com.ludocode.ludocodebackend.commons.constants
 
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.ADMIN
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.AUTH
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.CATALOG
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.CHANGE_CATALOG
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.COURSES_ALL
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.COURSE_TREE
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.EXERCISES_LESSON_ID
@@ -21,7 +23,8 @@ object PublicEndpointConstants {
         CATALOG + EXERCISES_LESSON_ID,
         CATALOG + COURSE_TREE,
         USERS + USERS_IDS,
-        AUTH + GOOGLE_LOGIN
+        AUTH + GOOGLE_LOGIN,
+        ADMIN + CHANGE_CATALOG
 
     )
 

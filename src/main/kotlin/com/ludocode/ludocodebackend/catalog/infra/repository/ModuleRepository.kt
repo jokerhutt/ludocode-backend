@@ -30,8 +30,9 @@ interface ModuleRepository : JpaRepository<Module, UUID> {
     )
     fun findFlatCourseTree(@Param("courseId") courseId: UUID): List<FlatModuleLessonRow>
 
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select m from Module m where m.id = :id", nativeQuery = true)
+    @Query("select m from Module m where m.id = :id")
     fun findByIdForUpdate(@Param("id") id: UUID): Optional<Module>
 
 

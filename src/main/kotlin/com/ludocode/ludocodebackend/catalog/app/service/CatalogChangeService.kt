@@ -43,6 +43,8 @@ class CatalogChangeService(
         //3 update module
         module.title = req.title
 
+        moduleRepository.save(module)
+
         //4 soft delete lessons
         if (!req.lessonsToDelete.isEmpty()) {
             lessonRepository.softDeleteIn(req.lessonsToDelete)
@@ -63,7 +65,7 @@ class CatalogChangeService(
             require(lessons.none { it.isDeleted == true }) { "Deleted lesson in ordering" }
 
             ids.forEach { lessonRepository.bumpOrderTemp(it) }
-            ids.forEachIndexed { idx, id -> lessonRepository.setOrder(id, idx) }
+            ids.forEachIndexed { idx, id -> lessonRepository.setOrder(id, idx + 1) }
         }
 
 

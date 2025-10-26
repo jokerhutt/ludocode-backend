@@ -35,4 +35,8 @@ object PathConstants {
     const val COURSE_PROGRESS_BY_COURSE_IDS : String = "/ids"
     const val ENROLLED_IDS : String = "/enrolled"
 
+
+    const val ADMIN : String = "$API_V1/admin"
+    const val CHANGE_CATALOG : String = "/catalog/change"
+
 }

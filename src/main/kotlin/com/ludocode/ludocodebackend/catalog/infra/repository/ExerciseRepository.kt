@@ -33,6 +33,7 @@ interface ExerciseRepository : JpaRepository<Exercise, ExerciseId>{
       FROM exercise e2
       WHERE e2.id = e.id
     )
+    AND e.is_deleted = false
   ORDER BY e.id, o.answer_order
   """,
         nativeQuery = true

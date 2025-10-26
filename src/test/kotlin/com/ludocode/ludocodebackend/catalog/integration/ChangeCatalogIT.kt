@@ -4,23 +4,36 @@ import com.ludocode.ludocodebackend.catalog.api.dto.admin.request.ExerciseDiffRe
 import com.ludocode.ludocodebackend.catalog.api.dto.admin.request.ExerciseOptionDiffRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.admin.request.LessonDiffRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.admin.request.ModuleDiffRequest
+import com.ludocode.ludocodebackend.catalog.api.dto.admin.response.CCLessonResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.admin.response.CCModuleResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
 import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.ADMIN
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.CHANGE_CATALOG
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.UPDATE_COURSE
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
+import com.ludocode.ludocodebackend.user.api.dto.request.ChangeCourseRequest
+import com.ludocode.ludocodebackend.user.api.dto.response.UpdatedCourseResponse
+import io.restassured.RestAssured.given
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.util.UUID
 
-class ChangeCourseIT : AbstractIntegrationTest() {
+class ChangeCatalogIT : AbstractIntegrationTest() {
 
     @BeforeEach
     fun seed () {
 
     }
 
+    @Test
     fun submitChangeLessons_noDeletions_returnsChanged () {
 
         val targetModule: Module = pyModule1
@@ -72,12 +85,53 @@ class ChangeCourseIT : AbstractIntegrationTest() {
             LessonDiffRequest(lesson1.id!!, title = "l1", changedExercises = exerciseDiffRequest, exercisesToDelete = listOf(l1ExerciseToDelete.exerciseId.id))
         )
 
-        val moduleDifReq = ModuleDiffRequest(targetModule.id!!, "New Title", orderByIds = listOf(lesson2.id!!, lesson1.id!!), changedLessons = listOf(), lessonsToDelete = listOf())
+        val moduleDifReq = ModuleDiffRequest(targetModule.id!!, "New Title", orderByIds = listOf(lesson2.id!!, lesson1.id!!), lessonDiffRequests, lessonsToDelete = listOf())
 
+        val res = submitPostUpdateCatalog(req = moduleDifReq)
+
+        assertThat(res).isNotNull()
+
+        val resModule = res.module
+        assertThat(resModule.title).isNotEqualTo(targetModule.title)
+        assertThat(resModule.title).isEqualTo("New Title")
+
+        for (ccLesson: CCLessonResponse in res.lessons) {
+            val lesson = ccLesson.lesson
+            val exercises = ccLesson.exercises
+            assertThat(exercises).isNotNull()
+
+            if (lesson.id == lesson1.id) {
+                assertThat(lesson.title).isEqualTo("l1")
+//                assertThat(lesson.orderIndex).isEqualTo(2)
+                for (exercise: ExerciseResponse in exercises) {
+
+                   assertThat(exercise.id).isNotEqualTo(l1ExerciseToDelete.exerciseId.id)
+
+                   if (exercise.id == l1ExerciseToModify.exerciseId.id) {
+                       assertThat(exercise.title).isEqualTo("l1e1")
+                       assertThat(exercise.prompt).isEqualTo(l1ExerciseToModify.prompt)
+                       assertThat(exercise.version).isEqualTo(2)
+
+                   }
+                }
+            }
+
+        }
 
 
 
     }
+
+    private fun submitPostUpdateCatalog(req: ModuleDiffRequest): CCModuleResponse =
+        given()
+            .contentType(io.restassured.http.ContentType.JSON)
+            .body(req)
+            .`when`()
+            .post("$ADMIN$CHANGE_CATALOG")
+            .then()
+            .statusCode(200)
+            .extract()
+            .`as`(CCModuleResponse::class.java)
 
 
 
