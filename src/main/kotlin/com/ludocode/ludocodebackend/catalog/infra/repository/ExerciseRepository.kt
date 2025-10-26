@@ -4,7 +4,9 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.catalog.infra.projection.ExerciseFlatProjection
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import java.util.UUID
 
 interface ExerciseRepository : JpaRepository<Exercise, ExerciseId>{
@@ -36,6 +38,20 @@ interface ExerciseRepository : JpaRepository<Exercise, ExerciseId>{
         nativeQuery = true
     )
     fun getFlatExercisesWithOptions(lessonId: UUID): List<ExerciseFlatProjection>
+
+
+    @Query(
+        value = """
+  SELECT COALESCE(MAX(e.version), 0) + 1
+  FROM exercise e
+  WHERE e.id = :exerciseId
+  """,
+        nativeQuery = true
+    )
+    fun bumpVersion(exerciseId: UUID): Int
+
+
+
 
 
 

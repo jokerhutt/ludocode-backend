@@ -31,6 +31,9 @@ class ExerciseOption (
     val exerciseId: UUID? = null,
 
     @Column(name = "exercise_version")
-    val exerciseVersion: Int? = null
+    val exerciseVersion: Int? = null,
+
+    @Column(name = "is_deleted")
+    var isDeleted: Boolean? = false,
 
 )

@@ -4,6 +4,7 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
 import com.ludocode.ludocodebackend.catalog.infra.projection.LessonIdTreeProjection
 import com.ludocode.ludocodebackend.catalog.infra.projection.UserLessonProjection
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.util.UUID
@@ -16,15 +17,16 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
            l.title AS title,
            l.order_index AS orderIndex,
            EXISTS (
-               SELECT 1
-               FROM lesson_completion lc
-               WHERE lc.is_deleted = false
-                 AND lc.lesson_id = l.id
-                 AND lc.user_id = :userId
+             SELECT 1
+             FROM lesson_completion lc
+             WHERE lc.is_deleted = false
+               AND lc.lesson_id = l.id
+               AND lc.user_id = :userId
            ) AS isCompleted
     FROM lesson l
-    WHERE l.id = :lessonId
-    """,
+    WHERE l.is_deleted = false
+      AND l.id = :lessonId
+  """,
         nativeQuery = true
     )
     fun findUserLesson(
@@ -35,18 +37,21 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
 
     @Query(
         value = """
-    SELECT lesson.id AS id, lesson.title AS title, lesson.order_index AS orderIndex,
-        EXISTS (
-            SELECT 1
-            FROM lesson_completion lessonCompletion
-            WHERE lessonCompletion.is_deleted = false
-            AND lessonCompletion.lesson_id = lesson.id 
-            AND lessonCompletion.user_id = :userId
-        ) AS isCompleted
-    FROM lesson lesson
-    WHERE lesson.id IN (:lessonIds)
-    ORDER BY lesson.order_index
-    """,
+    SELECT l.id AS id,
+           l.title AS title,
+           l.order_index AS orderIndex,
+           EXISTS (
+             SELECT 1
+             FROM lesson_completion lc
+             WHERE lc.is_deleted = false
+               AND lc.lesson_id = l.id
+               AND lc.user_id = :userId
+           ) AS isCompleted
+    FROM lesson l
+    WHERE l.is_deleted = false
+      AND l.id IN (:lessonIds)
+    ORDER BY l.order_index, l.id
+  """,
         nativeQuery = true
     )
     fun findUserLessonsByIds(
@@ -69,10 +74,11 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
       SELECT l.id AS lesson_id,
              LEAD(l.id) OVER (
                PARTITION BY m.course_id
-               ORDER BY m.order_index, l.order_index
+               ORDER BY m.order_index, l.order_index, l.id
              ) AS next_id
       FROM lesson l
       JOIN module m ON m.id = l.module_id
+      WHERE l.is_deleted = false
     )
     SELECT next_id
     FROM ordered
@@ -119,6 +125,7 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
              ) AS nextLessonId
       FROM lesson l
       JOIN module m ON l.module_id = m.id
+      WHERE l.is_deleted = false   -- ✅ move filter here
     )
     SELECT lessonId, moduleId, courseId, nextLessonId
     FROM ordered
@@ -127,5 +134,32 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
         nativeQuery = true
     )
     fun findLessonIdTree(@Param("lessonId") lessonId: UUID): LessonIdTreeProjection?
+
+    @Modifying
+    @Query("""
+    UPDATE lesson
+    SET is_deleted = true
+    WHERE id IN (:ids)
+""", nativeQuery = true)
+    fun softDeleteIn(@Param("ids") ids: List<UUID>)
+
+    @Modifying
+    @Query("UPDATE lesson SET order_index = order_index + 100000 WHERE id = :id", nativeQuery = true)
+    fun bumpOrderTemp(@Param("id") id: UUID)
+
+    @Modifying
+    @Query("UPDATE lesson SET order_index = :idx WHERE id = :id", nativeQuery = true)
+    fun setOrder(@Param("id") id: UUID, @Param("idx") idx: Int)
+
+    @Query(
+        """
+    SELECT *
+    FROM lesson
+    WHERE module_id = :moduleId
+    AND is_deleted = false
+    """,
+        nativeQuery = true
+    )
+    fun findAllByModuleId(@Param("moduleId") moduleId: UUID) : List<Lesson>
 
 }

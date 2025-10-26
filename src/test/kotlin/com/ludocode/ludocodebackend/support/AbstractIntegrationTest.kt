@@ -130,27 +130,27 @@ abstract class AbstractIntegrationTest {
 
         pyModule1Lessons = lessonRepository.saveAll(
             listOf(
-            Lesson(title = "Variables I", moduleId = pyModule1.id, orderIndex = 1),
-            Lesson(title = "Variables II", moduleId = pyModule1.id, orderIndex = 2),
-            Lesson(title = "Data Types I", moduleId = pyModule1.id, orderIndex = 3),
-            Lesson(title = "Data Types II", moduleId = pyModule1.id, orderIndex = 4),
+            Lesson(title = "Variables I", moduleId = pyModule1.id!!, orderIndex = 1),
+            Lesson(title = "Variables II", moduleId = pyModule1.id!!, orderIndex = 2),
+            Lesson(title = "Data Types I", moduleId = pyModule1.id!!, orderIndex = 3),
+            Lesson(title = "Data Types II", moduleId = pyModule1.id!!, orderIndex = 4),
                 )
         )
 
         pyModule2Lessons = lessonRepository.saveAll(
             listOf(
-                Lesson(title = "If", moduleId = pyModule2.id, orderIndex = 1),
-                Lesson(title = "Else", moduleId = pyModule2.id, orderIndex = 2),
-                Lesson(title = "Else if", moduleId = pyModule2.id, orderIndex = 3),
-                Lesson(title = "Switch", moduleId = pyModule2.id, orderIndex = 4),
+                Lesson(title = "If", moduleId = pyModule2.id!!, orderIndex = 1),
+                Lesson(title = "Else", moduleId = pyModule2.id!!, orderIndex = 2),
+                Lesson(title = "Else if", moduleId = pyModule2.id!!, orderIndex = 3),
+                Lesson(title = "Switch", moduleId = pyModule2.id!!, orderIndex = 4),
             )
         )
 
         swiftModuleLessons = lessonRepository.saveAll(listOf(
-            Lesson(title = "Variables I", moduleId = swiftModule1.id, orderIndex = 1),
-            Lesson(title = "Variables II", moduleId = swiftModule1.id, orderIndex = 2),
-            Lesson(title = "Data Types I", moduleId = swiftModule1.id, orderIndex = 3),
-            Lesson(title = "Data Types II", moduleId = swiftModule1.id, orderIndex = 4),
+            Lesson(title = "Variables I", moduleId = swiftModule1.id!!, orderIndex = 1),
+            Lesson(title = "Variables II", moduleId = swiftModule1.id!!, orderIndex = 2),
+            Lesson(title = "Data Types I", moduleId = swiftModule1.id!!, orderIndex = 3),
+            Lesson(title = "Data Types II", moduleId = swiftModule1.id!!, orderIndex = 4),
         ))
 
     }

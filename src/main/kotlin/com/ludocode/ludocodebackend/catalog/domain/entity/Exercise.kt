@@ -34,4 +34,7 @@ class Exercise (
     @Column(name = "lessonId")
     var lessonId: UUID? = null,
 
+    @Column(name = "is_deleted")
+    var isDeleted: Boolean? = false,
+
     )
