@@ -5,5 +5,6 @@ import java.util.UUID
 data class ExerciseOptionResponse(
     val id: UUID,
     val content: String,
-    val answerOrder: Int?
+    val answerOrder: Int?,
+    val exerciseVersion: Int
 )

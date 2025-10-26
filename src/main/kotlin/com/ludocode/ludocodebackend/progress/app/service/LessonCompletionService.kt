@@ -82,6 +82,9 @@ class LessonCompletionService(
         val attemptOptions: MutableList<AttemptOption> = mutableListOf()
 
         for (submission: ExerciseSubmissionRequest in request.submissions) {
+
+            val version = submission.version
+
             var scoreForSubmission: Int = 0
             val attemptsSize = submission.attempts.size
             total += attemptsSize
@@ -95,7 +98,7 @@ class LessonCompletionService(
                 val scoreForAttempt = computeScoreForAttempt(attempt, isPerfect)
                 scoreForSubmission += scoreForAttempt
                 val attemptId: UUID = UUID.randomUUID()
-                val exerciseAttempt = ExerciseAttempt(id = attemptId, score = scoreForAttempt, userId = userId, exerciseId = attempt.exerciseId)
+                val exerciseAttempt = ExerciseAttempt(id = attemptId, score = scoreForAttempt, userId = userId, exerciseId = attempt.exerciseId, exerciseVersion = version)
                 exerciseAttempts.add(exerciseAttempt)
 
                 for (token: String in attempt.answer) {

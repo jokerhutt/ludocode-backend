@@ -4,7 +4,9 @@ import java.util.UUID
 
 interface ExerciseFlatProjection {
 
+
     fun getExerciseId(): UUID
+    fun getVersion(): Int
     fun getTitle(): String
     fun getPrompt(): String?
     fun getExerciseType(): String
