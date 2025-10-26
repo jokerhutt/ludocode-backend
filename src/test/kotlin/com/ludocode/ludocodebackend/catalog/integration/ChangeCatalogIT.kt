@@ -28,6 +28,8 @@ import java.util.UUID
 
 class ChangeCatalogIT : AbstractIntegrationTest() {
 
+
+
     @BeforeEach
     fun seed () {
 
@@ -85,7 +87,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             LessonDiffRequest(lesson1.id!!, title = "l1", changedExercises = exerciseDiffRequest, exercisesToDelete = listOf(l1ExerciseToDelete.exerciseId.id))
         )
 
-        val moduleDifReq = ModuleDiffRequest(targetModule.id!!, "New Title", orderByIds = listOf(lesson2.id!!, lesson1.id!!), lessonDiffRequests, lessonsToDelete = listOf())
+        val moduleDifReq = ModuleDiffRequest(targetModule.id!!, "New Title", orderByIds = listOf(lesson2.id!!, lesson1.id!!, pyModule1Lessons[2].id!!, pyModule1Lessons[3].id!!), lessonDiffRequests, lessonsToDelete = listOf())
 
         val res = submitPostUpdateCatalog(req = moduleDifReq)
 
@@ -102,7 +104,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
             if (lesson.id == lesson1.id) {
                 assertThat(lesson.title).isEqualTo("l1")
-//                assertThat(lesson.orderIndex).isEqualTo(2)
+                assertThat(lesson.orderIndex).isEqualTo(2)
                 for (exercise: ExerciseResponse in exercises) {
 
                    assertThat(exercise.id).isNotEqualTo(l1ExerciseToDelete.exerciseId.id)
@@ -114,6 +116,10 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
                    }
                 }
+            }
+
+            if (lesson.id == lesson2.id) {
+                assertThat(lesson.orderIndex).isEqualTo(1)
             }
 
         }

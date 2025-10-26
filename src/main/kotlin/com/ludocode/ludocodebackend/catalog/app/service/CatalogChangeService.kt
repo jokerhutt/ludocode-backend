@@ -15,6 +15,8 @@ import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseOptionRepos
 import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.LessonRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
+import jakarta.persistence.EntityManager
+import jakarta.persistence.PersistenceContext
 import jakarta.transaction.Transactional
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -27,7 +29,8 @@ class CatalogChangeService(
     private val moduleRepository: ModuleRepository,
     private val exerciseRepository: ExerciseRepository,
     private val exerciseOptionRepository: ExerciseOptionRepository,
-    private val catalogService: CatalogService
+    private val catalogService: CatalogService,
+    @PersistenceContext private val entityManager: EntityManager
 ) {
 
 
@@ -57,15 +60,18 @@ class CatalogChangeService(
 
         if (req.orderByIds != null) {
             val ids = req.orderByIds
-            require(ids.distinct().size == ids.size) { "Duplicate lesson ids in order" }
 
-            val lessons = lessonRepository.findAllById(ids)
-            require(lessons.size == ids.size) { "Unknown lesson ids in order" }
-            require(lessons.all { it.moduleId == req.moduleId }) { "Lesson not in module" }
-            require(lessons.none { it.isDeleted == true }) { "Deleted lesson in ordering" }
+            val active = lessonRepository.findActiveIdsByModule(req.moduleId)
+            require(ids.size == active.size) { "Order must include all active lessons" }
+            require(ids.toSet() == active.toSet()) { "Order IDs mismatch active lessons" }
 
-            ids.forEach { lessonRepository.bumpOrderTemp(it) }
+            lessonRepository.bumpAllInModule(req.moduleId)
+
             ids.forEachIndexed { idx, id -> lessonRepository.setOrder(id, idx + 1) }
+
+            entityManager.flush()
+            entityManager.clear()
+
         }
 
 
