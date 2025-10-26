@@ -15,11 +15,7 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.ADMIN
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.CHANGE_CATALOG
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.UPDATE_COURSE
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
-import com.ludocode.ludocodebackend.user.api.dto.request.ChangeCourseRequest
-import com.ludocode.ludocodebackend.user.api.dto.response.UpdatedCourseResponse
 import io.restassured.RestAssured.given
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -69,25 +65,39 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         val l1ExerciseToDelete = exercises.get(1)
         val l1ExerciseToModify = exercises.get(0)
 
+        val l5ExerciseToAddOptions = listOf(
+            ExerciseOptionDiffRequest(id = null, "newOption", answerOrder = null),
+            ExerciseOptionDiffRequest(id = null, "world", answerOrder = 1)
+        )
 
+        val l5ExerciseToAdd = ExerciseDiffRequest(id = UUID.randomUUID(), "newLessonExercise", "hello ___", exerciseType = ExerciseType.CLOZE, currentVersion = 1, options = l5ExerciseToAddOptions)
 
+        val l5LessonToAdd = LessonDiffRequest(lessonId = null, tempId = UUID.randomUUID(), title = "newLesson", changedExercises = listOf(l5ExerciseToAdd), exercisesToDelete = listOf())
 
+        val l1ExerciseToAddOptions = listOf(
+            ExerciseOptionDiffRequest(id = null, "meow", answerOrder = null),
+            ExerciseOptionDiffRequest(id = null, "kachow", answerOrder = 1)
+        )
 
+        val l1ExerciseToAdd = ExerciseDiffRequest(id = UUID.randomUUID(), "newLessonExercise", "hello ___", exerciseType = ExerciseType.CLOZE, currentVersion = 1, options = l1ExerciseToAddOptions)
 
 
         val newOptions = listOf(
-            ExerciseOptionDiffRequest(exerciseOptions[0].id!!, content = "newcontent", answerOrder = null),
-            ExerciseOptionDiffRequest(exerciseOptions[1].id!!, content = "house", answerOrder = 1)
+            ExerciseOptionDiffRequest(null, content = "newcontent", answerOrder = null),
+            ExerciseOptionDiffRequest(null, content = "house", answerOrder = 1)
         )
         val exerciseDiffRequest = listOf(
-            ExerciseDiffRequest(l1ExerciseToModify.exerciseId.id, "l1e1", l1ExerciseToModify.prompt!!, l1ExerciseToModify.exerciseType, l1ExerciseToModify.exerciseId.version, options = newOptions)
+            ExerciseDiffRequest(l1ExerciseToModify.exerciseId.id, "l1e1", l1ExerciseToModify.prompt!!, l1ExerciseToModify.exerciseType, l1ExerciseToModify.exerciseId.version, options = newOptions),
+            l1ExerciseToAdd
+
         )
 
         val lessonDiffRequests = listOf(
-            LessonDiffRequest(lesson1.id!!, title = "l1", changedExercises = exerciseDiffRequest, exercisesToDelete = listOf(l1ExerciseToDelete.exerciseId.id))
+            LessonDiffRequest(lesson1.id!!, tempId = lesson1.id!!, title = "l1", changedExercises = exerciseDiffRequest, exercisesToDelete = listOf(l1ExerciseToDelete.exerciseId.id)),
+            l5LessonToAdd
         )
 
-        val moduleDifReq = ModuleDiffRequest(targetModule.id!!, "New Title", orderByIds = listOf(lesson2.id!!, lesson1.id!!, pyModule1Lessons[2].id!!, pyModule1Lessons[3].id!!), lessonDiffRequests, lessonsToDelete = listOf())
+        val moduleDifReq = ModuleDiffRequest(targetModule.id!!, "New Title", orderByIds = listOf(lesson2.id!!, lesson1.id!!, pyModule1Lessons[2].id!!, pyModule1Lessons[3].id!!, l5LessonToAdd.tempId), lessonDiffRequests, lessonsToDelete = listOf())
 
         val res = submitPostUpdateCatalog(req = moduleDifReq)
 
@@ -100,11 +110,15 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         for (ccLesson: CCLessonResponse in res.lessons) {
             val lesson = ccLesson.lesson
             val exercises = ccLesson.exercises
-            assertThat(exercises).isNotNull()
+            assertThat(res.lessons.any { it.lesson.title == "newLesson" }).isTrue
 
             if (lesson.id == lesson1.id) {
                 assertThat(lesson.title).isEqualTo("l1")
                 assertThat(lesson.orderIndex).isEqualTo(2)
+
+                assertThat(exercises.map { it.id })
+                    .contains(l1ExerciseToAdd.id)
+
                 for (exercise: ExerciseResponse in exercises) {
 
                    assertThat(exercise.id).isNotEqualTo(l1ExerciseToDelete.exerciseId.id)
@@ -115,6 +129,23 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
                        assertThat(exercise.version).isEqualTo(2)
 
                    }
+
+                   if (exercise.id == l1ExerciseToAdd.id) {
+                       assertThat(exercise.title).isEqualTo(l1ExerciseToAdd.title)
+                       assertThat(exercise.prompt).isEqualTo(l1ExerciseToAdd.prompt)
+                       assertThat(exercise.version).isEqualTo(1)
+                       assertThat(exercise.exerciseOptions.size).isEqualTo(2)
+                   }
+
+                }
+            }
+
+            if (lesson.title == l5ExerciseToAdd.title) {
+                assertThat(lesson.orderIndex).isEqualTo(5)
+                assertThat(exercises.size).isEqualTo(1)
+                for (exercise: ExerciseResponse in exercises) {
+                    assertThat(exercise.prompt).isEqualTo("hello ___")
+                    assertThat(exercise.exerciseOptions.size).isEqualTo(2)
                 }
             }
 

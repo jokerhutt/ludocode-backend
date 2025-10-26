@@ -14,9 +14,7 @@ import java.util.UUID
 class Lesson (
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @UuidGenerator
-    val id: UUID? = null,
+    val id: UUID,
 
     @Column(name = "title", nullable = false)
     var title: String,

@@ -33,144 +33,101 @@ class CatalogChangeService(
     @PersistenceContext private val entityManager: EntityManager
 ) {
 
-
     @Transactional
-    fun applyLessonDif (req: ModuleDiffRequest): CCModuleResponse {
-
-        //1 lock scope
-        val moduleOptional = moduleRepository.findByIdForUpdate(req.moduleId)
-        if (moduleOptional.isEmpty) throw IllegalStateException("Module id error")
-        val module = moduleOptional.get()
-        //2 validate request
-
-        //3 update module
+    fun applyLessonDif(req: ModuleDiffRequest): CCModuleResponse {
+        val module = moduleRepository.findByIdForUpdate(req.moduleId).orElseThrow()
         module.title = req.title
-
         moduleRepository.save(module)
 
-        //4 soft delete lessons
-        if (!req.lessonsToDelete.isEmpty()) {
-            lessonRepository.softDeleteIn(req.lessonsToDelete)
+        if (req.lessonsToDelete.isNotEmpty()) lessonRepository.softDeleteIn(req.lessonsToDelete)
+
+        val tempToReal = mutableMapOf<UUID, UUID>()
+        req.changedLessons.forEach { ld ->
+            tempToReal[ld.tempId] = ld.lessonId ?: UUID.randomUUID()
         }
 
-        //5 upsert changes
-        for (lessonDiff: LessonDiffRequest in req.changedLessons) {
-            upsertLessonDiff(lessonDiff, module.id!!)
+        req.changedLessons.forEach { ld ->
+            upsertLesson(ld, module.id!!, tempToReal[ld.tempId]!!)
         }
 
-        if (req.orderByIds != null) {
-            val ids = req.orderByIds
+        req.orderByIds?.let { orderKeys ->
+            val finalOrder = orderKeys.map { tempToReal[it] ?: it }
 
-            val active = lessonRepository.findActiveIdsByModule(req.moduleId)
-            require(ids.size == active.size) { "Order must include all active lessons" }
-            require(ids.toSet() == active.toSet()) { "Order IDs mismatch active lessons" }
+            val active = lessonRepository.findActiveIdsByModule(module.id!!)
+            require(finalOrder.size == active.size) { "Order must include all active lessons" }
+            require(finalOrder.toSet() == active.toSet()) { "Order IDs mismatch active lessons" }
 
-            lessonRepository.bumpAllInModule(req.moduleId)
-
-            ids.forEachIndexed { idx, id -> lessonRepository.setOrder(id, idx + 1) }
-
-            entityManager.flush()
-            entityManager.clear()
-
+            entityManager.flush(); entityManager.clear()
+            lessonRepository.bumpAllInModule(module.id!!)
+            finalOrder.forEachIndexed { idx, id -> lessonRepository.setOrder(id, idx + 1) }
+            entityManager.flush(); entityManager.clear()
         }
-
 
         val newModule = moduleRepository.findById(module.id!!).orElseThrow()
-
-        var lessonsResponseList = mutableListOf<CCLessonResponse>()
-
-        val newLessons = lessonRepository.findAllByModuleId(module.id!!)
-
-        for (lesson: Lesson in newLessons) {
-            val newExercises = catalogService.getExercisesByLessonId(lesson.id!!)
-            lessonsResponseList.add(CCLessonResponse(lesson, newExercises))
-        }
-
-        return CCModuleResponse(module = newModule, lessons = lessonsResponseList)
-
+        val lessons = lessonRepository.findAllByModuleId(module.id!!)
+        val responses = lessons.map { l -> CCLessonResponse(l, catalogService.getExercisesByLessonId(l.id!!)) }
+        return CCModuleResponse(newModule, responses)
     }
 
+    private fun upsertLesson(ld: LessonDiffRequest, moduleId: UUID, realId: UUID) {
+        val managed = lessonRepository.findById(realId).orElse(null)
 
-
-
-
-    fun upsertLessonDiff(lessonDiff: LessonDiffRequest, moduleId: UUID) {
-        val lessonId = if (lessonDiff.lessonId == null) {
-            // create new lesson
+        if (managed == null) {
             val newLesson = Lesson(
-                id = UUID.randomUUID(),
+                id = realId,
                 moduleId = moduleId,
-                title = lessonDiff.title,
+                title = ld.title,
                 isDeleted = false
             )
-            lessonRepository.save(newLesson)
-            newLesson.id!!  // ✅ capture real lessonId here
+            entityManager.persist(newLesson)
         } else {
-            // update existing
-            val lesson = lessonRepository.findById(lessonDiff.lessonId).orElseThrow()
-            require(lesson.moduleId == moduleId) { "Lesson not in module" }
-            if (lesson.isDeleted == true) error("Lesson is deleted")
-            lesson.title = lessonDiff.title
-            lessonRepository.save(lesson)
-            lesson.id!!   // ✅ existing id
+            require(!managed.isDeleted) { "Lesson is deleted" }
+            require(managed.moduleId == moduleId) { "Lesson not in module" }
+            managed.title = ld.title
         }
 
+        if (ld.exercisesToDelete.isNotEmpty()) insertDeletedVersions(realId, ld.exercisesToDelete)
 
-        // 1. Delete exercises
-        if (lessonDiff.exercisesToDelete.isNotEmpty()) {
-            insertDeletedVersions(lessonId, lessonDiff.exercisesToDelete)
+        ld.changedExercises.forEach { ed ->
+            val (exerciseId, version) = upsertExerciseVersion(realId, ed)
+            replaceOptions(exerciseId, version, ed.options)
         }
-
-        // 2. Changed or new exercises
-        for (exerciseDiff in lessonDiff.changedExercises) {
-            val (exerciseId, version) = upsertExerciseVersion(lessonId, exerciseDiff)
-            replaceOptions(exerciseId, version, exerciseDiff.options)
-        }
-
-
-
     }
 
     private fun upsertExerciseVersion(
         lessonId: UUID,
         ed: ExerciseDiffRequest
     ): Pair<UUID, Int> {
-
         val exerciseId = ed.id ?: UUID.randomUUID()
-        val version =
-            if (ed.id == null) 1
-            else exerciseRepository.bumpVersion(exerciseId)
+        val version = if (ed.id == null) 1 else exerciseRepository.bumpVersion(exerciseId)
 
-        val row = Exercise(
-            exerciseId = ExerciseId(exerciseId, version),
-            title = ed.title,
-            prompt = ed.prompt,
-            exerciseType = ed.exerciseType,
-            lessonId = lessonId,
-            isDeleted = false
+        exerciseRepository.save(
+            Exercise(
+                exerciseId = ExerciseId(exerciseId, version),
+                title = ed.title,
+                prompt = ed.prompt,
+                exerciseType = ed.exerciseType,
+                lessonId = lessonId,
+                isDeleted = false
+            )
         )
-
-        exerciseRepository.save(row)
         return exerciseId to version
     }
 
-    private fun replaceOptions(
-        exerciseId: UUID,
-        version: Int,
-        options: List<ExerciseOptionDiffRequest>
-    ) {
+    private fun replaceOptions(exerciseId: UUID, version: Int, options: List<ExerciseOptionDiffRequest>) {
         exerciseOptionRepository.deleteByExerciseIdAndVersion(exerciseId, version)
+        entityManager.flush()
 
-        val rows = options.mapIndexed { i, o ->
-            ExerciseOption(
-                id = o.id ?: UUID.randomUUID(),
+        options.forEachIndexed { i, o ->
+            val entity = ExerciseOption(
+                id = null,                              // ← must be null for inserts
                 content = o.content,
                 answerOrder = o.answerOrder ?: i + 1,
                 exerciseId = exerciseId,
                 exerciseVersion = version
             )
+            entityManager.persist(entity)              // insert
         }
-        exerciseOptionRepository.saveAll(rows)
     }
 
     fun insertDeletedVersions(lessonId: UUID, exerciseIds: List<UUID>) {
@@ -188,9 +145,4 @@ class CatalogChangeService(
             )
         }
     }
-
-
-
-
-
 }
