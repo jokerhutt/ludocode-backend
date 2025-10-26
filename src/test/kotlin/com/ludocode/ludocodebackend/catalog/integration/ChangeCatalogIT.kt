@@ -1,9 +1,5 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
-import com.ludocode.ludocodebackend.catalog.api.dto.admin.request.ExerciseDiffRequest
-import com.ludocode.ludocodebackend.catalog.api.dto.admin.request.ExerciseOptionDiffRequest
-import com.ludocode.ludocodebackend.catalog.api.dto.admin.request.LessonDiffRequest
-import com.ludocode.ludocodebackend.catalog.api.dto.admin.request.ModuleDiffRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.admin.response.CCLessonResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.admin.response.CCModuleResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.admin.snapshot.ExerciseSnap
@@ -17,8 +13,8 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.ADMIN
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.CHANGE_CATALOG
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.SNAPSHOT
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.SUBMIT_SNAPSHOT
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured.given
 import org.assertj.core.api.Assertions.assertThat
@@ -85,7 +81,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             id = null,
             tempId = UUID.randomUUID(),
             title = "newLesson",
-            exercises = listOf(l5ExerciseToAdd)
+            exercises = listOf(l5ExerciseToAdd),
+            orderIndex = 5
         )
 
 // existing lesson1: modify one exercise + add one exercise
@@ -118,7 +115,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             id = lesson1.id!!,
             tempId = lesson1.id!!,
             title = "l1",
-            exercises = exerciseSnapsForL1
+            exercises = exerciseSnapsForL1,
+            orderIndex = 2
         )
 
 // unchanged lessons to preserve order
@@ -126,19 +124,22 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             id = lesson2.id!!,
             tempId = lesson2.id!!,
             title = lesson2.title,
-            exercises = emptyList()
+            exercises = emptyList(),
+            orderIndex = 1
         )
         val lesson3Snap = LessonSnap(
             id = pyModule1Lessons[2].id!!,
             tempId = pyModule1Lessons[2].id!!,
             title = pyModule1Lessons[2].title,
-            exercises = emptyList()
+            exercises = emptyList(),
+            orderIndex = 3
         )
         val lesson4Snap = LessonSnap(
             id = pyModule1Lessons[3].id!!,
             tempId = pyModule1Lessons[3].id!!,
             title = pyModule1Lessons[3].title,
-            exercises = emptyList()
+            exercises = emptyList(),
+            orderIndex = 4
         )
 
 // snapshot in desired order: [lesson2, lesson1, lesson3, lesson4, new lesson]
@@ -152,71 +153,63 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
         assertThat(res).isNotNull()
 
-        val resModule = res.module
-        assertThat(resModule.title).isNotEqualTo(targetModule.title)
-        assertThat(resModule.title).isEqualTo("New Title")
+        assertThat(res.title).isNotEqualTo(targetModule.title)
+        assertThat(res.title).isEqualTo("New Title")
+        assertThat(res.lessons.any { it.title == "newLesson" }).isTrue
 
-        for (ccLesson: CCLessonResponse in res.lessons) {
-            val lesson = ccLesson.lesson
-            val exercises = ccLesson.exercises
-            assertThat(res.lessons.any { it.lesson.title == "newLesson" }).isTrue
+        for (lesson: LessonSnap in res.lessons) {
 
             if (lesson.id == lesson1.id) {
                 assertThat(lesson.title).isEqualTo("l1")
                 assertThat(lesson.orderIndex).isEqualTo(2)
 
-                assertThat(exercises.map { it.id })
+                assertThat(lesson.exercises.map { it.id })
                     .contains(l1ExerciseToAdd.id)
 
-                for (exercise: ExerciseResponse in exercises) {
+                for (exercise: ExerciseSnap in lesson.exercises) {
 
-                   assertThat(exercise.id).isNotEqualTo(l1ExerciseToDelete.exerciseId.id)
+                    assertThat(exercise.id).isNotEqualTo(l1ExerciseToDelete.exerciseId.id)
 
-                   if (exercise.id == l1ExerciseToModify.exerciseId.id) {
-                       assertThat(exercise.title).isEqualTo("l1e1")
-                       assertThat(exercise.prompt).isEqualTo(l1ExerciseToModify.prompt)
-                       assertThat(exercise.version).isEqualTo(2)
+                    if (exercise.id == l1ExerciseToModify.exerciseId.id) {
+                        assertThat(exercise.title).isEqualTo("l1e1")
+                        assertThat(exercise.prompt).isEqualTo(l1ExerciseToModify.prompt)
+                    }
 
-                   }
-
-                   if (exercise.id == l1ExerciseToAdd.id) {
-                       assertThat(exercise.title).isEqualTo(l1ExerciseToAdd.title)
-                       assertThat(exercise.prompt).isEqualTo(l1ExerciseToAdd.prompt)
-                       assertThat(exercise.version).isEqualTo(1)
-                       assertThat(exercise.exerciseOptions.size).isEqualTo(2)
-                   }
-
+                    if (exercise.id == l1ExerciseToAdd.id) {
+                        assertThat(exercise.title).isEqualTo(l1ExerciseToAdd.title)
+                        assertThat(exercise.prompt).isEqualTo(l1ExerciseToAdd.prompt)
+                        assertThat(exercise.options.size).isEqualTo(2)
+                    }
                 }
             }
 
             if (lesson.title == l5ExerciseToAdd.title) {
                 assertThat(lesson.orderIndex).isEqualTo(5)
-                assertThat(exercises.size).isEqualTo(1)
-                for (exercise: ExerciseResponse in exercises) {
+                assertThat(lesson.exercises.size).isEqualTo(1)
+                for (exercise: ExerciseSnap in lesson.exercises) {
                     assertThat(exercise.prompt).isEqualTo("hello ___")
-                    assertThat(exercise.exerciseOptions.size).isEqualTo(2)
+                    assertThat(exercise.options.size).isEqualTo(2)
                 }
             }
 
             if (lesson.id == lesson2.id) {
                 assertThat(lesson.orderIndex).isEqualTo(1)
             }
-
         }
 
 
 
     }
 
-    private fun submitPostUpdateCatalog(req: ModuleSnapshot): CCModuleResponse =
+    private fun submitPostUpdateCatalog(req: ModuleSnapshot): ModuleSnapshot =
         given()
             .contentType(io.restassured.http.ContentType.JSON)
             .body(req)
             .`when`()
-            .post("$ADMIN$CHANGE_CATALOG")
+            .post("$SNAPSHOT$SUBMIT_SNAPSHOT")
             .then()
             .statusCode(200)
             .extract()
-            .`as`(CCModuleResponse::class.java)
+            .`as`(ModuleSnapshot::class.java)
 
 }

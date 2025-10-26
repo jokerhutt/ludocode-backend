@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.admin.request.LessonDiffRequ
 import com.ludocode.ludocodebackend.catalog.api.dto.admin.request.ModuleDiffRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.admin.response.CCLessonResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.admin.response.CCModuleResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.admin.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.admin.snapshot.LessonSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.admin.snapshot.ModuleSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.admin.snapshot.OptionSnap
@@ -37,7 +38,7 @@ class SnapshotService(
 ) {
 
     @Transactional
-    fun applyModuleSnapshot(s: ModuleSnapshot): CCModuleResponse {
+    fun applyModuleSnapshot(s: ModuleSnapshot): ModuleSnapshot {
         val module = moduleRepository.findByIdForUpdate(s.moduleId).orElseThrow()
         module.title = s.title
         moduleRepository.save(module)
@@ -61,11 +62,8 @@ class SnapshotService(
         s.lessons.forEachIndexed { idx, ls -> lessonRepository.setOrder(tempToReal[ls.tempId]!!, idx + 1) }
         entityManager.flush(); entityManager.clear()
 
-        // response
-        val freshModule = moduleRepository.findById(module.id!!).orElseThrow()
-        val lessons = lessonRepository.findAllByModuleId(module.id!!)
-        val responses = lessons.map { l -> CCLessonResponse(l, catalogService.getExercisesByLessonId(l.id!!)) }
-        return CCModuleResponse(freshModule, responses)
+        return buildModuleSnapshot(moduleId = module.id!!)
+
     }
 
     private fun upsertLesson(ls: LessonSnap, moduleId: UUID, realId: UUID) {
@@ -134,4 +132,56 @@ class SnapshotService(
             )
         }
     }
+
+    fun getSnapshotsByCourseId(courseId: UUID): List<ModuleSnapshot> {
+        val moduleIds = moduleRepository.findModuleIdsByCourse(courseId)
+        var moduleSnapshots = mutableListOf<ModuleSnapshot>()
+
+        for (moduleId in moduleIds) {
+            val snapshot = buildModuleSnapshot(moduleId)
+            moduleSnapshots.add(snapshot)
+        }
+
+        return moduleSnapshots
+
+    }
+
+    fun buildModuleSnapshot(moduleId: UUID): ModuleSnapshot {
+        val module = moduleRepository.findById(moduleId).orElseThrow()
+
+        // assume lessons are returned ordered by order_index, id
+        val lessons = lessonRepository.findAllByModuleId(moduleId)
+
+        val lessonSnaps = lessons.map { l ->
+            val exResponses = catalogService.getExercisesByLessonId(l.id!!)
+            val exSnaps = exResponses.map { er ->
+                ExerciseSnap(
+                    id = er.id,
+                    title = er.title,
+                    prompt = er.prompt!!,
+                    exerciseType = er.exerciseType,
+                    options = er.exerciseOptions.map { opt ->
+                        OptionSnap(
+                            content = opt.content,
+                            answerOrder = opt.answerOrder
+                        )
+                    }
+                )
+            }
+            LessonSnap(
+                id = l.id!!,
+                tempId = l.id!!,
+                title = l.title,
+                orderIndex = l.orderIndex,
+                exercises = exSnaps
+            )
+        }
+
+        return ModuleSnapshot(
+            moduleId = module.id!!,
+            title = module.title!!,
+            lessons = lessonSnaps
+        )
+    }
+
 }

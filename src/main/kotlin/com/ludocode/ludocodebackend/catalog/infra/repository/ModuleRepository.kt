@@ -14,6 +14,14 @@ interface ModuleRepository : JpaRepository<Module, UUID> {
 
     fun findAllByIdIn(ids: List<UUID>): List<Module>
 
+    @Query("""
+    select m.id 
+    from module m
+    where m.course_id = :courseId
+""", nativeQuery = true)
+    fun findModuleIdsByCourse(@Param("courseId") courseId: UUID): List<UUID>
+
+
     @Query(
         value = """
       SELECT 
