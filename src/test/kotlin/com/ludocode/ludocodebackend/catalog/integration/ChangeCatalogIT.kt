@@ -6,6 +6,10 @@ import com.ludocode.ludocodebackend.catalog.api.dto.admin.request.LessonDiffRequ
 import com.ludocode.ludocodebackend.catalog.api.dto.admin.request.ModuleDiffRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.admin.response.CCLessonResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.admin.response.CCModuleResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.admin.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.admin.snapshot.LessonSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.admin.snapshot.ModuleSnapshot
+import com.ludocode.ludocodebackend.catalog.api.dto.admin.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
@@ -62,42 +66,87 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             ExerciseOption(content = "const", answerOrder = null, exerciseId = exercises[3].exerciseId.id, exerciseVersion = 1),
         ))
 
-        val l1ExerciseToDelete = exercises.get(1)
-        val l1ExerciseToModify = exercises.get(0)
+        val l1ExerciseToDelete = exercises[1]
+        val l1ExerciseToModify = exercises[0]
 
+// new lesson to add
         val l5ExerciseToAddOptions = listOf(
-            ExerciseOptionDiffRequest(id = null, "newOption", answerOrder = null),
-            ExerciseOptionDiffRequest(id = null, "world", answerOrder = 1)
+            OptionSnap( content = "newOption", answerOrder = null),
+            OptionSnap( content = "world", answerOrder = 1)
+        )
+        val l5ExerciseToAdd = ExerciseSnap(
+            id = UUID.randomUUID(),
+            title = "newLessonExercise",
+            prompt = "hello ___",
+            exerciseType = ExerciseType.CLOZE,
+            options = l5ExerciseToAddOptions
+        )
+        val l5LessonToAdd = LessonSnap(
+            id = null,
+            tempId = UUID.randomUUID(),
+            title = "newLesson",
+            exercises = listOf(l5ExerciseToAdd)
         )
 
-        val l5ExerciseToAdd = ExerciseDiffRequest(id = UUID.randomUUID(), "newLessonExercise", "hello ___", exerciseType = ExerciseType.CLOZE, currentVersion = 1, options = l5ExerciseToAddOptions)
-
-        val l5LessonToAdd = LessonDiffRequest(lessonId = null, tempId = UUID.randomUUID(), title = "newLesson", changedExercises = listOf(l5ExerciseToAdd), exercisesToDelete = listOf())
-
+// existing lesson1: modify one exercise + add one exercise
         val l1ExerciseToAddOptions = listOf(
-            ExerciseOptionDiffRequest(id = null, "meow", answerOrder = null),
-            ExerciseOptionDiffRequest(id = null, "kachow", answerOrder = 1)
+            OptionSnap(content = "meow", answerOrder = null),
+            OptionSnap(content = "kachow", answerOrder = 1)
         )
-
-        val l1ExerciseToAdd = ExerciseDiffRequest(id = UUID.randomUUID(), "newLessonExercise", "hello ___", exerciseType = ExerciseType.CLOZE, currentVersion = 1, options = l1ExerciseToAddOptions)
-
-
+        val l1ExerciseToAdd = ExerciseSnap(
+            id = UUID.randomUUID(),
+            title = "newLessonExercise",
+            prompt = "hello ___",
+            exerciseType = ExerciseType.CLOZE,
+            options = l1ExerciseToAddOptions
+        )
         val newOptions = listOf(
-            ExerciseOptionDiffRequest(null, content = "newcontent", answerOrder = null),
-            ExerciseOptionDiffRequest(null, content = "house", answerOrder = 1)
+            OptionSnap( content = "newcontent", answerOrder = null),
+            OptionSnap(content = "house", answerOrder = 1)
         )
-        val exerciseDiffRequest = listOf(
-            ExerciseDiffRequest(l1ExerciseToModify.exerciseId.id, "l1e1", l1ExerciseToModify.prompt!!, l1ExerciseToModify.exerciseType, l1ExerciseToModify.exerciseId.version, options = newOptions),
+        val exerciseSnapsForL1 = listOf(
+            ExerciseSnap(
+                id = l1ExerciseToModify.exerciseId.id,
+                title = "l1e1",
+                prompt = l1ExerciseToModify.prompt!!,
+                exerciseType = l1ExerciseToModify.exerciseType,
+                options = newOptions
+            ),
             l1ExerciseToAdd
-
+        )
+        val lesson1Snap = LessonSnap(
+            id = lesson1.id!!,
+            tempId = lesson1.id!!,
+            title = "l1",
+            exercises = exerciseSnapsForL1
         )
 
-        val lessonDiffRequests = listOf(
-            LessonDiffRequest(lesson1.id!!, tempId = lesson1.id!!, title = "l1", changedExercises = exerciseDiffRequest, exercisesToDelete = listOf(l1ExerciseToDelete.exerciseId.id)),
-            l5LessonToAdd
+// unchanged lessons to preserve order
+        val lesson2Snap = LessonSnap(
+            id = lesson2.id!!,
+            tempId = lesson2.id!!,
+            title = lesson2.title,
+            exercises = emptyList()
+        )
+        val lesson3Snap = LessonSnap(
+            id = pyModule1Lessons[2].id!!,
+            tempId = pyModule1Lessons[2].id!!,
+            title = pyModule1Lessons[2].title,
+            exercises = emptyList()
+        )
+        val lesson4Snap = LessonSnap(
+            id = pyModule1Lessons[3].id!!,
+            tempId = pyModule1Lessons[3].id!!,
+            title = pyModule1Lessons[3].title,
+            exercises = emptyList()
         )
 
-        val moduleDifReq = ModuleDiffRequest(targetModule.id!!, "New Title", orderByIds = listOf(lesson2.id!!, lesson1.id!!, pyModule1Lessons[2].id!!, pyModule1Lessons[3].id!!, l5LessonToAdd.tempId), lessonDiffRequests, lessonsToDelete = listOf())
+// snapshot in desired order: [lesson2, lesson1, lesson3, lesson4, new lesson]
+        val moduleDifReq = ModuleSnapshot(
+            moduleId = targetModule.id!!,
+            title = "New Title",
+            lessons = listOf(lesson2Snap, lesson1Snap, lesson3Snap, lesson4Snap, l5LessonToAdd)
+        )
 
         val res = submitPostUpdateCatalog(req = moduleDifReq)
 
@@ -159,7 +208,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
     }
 
-    private fun submitPostUpdateCatalog(req: ModuleDiffRequest): CCModuleResponse =
+    private fun submitPostUpdateCatalog(req: ModuleSnapshot): CCModuleResponse =
         given()
             .contentType(io.restassured.http.ContentType.JSON)
             .body(req)
@@ -169,9 +218,5 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             .statusCode(200)
             .extract()
             .`as`(CCModuleResponse::class.java)
-
-
-
-
 
 }

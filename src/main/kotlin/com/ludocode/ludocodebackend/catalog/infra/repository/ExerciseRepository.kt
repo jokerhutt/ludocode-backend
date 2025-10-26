@@ -52,6 +52,18 @@ interface ExerciseRepository : JpaRepository<Exercise, ExerciseId>{
     fun bumpVersion(exerciseId: UUID): Int
 
 
+        @Query(
+            """
+        select e.exerciseId.id
+        from Exercise e
+        where e.lessonId = :lessonId
+          and e.isDeleted = false
+        group by e.exerciseId.id
+        """
+        )
+        fun findActiveExerciseIdsByLesson(@Param("lessonId") lessonId: UUID): List<UUID>
+
+
 
 
 
