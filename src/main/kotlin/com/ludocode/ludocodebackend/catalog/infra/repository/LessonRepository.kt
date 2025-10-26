@@ -17,11 +17,11 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
            l.title AS title,
            l.order_index AS orderIndex,
            EXISTS (
-             SELECT 1
-             FROM lesson_completion lc
-             WHERE lc.is_deleted = false
-               AND lc.lesson_id = l.id
-               AND lc.user_id = :userId
+               SELECT 1
+               FROM lesson_completion lc
+               WHERE lc.is_deleted = false
+                 AND lc.lesson_id = l.id
+                 AND lc.user_id = :userId
            ) AS isCompleted
     FROM lesson l
     WHERE l.is_deleted = false
@@ -37,21 +37,18 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
 
     @Query(
         value = """
-    SELECT l.id AS id,
-           l.title AS title,
-           l.order_index AS orderIndex,
-           EXISTS (
-             SELECT 1
-             FROM lesson_completion lc
-             WHERE lc.is_deleted = false
-               AND lc.lesson_id = l.id
-               AND lc.user_id = :userId
-           ) AS isCompleted
-    FROM lesson l
-    WHERE l.is_deleted = false
-      AND l.id IN (:lessonIds)
-    ORDER BY l.order_index, l.id
-  """,
+    SELECT lesson.id AS id, lesson.title AS title, lesson.order_index AS orderIndex,
+        EXISTS (
+            SELECT 1
+            FROM lesson_completion lessonCompletion
+            WHERE lessonCompletion.is_deleted = false
+            AND lessonCompletion.lesson_id = lesson.id 
+            AND lessonCompletion.user_id = :userId
+        ) AS isCompleted
+    FROM lesson lesson
+    WHERE lesson.id IN (:lessonIds)
+    ORDER BY lesson.order_index
+    """,
         nativeQuery = true
     )
     fun findUserLessonsByIds(
