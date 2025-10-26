@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.catalog.api.dto.admin.snapshot
+package com.ludocode.ludocodebackend.catalog.api.dto.snapshot
 
 import java.util.UUID
 

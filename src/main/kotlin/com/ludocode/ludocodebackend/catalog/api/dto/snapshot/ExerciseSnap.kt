@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.catalog.api.dto.admin.snapshot
+package com.ludocode.ludocodebackend.catalog.api.dto.snapshot
 
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
 import java.util.UUID

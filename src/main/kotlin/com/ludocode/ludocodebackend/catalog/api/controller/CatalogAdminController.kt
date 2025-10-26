@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.api.controller
 
-import com.ludocode.ludocodebackend.catalog.api.dto.admin.snapshot.ModuleSnapshot
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnapshot
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotService
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import org.springframework.http.ResponseEntity

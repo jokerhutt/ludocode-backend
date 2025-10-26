@@ -1,12 +1,9 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
-import com.ludocode.ludocodebackend.catalog.api.dto.admin.response.CCLessonResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.admin.response.CCModuleResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.admin.snapshot.ExerciseSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.admin.snapshot.LessonSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.admin.snapshot.ModuleSnapshot
-import com.ludocode.ludocodebackend.catalog.api.dto.admin.snapshot.OptionSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnapshot
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
 import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
