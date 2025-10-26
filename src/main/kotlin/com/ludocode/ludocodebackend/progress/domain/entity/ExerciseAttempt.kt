@@ -23,6 +23,9 @@ class ExerciseAttempt (
     var exerciseId: UUID? = null,
 
     @Column(name = "score")
-    val score: Int
+    val score: Int,
+
+    @Column(name = "exercise_version")
+    val exerciseVersion: Int? = null
 
 )

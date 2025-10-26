@@ -1,7 +1,9 @@
 package com.ludocode.ludocodebackend.catalog.domain.entity
 
+import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
 import jakarta.persistence.Column
+import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -16,10 +18,8 @@ import java.util.UUID
 @Table(name = "exercise")
 class Exercise (
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @UuidGenerator
-    val id: UUID? = null,
+    @EmbeddedId
+    val exerciseId: ExerciseId,
 
     @Column(name = "title")
     var title: String? = null,
@@ -32,6 +32,9 @@ class Exercise (
     var exerciseType: ExerciseType,
 
     @Column(name = "lessonId")
-    var lessonId: UUID? = null
+    var lessonId: UUID? = null,
+
+    @Column(name = "is_deleted")
+    var isDeleted: Boolean? = false,
 
     )

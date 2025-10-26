@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.progress.integration
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
 import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
+import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROGRESS_COMPLETION
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.SUBMIT_COMPLETION
@@ -46,25 +47,26 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         ))
 
         val exercises = exerciseRepository.saveAll(listOf(
-            Exercise(title = "Complete the expression", prompt = "let sum = ___ + 4", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
-            Exercise(title = "Create a variable with a value of 'House'", prompt = "const ___ = ___", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
+            Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1), title = "Complete the expression", prompt = "let sum = ___ + 4", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
+            Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1), title = "Create a variable with a value of 'House'", prompt = "const ___ = ___", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
 
             ))
 
         val exerciseOptions = exerciseOptionRepository.saveAll(listOf(
-            ExerciseOption(content = "4", answerOrder = 1, exerciseId = exercises[0].id),
-            ExerciseOption(content = "4", answerOrder = null, exerciseId = exercises[0].id),
+            ExerciseOption(content = "4", answerOrder = 1, exerciseId = exercises[0].exerciseId.id, exerciseVersion = 1),
+            ExerciseOption(content = "4", answerOrder = null, exerciseId = exercises[0].exerciseId.id, exerciseVersion = 1),
 
-            ExerciseOption(content = "house", answerOrder = 1, exerciseId = exercises[1].id),
-            ExerciseOption(content = "'house'", answerOrder = 2, exerciseId = exercises[1].id),
+            ExerciseOption(content = "house", answerOrder = 1, exerciseId = exercises[1].exerciseId.id, exerciseVersion = 1),
+            ExerciseOption(content = "'house'", answerOrder = 2, exerciseId = exercises[1].exerciseId.id, exerciseVersion = 1),
 
             ))
 
         val sub1 = ExerciseSubmissionRequest(
-            exerciseId = exercises[0].id!!,
+            exerciseId = exercises[0].exerciseId.id!!,
+            version = exercises[0].exerciseId.version,
             attempts = listOf(
                 ExerciseAttemptRequest(
-                    exerciseId = exercises[0].id!!,
+                    exerciseId = exercises[0].exerciseId.id!!,
                     isCorrect = true,
                     answer = listOf("let", "sum", "=", "4"),
                 )
@@ -73,15 +75,16 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
 // For exercise 1 → user tried once WRONG, then tried again and got it RIGHT
         val sub2 = ExerciseSubmissionRequest(
-            exerciseId = exercises[1].id!!,
+            exerciseId = exercises[1].exerciseId.id!!,
+            version = exercises[1].exerciseId.version,
             attempts = listOf(
                 ExerciseAttemptRequest(
-                    exerciseId = exercises[1].id!!,
+                    exerciseId = exercises[1].exerciseId.id!!,
                     isCorrect = false,
                     answer = listOf("const", "x", "=", "house"), // wrong
                 ),
                 ExerciseAttemptRequest(
-                    exerciseId = exercises[1].id!!,
+                    exerciseId = exercises[1].exerciseId.id!!,
                     isCorrect = true,
                     answer = listOf("const", "x", "=", "'house'"),
                 )
@@ -123,24 +126,25 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         ))
 
         val exercises = exerciseRepository.saveAll(listOf(
-            Exercise(title = "Complete the expression", prompt = "let sum = ___ + 4", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
-            Exercise(title = "Create a variable with a value of 'House'", prompt = "const ___ = ___", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
+            Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1), title = "Complete the expression", prompt = "let sum = ___ + 4", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
+            Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1),title = "Create a variable with a value of 'House'", prompt = "const ___ = ___", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
             ))
 
         val exerciseOptions = exerciseOptionRepository.saveAll(listOf(
-            ExerciseOption(content = "4", answerOrder = 1, exerciseId = exercises[0].id),
-            ExerciseOption(content = "4", answerOrder = null, exerciseId = exercises[0].id),
+            ExerciseOption(content = "4", answerOrder = 1, exerciseId = exercises[0].exerciseId.id, exerciseVersion = 1),
+            ExerciseOption(content = "4", answerOrder = null, exerciseId = exercises[0].exerciseId.id, exerciseVersion = 1),
 
-            ExerciseOption(content = "house", answerOrder = 1, exerciseId = exercises[1].id),
-            ExerciseOption(content = "'house'", answerOrder = 2, exerciseId = exercises[1].id),
+            ExerciseOption(content = "house", answerOrder = 1, exerciseId = exercises[1].exerciseId.id, exerciseVersion = 1),
+            ExerciseOption(content = "'house'", answerOrder = 2, exerciseId = exercises[1].exerciseId.id, exerciseVersion = 1),
 
             ))
 
         val sub1 = ExerciseSubmissionRequest(
-            exerciseId = exercises[0].id!!,
+            exerciseId = exercises[0].exerciseId.id!!,
+            version = exercises[0].exerciseId.version,
             attempts = listOf(
                 ExerciseAttemptRequest(
-                    exerciseId = exercises[0].id!!,
+                    exerciseId = exercises[0].exerciseId.id!!,
                     isCorrect = true,
                     answer = listOf("let", "sum", "=", "4"),
                 )
@@ -149,15 +153,16 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
 // For exercise 1 → user tried once WRONG, then tried again and got it RIGHT
         val sub2 = ExerciseSubmissionRequest(
-            exerciseId = exercises[1].id!!,
+            exerciseId = exercises[1].exerciseId.id!!,
+            version = exercises[1].exerciseId.version,
             attempts = listOf(
                 ExerciseAttemptRequest(
-                    exerciseId = exercises[1].id!!,
+                    exerciseId = exercises[1].exerciseId.id!!,
                     isCorrect = false,
                     answer = listOf("const", "x", "=", "house"), // wrong
                 ),
                 ExerciseAttemptRequest(
-                    exerciseId = exercises[1].id!!,
+                    exerciseId = exercises[1].exerciseId.id!!,
                     isCorrect = true,
                     answer = listOf("const", "x", "=", "'house'"),
                 )
@@ -200,25 +205,26 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
             val nextLesson: Lesson = pyModule1Lessons[1]
 
             val exercises = exerciseRepository.saveAll(listOf(
-                Exercise(title = "Complete the expression", prompt = "let sum = ___ + 4", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
-                Exercise(title = "Create a variable with a value of 'House'", prompt = "const ___ = ___", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
+                Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1), title = "Complete the expression", prompt = "let sum = ___ + 4", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
+                Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1), title = "Create a variable with a value of 'House'", prompt = "const ___ = ___", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
 
             ))
 
             val exerciseOptions = exerciseOptionRepository.saveAll(listOf(
-                ExerciseOption(content = "4", answerOrder = 1, exerciseId = exercises[0].id),
-                ExerciseOption(content = "4", answerOrder = null, exerciseId = exercises[0].id),
+                ExerciseOption(content = "4", answerOrder = 1, exerciseId = exercises[0].exerciseId.id!!, exerciseVersion = 1),
+                ExerciseOption(content = "4", answerOrder = null, exerciseId = exercises[0].exerciseId.id!!, exerciseVersion = 1),
 
-                ExerciseOption(content = "house", answerOrder = 1, exerciseId = exercises[1].id),
-                ExerciseOption(content = "'house'", answerOrder = 2, exerciseId = exercises[1].id),
+                ExerciseOption(content = "house", answerOrder = 1, exerciseId = exercises[1].exerciseId.id!!, exerciseVersion = 1),
+                ExerciseOption(content = "'house'", answerOrder = 2, exerciseId = exercises[1].exerciseId.id!!, exerciseVersion = 1),
 
             ))
 
         val sub1 = ExerciseSubmissionRequest(
-            exerciseId = exercises[0].id!!,
+            exerciseId = exercises[0].exerciseId.id!!,
+            version = exercises[0].exerciseId.version,
             attempts = listOf(
                 ExerciseAttemptRequest(
-                    exerciseId = exercises[0].id!!,
+                    exerciseId = exercises[0].exerciseId.id!!,
                     isCorrect = true,
                     answer = listOf("let", "sum", "=", "4"),
                 )
@@ -227,15 +233,16 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
 // For exercise 1 → user tried once WRONG, then tried again and got it RIGHT
         val sub2 = ExerciseSubmissionRequest(
-            exerciseId = exercises[1].id!!,
+            exerciseId = exercises[1].exerciseId.id!!,
+            version = exercises[1].exerciseId.version,
             attempts = listOf(
                 ExerciseAttemptRequest(
-                    exerciseId = exercises[1].id!!,
+                    exerciseId = exercises[1].exerciseId.id!!,
                     isCorrect = false,
                     answer = listOf("const", "x", "=", "house"), // wrong
                 ),
                 ExerciseAttemptRequest(
-                    exerciseId = exercises[1].id!!,
+                    exerciseId = exercises[1].exerciseId.id!!,
                     isCorrect = true,
                     answer = listOf("const", "x", "=", "'house'"),
                 )

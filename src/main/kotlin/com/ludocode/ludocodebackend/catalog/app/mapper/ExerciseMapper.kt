@@ -18,6 +18,14 @@ class ExerciseMapper(private val basicMapper: BasicMapper) {
             .values
             .map { group -> toExerciseResponse(group) }
 
+    private fun toExerciseOptionResponse(p: ExerciseFlatProjection) =
+        ExerciseOptionResponse(
+            id = p.getOptionId()!!,                    // safe because we filter on optionId != null
+            content = p.getContent() ?: "",            // <- avoid NPE
+            answerOrder = p.getAnswerOrder(),
+            exerciseVersion = p.getVersion()
+        )
+
     private fun toExerciseResponse(group: List<ExerciseFlatProjection>): ExerciseResponse {
         val h = group.first()
         return ExerciseResponse(
@@ -26,18 +34,12 @@ class ExerciseMapper(private val basicMapper: BasicMapper) {
             prompt = h.getPrompt(),
             exerciseType = ExerciseType.valueOf(h.getExerciseType()),
             lessonId = h.getLessonId(),
+            version = h.getVersion(),
             exerciseOptions = group
-                .filter { it.getOptionId() != null }
-                .map { toExerciseOptionResponse(it) }
+                .filter { it.getOptionId() != null }   // guarantees id non-null above
+                .map(::toExerciseOptionResponse)
         )
     }
-
-    private fun toExerciseOptionResponse(row: ExerciseFlatProjection): ExerciseOptionResponse =
-        ExerciseOptionResponse(
-            id = row.getOptionId()!!,
-            content = row.getContent()!!,
-            answerOrder = row.getAnswerOrder()
-        )
 
 
 
