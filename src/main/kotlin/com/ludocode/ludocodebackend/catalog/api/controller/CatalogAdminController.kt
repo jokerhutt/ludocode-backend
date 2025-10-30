@@ -22,7 +22,7 @@ class CatalogAdminController(
 
     @PostMapping(PathConstants.SUBMIT_MODULE_SNAPSHOT)
     fun applyModuleSnapshot(@RequestBody s: ModuleSnapshot) : ResponseEntity<ModuleSnapshot> {
-        return ResponseEntity.ok(snapshotService.applyModuleSnapshot(s))
+        return ResponseEntity.ok(snapshotService.applyModuleSnapshot(s, s.tempId))
     }
 
     @PostMapping(PathConstants.SUBMIT_COURSE_SNAPSHOT)

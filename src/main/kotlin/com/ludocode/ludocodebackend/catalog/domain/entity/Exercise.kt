@@ -29,9 +29,8 @@ class Exercise (
     @Column(name = "prompt")
     var prompt: String? = null,
 
-    @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(name = "exercise_type", columnDefinition = "exercise_type")
+    @Column(name = "exercise_type")
     var exerciseType: ExerciseType,
 
     @Column(name = "lessonId")

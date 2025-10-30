@@ -5,6 +5,7 @@ import com.ludocode.ludocodebackend.catalog.infra.projection.FlatModuleLessonRow
 import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.util.Optional
@@ -42,6 +43,40 @@ interface ModuleRepository : JpaRepository<Module, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select m from Module m where m.id = :id")
     fun findByIdForUpdate(@Param("id") id: UUID): Optional<Module>
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(
+        value = """
+    UPDATE module 
+    SET order_index = order_index + 100000
+    WHERE course_id = :courseId AND is_deleted = false
+  """,
+        nativeQuery = true
+    )
+    fun bumpAllInCourse(@Param("courseId") courseId: UUID)
+
+    @Modifying
+    @Query("""
+    UPDATE module
+    SET is_deleted = true
+    WHERE id IN (:ids)
+""", nativeQuery = true)
+    fun softDeleteIn(@Param("ids") ids: List<UUID>)
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(
+        value = "UPDATE module SET order_index = :idx WHERE id = :id",
+        nativeQuery = true
+    )
+    fun setOrder(@Param("id") id: UUID, @Param("idx") idx: Int)
+
+    @Query(
+        value = "SELECT id FROM module WHERE course_id = :courseId AND is_deleted = false ORDER BY order_index, id",
+        nativeQuery = true
+    )
+    fun findActiveIdsByCourse(@Param("courseId") courseId: UUID): List<UUID>
+
+
 
 
 }

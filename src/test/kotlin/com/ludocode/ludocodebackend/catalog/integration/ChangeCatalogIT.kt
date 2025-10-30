@@ -145,6 +145,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 // snapshot in desired order: [lesson2, lesson1, lesson3, lesson4, new lesson]
         val moduleDifReq = ModuleSnapshot(
             moduleId = targetModule.id!!,
+            tempId = targetModule.id!!,
             title = "New Title",
             lessons = listOf(lesson2Snap, lesson1Snap, lesson3Snap, lesson4Snap, l5LessonToAdd)
         )

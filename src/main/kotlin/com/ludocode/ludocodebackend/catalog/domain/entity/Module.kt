@@ -14,8 +14,6 @@ import java.util.UUID
 class Module (
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @UuidGenerator
     val id: UUID? = null,
 
     @Column(name = "title")
@@ -26,5 +24,8 @@ class Module (
 
     @Column(name = "order_index")
     var orderIndex: Int? = null,
+
+    @Column(name = "is_deleted", nullable = false)
+    var isDeleted: Boolean = false
 
     )
