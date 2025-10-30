@@ -11,7 +11,9 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.annotations.UuidGenerator
+import org.hibernate.type.SqlTypes
 import java.util.UUID
 
 @Entity
@@ -28,7 +30,8 @@ class Exercise (
     var prompt: String? = null,
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "exercise_type", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "exercise_type", columnDefinition = "exercise_type")
     var exerciseType: ExerciseType,
 
     @Column(name = "lessonId")

@@ -8,5 +8,6 @@ data class ExerciseSnap(
     val title: String,
     val prompt: String,
     val exerciseType: ExerciseType,
-    val options: List<OptionSnap>          // no IDs; fresh per version
+    val correctOptions: List<OptionSnap>,
+    val distractors: List<OptionSnap>
 )

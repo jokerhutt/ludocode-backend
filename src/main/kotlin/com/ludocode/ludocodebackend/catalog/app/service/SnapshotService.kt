@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.app.service
 
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnapshot
@@ -30,6 +31,17 @@ class SnapshotService(
     private val catalogService: CatalogService,
     @PersistenceContext private val entityManager: EntityManager
 ) {
+
+    @Transactional
+    fun applyCourseSnapshot(s: CourseSnap): CourseSnap {
+        val modules = s.modules
+        var newModules = mutableListOf<ModuleSnapshot>()
+
+        for (module: ModuleSnapshot in modules) {
+            newModules.add(applyModuleSnapshot(module))
+        }
+        return CourseSnap(courseId = s.courseId, modules = newModules)
+    }
 
     @Transactional
     fun applyModuleSnapshot(s: ModuleSnapshot): ModuleSnapshot {
@@ -91,24 +103,51 @@ class SnapshotService(
                     isDeleted = false
                 )
             )
-            replaceOptions(exId, ver, ex.options)
+
+            val options = normalizeOptions(exId, ver, ex)
+            replaceOptions(exId, ver, options)
+
+
         }
     }
 
-    private fun replaceOptions(exerciseId: UUID, version: Int, options: List<OptionSnap>) {
+    @Transactional
+    fun replaceOptions(exerciseId: UUID, version: Int, options: List<ExerciseOption>) {
         exerciseOptionRepository.deleteByExerciseIdAndVersion(exerciseId, version)
         entityManager.flush()
-        options.forEachIndexed { i, o ->
-            entityManager.persist(
+        options.forEach { entityManager.persist(it) }
+    }
+
+    private fun normalizeOptions(
+        exId: UUID,
+        ver: Int,
+        snap: ExerciseSnap
+    ): List<ExerciseOption> {
+        val correct = snap.correctOptions
+            .filterNot { it.content.isBlank() }
+            .mapIndexed { idx, o ->
                 ExerciseOption(
                     id = null,
-                    content = o.content,
-                    answerOrder = o.answerOrder ?: i + 1,
-                    exerciseId = exerciseId,
-                    exerciseVersion = version
+                    content = o.content.trim(),
+                    answerOrder = idx + 1,           // 1..n
+                    exerciseId = exId,
+                    exerciseVersion = ver
                 )
-            )
-        }
+            }
+
+        val distractors = snap.distractors
+            .filterNot { it.content.isBlank() }
+            .map { o ->
+                ExerciseOption(
+                    id = null,
+                    content = o.content.trim(),
+                    answerOrder = null,              // stays null
+                    exerciseId = exId,
+                    exerciseVersion = ver
+                )
+            }
+
+        return correct + distractors
     }
 
     private fun insertDeletedVersions(lessonId: UUID, exerciseIds: List<UUID>) {
@@ -127,7 +166,7 @@ class SnapshotService(
         }
     }
 
-    fun getSnapshotsByCourseId(courseId: UUID): List<ModuleSnapshot> {
+    fun getSnapshotsByCourseId(courseId: UUID): CourseSnap {
         val moduleIds = moduleRepository.findModuleIdsByCourse(courseId)
         var moduleSnapshots = mutableListOf<ModuleSnapshot>()
 
@@ -136,7 +175,7 @@ class SnapshotService(
             moduleSnapshots.add(snapshot)
         }
 
-        return moduleSnapshots
+        return CourseSnap(courseId = courseId, modules = moduleSnapshots)
 
     }
 
@@ -148,13 +187,28 @@ class SnapshotService(
 
         val lessonSnaps = lessons.map { l ->
             val exResponses = catalogService.getExercisesByLessonId(l.id!!)
+
             val exSnaps = exResponses.map { er ->
+
+                val correctOptions = er.exerciseOptions
+                    .filter { it.answerOrder != null }
+                    .sortedBy { it.answerOrder }
+
+                val distractors = er.exerciseOptions
+                    .filter { it.answerOrder == null }
+
                 ExerciseSnap(
                     id = er.id,
                     title = er.title,
                     prompt = er.prompt!!,
                     exerciseType = er.exerciseType,
-                    options = er.exerciseOptions.map { opt ->
+                    correctOptions = correctOptions.map { opt ->
+                        OptionSnap(
+                            content = opt.content,
+                            answerOrder = opt.answerOrder
+                        )
+                    },
+                    distractors = distractors.map { opt ->
                         OptionSnap(
                             content = opt.content,
                             answerOrder = opt.answerOrder

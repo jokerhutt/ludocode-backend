@@ -11,7 +11,7 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.SNAPSHOT
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.SUBMIT_SNAPSHOT
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.SUBMIT_MODULE_SNAPSHOT
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured.given
 import org.assertj.core.api.Assertions.assertThat
@@ -72,7 +72,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             title = "newLessonExercise",
             prompt = "hello ___",
             exerciseType = ExerciseType.CLOZE,
-            options = l5ExerciseToAddOptions
+            correctOptions = l5ExerciseToAddOptions.filter { opt -> opt.answerOrder != null },
+            distractors = l5ExerciseToAddOptions.filter {opt -> opt.answerOrder == null}
         )
         val l5LessonToAdd = LessonSnap(
             id = null,
@@ -92,7 +93,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             title = "newLessonExercise",
             prompt = "hello ___",
             exerciseType = ExerciseType.CLOZE,
-            options = l1ExerciseToAddOptions
+            correctOptions = l1ExerciseToAddOptions.filter { opt -> opt.answerOrder != null },
+            distractors = l1ExerciseToAddOptions.filter {opt -> opt.answerOrder == null}
         )
         val newOptions = listOf(
             OptionSnap( content = "newcontent", answerOrder = null),
@@ -104,7 +106,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
                 title = "l1e1",
                 prompt = l1ExerciseToModify.prompt!!,
                 exerciseType = l1ExerciseToModify.exerciseType,
-                options = newOptions
+                correctOptions = newOptions.filter { opt -> opt.answerOrder != null },
+                distractors = newOptions.filter {opt -> opt.answerOrder == null}
             ),
             l1ExerciseToAdd
         )
@@ -175,7 +178,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
                     if (exercise.id == l1ExerciseToAdd.id) {
                         assertThat(exercise.title).isEqualTo(l1ExerciseToAdd.title)
                         assertThat(exercise.prompt).isEqualTo(l1ExerciseToAdd.prompt)
-                        assertThat(exercise.options.size).isEqualTo(2)
+                        assertThat(exercise.correctOptions.size).isEqualTo(1)
+                        assertThat(exercise.distractors.size).isEqualTo(1)
                     }
                 }
             }
@@ -185,7 +189,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
                 assertThat(lesson.exercises.size).isEqualTo(1)
                 for (exercise: ExerciseSnap in lesson.exercises) {
                     assertThat(exercise.prompt).isEqualTo("hello ___")
-                    assertThat(exercise.options.size).isEqualTo(2)
+                    assertThat(exercise.correctOptions.size).isEqualTo(1)
+                    assertThat(exercise.correctOptions.size).isEqualTo(1)
                 }
             }
 
@@ -203,7 +208,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             .contentType(io.restassured.http.ContentType.JSON)
             .body(req)
             .`when`()
-            .post("$SNAPSHOT$SUBMIT_SNAPSHOT")
+            .post("$SNAPSHOT$SUBMIT_MODULE_SNAPSHOT")
             .then()
             .statusCode(200)
             .extract()
