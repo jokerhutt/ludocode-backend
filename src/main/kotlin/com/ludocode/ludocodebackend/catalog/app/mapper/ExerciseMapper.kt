@@ -28,6 +28,7 @@ class ExerciseMapper(private val basicMapper: BasicMapper) {
 
     private fun toExerciseResponse(group: List<ExerciseFlatProjection>): ExerciseResponse {
         val h = group.first()
+        val order = h.getOrderIndex() ?: 1
         return ExerciseResponse(
             id = h.getExerciseId(),
             title = h.getTitle(),
@@ -35,6 +36,7 @@ class ExerciseMapper(private val basicMapper: BasicMapper) {
             exerciseType = ExerciseType.valueOf(h.getExerciseType()),
             lessonId = h.getLessonId(),
             version = h.getVersion(),
+            orderIndex = order,
             exerciseOptions = group
                 .filter { it.getOptionId() != null }   // guarantees id non-null above
                 .map(::toExerciseOptionResponse)

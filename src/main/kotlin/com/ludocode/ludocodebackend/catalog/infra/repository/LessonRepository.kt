@@ -100,12 +100,14 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
 
     @Query(
         value = """
-    select l.id
-    from lesson l
-    join module m on m.id = l.module_id
-    where m.course_id = :courseId
-    order by m.order_index asc, l.order_index asc
-    limit 1
+    SELECT l.id
+    FROM lesson l
+    JOIN module m ON m.id = l.module_id
+    WHERE m.course_id = :courseId
+      AND m.is_deleted = false
+      AND l.is_deleted = false
+    ORDER BY m.order_index ASC, l.order_index ASC
+    LIMIT 1
   """,
         nativeQuery = true
     )

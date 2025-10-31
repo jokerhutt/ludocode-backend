@@ -47,8 +47,8 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         ))
 
         val exercises = exerciseRepository.saveAll(listOf(
-            Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1), title = "Complete the expression", prompt = "let sum = ___ + 4", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
-            Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1), title = "Create a variable with a value of 'House'", prompt = "const ___ = ___", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
+            Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1), title = "Complete the expression", prompt = "let sum = ___ + 4", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id, orderIndex = 1),
+            Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1), title = "Create a variable with a value of 'House'", prompt = "const ___ = ___", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id, orderIndex = 2),
 
             ))
 
@@ -126,8 +126,8 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         ))
 
         val exercises = exerciseRepository.saveAll(listOf(
-            Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1), title = "Complete the expression", prompt = "let sum = ___ + 4", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
-            Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1),title = "Create a variable with a value of 'House'", prompt = "const ___ = ___", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
+            Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1), title = "Complete the expression", prompt = "let sum = ___ + 4", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id, orderIndex = 1),
+            Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1),title = "Create a variable with a value of 'House'", prompt = "const ___ = ___", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id, orderIndex = 2),
             ))
 
         val exerciseOptions = exerciseOptionRepository.saveAll(listOf(
@@ -205,8 +205,8 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
             val nextLesson: Lesson = pyModule1Lessons[1]
 
             val exercises = exerciseRepository.saveAll(listOf(
-                Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1), title = "Complete the expression", prompt = "let sum = ___ + 4", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
-                Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1), title = "Create a variable with a value of 'House'", prompt = "const ___ = ___", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id),
+                Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1), title = "Complete the expression", prompt = "let sum = ___ + 4", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id, orderIndex = 1),
+                Exercise(exerciseId = ExerciseId(UUID.randomUUID(), 1), title = "Create a variable with a value of 'House'", prompt = "const ___ = ___", exerciseType = ExerciseType.CLOZE, lessonId = lesson1.id, orderIndex = 2),
 
             ))
 

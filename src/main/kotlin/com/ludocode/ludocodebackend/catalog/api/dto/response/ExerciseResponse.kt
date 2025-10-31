@@ -13,6 +13,7 @@ data class ExerciseResponse (
     val exerciseType: ExerciseType,
     val lessonId: UUID,
     val exerciseOptions: List<ExerciseOptionResponse>,
-    val version: Int
+    val version: Int,
+    val orderIndex: Int
 
 )

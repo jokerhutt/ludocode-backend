@@ -11,6 +11,7 @@ interface ExerciseFlatProjection {
     fun getPrompt(): String?
     fun getExerciseType(): String
     fun getLessonId(): UUID
+    fun getOrderIndex(): Int?
 
     fun getOptionId(): UUID?
     fun getContent(): String?

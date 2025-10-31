@@ -134,9 +134,10 @@ class SnapshotService(
         if (toDelete.isNotEmpty()) insertDeletedVersions(realId, toDelete)
 
         // upserts: new => v1, existing => bump
-        ls.exercises.forEach { ex ->
+        ls.exercises.forEachIndexed { idx, ex ->
             val exId = ex.id ?: UUID.randomUUID()
             val ver = if (ex.id == null) 1 else exerciseRepository.bumpVersion(exId)
+
             exerciseRepository.save(
                 Exercise(
                     exerciseId = ExerciseId(exId, ver),
@@ -144,15 +145,15 @@ class SnapshotService(
                     prompt = ex.prompt,
                     exerciseType = ex.exerciseType,
                     lessonId = realId,
-                    isDeleted = false
+                    isDeleted = false,
+                    orderIndex = idx + 1
                 )
             )
 
             val options = normalizeOptions(exId, ver, ex)
             replaceOptions(exId, ver, options)
-
-
         }
+
     }
 
     @Transactional
@@ -204,7 +205,8 @@ class SnapshotService(
                     prompt = "",
                     exerciseType = ExerciseType.CLOZE,
                     lessonId = lessonId,
-                    isDeleted = true
+                    isDeleted = true,
+                    orderIndex = 0
                 )
             )
         }

@@ -13,12 +13,19 @@ import java.util.UUID
 
 interface ModuleRepository : JpaRepository<Module, UUID> {
 
-    fun findAllByIdIn(ids: List<UUID>): List<Module>
+    @Query("""
+    SELECT * 
+    FROM module 
+    WHERE id IN (:ids)
+      AND is_deleted = false
+""", nativeQuery = true)
+    fun findAllByIdIn(@Param("ids") ids: List<UUID>): List<Module>
 
     @Query("""
     select m.id 
     from module m
     where m.course_id = :courseId
+    and m.is_deleted = false
 """, nativeQuery = true)
     fun findModuleIdsByCourse(@Param("courseId") courseId: UUID): List<UUID>
 
@@ -31,8 +38,11 @@ interface ModuleRepository : JpaRepository<Module, UUID> {
         l.id          AS lessonId,
         l.order_index AS lessonOrder
       FROM module m
-      LEFT JOIN lesson l ON l.module_id = m.id
+      LEFT JOIN lesson l 
+        ON l.module_id = m.id 
+       AND l.is_deleted = false         -- 🔹 filter deleted lessons
       WHERE m.course_id = :courseId
+        AND m.is_deleted = false        -- 🔹 filter deleted modules
       ORDER BY m.order_index, l.order_index
     """,
         nativeQuery = true

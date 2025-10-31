@@ -34,7 +34,7 @@ interface ExerciseRepository : JpaRepository<Exercise, ExerciseId>{
       WHERE e2.id = e.id
     )
     AND e.is_deleted = false
-  ORDER BY e.id, o.answer_order
+  ORDER BY e.order_index, e.id, o.answer_order
   """,
         nativeQuery = true
     )

@@ -39,4 +39,7 @@ class Exercise (
     @Column(name = "is_deleted")
     var isDeleted: Boolean? = false,
 
+    @Column(name = "order_index")
+    var orderIndex: Int
+
     )
