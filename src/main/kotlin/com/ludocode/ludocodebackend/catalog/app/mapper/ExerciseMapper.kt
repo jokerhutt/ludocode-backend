@@ -37,6 +37,7 @@ class ExerciseMapper(private val basicMapper: BasicMapper) {
             lessonId = h.getLessonId(),
             version = h.getVersion(),
             orderIndex = order,
+            subtitle = h.getSubtitle(),
             exerciseOptions = group
                 .filter { it.getOptionId() != null }   // guarantees id non-null above
                 .map(::toExerciseOptionResponse)

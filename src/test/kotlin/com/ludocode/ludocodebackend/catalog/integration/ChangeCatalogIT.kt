@@ -73,7 +73,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             prompt = "hello ___",
             exerciseType = ExerciseType.CLOZE,
             correctOptions = l5ExerciseToAddOptions.filter { opt -> opt.answerOrder != null },
-            distractors = l5ExerciseToAddOptions.filter {opt -> opt.answerOrder == null}
+            distractors = l5ExerciseToAddOptions.filter {opt -> opt.answerOrder == null},
+            subtitle = null
         )
         val l5LessonToAdd = LessonSnap(
             id = null,
@@ -94,7 +95,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             prompt = "hello ___",
             exerciseType = ExerciseType.CLOZE,
             correctOptions = l1ExerciseToAddOptions.filter { opt -> opt.answerOrder != null },
-            distractors = l1ExerciseToAddOptions.filter {opt -> opt.answerOrder == null}
+            distractors = l1ExerciseToAddOptions.filter {opt -> opt.answerOrder == null},
+            subtitle = null
         )
         val newOptions = listOf(
             OptionSnap( content = "newcontent", answerOrder = null),
@@ -107,7 +109,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
                 prompt = l1ExerciseToModify.prompt!!,
                 exerciseType = l1ExerciseToModify.exerciseType,
                 correctOptions = newOptions.filter { opt -> opt.answerOrder != null },
-                distractors = newOptions.filter {opt -> opt.answerOrder == null}
+                distractors = newOptions.filter {opt -> opt.answerOrder == null},
+                subtitle = null
             ),
             l1ExerciseToAdd
         )

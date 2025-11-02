@@ -49,7 +49,6 @@ class SnapshotService(
             upsertModule(ms, s.courseId, realId)
         }
 
-        // 3) snapshot order → DB order
         entityManager.flush(); entityManager.clear()
         moduleRepository.bumpAllInCourse(s.courseId) // set order_index high to avoid unique conflicts
         s.modules.forEachIndexed { idx, ms ->
@@ -174,7 +173,7 @@ class SnapshotService(
                 ExerciseOption(
                     id = null,
                     content = o.content.trim(),
-                    answerOrder = idx + 1,           // 1..n
+                    answerOrder = idx + 1,
                     exerciseId = exId,
                     exerciseVersion = ver
                 )
@@ -254,6 +253,7 @@ class SnapshotService(
                             answerOrder = opt.answerOrder
                         )
                     },
+                    subtitle = er.subtitle,
                     distractors = distractors.map { opt ->
                         OptionSnap(
                             content = opt.content,

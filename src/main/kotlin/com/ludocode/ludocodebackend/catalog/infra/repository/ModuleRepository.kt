@@ -40,9 +40,9 @@ interface ModuleRepository : JpaRepository<Module, UUID> {
       FROM module m
       LEFT JOIN lesson l 
         ON l.module_id = m.id 
-       AND l.is_deleted = false         -- 🔹 filter deleted lessons
+       AND l.is_deleted = false
       WHERE m.course_id = :courseId
-        AND m.is_deleted = false        -- 🔹 filter deleted modules
+        AND m.is_deleted = false
       ORDER BY m.order_index, l.order_index
     """,
         nativeQuery = true

@@ -9,6 +9,7 @@ data class ExerciseResponse (
 
     val id: UUID,
     val title: String,
+    val subtitle: String?,
     val prompt: String?,
     val exerciseType: ExerciseType,
     val lessonId: UUID,

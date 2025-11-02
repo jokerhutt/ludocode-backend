@@ -29,6 +29,9 @@ class Exercise (
     @Column(name = "prompt")
     var prompt: String? = null,
 
+    @Column(name = "subtitle")
+    var subtitle: String? = null,
+
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "exercise_type")
     var exerciseType: ExerciseType,
