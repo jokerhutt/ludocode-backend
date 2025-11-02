@@ -17,23 +17,15 @@ import java.util.UUID
 class ExerciseOption (
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @UuidGenerator
     val id: UUID? = null,
 
-    @Column(name = "content")
-    var content: String? = null,
+    @Column(name = "exercise_id", nullable = false, unique = true)
+    var exerciseId: UUID,
 
-    @Column(name = "answer_order")
-    var answerOrder: Int? = null,
+    @Column(name = "exercise_version", nullable = false, unique = true)
+    var exerciseVersion: Int,
 
-    @Column(name = "exercise_id")
-    val exerciseId: UUID? = null,
-
-    @Column(name = "exercise_version")
-    val exerciseVersion: Int? = null,
-
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", nullable = false)
     var isDeleted: Boolean? = false,
 
 )

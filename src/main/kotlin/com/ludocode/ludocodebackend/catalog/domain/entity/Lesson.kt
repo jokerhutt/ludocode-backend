@@ -19,12 +19,6 @@ class Lesson (
     @Column(name = "title", nullable = false)
     var title: String,
 
-    @Column(name = "module_id", nullable = false)
-    var moduleId: UUID,
-
-    @Column(name = "order_index", nullable = false)
-    var orderIndex: Int = 1,
-
     @Column(name = "is_deleted", nullable = false)
     var isDeleted: Boolean = false
 )

@@ -1,12 +1,8 @@
 package com.ludocode.ludocodebackend.catalog.domain.entity
-
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import org.hibernate.annotations.UuidGenerator
 import java.util.UUID
 
 @Entity
@@ -14,11 +10,11 @@ import java.util.UUID
 class Course (
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @UuidGenerator
     val id: UUID? = null,
 
-    @Column(name = "course_name")
+    @Column(name = "course_name", nullable = false, unique = true)
     val title: String? = null,
+
+
 
 )

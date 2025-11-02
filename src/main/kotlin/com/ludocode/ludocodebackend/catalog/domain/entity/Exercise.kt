@@ -23,26 +23,23 @@ class Exercise (
     @EmbeddedId
     val exerciseId: ExerciseId,
 
-    @Column(name = "title")
-    var title: String? = null,
+    @Column(name = "title", nullable = false)
+    var title: String,
 
     @Column(name = "prompt")
-    var prompt: String? = null,
+    var prompt: String?,
 
     @Column(name = "subtitle")
-    var subtitle: String? = null,
+    var subtitle: String?,
 
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(name = "exercise_type")
+    @Column(name = "exercise_type", nullable = false)
     var exerciseType: ExerciseType,
 
-    @Column(name = "lessonId")
-    var lessonId: UUID? = null,
+    @Column(name = "lessonId", nullable = false)
+    var lessonId: UUID,
 
-    @Column(name = "is_deleted")
-    var isDeleted: Boolean? = false,
-
-    @Column(name = "order_index")
-    var orderIndex: Int
+    @Column(name = "is_deleted", nullable = false)
+    var isDeleted: Boolean = false,
 
     )
