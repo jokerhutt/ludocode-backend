@@ -11,4 +11,4 @@ data class ExerciseId(
 
     @Column(name = "version")
     val version: Int
-)
+) : java.io.Serializable

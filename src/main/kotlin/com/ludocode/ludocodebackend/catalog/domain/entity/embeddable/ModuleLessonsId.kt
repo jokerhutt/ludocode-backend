@@ -11,4 +11,4 @@ data class ModuleLessonsId (
 
     @Column(name = "order_index", nullable = false, unique = true)
     val orderIndex: Int? = null
-)
+) : java.io.Serializable

@@ -15,16 +15,13 @@ import java.util.UUID
 class User (
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @UuidGenerator
-    val id: UUID? = null,
+    val id: UUID,
 
+    @Column(name = "first_name", nullable = false)
+    var firstName: String,
 
-    @Column(name = "first_name")
-    var firstName: String? = null,
-
-    @Column(name = "last_name")
-    var lastName: String? = null,
+    @Column(name = "last_name", nullable = false)
+    var lastName: String,
 
     @Column(name = "pfp_src")
     var pfpSrc: String? = null,
@@ -34,9 +31,5 @@ class User (
 
     @Column(name = "created_at")
     var createdAt: OffsetDateTime? = null,
-
-    @Column(name = "current_course")
-    var currentCourse: UUID? = null
-
 
 )

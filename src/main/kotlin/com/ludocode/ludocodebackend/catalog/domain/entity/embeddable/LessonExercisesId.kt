@@ -11,4 +11,4 @@ data class LessonExercisesId(
 
     @Column(name = "order_index", nullable = false, unique = true)
     val orderIndex: Int
-)
+) : java.io.Serializable
