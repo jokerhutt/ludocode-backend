@@ -18,6 +18,7 @@ import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseSnapshotRep
 import com.ludocode.ludocodebackend.catalog.infra.repository.LessonExercisesRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.LessonSnapshotRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleSnapshotRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.OptionContentRepository
 import jakarta.transaction.Transactional
@@ -33,7 +34,8 @@ class NewSnapshotService(
     private val lessonExercisesRepository: LessonExercisesRepository,
     private val exerciseSnapshotRepository: ExerciseSnapshotRepository,
     private val optionContentRepository: OptionContentRepository,
-    private val exerciseOptionSnapshotRepository: ExerciseOptionSnapshotRepository
+    private val exerciseOptionSnapshotRepository: ExerciseOptionSnapshotRepository,
+    private val moduleRepository: ModuleRepository
 ) {
 
     @Transactional
@@ -161,7 +163,7 @@ class NewSnapshotService(
 
         val courseId : UUID = reqSnapshot.courseId
         val submittedModuleDiffs : List<ModuleSnapshot> = reqSnapshot.modules
-        val activeModuleIds : List<UUID> = moduleSnapshotRepository.findAllActiveByCourseId(courseId = courseId)
+        val activeModuleIds : List<UUID> = moduleRepository.findActiveIdsByCourse(courseId = courseId)
 
         val submittedModuleDiffsIds = submittedModuleDiffs.map { it.moduleId }
         val modulesToDelete : List<UUID> = getIdsToDelete(submittedModuleDiffsIds, activeModuleIds)
@@ -173,7 +175,7 @@ class NewSnapshotService(
 
             val newOrderIndex = i + 1
             val moduleDiff = submittedModuleDiffs[i]
-            val existing: Module? = moduleSnapshotRepository.findActiveById(moduleDiff.moduleId)
+            val existing: Module? = moduleRepository.findActiveById(moduleDiff.moduleId)
 
             if (existing == null) {
                 val newModule = Module(

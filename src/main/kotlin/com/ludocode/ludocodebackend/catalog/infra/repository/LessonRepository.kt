@@ -135,47 +135,5 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
     )
     fun findLessonIdTree(@Param("lessonId") lessonId: UUID): LessonIdTreeProjection?
 
-    @Modifying
-    @Query("""
-    UPDATE lesson
-    SET is_deleted = true
-    WHERE id IN (:ids)
-""", nativeQuery = true)
-    fun softDeleteIn(@Param("ids") ids: List<UUID>)
-
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(
-        value = """
-    UPDATE lesson 
-    SET order_index = order_index + 100000
-    WHERE module_id = :moduleId AND is_deleted = false
-  """,
-        nativeQuery = true
-    )
-    fun bumpAllInModule(@Param("moduleId") moduleId: UUID)
-
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(
-        value = "UPDATE lesson SET order_index = :idx WHERE id = :id",
-        nativeQuery = true
-    )
-    fun setOrder(@Param("id") id: UUID, @Param("idx") idx: Int)
-
-    @Query(
-        value = "SELECT id FROM lesson WHERE module_id = :moduleId AND is_deleted = false ORDER BY order_index, id",
-        nativeQuery = true
-    )
-    fun findActiveIdsByModule(@Param("moduleId") moduleId: UUID): List<UUID>
-
-    @Query(
-        """
-    SELECT *
-    FROM lesson
-    WHERE module_id = :moduleId
-    AND is_deleted = false
-    """,
-        nativeQuery = true
-    )
-    fun findAllByModuleId(@Param("moduleId") moduleId: UUID) : List<Lesson>
 
 }

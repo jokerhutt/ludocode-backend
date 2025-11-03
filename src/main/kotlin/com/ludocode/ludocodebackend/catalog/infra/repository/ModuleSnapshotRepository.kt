@@ -9,14 +9,6 @@ import java.util.UUID
 
 interface ModuleSnapshotRepository : JpaRepository<Module, UUID> {
 
-    @Query(value = """
-        SELECT id
-        FROM module
-        WHERE course_id = :courseId
-        AND is_deleted = false
-        """, nativeQuery = true)
-    fun findAllActiveByCourseId (@Param("courseId") courseId: UUID) : List<UUID>
-
     @Modifying
     @Query(value = """
         UPDATE module
@@ -34,13 +26,6 @@ interface ModuleSnapshotRepository : JpaRepository<Module, UUID> {
         """, nativeQuery = true)
     fun bumpAllModuleOrderIndexesInCourse (@Param("courseId") courseId: UUID)
 
-    @Query(value = """
-        SELECT *
-        FROM module
-        WHERE id = :moduleId
-        AND is_deleted = false
-        """, nativeQuery = true)
-    fun findActiveById(@Param("moduleId") moduleId: UUID): Module?
 
 
 }
