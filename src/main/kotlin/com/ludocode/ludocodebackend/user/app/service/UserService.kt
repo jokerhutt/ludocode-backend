@@ -5,7 +5,6 @@ import com.ludocode.ludocodebackend.user.api.dto.response.UpdatedCourseResponse
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.mapper.UserMapper
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserUseCase
-import com.ludocode.ludocodebackend.user.app.port.out.CourseProgressPortForUser
 import com.ludocode.ludocodebackend.user.domain.entity.ExternalAccount
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.infra.repository.ExternalAccountRepository
@@ -20,7 +19,6 @@ class UserService(
     private val userRepository: UserRepository,              // ✅ JPA direct
     private val externalAccountRepository: ExternalAccountRepository, // ✅ JPA direct
     private val userMapper: UserMapper,
-    private val courseProgressPortForUser: CourseProgressPortForUser
 ) : UserUseCase {
 
     @Transactional
@@ -36,8 +34,7 @@ class UserService(
                 firstName = req.firstName ?: "",
                 lastName = req.lastName ?: "",
                 pfpSrc = req.avatarUrl,
-                createdAt = OffsetDateTime.now(),
-                currentCourse = null
+                createdAt = OffsetDateTime.now()
             )
         )
 
@@ -61,17 +58,6 @@ class UserService(
     fun getUsersByIds(userIds: List<UUID>): List<UserResponse> {
         val users = userRepository.findAllByIdIn(userIds)
         return userMapper.toUserResponseList(users)
-    }
-
-    @Transactional
-    fun updateCourse(userId: UUID, newCourseId: UUID) : UpdatedCourseResponse {
-        val user = userRepository.findById(userId).orElseThrow()
-        user.currentCourse = newCourseId
-        val userResponse = userMapper.toUserResponse(user)
-        val courseProgressResponse = courseProgressPortForUser.findOrCreate(userId, newCourseId)
-        val courseProgress = courseProgressResponse.courseProgress
-        val enrolled = courseProgressResponse.enrolled
-        return UpdatedCourseResponse(user = userResponse, courseProgress = courseProgress, enrolled = enrolled)
     }
 
 

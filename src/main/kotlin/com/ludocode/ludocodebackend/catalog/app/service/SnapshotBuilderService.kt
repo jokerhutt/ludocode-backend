@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.app.service
 
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnapshot
@@ -20,13 +21,16 @@ class SnapshotBuilderService(
     private val catalogService: CatalogService
 ) {
 
-    fun buildCourseSnapshot (courseId: UUID) {
+    fun buildCourseSnapshot (courseId: UUID): CourseSnap {
 
         val moduleIds = moduleRepository.findActiveIdsByCourse(courseId)
+        val modules = moduleRepository.findAllByIdIn(moduleIds)
 
-        val moduleSnapshots = moduleIds.map { moduleId ->
-            buildModuleSnapshot()
+        val moduleSnapshots = modules.map { module ->
+            buildModuleSnapshot(module)
         }
+
+        return CourseSnap(courseId, moduleSnapshots)
 
 
     }

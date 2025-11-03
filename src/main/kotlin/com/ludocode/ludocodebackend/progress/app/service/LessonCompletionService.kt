@@ -11,6 +11,7 @@ import com.ludocode.ludocodebackend.progress.app.port.out.CatalogPortForProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.AttemptOption
 import com.ludocode.ludocodebackend.progress.domain.entity.ExerciseAttempt
 import com.ludocode.ludocodebackend.progress.domain.entity.LessonCompletion
+import com.ludocode.ludocodebackend.progress.domain.entity.embedded.AttemptOptionId
 import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
 import com.ludocode.ludocodebackend.progress.domain.enums.StreakAction
 import com.ludocode.ludocodebackend.progress.infra.repository.AttemptOptionRepository
@@ -98,12 +99,13 @@ class LessonCompletionService(
                 val scoreForAttempt = computeScoreForAttempt(attempt, isPerfect)
                 scoreForSubmission += scoreForAttempt
                 val attemptId: UUID = UUID.randomUUID()
-                val exerciseAttempt = ExerciseAttempt(id = attemptId, score = scoreForAttempt, userId = userId, exerciseId = attempt.exerciseId, exerciseVersion = version)
+                val exerciseAttempt = ExerciseAttempt(id = attemptId, userId = userId, exerciseId = attempt.exerciseId, exerciseVersion = version)
                 exerciseAttempts.add(exerciseAttempt)
 
-                for (token: String in attempt.answer) {
-                    attemptOptions.add(AttemptOption(attemptId = attemptId, token = token))
+                for (token: UUID in attempt.answer) {
+                    attemptOptions.add(AttemptOption(attemptOptionId = AttemptOptionId(attemptId = attemptId, exerciseOptionId = token)))
                 }
+
             }
             scoreForLesson += scoreForSubmission
         }

@@ -17,7 +17,7 @@ class Module (
     val id: UUID,
 
     @Column(name = "title", nullable = false)
-    val title: String,
+    var title: String,
 
     @Column(name = "course_id", nullable = false)
     val courseId: UUID,
@@ -26,6 +26,6 @@ class Module (
     var isDeleted: Boolean,
 
     @Column(name = "order_index")
-    val orderIndex: Int
+    var orderIndex: Int
 
     )

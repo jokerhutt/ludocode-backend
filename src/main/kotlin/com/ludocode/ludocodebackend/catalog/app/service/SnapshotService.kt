@@ -32,15 +32,17 @@ class SnapshotService(
     private val exerciseRepository: ExerciseRepository,
     private val optionContentRepository: OptionContentRepository,
     private val moduleRepository: ModuleRepository,
-    private val exerciseOptionRepository: ExerciseOptionRepository
+    private val exerciseOptionRepository: ExerciseOptionRepository,
+    private val snapshotBuilderService: SnapshotBuilderService
 ) {
 
     @Transactional
     fun applyNewSnapshot (reqSnapshot: CourseSnap): CourseSnap? {
+        return applyModuleDiffs(reqSnapshot)
+    }
 
-        applyModuleDiffs(reqSnapshot)
-        return null
-
+    fun getCourseSnapshot (courseId: UUID): CourseSnap {
+        return snapshotBuilderService.buildCourseSnapshot(courseId)
     }
 
     @Transactional
@@ -152,7 +154,7 @@ class SnapshotService(
     }
 
     @Transactional
-    fun applyModuleDiffs(reqSnapshot: CourseSnap) {
+    fun applyModuleDiffs(reqSnapshot: CourseSnap): CourseSnap {
 
         val courseId : UUID = reqSnapshot.courseId
         val submittedModuleDiffs : List<ModuleSnapshot> = reqSnapshot.modules
@@ -188,6 +190,8 @@ class SnapshotService(
             applyLessonDiffs(submittedModuleDiffs[i])
 
         }
+
+        return snapshotBuilderService.buildCourseSnapshot(courseId)
 
     }
 

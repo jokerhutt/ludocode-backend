@@ -33,6 +33,7 @@ object PathConstants {
     const val RESET_PROGRESS : String = "/{courseId}/reset"
     const val STATS_BY_USER_IDS : String = "/ids"
     const val COURSE_PROGRESS_BY_COURSE_IDS : String = "/ids"
+    const val CURRENT_COURSE : String = "/current"
     const val ENROLLED_IDS : String = "/enrolled"
 
 

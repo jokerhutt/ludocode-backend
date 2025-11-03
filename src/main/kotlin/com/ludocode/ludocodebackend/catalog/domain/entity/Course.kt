@@ -12,7 +12,7 @@ class Course (
     @Id
     val id: UUID,
 
-    @Column(name = "course_name", nullable = false, unique = true)
+    @Column(name = "title", nullable = false, unique = true)
     val title: String
 
 
