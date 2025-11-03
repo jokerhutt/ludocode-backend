@@ -25,7 +25,7 @@ class ExerciseOption (
     @Column(name = "exercise_version", nullable = false, unique = true)
     var exerciseVersion: Int,
 
-    @Column(name = "is_deleted", nullable = false)
-    var isDeleted: Boolean? = false,
+    @Column(name = "option_id", nullable = false)
+    var optionId: UUID
 
 )

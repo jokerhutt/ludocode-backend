@@ -6,6 +6,7 @@ import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import java.util.UUID
 
 @Entity
 @Table(name = "module_lessons")
@@ -14,7 +15,7 @@ class ModuleLessons (
     @EmbeddedId
     val moduleLessonsId: ModuleLessonsId? = null,
 
-    @Column(name = "order_index", nullable = false, unique = true)
-    val orderIndex: Int
+    @Column(name = "lesson_id", nullable = false)
+    val lessonId: UUID
 
 )

@@ -15,7 +15,7 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
         value = """
         select cp.course_id, cp.user_id, cp.current_lesson_id, l.module_id
         from course_progress cp
-        left join lesson l on l.id = cp.current_lesson_id
+        left join exercise l on l.id = cp.current_lesson_id
         where cp.user_id = :userId and cp.course_id = :courseId
         """,
         nativeQuery = true
@@ -50,7 +50,7 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
       cp.current_lesson_id as currentLessonId,
       l.module_id          as moduleId
     from course_progress cp
-    left join lesson l on l.id = cp.current_lesson_id
+    left join exercise l on l.id = cp.current_lesson_id
     where cp.user_id = :userId
       and cp.course_id in (:courseIds)
   """,

@@ -6,8 +6,8 @@ import java.util.UUID
 
 @Embeddable
 data class LessonExercisesId(
-    @Column(name = "id")
-    val id: UUID,
+    @Column(name = "lesson_id")
+    val lessonId: UUID,
 
     @Column(name = "order_index", nullable = false, unique = true)
     val orderIndex: Int

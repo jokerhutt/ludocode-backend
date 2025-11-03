@@ -38,7 +38,7 @@ interface ModuleRepository : JpaRepository<Module, UUID> {
         l.id          AS lessonId,
         l.order_index AS lessonOrder
       FROM module m
-      LEFT JOIN lesson l 
+      LEFT JOIN exercise l 
         ON l.module_id = m.id 
        AND l.is_deleted = false
       WHERE m.course_id = :courseId

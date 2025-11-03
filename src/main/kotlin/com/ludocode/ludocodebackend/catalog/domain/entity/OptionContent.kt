@@ -11,7 +11,7 @@ import java.util.UUID
 class OptionContent (
 
     @Id
-    val id: UUID? = null,
+    val id: UUID,
 
     @Column(name = "content", nullable = false, unique = true)
     var content: String

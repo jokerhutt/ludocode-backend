@@ -100,7 +100,7 @@ abstract class AbstractIntegrationTest {
           ludo_user,
           exercise_option,
           exercise,
-          lesson, 
+          exercise, 
           module, 
           course
         RESTART IDENTITY CASCADE

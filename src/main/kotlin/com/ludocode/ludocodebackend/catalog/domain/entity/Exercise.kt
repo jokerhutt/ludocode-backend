@@ -36,9 +36,6 @@ class Exercise (
     @Column(name = "exercise_type", nullable = false)
     var exerciseType: ExerciseType,
 
-    @Column(name = "lessonId", nullable = false)
-    var lessonId: UUID,
-
     @Column(name = "is_deleted", nullable = false)
     var isDeleted: Boolean = false,
 
