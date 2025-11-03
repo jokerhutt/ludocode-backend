@@ -29,22 +29,22 @@ interface ModuleRepository : JpaRepository<Module, UUID> {
         """, nativeQuery = true)
     fun findActiveById(@Param("moduleId") moduleId: UUID): Module?
 
-    @Query(
-        value = """
-      SELECT 
-        m.id          AS moduleId,
-        m.order_index AS moduleOrder,
-        
-      FROM module m
-      LEFT JOIN exercise l 
-        ON l.module_id = m.id 
-       AND l.is_deleted = false
-      WHERE m.course_id = :courseId
-        AND m.is_deleted = false
-      ORDER BY m.order_index, l.order_index
-    """,
-        nativeQuery = true
-    )
+    @Query(value = """
+  SELECT
+    m.id            AS moduleId,
+    m.order_index   AS moduleOrder,
+    ml.lesson_id    AS lessonId,
+    ml.order_index  AS lessonOrder
+  FROM module m
+  JOIN module_lessons ml
+    ON ml.module_id = m.id
+  JOIN lesson l
+    ON l.id = ml.lesson_id
+  WHERE m.course_id = :courseId
+    AND m.is_deleted = false
+    AND l.is_deleted = false
+  ORDER BY m.order_index, ml.order_index, l.id
+""", nativeQuery = true)
     fun findFlatCourseTree(@Param("courseId") courseId: UUID): List<FlatModuleLessonRow>
 
     @Query(value = """
@@ -54,6 +54,8 @@ interface ModuleRepository : JpaRepository<Module, UUID> {
         AND is_deleted = false
         """, nativeQuery = true)
     fun findActiveIdsByCourse(@Param("courseId") courseId: UUID): List<UUID>
+
+
 
     @Modifying
     @Query(value = """

@@ -48,7 +48,7 @@ class SnapshotService(
 
         val moduleId = reqModuleSnapshot.moduleId
         val submittedLessonDiffs = reqModuleSnapshot.lessons
-        val activeLessonIdsInModule = moduleLessonsRepository.findActiveLessonsByModuleId(moduleId)
+        val activeLessonIdsInModule = moduleLessonsRepository.findActiveLessonIdsByModuleId(moduleId)
         val submittedLessonDiffsIds = submittedLessonDiffs.map { it.id }
         val lessonsToDelete: List<UUID> = getIdsToDelete(submittedLessonDiffsIds, activeLessonIdsInModule)
         lessonRepository.softDeleteLessonsByIds(lessonsToDelete)

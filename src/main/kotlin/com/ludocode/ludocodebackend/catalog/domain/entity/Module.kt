@@ -14,18 +14,18 @@ import java.util.UUID
 class Module (
 
     @Id
-    val id: UUID? = null,
+    val id: UUID,
 
     @Column(name = "title", nullable = false)
-    var title: String,
+    val title: String,
 
     @Column(name = "course_id", nullable = false)
-    var courseId: UUID,
+    val courseId: UUID,
 
     @Column(name = "is_deleted", nullable = false)
     var isDeleted: Boolean,
 
     @Column(name = "order_index")
-    var orderIndex: Int
+    val orderIndex: Int
 
     )
