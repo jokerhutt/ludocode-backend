@@ -26,6 +26,9 @@ class ExerciseOption (
     var exerciseVersion: Int,
 
     @Column(name = "option_id", nullable = false)
-    var optionId: UUID
+    var optionId: UUID,
+
+    @Column(name = "answer_order")
+    val answerOrder: Int? = null
 
 )

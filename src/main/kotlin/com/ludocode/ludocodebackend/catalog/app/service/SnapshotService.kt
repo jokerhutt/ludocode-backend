@@ -2,7 +2,6 @@ package com.ludocode.ludocodebackend.catalog.app.service
 
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnapshot
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
@@ -13,13 +12,12 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLessons
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.LessonExercisesId
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
-import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseOptionSnapshotRepository
-import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseSnapshotRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseOptionRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.LessonExercisesRepository
-import com.ludocode.ludocodebackend.catalog.infra.repository.LessonSnapshotRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.LessonRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
-import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleSnapshotRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.OptionContentRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -27,22 +25,21 @@ import java.util.UUID
 
 
 @Service
-class NewSnapshotService(
-    private val moduleSnapshotRepository: ModuleSnapshotRepository,
-    private val lessonSnapshotRepository: LessonSnapshotRepository,
+class SnapshotService(
+    private val lessonRepository: LessonRepository,
     private val moduleLessonsRepository: ModuleLessonsRepository,
     private val lessonExercisesRepository: LessonExercisesRepository,
-    private val exerciseSnapshotRepository: ExerciseSnapshotRepository,
+    private val exerciseRepository: ExerciseRepository,
     private val optionContentRepository: OptionContentRepository,
-    private val exerciseOptionSnapshotRepository: ExerciseOptionSnapshotRepository,
-    private val moduleRepository: ModuleRepository
+    private val moduleRepository: ModuleRepository,
+    private val exerciseOptionRepository: ExerciseOptionRepository
 ) {
 
     @Transactional
     fun applyNewSnapshot (reqSnapshot: CourseSnap): CourseSnap? {
 
         applyModuleDiffs(reqSnapshot)
-        return null // will make a builder
+        return null
 
     }
 
@@ -54,21 +51,21 @@ class NewSnapshotService(
         val activeLessonIdsInModule = moduleLessonsRepository.findActiveLessonsByModuleId(moduleId)
         val submittedLessonDiffsIds = submittedLessonDiffs.map { it.id }
         val lessonsToDelete: List<UUID> = getIdsToDelete(submittedLessonDiffsIds, activeLessonIdsInModule)
-        lessonSnapshotRepository.softDeleteLessonsByIds(lessonsToDelete)
+        lessonRepository.softDeleteLessonsByIds(lessonsToDelete)
 
         for (i in 0 until submittedLessonDiffs.size) {
             val submittedDiff = submittedLessonDiffs[i]
-            val existing : Lesson? = lessonSnapshotRepository.findActiveById(submittedDiff.id)
+            val existing : Lesson? = lessonRepository.findActiveById(submittedDiff.id)
             if (existing == null) {
                 val newLesson = Lesson(
                     id = submittedDiff.id,
                     title = submittedDiff.title,
                     isDeleted = false
                 )
-                lessonSnapshotRepository.save(newLesson)
+                lessonRepository.save(newLesson)
             } else {
                 existing.title = submittedDiff.title
-                lessonSnapshotRepository.save(existing)
+                lessonRepository.save(existing)
             }
         }
 
@@ -96,11 +93,11 @@ class NewSnapshotService(
         val activeExerciseIdsInLesson = lessonExercisesRepository.findActiveExercisesByLessonId(lessonId)
         val submittedExerciseDiffIds = submittedExerciseDiffs.map { it.id }
         val exercisesToDelete = getIdsToDelete(submittedExerciseDiffIds, activeExerciseIdsInLesson)
-        exerciseSnapshotRepository.softDeleteExercisesByIds(exercisesToDelete)
+        exerciseRepository.softDeleteExercisesByIds(exercisesToDelete)
 
         for (i in 0 until submittedExerciseDiffs.size) {
             val submittedExerciseDiff = submittedExerciseDiffs[i]
-            val existing = exerciseSnapshotRepository.findLatestActiveById(submittedExerciseDiff.id)
+            val existing = exerciseRepository.findLatestActiveById(submittedExerciseDiff.id)
             val newVersion = if (existing != null) existing.exerciseId.version + 1 else 1
 
             val newExercise = Exercise(
@@ -111,7 +108,7 @@ class NewSnapshotService(
                 exerciseType = submittedExerciseDiff.exerciseType,
                 isDeleted = false
             )
-            exerciseSnapshotRepository.save(newExercise)
+            exerciseRepository.save(newExercise)
 
         }
 
@@ -120,7 +117,7 @@ class NewSnapshotService(
         for (i in 0 until submittedExerciseDiffs.size) {
             val newOrderIndex = i + 1
             val exerciseId = submittedExerciseDiffs[i].id
-            val existingExercise = exerciseSnapshotRepository.findLatestActiveById(exerciseId)
+            val existingExercise = exerciseRepository.findLatestActiveById(exerciseId)
 
             val newLessonExercise = LessonExercises(
                 lessonExercisesId = LessonExercisesId(lessonId = lessonId, orderIndex = newOrderIndex),
@@ -150,12 +147,8 @@ class NewSnapshotService(
                 exerciseVersion = dbExerciseVersion,
                 optionId = dbOption!!.id
             )
-            exerciseOptionSnapshotRepository.save(newExerciseOption)
-
+            exerciseOptionRepository.save(newExerciseOption)
         }
-
-
-
     }
 
     @Transactional
@@ -167,9 +160,9 @@ class NewSnapshotService(
 
         val submittedModuleDiffsIds = submittedModuleDiffs.map { it.moduleId }
         val modulesToDelete : List<UUID> = getIdsToDelete(submittedModuleDiffsIds, activeModuleIds)
-        moduleSnapshotRepository.softDeleteModulesByModuleIds(modulesToDelete)
+        moduleRepository.softDeleteModulesByModuleIds(modulesToDelete)
 
-        moduleSnapshotRepository.bumpAllModuleOrderIndexesInCourse(courseId)
+        moduleRepository.bumpAllModuleOrderIndexesInCourse(courseId)
 
         for (i in 0 until submittedModuleDiffs.size) {
 
@@ -185,11 +178,11 @@ class NewSnapshotService(
                     courseId = courseId,
                     orderIndex = newOrderIndex
                 )
-                moduleSnapshotRepository.save(newModule)
+                moduleRepository.save(newModule)
             } else {
                 existing.title = moduleDiff.title
                 existing.orderIndex = newOrderIndex
-                moduleSnapshotRepository.save(existing)
+                moduleRepository.save(existing)
             }
 
             applyLessonDiffs(submittedModuleDiffs[i])

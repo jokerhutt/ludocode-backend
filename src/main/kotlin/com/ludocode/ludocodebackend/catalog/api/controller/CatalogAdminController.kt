@@ -27,7 +27,7 @@ class CatalogAdminController(
 
     @PostMapping(PathConstants.SUBMIT_COURSE_SNAPSHOT)
     fun applyCourseSnapshot(@RequestBody s: CourseSnap) : ResponseEntity<CourseSnap> {
-        return ResponseEntity.ok(snapshotService.applyCourseSnapshot(s))
+        return ResponseEntity.ok(snapshotService.applyModuleDiffs(s))
     }
 
     @GetMapping(PathConstants.SNAPSHOTS_BY_COURSE)

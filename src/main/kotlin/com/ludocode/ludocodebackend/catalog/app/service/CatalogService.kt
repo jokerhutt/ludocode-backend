@@ -73,7 +73,7 @@ class CatalogService(
     }
 
     fun getExercisesByLessonId (lessonId: UUID): List<ExerciseResponse> {
-       val exercisesWithOptionsFlat: List<ExerciseFlatProjection> = lessonExercisesRepository.getFlatByLesson(lessonId)
+       val exercisesWithOptionsFlat: List<ExerciseFlatProjection> = lessonExercisesRepository.getFlatExercisesWithOptions(lessonId)
        return exerciseMapper.toLessonExercises(exercisesWithOptionsFlat)
     }
 

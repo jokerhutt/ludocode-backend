@@ -11,17 +11,18 @@ import java.util.UUID
 
 interface LessonExercisesRepository : JpaRepository<LessonExercises, LessonExercisesId> {
 
-    @Query(
-        value = """
+    @Query(value = """
     SELECT 
-      e.id                  AS exerciseId,
-      e.version             AS version,
-      e.title               AS title,
-      e.prompt              AS prompt,
-      e.exercise_type       AS exerciseType,
-      le.lesson_id          AS lessonId,
-      oc.id                 AS optionId,
-      oc.content            AS content
+      e.id            AS exerciseId,
+      e.version       AS version,
+      e.title         AS title,
+      e.prompt        AS prompt,
+      e.exercise_type AS exerciseType,
+      e.subtitle      AS subtitle,
+      le.lesson_id    AS lessonId,
+      le.order_index  AS orderIndex,
+      oc.id           AS optionId,
+      oc.content      AS content
     FROM lesson_exercises le
     JOIN exercise e
       ON e.id = le.exercise_id
@@ -33,32 +34,24 @@ interface LessonExercisesRepository : JpaRepository<LessonExercises, LessonExerc
       ON oc.id = eo.option_id
     WHERE le.lesson_id = :lessonId
       AND e.is_deleted = false
-    ORDER BY le.order_index, e.id, oc.id
-    """,
-        nativeQuery = true
-    )
-    fun getFlatByLesson(@Param("lessonId") lessonId: UUID): List<ExerciseFlatProjection>
+    ORDER BY le.order_index ASC, e.id ASC
+  """, nativeQuery = true)
+    fun getFlatExercisesWithOptions(@Param("lessonId") lessonId: UUID): List<ExerciseFlatProjection>
 
-    @Query(
-        value = """
+    @Query(value = """
         SELECT exercise.id
         FROM exercise
         JOIN lesson_exercises ON lesson_exercises.exercise_id = exercise.id
         WHERE lesson_exercises.lesson_id = :lessonId
           AND exercise.is_deleted = false
-        """,
-        nativeQuery = true
-    )
+        """, nativeQuery = true)
     fun findActiveExercisesByLessonId(@Param("lessonId") lessonId: UUID): List<UUID>
 
     @Modifying
-    @Query(
-        value = """
+    @Query(value = """
         DELETE FROM lesson_exercises
         WHERE lesson_id = :lessonId
-        """,
-        nativeQuery = true
-    )
+        """, nativeQuery = true)
     fun deleteExercisesInLesson(@Param("lessonId") lessonId: UUID)
 
 }

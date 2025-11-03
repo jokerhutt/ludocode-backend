@@ -12,24 +12,21 @@ import java.util.UUID
 
 interface LessonRepository : JpaRepository<Lesson, UUID> {
 
-    @Query(
-        value = """
+    @Query(value = """
     SELECT l.id AS id,
            l.title AS title,
-           l.order_index AS orderIndex,
+           ml.order_index AS orderIndex,
            EXISTS (
-               SELECT 1
-               FROM lesson_completion lc
-               WHERE lc.is_deleted = false
-                 AND lc.lesson_id = l.id
-                 AND lc.user_id = :userId
+             SELECT 1 FROM lesson_completion lc
+             WHERE lc.is_deleted = false
+               AND lc.lesson_id = l.id
+               AND lc.user_id   = :userId
            ) AS isCompleted
     FROM lesson l
+    JOIN module_lessons ml ON ml.lesson_id = l.id
     WHERE l.is_deleted = false
       AND l.id = :lessonId
-  """,
-        nativeQuery = true
-    )
+  """, nativeQuery = true)
     fun findUserLesson(
         @Param("lessonId") lessonId: UUID,
         @Param("userId") userId: UUID
@@ -38,18 +35,22 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
 
     @Query(
         value = """
-    SELECT lesson.id AS id, lesson.title AS title, lesson.order_index AS orderIndex,
-        EXISTS (
-            SELECT 1
-            FROM lesson_completion lessonCompletion
-            WHERE lessonCompletion.is_deleted = false
-            AND lessonCompletion.lesson_id = lesson.id 
-            AND lessonCompletion.user_id = :userId
-        ) AS isCompleted
-    FROM lesson lesson
-    WHERE lesson.id IN (:lessonIds)
-    ORDER BY lesson.order_index
-    """,
+    SELECT 
+      l.id           AS id,
+      l.title        AS title,
+      ml.order_index AS orderIndex,
+      EXISTS (
+        SELECT 1 FROM lesson_completion lc
+        WHERE lc.is_deleted = false
+          AND lc.lesson_id = l.id
+          AND lc.user_id   = :userId
+      ) AS isCompleted
+    FROM lesson l
+    JOIN module_lessons ml ON ml.lesson_id = l.id
+    WHERE l.id IN (:lessonIds)
+      AND l.is_deleted = false
+    ORDER BY ml.order_index
+  """,
         nativeQuery = true
     )
     fun findUserLessonsByIds(
@@ -58,82 +59,83 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
     ): List<UserLessonProjection>
 
 
-    @Query(
-        "SELECT module_id FROM lesson WHERE id = :lessonId",
-        nativeQuery = true
-    )
-    fun findModuleIdForLesson(lessonId: UUID): UUID?
+    @Query(value = "SELECT module_id FROM module_lessons WHERE lesson_id = :lessonId LIMIT 1", nativeQuery = true)
+    fun findModuleIdForLesson(@Param("lessonId") lessonId: UUID): UUID?
 
-
-
-    @Query(
-        """
+    @Query(value = """
     WITH ordered AS (
       SELECT l.id AS lesson_id,
              LEAD(l.id) OVER (
                PARTITION BY m.course_id
-               ORDER BY m.order_index, l.order_index, l.id
+               ORDER BY m.order_index, ml.order_index, l.id
              ) AS next_id
-      FROM lesson l
-      JOIN module m ON m.id = l.module_id
-      WHERE l.is_deleted = false
+      FROM module m
+      JOIN module_lessons ml ON ml.module_id = m.id
+      JOIN lesson l ON l.id = ml.lesson_id
+      WHERE m.is_deleted = false
+        AND l.is_deleted = false
     )
     SELECT next_id
     FROM ordered
     WHERE lesson_id = :currentLesson
-    """,
-        nativeQuery = true
-    )
+    """, nativeQuery = true)
     fun findNextLessonId(@Param("currentLesson") currentLesson: UUID): UUID?
 
-    @Query(
-        """
-        select m.course_id
-        from lesson l
-        join module m on m.id = l.module_id
-        where l.id = :lessonId
-        """,
-        nativeQuery = true
-    )
+    @Query(value = """
+    SELECT m.course_id
+    FROM module_lessons ml
+    JOIN module m ON m.id = ml.module_id
+    WHERE ml.lesson_id = :lessonId
+    LIMIT 1
+    """, nativeQuery = true)
     fun findCourseIdByLesson(@Param("lessonId") lessonId: UUID): UUID?
 
-
-    @Query(
-        value = """
+    @Query(value = """
     SELECT l.id
-    FROM lesson l
-    JOIN module m ON m.id = l.module_id
+    FROM module m
+    JOIN module_lessons ml ON ml.module_id = m.id
+    JOIN lesson l ON l.id = ml.lesson_id
     WHERE m.course_id = :courseId
       AND m.is_deleted = false
       AND l.is_deleted = false
-    ORDER BY m.order_index ASC, l.order_index ASC
+    ORDER BY m.order_index, ml.order_index, l.id
     LIMIT 1
-  """,
-        nativeQuery = true
-    )
+  """, nativeQuery = true)
     fun findFirstLessonIdInCourse(@Param("courseId") courseId: UUID): UUID?
 
-    @Query(
-        """
+    @Query(value = """
     WITH ordered AS (
-      SELECT l.id AS lessonId,
-             m.id AS moduleId,
-             m.course_id AS courseId,
+      SELECT l.id AS lessonId, m.id AS moduleId, m.course_id AS courseId,
              LEAD(l.id) OVER (
                PARTITION BY m.course_id
-               ORDER BY m.order_index, l.order_index, l.id
+               ORDER BY m.order_index, ml.order_index, l.id
              ) AS nextLessonId
-      FROM lesson l
-      JOIN module m ON l.module_id = m.id
-      WHERE l.is_deleted = false   -- ✅ move filter here
+      FROM module m
+      JOIN module_lessons ml ON ml.module_id = m.id
+      JOIN lesson l ON l.id = ml.lesson_id
+      WHERE m.is_deleted = false
+        AND l.is_deleted = false
     )
     SELECT lessonId, moduleId, courseId, nextLessonId
     FROM ordered
     WHERE lessonId = :lessonId
-    """,
-        nativeQuery = true
-    )
+  """, nativeQuery = true)
     fun findLessonIdTree(@Param("lessonId") lessonId: UUID): LessonIdTreeProjection?
+
+    @Modifying
+    @Query(value = """
+        UPDATE lesson
+        SET is_deleted = true
+        WHERE id IN (:ids)
+        """, nativeQuery = true)
+    fun softDeleteLessonsByIds (@Param("ids") ids: List<UUID>): Int
+
+    @Query(value = """
+        SELECT *
+        FROM lesson
+        WHERE is_deleted = false
+        """, nativeQuery = true)
+    fun findActiveById (@Param("id") id: UUID) : Lesson?
 
 
 }
