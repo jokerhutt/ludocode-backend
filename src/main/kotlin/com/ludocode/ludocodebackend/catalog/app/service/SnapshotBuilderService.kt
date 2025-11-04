@@ -50,7 +50,7 @@ class SnapshotBuilderService(
                     id = exerciseResponse.id,
                     title = exerciseResponse.title,
                     subtitle = exerciseResponse.subtitle,
-                    prompt = exerciseResponse.prompt!!,
+                    prompt = exerciseResponse.prompt,
                     exerciseType = exerciseResponse.exerciseType,
                     correctOptions = exerciseResponse.correctOptions.map { opt ->
                         OptionSnap(

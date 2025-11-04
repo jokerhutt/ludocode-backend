@@ -12,7 +12,7 @@ import java.util.UUID
 interface ModuleLessonsRepository : JpaRepository<ModuleLessons, ModuleLessonsId> {
 
     @Query(value = """
-        SELECT lesson.id
+        SELECT *
         FROM lesson
         JOIN module_lessons ON module_lessons.lesson_id = lesson.id
         WHERE module_lessons.module_id = :moduleId
@@ -21,7 +21,7 @@ interface ModuleLessonsRepository : JpaRepository<ModuleLessons, ModuleLessonsId
     fun findActiveLessonIdsByModuleId (@Param("moduleId") moduleId: UUID) : List<UUID>
 
     @Query(value = """
-        SELECT lesson
+        SELECT *
         FROM lesson
         JOIN module_lessons ON module_lessons.lesson_id = lesson.id
         WHERE module_lessons.module_id = :moduleId
@@ -37,13 +37,12 @@ interface ModuleLessonsRepository : JpaRepository<ModuleLessons, ModuleLessonsId
         """, nativeQuery = true)
     fun findOrderIndexForLesson (@Param("moduleId") moduleId: UUID, @Param("lessonId") lessonId: UUID) : Int
 
-    @Modifying
-    @Query(value = """
-        DELETE
-        FROM module_lessons
-        WHERE module_id = :moduleId
-        """, nativeQuery = true)
-    fun deleteLessonsInModule (@Param("moduleId") moduleId: UUID)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+  DELETE FROM ModuleLessons ml
+  WHERE ml.moduleLessonsId.moduleId = :moduleId
+""")
+    fun deleteLessonsInModule(@Param("moduleId") moduleId: UUID)
 
     @Query(value = """
         SELECT module_id

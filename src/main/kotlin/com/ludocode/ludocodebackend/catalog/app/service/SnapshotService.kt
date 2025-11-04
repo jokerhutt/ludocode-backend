@@ -19,6 +19,7 @@ import com.ludocode.ludocodebackend.catalog.infra.repository.LessonRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.OptionContentRepository
+import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -33,7 +34,8 @@ class SnapshotService(
     private val optionContentRepository: OptionContentRepository,
     private val moduleRepository: ModuleRepository,
     private val exerciseOptionRepository: ExerciseOptionRepository,
-    private val snapshotBuilderService: SnapshotBuilderService
+    private val snapshotBuilderService: SnapshotBuilderService,
+    private val em: EntityManager
 ) {
 
     @Transactional
@@ -55,6 +57,9 @@ class SnapshotService(
         val lessonsToDelete: List<UUID> = getIdsToDelete(submittedLessonDiffsIds, activeLessonIdsInModule)
         lessonRepository.softDeleteLessonsByIds(lessonsToDelete)
 
+        em.flush()
+        em.clear()
+
         for (i in 0 until submittedLessonDiffs.size) {
             val submittedDiff = submittedLessonDiffs[i]
             val existing : Lesson? = lessonRepository.findActiveById(submittedDiff.id)
@@ -72,6 +77,9 @@ class SnapshotService(
         }
 
         moduleLessonsRepository.deleteLessonsInModule(moduleId)
+
+        em.flush()
+        em.clear()
 
         for (i in 0 until submittedLessonDiffs.size) {
             val newOrderIndex = i + 1
@@ -96,6 +104,8 @@ class SnapshotService(
         val submittedExerciseDiffIds = submittedExerciseDiffs.map { it.id }
         val exercisesToDelete = getIdsToDelete(submittedExerciseDiffIds, activeExerciseIdsInLesson)
         exerciseRepository.softDeleteExercisesByIds(exercisesToDelete)
+        em.flush()
+        em.clear()
 
         for (i in 0 until submittedExerciseDiffs.size) {
             val submittedExerciseDiff = submittedExerciseDiffs[i]
@@ -115,6 +125,9 @@ class SnapshotService(
         }
 
         lessonExercisesRepository.deleteExercisesInLesson(lessonId)
+
+        em.flush()
+        em.clear()
 
         for (i in 0 until submittedExerciseDiffs.size) {
             val newOrderIndex = i + 1
@@ -163,8 +176,13 @@ class SnapshotService(
         val submittedModuleDiffsIds = submittedModuleDiffs.map { it.moduleId }
         val modulesToDelete : List<UUID> = getIdsToDelete(submittedModuleDiffsIds, activeModuleIds)
         moduleRepository.softDeleteModulesByModuleIds(modulesToDelete)
+        em.flush()
+        em.clear()
 
         moduleRepository.bumpAllModuleOrderIndexesInCourse(courseId)
+        em.flush()
+        em.clear()
+
 
         for (i in 0 until submittedModuleDiffs.size) {
 
