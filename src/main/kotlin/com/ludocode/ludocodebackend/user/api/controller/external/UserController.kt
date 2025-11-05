@@ -2,6 +2,8 @@ package com.ludocode.ludocodebackend.user.api.controller.external
 
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.user.api.dto.request.ChangeCourseRequest
+import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
+import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
 import com.ludocode.ludocodebackend.user.api.dto.response.UpdatedCourseResponse
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.service.UserService
@@ -23,6 +25,11 @@ class UserController(private val userService: UserService) {
     @GetMapping(PathConstants.USERS_IDS)
     fun getUsersByIds(@RequestParam userIds: List<UUID>) : ResponseEntity<List<UserResponse>> {
         return ResponseEntity.ok(userService.getUsersByIds(userIds))
+    }
+
+    @PostMapping(PathConstants.SUBMIT_ONBOARDING)
+    fun submitOnboarding(@RequestBody req: OnboardingSubmission, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<OnboardingResponse> {
+        return ResponseEntity.ok(userService.createPreferences(req,userId))
     }
 
 
