@@ -2,7 +2,6 @@ package com.ludocode.ludocodebackend.catalog.infra.repository
 
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
-import com.ludocode.ludocodebackend.catalog.infra.projection.ExerciseFlatProjection
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -15,9 +14,9 @@ interface ExerciseRepository : JpaRepository<Exercise, ExerciseId>{
     @Query(value = """
         UPDATE exercise
         SET is_deleted = true
-        WHERE id IN (:ids)
+        WHERE id = :id
         """, nativeQuery = true)
-    fun softDeleteExercisesByIds (@Param("ids") ids: List<UUID>): Int
+    fun softDeleteExerciseById (@Param("id") id: UUID): Int
 
     @Query(
         value = """

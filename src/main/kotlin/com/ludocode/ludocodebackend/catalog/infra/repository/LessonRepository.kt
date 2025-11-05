@@ -126,9 +126,9 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
     @Query(value = """
         UPDATE lesson
         SET is_deleted = true
-        WHERE id IN (:ids)
+        WHERE id = :id
         """, nativeQuery = true)
-    fun softDeleteLessonsByIds (@Param("ids") ids: List<UUID>): Int
+    fun softDeleteLessonById (@Param("id") id: UUID): Int
 
     @Query(value = """
         SELECT *

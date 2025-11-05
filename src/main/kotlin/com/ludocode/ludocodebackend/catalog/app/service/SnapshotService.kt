@@ -55,10 +55,12 @@ class SnapshotService(
         val activeLessonIdsInModule = moduleLessonsRepository.findActiveLessonIdsByModuleId(moduleId)
         val submittedLessonDiffsIds = submittedLessonDiffs.map { it.id }
         val lessonsToDelete: List<UUID> = getIdsToDelete(submittedLessonDiffsIds, activeLessonIdsInModule)
-        lessonRepository.softDeleteLessonsByIds(lessonsToDelete)
 
-        em.flush()
-        em.clear()
+        System.out.println("Deleting Lessons")
+        for (lessonId in lessonsToDelete) {
+            lessonRepository.softDeleteLessonById(lessonId)
+        }
+        System.out.println("Deleted Lessons")
 
         for (i in 0 until submittedLessonDiffs.size) {
             val submittedDiff = submittedLessonDiffs[i]
@@ -76,7 +78,11 @@ class SnapshotService(
             }
         }
 
+        System.out.println("deleting Lessons i nmodule")
+
+
         moduleLessonsRepository.deleteLessonsInModule(moduleId)
+        System.out.println("deleted Lessons i nmodule")
 
         em.flush()
         em.clear()
@@ -103,9 +109,10 @@ class SnapshotService(
         val activeExerciseIdsInLesson = lessonExercisesRepository.findActiveExercisesByLessonId(lessonId)
         val submittedExerciseDiffIds = submittedExerciseDiffs.map { it.id }
         val exercisesToDelete = getIdsToDelete(submittedExerciseDiffIds, activeExerciseIdsInLesson)
-        exerciseRepository.softDeleteExercisesByIds(exercisesToDelete)
-        em.flush()
-        em.clear()
+
+        for (exerciseId in exercisesToDelete) {
+            exerciseRepository.softDeleteExerciseById(exerciseId)
+        }
 
         for (i in 0 until submittedExerciseDiffs.size) {
             val submittedExerciseDiff = submittedExerciseDiffs[i]
@@ -124,7 +131,7 @@ class SnapshotService(
 
         }
 
-        lessonExercisesRepository.deleteExercisesInLesson(lessonId)
+        lessonExercisesRepository.deleteExerciseInLesson(lessonId)
 
         em.flush()
         em.clear()
@@ -175,9 +182,10 @@ class SnapshotService(
 
         val submittedModuleDiffsIds = submittedModuleDiffs.map { it.moduleId }
         val modulesToDelete : List<UUID> = getIdsToDelete(submittedModuleDiffsIds, activeModuleIds)
-        moduleRepository.softDeleteModulesByModuleIds(modulesToDelete)
-        em.flush()
-        em.clear()
+
+        for (moduleId in modulesToDelete) {
+            moduleRepository.softDeleteModulesByModuleId(moduleId)
+        }
 
         moduleRepository.bumpAllModuleOrderIndexesInCourse(courseId)
         em.flush()

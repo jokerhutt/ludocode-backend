@@ -1,7 +1,15 @@
 package com.ludocode.ludocodebackend.support
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
+import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
+import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
 import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
+import com.ludocode.ludocodebackend.catalog.domain.entity.LessonExercises
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
+import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLessons
+import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
+import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.LessonExercisesId
+import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
+import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.catalog.infra.repository.*
 import com.ludocode.ludocodebackend.progress.infra.repository.AttemptOptionRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
@@ -11,6 +19,7 @@ import com.ludocode.ludocodebackend.progress.infra.repository.UserStatsRepositor
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import io.restassured.RestAssured
+import jakarta.transaction.Transactional
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,14 +40,20 @@ import java.util.UUID
 abstract class AbstractIntegrationTest {
 
 
-    lateinit var pythonCourse: Course
-    lateinit var swiftCourse: Course
-    lateinit var pyModule1: Module
-    lateinit var pyModule2: Module
-    lateinit var swiftModule1: Module
-    lateinit var swiftModuleLessons: List<Lesson>
-    lateinit var pyModule1Lessons: List<Lesson>
-    lateinit var pyModule2Lessons: List<Lesson>
+    lateinit var python: Course
+    lateinit var swift: Course
+    lateinit var pyMod1: Module
+    lateinit var pyMod2: Module
+    lateinit var swMod1: Module
+    lateinit var sw1Lessons: List<Lesson>
+    lateinit var py1Lessons: List<Lesson>
+    lateinit var py2Lessons: List<Lesson>
+    lateinit var exercises: List<Exercise>
+    lateinit var py1Lesson1Exercises: List<Exercise>
+    lateinit var py1Lesson2Exercises: List<Exercise>
+
+
+
     lateinit var user1: User
 
 
@@ -73,7 +88,10 @@ abstract class AbstractIntegrationTest {
     @Autowired lateinit var moduleRepository: ModuleRepository
     @Autowired lateinit var exerciseRepository: ExerciseRepository
     @Autowired lateinit var lessonCompletionRepository: LessonCompletionRepository
+    @Autowired lateinit var moduleLessonsRepository: ModuleLessonsRepository
+    @Autowired lateinit var lessonExercisesRepository: LessonExercisesRepository
     @Autowired lateinit var exerciseOptionRepository: ExerciseOptionRepository
+    @Autowired lateinit var optionContentRepository: OptionContentRepository
     @Autowired lateinit var userStatsRepository: UserStatsRepository
     @Autowired lateinit var exerciseAttemptRepository: ExerciseAttemptRepository
     @Autowired lateinit var attemptOptionRepository: AttemptOptionRepository
@@ -98,7 +116,10 @@ abstract class AbstractIntegrationTest {
           course_progress,
           user_stats,
           ludo_user,
+          option_content,
           exercise_option,
+          lesson_exercises,
+          module_lessons,
           exercise,
           exercise, 
           module, 
@@ -117,43 +138,142 @@ abstract class AbstractIntegrationTest {
 
 
         user1 = userRepository.save(
-            User(firstName = "John", lastName = "Doe", pfpSrc = "Test", createdAt = OffsetDateTime.now(), currentCourse = pythonCourse.id, email = "email@google.com"))
+            User(firstName = "John", lastName = "Doe", pfpSrc = "Test", createdAt = OffsetDateTime.now(), email = "email@google.com"))
     }
 
-    protected fun initializeCatalog () {
+    @Transactional
+    fun initializeCatalog() {
+        // Courses
+        python = courseRepository.save(Course(id = UUID.randomUUID(), title = "Python"))
+        swift  = courseRepository.save(Course(id = UUID.randomUUID(), title = "Swift"))
 
-        pythonCourse = courseRepository.save(Course(title = "Python"))
-        pyModule1 = moduleRepository.save(Module(title = "Variables", courseId = pythonCourse.id, orderIndex = 1))
-        pyModule2 = moduleRepository.save(Module(title = "Conditionals", courseId = pythonCourse.id, orderIndex = 2))
-
-        swiftCourse = courseRepository.save(Course(title = "Swift"))
-        swiftModule1 = moduleRepository.save(Module(title = "Variables", courseId = swiftCourse.id, orderIndex = 1))
-
-        pyModule1Lessons = lessonRepository.saveAll(
-            listOf(
-            Lesson(id = UUID.randomUUID(), title = "Variables I", moduleId = pyModule1.id!!, orderIndex = 1),
-            Lesson(id = UUID.randomUUID(),title = "Variables II", moduleId = pyModule1.id!!, orderIndex = 2),
-            Lesson(id = UUID.randomUUID(),title = "Data Types I", moduleId = pyModule1.id!!, orderIndex = 3),
-            Lesson(id = UUID.randomUUID(),title = "Data Types II", moduleId = pyModule1.id!!, orderIndex = 4),
-                )
+        // Modules (order on module itself)
+         pyMod1 = moduleRepository.save(
+            Module(id = UUID.randomUUID(), title = "Variables",   courseId = python.id, orderIndex = 1, isDeleted = false)
+        )
+        pyMod2 = moduleRepository.save(
+            Module(id = UUID.randomUUID(), title = "Conditionals", courseId = python.id, orderIndex = 2, isDeleted = false)
+        )
+        swMod1 = moduleRepository.save(
+            Module(id = UUID.randomUUID(), title = "Variables",   courseId = swift.id,  orderIndex = 1, isDeleted = false)
         )
 
-        pyModule2Lessons = lessonRepository.saveAll(
+        py1Lessons = saveLessons(
+            "Variables I",
+            "Variables II",
+            "Data Types I",
+            "Data Types II"
+        )
+
+        py2Lessons = saveLessons(
+            "If",
+            "Else",
+            "Else if",
+            "Switch"
+        )
+
+        sw1Lessons = saveLessons(
+            "Variables I",
+            "Variables II",
+            "Data Types I",
+            "Data Types II"
+        )
+
+        joinLessons(pyMod1.id!!, py1Lessons)
+        joinLessons(pyMod2.id!!, py2Lessons)
+        joinLessons(swMod1.id!!, sw1Lessons)
+
+        exercises = exerciseRepository.saveAll(
             listOf(
-                Lesson(id = UUID.randomUUID(),title = "If", moduleId = pyModule2.id!!, orderIndex = 1),
-                Lesson(id = UUID.randomUUID(),title = "Else", moduleId = pyModule2.id!!, orderIndex = 2),
-                Lesson(id = UUID.randomUUID(),title = "Else if", moduleId = pyModule2.id!!, orderIndex = 3),
-                Lesson(id = UUID.randomUUID(),title = "Switch", moduleId = pyModule2.id!!, orderIndex = 4),
+                Exercise(
+                    exerciseId = ExerciseId(UUID.randomUUID(), 1),
+                    title = "Complete the expression",
+                    prompt = "let sum = ___ + 4",
+                    exerciseType = ExerciseType.CLOZE,
+                ),
+                Exercise(
+                    exerciseId = ExerciseId(UUID.randomUUID(), 1),
+                    title = "Create a variable with a value of 'House'",
+                    prompt = "const ___ = ___",
+                    exerciseType = ExerciseType.CLOZE,
+                ),
+                Exercise(
+                    exerciseId = ExerciseId(UUID.randomUUID(), 1),
+                    title = "What will the following code return",
+                    prompt = "const score = 4 + 4;",
+                    exerciseType = ExerciseType.ANALYZE,
+                ),
+                Exercise(
+                    exerciseId = ExerciseId(UUID.randomUUID(), 1),
+                    title = "Which of the following declares a variable that can not be reassigned",
+                    exerciseType = ExerciseType.TRIVIA,
+                )
             )
         )
 
-        swiftModuleLessons = lessonRepository.saveAll(listOf(
-            Lesson(id = UUID.randomUUID(),title = "Variables I", moduleId = swiftModule1.id!!, orderIndex = 1),
-            Lesson(id = UUID.randomUUID(),title = "Variables II", moduleId = swiftModule1.id!!, orderIndex = 2),
-            Lesson(id = UUID.randomUUID(),title = "Data Types I", moduleId = swiftModule1.id!!, orderIndex = 3),
-            Lesson(id = UUID.randomUUID(),title = "Data Types II", moduleId = swiftModule1.id!!, orderIndex = 4),
-        ))
+        val lessonExercises = lessonExercisesRepository.saveAll(
+            listOf(
+                LessonExercises(LessonExercisesId(py1Lessons[0].id!!, 1), exercises[0].exerciseId.id!!, 1),
+                LessonExercises(LessonExercisesId(py1Lessons[0].id!!, 2), exercises[1].exerciseId.id!!, 1),
+                LessonExercises(LessonExercisesId(py2Lessons[1].id!!, 1), exercises[2].exerciseId.id!!, 1),
+                LessonExercises(LessonExercisesId(py2Lessons[1].id!!, 2), exercises[3].exerciseId.id!!, 1)
+            )
+        )
 
+        py1Lesson1Exercises = listOf(exercises[0], exercises[1])
+        py1Lesson2Exercises = listOf(exercises[2], exercises[3])
+
+        val optionContents = listOf("4", "house", "'house'", "8", "undefined", "let", "const")
+        optionContents.forEach { optionContentRepository.upsertOption(it) }
+        val dbOptions = optionContents.mapNotNull { optionContentRepository.findOptionContentByContent(it) }
+
+        val exerciseOptions = exerciseOptionRepository.saveAll(
+            listOf(
+                // Ex 1 (CLOZE): correct "4" → order 1; distractor "let" → null
+                ExerciseOption(UUID.randomUUID(), exercises[0].exerciseId.id!!, 1, dbOptions[0].id, 1),
+                ExerciseOption(UUID.randomUUID(), exercises[0].exerciseId.id!!, 1, dbOptions[5].id, null),
+
+                // Ex 2 (CLOZE): two corrects → "house"=1, "'house'"=2
+                ExerciseOption(UUID.randomUUID(), exercises[1].exerciseId.id!!, 1, dbOptions[1].id, 1),
+                ExerciseOption(UUID.randomUUID(), exercises[1].exerciseId.id!!, 1, dbOptions[2].id, 2),
+
+                // Ex 3 (ANALYZE): correct "8" → 1; distractor "undefined" → null
+                ExerciseOption(UUID.randomUUID(), exercises[2].exerciseId.id!!, 1, dbOptions[3].id, 1),
+                ExerciseOption(UUID.randomUUID(), exercises[2].exerciseId.id!!, 1, dbOptions[4].id, null),
+
+                // Ex 4 (TRIVIA): correct "const" → 1; distractor "let" → null
+                ExerciseOption(UUID.randomUUID(), exercises[3].exerciseId.id!!, 1, dbOptions[6].id, 1),
+                ExerciseOption(UUID.randomUUID(), exercises[3].exerciseId.id!!, 1, dbOptions[5].id, null),
+            )
+        )
+
+
+
+    }
+
+    private fun saveLessons(vararg titles: String): List<Lesson> =
+        lessonRepository.saveAll(
+            titles.map {
+                Lesson(
+                    id = UUID.randomUUID(),
+                    title = it,
+                    isDeleted = false
+                )
+            }
+        )
+
+    private fun joinLessons(moduleId: UUID, lessons: List<Lesson>) {
+        moduleLessonsRepository.saveAll(
+            lessons.mapIndexed { idx, lesson ->
+                ModuleLessons(
+                    moduleLessonsId = ModuleLessonsId(
+                        moduleId = moduleId,
+                        orderIndex = idx + 1
+                    ),
+                    lessonId = lesson.id!!
+                )
+            }
+        )
     }
 
 

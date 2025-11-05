@@ -27,10 +27,10 @@ class Exercise (
     var title: String,
 
     @Column(name = "prompt")
-    var prompt: String?,
+    var prompt: String? = null,
 
     @Column(name = "subtitle")
-    var subtitle: String?,
+    var subtitle: String? = null,
 
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "exercise_type", nullable = false)

@@ -13,7 +13,7 @@ import java.util.UUID
 class ModuleLessons (
 
     @EmbeddedId
-    val moduleLessonsId: ModuleLessonsId? = null,
+    val moduleLessonsId: ModuleLessonsId,
 
     @Column(name = "lesson_id", nullable = false)
     val lessonId: UUID

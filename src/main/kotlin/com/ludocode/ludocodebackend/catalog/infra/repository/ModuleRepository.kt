@@ -2,13 +2,10 @@ package com.ludocode.ludocodebackend.catalog.infra.repository
 
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.infra.projection.FlatModuleLessonRow
-import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import java.util.Optional
 import java.util.UUID
 
 interface ModuleRepository : JpaRepository<Module, UUID> {
@@ -61,9 +58,9 @@ interface ModuleRepository : JpaRepository<Module, UUID> {
     @Query(value = """
         UPDATE module
         SET is_deleted = true
-        WHERE id IN (:ids)
+        WHERE id = :id
         """, nativeQuery = true)
-    fun softDeleteModulesByModuleIds (@Param("ids") ids: List<UUID>): Int
+    fun softDeleteModulesByModuleId (@Param("id") id: UUID): Int
 
     @Modifying
     @Query(value = """

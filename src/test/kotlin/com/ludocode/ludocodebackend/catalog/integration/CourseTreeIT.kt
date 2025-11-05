@@ -22,11 +22,9 @@ class CourseTreeIT : AbstractIntegrationTest() {
     @Test
     fun getCourseTree_returnsCourseTree () {
 
-        // == ARRANGE == //
         val user: User = user1
-        val course: Course = pythonCourse
+        val course: Course = python
 
-        // == ACT == //
         val response: FlatCourseTreeResponse = submitGetCourseTree(course.id!!, user.id!!)
 
         // == ASSERT == //

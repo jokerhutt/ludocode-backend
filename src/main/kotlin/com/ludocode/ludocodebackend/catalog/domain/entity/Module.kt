@@ -23,7 +23,7 @@ class Module (
     val courseId: UUID,
 
     @Column(name = "is_deleted", nullable = false)
-    var isDeleted: Boolean,
+    var isDeleted: Boolean? = false,
 
     @Column(name = "order_index")
     var orderIndex: Int

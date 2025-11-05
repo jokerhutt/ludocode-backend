@@ -47,11 +47,11 @@ interface LessonExercisesRepository : JpaRepository<LessonExercises, LessonExerc
         """, nativeQuery = true)
     fun findActiveExercisesByLessonId(@Param("lessonId") lessonId: UUID): List<UUID>
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = """
         DELETE FROM lesson_exercises
         WHERE lesson_id = :lessonId
         """, nativeQuery = true)
-    fun deleteExercisesInLesson(@Param("lessonId") lessonId: UUID)
+    fun deleteExerciseInLesson(@Param("lessonId") lessonId: UUID)
 
 }

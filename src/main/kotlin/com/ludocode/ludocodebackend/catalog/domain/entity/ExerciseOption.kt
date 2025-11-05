@@ -17,7 +17,7 @@ import java.util.UUID
 class ExerciseOption (
 
     @Id
-    val id: UUID? = null,
+    var id: UUID,
 
     @Column(name = "exercise_id", nullable = false, unique = true)
     var exerciseId: UUID,

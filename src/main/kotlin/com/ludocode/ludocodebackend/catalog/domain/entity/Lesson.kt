@@ -11,7 +11,7 @@ import java.util.UUID
 class Lesson (
 
     @Id
-    val id: UUID,
+    var id: UUID,
 
     @Column(name = "title", nullable = false)
     var title: String,
