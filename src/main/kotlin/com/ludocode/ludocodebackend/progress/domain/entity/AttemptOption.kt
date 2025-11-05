@@ -1,6 +1,8 @@
 package com.ludocode.ludocodebackend.progress.domain.entity
 
+import com.ludocode.ludocodebackend.progress.domain.entity.embedded.AttemptOptionId
 import jakarta.persistence.Column
+import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -12,17 +14,6 @@ import java.util.UUID
 @Entity
 @Table(name = "attempt_option")
 class AttemptOption (
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @UuidGenerator
-    val id: UUID? = null,
-
-    @Column(name = "attempt_id")
-    var attemptId: UUID? = null,
-
-    @Column(name = "token")
-    var token: String? = null
-
-
+        @EmbeddedId
+        val attemptOptionId: AttemptOptionId
     )

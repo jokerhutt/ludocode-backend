@@ -18,8 +18,11 @@ class CourseProgress (
     @Column(name = "created_at", nullable = false)
     val createdAt: OffsetDateTime = OffsetDateTime.now(),
 
+    @Column(name = "updated_at", nullable = false)
+    val updatedAt: OffsetDateTime  = OffsetDateTime.now(),
+
     @Column(name = "current_lesson_id")
-    val currentLessonId: UUID? = null,
+    val currentLessonId: UUID,
 
     @Column(nullable = false, name = "is_complete")
     var isComplete: Boolean = false

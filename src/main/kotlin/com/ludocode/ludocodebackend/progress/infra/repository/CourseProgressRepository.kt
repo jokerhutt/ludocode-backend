@@ -11,16 +11,26 @@ import java.util.UUID
 
 interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgressId> {
 
-    @Query(
-        value = """
-        select cp.course_id, cp.user_id, cp.current_lesson_id, l.module_id
-        from course_progress cp
-        left join lesson l on l.id = cp.current_lesson_id
-        where cp.user_id = :userId and cp.course_id = :courseId
-        """,
-        nativeQuery = true
-    )
-    fun findProgressWithModule(userId: UUID, courseId: UUID): CourseProgressWithModuleProjection
+    @Query(value = """
+  SELECT 
+    cp.course_id         AS courseId,
+    cp.user_id           AS userId,
+    cp.current_lesson_id AS currentLessonId,
+    cp.updated_at        AS updatedAt,
+    ml.module_id         AS moduleId
+  FROM course_progress cp
+  JOIN module_lessons ml
+    ON ml.lesson_id = cp.current_lesson_id
+  JOIN module m
+    ON m.id = ml.module_id
+   AND m.course_id = cp.course_id
+  WHERE cp.user_id = :userId
+    AND cp.course_id = :courseId
+""", nativeQuery = true)
+    fun findProgressWithModule(
+        @Param("userId") userId: UUID,
+        @Param("courseId") courseId: UUID
+    ): CourseProgressWithModuleProjection
 
     @Modifying
     @Query(""" 
@@ -44,28 +54,42 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
 
     @Query(
         value = """
-    select 
-      cp.course_id         as courseId,
-      cp.user_id           as userId,
-      cp.current_lesson_id as currentLessonId,
-      l.module_id          as moduleId
-    from course_progress cp
-    left join lesson l on l.id = cp.current_lesson_id
-    where cp.user_id = :userId
-      and cp.course_id in (:courseIds)
+  SELECT course_id
+  FROM course_progress
+  WHERE user_id = :userId
+  ORDER BY updated_at DESC
+  LIMIT 1
   """,
         nativeQuery = true
     )
+    fun findCurrentCourseIdForUser(@Param("userId") userId: UUID): UUID?
+
+    @Query(value = """
+  SELECT 
+    cp.course_id         AS courseId,
+    cp.user_id           AS userId,
+    cp.current_lesson_id AS currentLessonId,
+    ml.module_id         AS moduleId,
+    cp.updated_at        AS updatedAt
+  FROM course_progress cp
+  JOIN module_lessons ml
+    ON ml.lesson_id = cp.current_lesson_id
+  JOIN module m
+    ON m.id = ml.module_id
+   AND m.course_id = cp.course_id
+  WHERE cp.user_id = :userId
+    AND cp.course_id IN (:courseIds)
+""", nativeQuery = true)
     fun findAllProgressWithModulesByUserAndCourses(
-        userId: UUID,
-        courseIds: List<UUID>
+        @Param("userId") userId: UUID,
+        @Param("courseIds") courseIds: List<UUID>
     ): List<CourseProgressWithModuleProjection>
 
     @Modifying
     @Query(
         """
     update course_progress
-       set current_lesson_id = :newLessonId
+       set current_lesson_id = :newLessonId, updated_at = now()
        where user_id = :userId
        and course_id = :courseId
     """,
@@ -77,15 +101,22 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
 
     @Modifying
     @Query(
-        """
-  INSERT INTO course_progress (user_id, course_id, current_lesson_id, is_complete, created_at)
-  VALUES (:userId, :courseId, :firstLessonId, false, now())
+        value = """
+  INSERT INTO course_progress (
+      user_id, course_id, current_lesson_id, is_complete, created_at, updated_at
+  )
+  VALUES (:userId, :courseId, :firstLessonId, false, now(), now())
   ON CONFLICT (user_id, course_id) DO UPDATE
-    SET current_lesson_id = COALESCE(course_progress.current_lesson_id, EXCLUDED.current_lesson_id)
+  SET current_lesson_id = COALESCE(course_progress.current_lesson_id, EXCLUDED.current_lesson_id),
+      updated_at        = now()
   """,
         nativeQuery = true
     )
-    fun upsert(userId: UUID, courseId: UUID, firstLessonId: UUID): Int
+    fun upsert(
+        @Param("userId") userId: UUID,
+        @Param("courseId") courseId: UUID,
+        @Param("firstLessonId") firstLessonId: UUID
+    ): Int
 
     @Modifying
     @Query(

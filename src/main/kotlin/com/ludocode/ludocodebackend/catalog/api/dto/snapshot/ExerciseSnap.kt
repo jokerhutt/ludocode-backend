@@ -4,7 +4,7 @@ import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
 import java.util.UUID
 
 data class ExerciseSnap(
-    val id: UUID?,                         // null = new exercise (v1)
+    val id: UUID,
     val title: String,
     val subtitle: String?,
     val prompt: String?,

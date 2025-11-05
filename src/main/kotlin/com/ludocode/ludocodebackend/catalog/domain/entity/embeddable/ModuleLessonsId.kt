@@ -5,10 +5,10 @@ import jakarta.persistence.Embeddable
 import java.util.UUID
 
 @Embeddable
-data class ExerciseId(
+data class ModuleLessonsId (
     @Column(name = "id")
-    val id: UUID,
+    var moduleId: UUID,
 
-    @Column(name = "version")
-    val version: Int
+    @Column(name = "order_index", nullable = false, unique = true)
+    val orderIndex: Int? = null
 ) : java.io.Serializable

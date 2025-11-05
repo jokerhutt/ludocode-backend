@@ -6,8 +6,10 @@ import java.util.UUID
 
 @Embeddable
 data class CourseProgressId(
+
     @Column(name = "user_id", nullable = false)
-    var userId: UUID? = null,
+    val userId: UUID,
     @Column(name = "course_id", nullable = false)
-    var courseId: UUID? = null
+    val courseId: UUID
+
 ) : java.io.Serializable

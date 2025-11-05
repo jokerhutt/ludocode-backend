@@ -2,281 +2,231 @@ package com.ludocode.ludocodebackend.catalog.app.service
 
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnapshot
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
 import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
+import com.ludocode.ludocodebackend.catalog.domain.entity.LessonExercises
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
+import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLessons
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
-import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
+import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.LessonExercisesId
+import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
 import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseOptionRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.LessonExercisesRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.LessonRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.OptionContentRepository
 import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.util.UUID
-import kotlin.collections.forEach
 
 
 @Service
 class SnapshotService(
     private val lessonRepository: LessonRepository,
-    private val moduleRepository: ModuleRepository,
+    private val moduleLessonsRepository: ModuleLessonsRepository,
+    private val lessonExercisesRepository: LessonExercisesRepository,
     private val exerciseRepository: ExerciseRepository,
+    private val optionContentRepository: OptionContentRepository,
+    private val moduleRepository: ModuleRepository,
     private val exerciseOptionRepository: ExerciseOptionRepository,
-    private val catalogService: CatalogService,
-    @PersistenceContext private val entityManager: EntityManager,
+    private val snapshotBuilderService: SnapshotBuilderService,
+    private val em: EntityManager
 ) {
 
-
     @Transactional
-    fun applyCourseSnapshot(s: CourseSnap): CourseSnap {
-        // 1) delete modules missing from snapshot
-        val existing = moduleRepository.findActiveIdsByCourse(s.courseId).toSet()
-        val incoming = s.modules.mapNotNull { it.moduleId }.toSet()
-        val toDelete = existing - incoming
-        if (toDelete.isNotEmpty()) moduleRepository.softDeleteIn(toDelete.toList())
-
-        val tempToReal = mutableMapOf<UUID, UUID>()
-        s.modules.forEach { ms ->
-            val realId = ms.moduleId ?: UUID.randomUUID()
-            tempToReal[ms.tempId] = realId
-            upsertModule(ms, s.courseId, realId)
-        }
-
-        entityManager.flush(); entityManager.clear()
-        moduleRepository.bumpAllInCourse(s.courseId) // set order_index high to avoid unique conflicts
-        s.modules.forEachIndexed { idx, ms ->
-            moduleRepository.setOrder(tempToReal[ms.tempId]!!, idx + 1)
-        }
-        entityManager.flush(); entityManager.clear()
-
-        // 4) apply lessons/exercises per module
-        s.modules.forEach { ms ->
-            applyModuleSnapshot(ms, tempToReal[ms.tempId]!!)
-        }
-
-        // 5) return a fresh rebuild
-        return getSnapshotsByCourseId(s.courseId)
+    fun applyNewSnapshot (reqSnapshot: CourseSnap): CourseSnap? {
+        return applyModuleDiffs(reqSnapshot)
     }
 
-    private fun upsertModule(ms: ModuleSnapshot, courseId: UUID, realId: UUID) {
-        // If you're doing concurrent edits/order updates, prefer findByIdForUpdate(realId)
-        val managed = moduleRepository.findById(realId).orElse(null)
+    fun getCourseSnapshot (courseId: UUID): CourseSnap {
+        return snapshotBuilderService.buildCourseSnapshot(courseId)
+    }
 
-        if (managed == null) {
-            // brand-new module → create a NEW instance and persist
-            entityManager.persist(
-                Module(
-                    id = realId,                 // you mapped temp → real UUID earlier
-                    courseId = courseId,
-                    title = ms.title,
-                    orderIndex = 0,              // or ms.orderIndex ?: 0 if you carry it in the snapshot
-                    isDeleted = false            // make sure Module has this column if you use soft-delete
+    @Transactional
+    fun applyLessonDiffs(reqModuleSnapshot: ModuleSnapshot) {
+
+        val moduleId = reqModuleSnapshot.moduleId
+        val submittedLessonDiffs = reqModuleSnapshot.lessons
+        val activeLessonIdsInModule = moduleLessonsRepository.findActiveLessonIdsByModuleId(moduleId)
+        val submittedLessonDiffsIds = submittedLessonDiffs.map { it.id }
+        val lessonsToDelete: List<UUID> = getIdsToDelete(submittedLessonDiffsIds, activeLessonIdsInModule)
+
+        System.out.println("Deleting Lessons")
+        for (lessonId in lessonsToDelete) {
+            lessonRepository.softDeleteLessonById(lessonId)
+        }
+        System.out.println("Deleted Lessons")
+
+        for (i in 0 until submittedLessonDiffs.size) {
+            val submittedDiff = submittedLessonDiffs[i]
+            val existing : Lesson? = lessonRepository.findActiveById(submittedDiff.id)
+            if (existing == null) {
+                val newLesson = Lesson(
+                    id = submittedDiff.id,
+                    title = submittedDiff.title,
+                    isDeleted = false
                 )
+                lessonRepository.save(newLesson)
+            } else {
+                existing.title = submittedDiff.title
+                lessonRepository.save(existing)
+            }
+        }
+
+        System.out.println("deleting Lessons i nmodule")
+
+
+        moduleLessonsRepository.deleteLessonsInModule(moduleId)
+        System.out.println("deleted Lessons i nmodule")
+
+        em.flush()
+        em.clear()
+
+        for (i in 0 until submittedLessonDiffs.size) {
+            val newOrderIndex = i + 1
+            val lessonId = submittedLessonDiffs[i].id
+            val moduleLesson = ModuleLessons(
+                moduleLessonsId = ModuleLessonsId(
+                    moduleId = moduleId,
+                    orderIndex = newOrderIndex
+                ),
+                lessonId = lessonId
             )
-        } else {
-            // existing → mutate the MANAGED instance; DO NOT persist/merge here
-            require(!managed.isDeleted) { "Module is deleted" }
-            require(managed.courseId == courseId) { "Module not in course" }
-            managed.title = ms.title
-            // optionally keep/adjust orderIndex here; you already rewrite ordering afterward
+            val dbLesson = moduleLessonsRepository.save(moduleLesson)
+            applyExerciseDiffs(dbLesson.lessonId, submittedLessonDiffs[i].exercises)
+        }
+
+    }
+
+    @Transactional
+    fun applyExerciseDiffs(lessonId: UUID, submittedExerciseDiffs: List<ExerciseSnap>) {
+
+        val activeExerciseIdsInLesson = lessonExercisesRepository.findActiveExercisesByLessonId(lessonId)
+        val submittedExerciseDiffIds = submittedExerciseDiffs.map { it.id }
+        val exercisesToDelete = getIdsToDelete(submittedExerciseDiffIds, activeExerciseIdsInLesson)
+
+        for (exerciseId in exercisesToDelete) {
+            exerciseRepository.softDeleteExerciseById(exerciseId)
+        }
+
+        for (i in 0 until submittedExerciseDiffs.size) {
+            val submittedExerciseDiff = submittedExerciseDiffs[i]
+            val existing = exerciseRepository.findLatestActiveById(submittedExerciseDiff.id)
+            val newVersion = if (existing != null) existing.exerciseId.version + 1 else 1
+
+            val newExercise = Exercise(
+                exerciseId = ExerciseId(submittedExerciseDiff.id, newVersion),
+                title = submittedExerciseDiff.title,
+                subtitle = submittedExerciseDiff.subtitle,
+                prompt = submittedExerciseDiff.prompt,
+                exerciseType = submittedExerciseDiff.exerciseType,
+                isDeleted = false
+            )
+            exerciseRepository.save(newExercise)
+
+        }
+
+        lessonExercisesRepository.deleteExerciseInLesson(lessonId)
+
+        em.flush()
+        em.clear()
+
+        for (i in 0 until submittedExerciseDiffs.size) {
+            val newOrderIndex = i + 1
+            val exerciseId = submittedExerciseDiffs[i].id
+            val existingExercise = exerciseRepository.findLatestActiveById(exerciseId)
+
+            val newLessonExercise = LessonExercises(
+                lessonExercisesId = LessonExercisesId(lessonId = lessonId, orderIndex = newOrderIndex),
+                exerciseId = existingExercise!!.exerciseId.id,
+                exerciseVersion = existingExercise!!.exerciseId.version
+            )
+            val dbExercise = lessonExercisesRepository.save(newLessonExercise)
+            val dbExerciseId = dbExercise.exerciseId
+            val dbExerciseVersion = dbExercise.exerciseVersion
+            applyExerciseOptionDiffs(submittedExerciseDiffs[i], dbExerciseId, dbExerciseVersion)
+        }
+
+    }
+
+    @Transactional
+    fun applyExerciseOptionDiffs(reqExerciseSnapshot: ExerciseSnap,  dbExerciseId: UUID, dbExerciseVersion: Int) {
+
+        val allOptions = reqExerciseSnapshot.correctOptions + reqExerciseSnapshot.distractors
+
+        for (i in 0 until allOptions.size) {
+            val option = allOptions[i]
+            optionContentRepository.upsertOption(option.content)
+            val dbOption = optionContentRepository.findOptionContentByContent(option.content)
+            val newExerciseOption = ExerciseOption(
+                id = UUID.randomUUID(),
+                exerciseId = dbExerciseId,
+                exerciseVersion = dbExerciseVersion,
+                optionId = dbOption!!.id
+            )
+            exerciseOptionRepository.save(newExerciseOption)
         }
     }
 
     @Transactional
-    fun applyModuleSnapshot(s: ModuleSnapshot, moduleId: UUID): ModuleSnapshot {
-        // delete lessons missing from snapshot
-        val currentIds = lessonRepository.findActiveIdsByModule(moduleId)
-        val incomingIds = s.lessons.mapNotNull { it.id }.toSet()
-        val toDelete = currentIds.filter { it !in incomingIds }
-        if (toDelete.isNotEmpty()) lessonRepository.softDeleteIn(toDelete)
+    fun applyModuleDiffs(reqSnapshot: CourseSnap): CourseSnap {
 
-        // temp → real for lessons
-        val tempToReal = mutableMapOf<UUID, UUID>()
-        s.lessons.forEach { ls -> tempToReal[ls.tempId] = ls.id ?: UUID.randomUUID() }
+        val courseId : UUID = reqSnapshot.courseId
+        val submittedModuleDiffs : List<ModuleSnapshot> = reqSnapshot.modules
+        val activeModuleIds : List<UUID> = moduleRepository.findActiveIdsByCourse(courseId = courseId)
 
-        // upserts
-        s.lessons.forEach { ls -> upsertLesson(ls, moduleId, tempToReal[ls.tempId]!!) }
+        val submittedModuleDiffsIds = submittedModuleDiffs.map { it.moduleId }
+        val modulesToDelete : List<UUID> = getIdsToDelete(submittedModuleDiffsIds, activeModuleIds)
 
-        // ordering
-        entityManager.flush(); entityManager.clear()
-        lessonRepository.bumpAllInModule(moduleId)
-        s.lessons.forEachIndexed { idx, ls ->
-            lessonRepository.setOrder(tempToReal[ls.tempId]!!, idx + 1)
-        }
-        entityManager.flush(); entityManager.clear()
-
-        return buildModuleSnapshot(moduleId)
-    }
-
-    private fun upsertLesson(ls: LessonSnap, moduleId: UUID, realId: UUID) {
-        val managed = lessonRepository.findById(realId).orElse(null)
-        if (managed == null) {
-            entityManager.persist(Lesson(id = realId, moduleId = moduleId, title = ls.title, isDeleted = false))
-        } else {
-            require(!managed.isDeleted) { "Lesson is deleted" }
-            require(managed.moduleId == moduleId) { "Lesson not in module" }
-            managed.title = ls.title
+        for (moduleId in modulesToDelete) {
+            moduleRepository.softDeleteModulesByModuleId(moduleId)
         }
 
-        // delete exercises missing from snapshot
-        val existingIds: Set<UUID> =
-            exerciseRepository.findActiveExerciseIdsByLesson(realId).toSet()
-        val keptIds: Set<UUID> = ls.exercises.mapNotNull { it.id }.toSet()
-        val toDelete: List<UUID> = (existingIds - keptIds).toList()
-        if (toDelete.isNotEmpty()) insertDeletedVersions(realId, toDelete)
+        moduleRepository.bumpAllModuleOrderIndexesInCourse(courseId)
+        em.flush()
+        em.clear()
 
-        // upserts: new => v1, existing => bump
-        ls.exercises.forEachIndexed { idx, ex ->
-            val exId = ex.id ?: UUID.randomUUID()
-            val ver = if (ex.id == null) 1 else exerciseRepository.bumpVersion(exId)
 
-            exerciseRepository.save(
-                Exercise(
-                    exerciseId = ExerciseId(exId, ver),
-                    title = ex.title,
-                    prompt = ex.prompt,
-                    exerciseType = ex.exerciseType,
-                    lessonId = realId,
+        for (i in 0 until submittedModuleDiffs.size) {
+
+            val newOrderIndex = i + 1
+            val moduleDiff = submittedModuleDiffs[i]
+            val existing: Module? = moduleRepository.findActiveById(moduleDiff.moduleId)
+
+            if (existing == null) {
+                val newModule = Module(
+                    id = moduleDiff.moduleId,
+                    title = moduleDiff.title,
                     isDeleted = false,
-                    orderIndex = idx + 1
+                    courseId = courseId,
+                    orderIndex = newOrderIndex
                 )
-            )
-
-            val options = normalizeOptions(exId, ver, ex)
-            replaceOptions(exId, ver, options)
-        }
-
-    }
-
-    @Transactional
-    fun replaceOptions(exerciseId: UUID, version: Int, options: List<ExerciseOption>) {
-        exerciseOptionRepository.deleteByExerciseIdAndVersion(exerciseId, version)
-        entityManager.flush()
-        options.forEach { entityManager.persist(it) }
-    }
-
-    private fun normalizeOptions(
-        exId: UUID,
-        ver: Int,
-        snap: ExerciseSnap
-    ): List<ExerciseOption> {
-        val correct = snap.correctOptions
-            .filterNot { it.content.isBlank() }
-            .mapIndexed { idx, o ->
-                ExerciseOption(
-                    id = null,
-                    content = o.content.trim(),
-                    answerOrder = idx + 1,
-                    exerciseId = exId,
-                    exerciseVersion = ver
-                )
+                moduleRepository.save(newModule)
+            } else {
+                existing.title = moduleDiff.title
+                existing.orderIndex = newOrderIndex
+                moduleRepository.save(existing)
             }
 
-        val distractors = snap.distractors
-            .filterNot { it.content.isBlank() }
-            .map { o ->
-                ExerciseOption(
-                    id = null,
-                    content = o.content.trim(),
-                    answerOrder = null,              // stays null
-                    exerciseId = exId,
-                    exerciseVersion = ver
-                )
-            }
+            applyLessonDiffs(submittedModuleDiffs[i])
 
-        return correct + distractors
-    }
-
-    private fun insertDeletedVersions(lessonId: UUID, exerciseIds: List<UUID>) {
-        exerciseIds.forEach { exerciseId ->
-            val nextVersion = exerciseRepository.bumpVersion(exerciseId)
-            exerciseRepository.save(
-                Exercise(
-                    exerciseId = ExerciseId(exerciseId, nextVersion),
-                    title = "",
-                    prompt = "",
-                    exerciseType = ExerciseType.CLOZE,
-                    lessonId = lessonId,
-                    isDeleted = true,
-                    orderIndex = 0
-                )
-            )
-        }
-    }
-
-    fun getSnapshotsByCourseId(courseId: UUID): CourseSnap {
-        val moduleIds = moduleRepository.findModuleIdsByCourse(courseId)
-        var moduleSnapshots = mutableListOf<ModuleSnapshot>()
-
-        for (moduleId in moduleIds) {
-            val snapshot = buildModuleSnapshot(moduleId)
-            moduleSnapshots.add(snapshot)
         }
 
-        return CourseSnap(courseId = courseId, modules = moduleSnapshots)
+        return snapshotBuilderService.buildCourseSnapshot(courseId)
 
     }
 
-    fun buildModuleSnapshot(moduleId: UUID): ModuleSnapshot {
-        val module = moduleRepository.findById(moduleId).orElseThrow()
-
-        // assume lessons are returned ordered by order_index, id
-        val lessons = lessonRepository.findAllByModuleId(moduleId)
-
-        val lessonSnaps = lessons.map { l ->
-            val exResponses = catalogService.getExercisesByLessonId(l.id!!)
-
-            val exSnaps = exResponses.map { er ->
-
-                val correctOptions = er.exerciseOptions
-                    .filter { it.answerOrder != null }
-                    .sortedBy { it.answerOrder }
-
-                val distractors = er.exerciseOptions
-                    .filter { it.answerOrder == null }
-
-                ExerciseSnap(
-                    id = er.id,
-                    title = er.title,
-                    prompt = er.prompt!!,
-                    exerciseType = er.exerciseType,
-                    correctOptions = correctOptions.map { opt ->
-                        OptionSnap(
-                            content = opt.content,
-                            answerOrder = opt.answerOrder
-                        )
-                    },
-                    subtitle = er.subtitle,
-                    distractors = distractors.map { opt ->
-                        OptionSnap(
-                            content = opt.content,
-                            answerOrder = opt.answerOrder
-                        )
-                    }
-                )
-            }
-            LessonSnap(
-                id = l.id!!,
-                tempId = l.id!!,
-                title = l.title,
-                orderIndex = l.orderIndex,
-                exercises = exSnaps
-            )
-        }
-
-        return ModuleSnapshot(
-            moduleId = module.id!!,
-            tempId = module.id!!,
-            title = module.title!!,
-            lessons = lessonSnaps
-        )
+    private fun getIdsToDelete(
+        newIds: List<UUID?>,
+        existingIds: List<UUID>
+    ): List<UUID> {
+        val incoming = newIds.filterNotNull().toSet()
+        return existingIds.filterNot { it in incoming }
     }
 
 }

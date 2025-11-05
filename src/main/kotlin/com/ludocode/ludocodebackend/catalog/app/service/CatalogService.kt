@@ -18,6 +18,7 @@ import com.ludocode.ludocodebackend.catalog.infra.projection.LessonIdTreeProject
 import com.ludocode.ludocodebackend.catalog.infra.projection.UserLessonProjection
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.LessonExercisesRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.LessonRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
 import org.springframework.stereotype.Service
@@ -33,7 +34,8 @@ class CatalogService(
     private val moduleMapper: ModuleMapper,
     private val lessonRepository: LessonRepository,
     private val lessonMapper: LessonMapper,
-    private val flatCourseTreeMapper: FlatCourseTreeMapper
+    private val flatCourseTreeMapper: FlatCourseTreeMapper,
+    private val lessonExercisesRepository: LessonExercisesRepository
 ) : CatalogUseCase {
 
     override fun findFirstLessonIdInCourse(courseId: UUID): UUID? {
@@ -71,7 +73,7 @@ class CatalogService(
     }
 
     fun getExercisesByLessonId (lessonId: UUID): List<ExerciseResponse> {
-       val exercisesWithOptionsFlat: List<ExerciseFlatProjection> = exerciseRepository.getFlatExercisesWithOptions(lessonId)
+       val exercisesWithOptionsFlat: List<ExerciseFlatProjection> = lessonExercisesRepository.getFlatExercisesWithOptions(lessonId)
        return exerciseMapper.toLessonExercises(exercisesWithOptionsFlat)
     }
 

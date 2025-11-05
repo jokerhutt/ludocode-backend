@@ -9,20 +9,15 @@ import java.util.UUID
 
 interface ExerciseOptionRepository: JpaRepository<ExerciseOption, UUID> {
 
-    @Query(
-        value = """
+    @Query(value = """
     SELECT * FROM exercise_option
     WHERE exercise_id = ANY(:exerciseIds)
     ORDER BY exercise_id, id;
-  """, nativeQuery = true
-    )
+    """, nativeQuery = true)
     fun findOptionsForExerciseIds(@Param("exerciseIds") ids: List<UUID>): List<ExerciseOption>
 
     @Modifying
-    @Query(
-        value = "delete from exercise_option where exercise_id = :exerciseId and exercise_version = :version",
-        nativeQuery = true
-    )
+    @Query(value = "delete from exercise_option where exercise_id = :exerciseId and exercise_version = :version", nativeQuery = true)
     fun deleteByExerciseIdAndVersion(
         @Param("exerciseId") exerciseId: UUID,
         @Param("version") version: Int
