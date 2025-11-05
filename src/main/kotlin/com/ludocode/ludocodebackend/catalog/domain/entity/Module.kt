@@ -16,13 +16,13 @@ class Module (
     @Id
     val id: UUID,
 
-    @Column(name = "title", nullable = false)
+    @Column(name = "title")
     var title: String,
 
-    @Column(name = "course_id", nullable = false)
+    @Column(name = "course_id")
     val courseId: UUID,
 
-    @Column(name = "is_deleted", nullable = false)
+    @Column(name = "is_deleted")
     var isDeleted: Boolean? = false,
 
     @Column(name = "order_index")

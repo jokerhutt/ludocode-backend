@@ -7,15 +7,15 @@ import jakarta.persistence.Table
 import java.util.UUID
 
 @Entity
-@Table(name = "exercise")
+@Table(name = "lesson")
 class Lesson (
 
     @Id
     var id: UUID,
 
-    @Column(name = "title", nullable = false)
+    @Column(name = "title")
     var title: String,
 
-    @Column(name = "is_deleted", nullable = false)
+    @Column(name = "is_deleted")
     var isDeleted: Boolean = false
 )

@@ -21,7 +21,7 @@ import java.util.UUID
 class Exercise (
 
     @EmbeddedId
-    val exerciseId: ExerciseId,
+    val exerciseId: ExerciseId = ExerciseId(UUID.randomUUID(), 1),
 
     @Column(name = "title", nullable = false)
     var title: String,
@@ -36,7 +36,7 @@ class Exercise (
     @Column(name = "exercise_type", nullable = false)
     var exerciseType: ExerciseType,
 
-    @Column(name = "is_deleted", nullable = false)
+    @Column(name = "is_deleted")
     var isDeleted: Boolean = false,
 
     )

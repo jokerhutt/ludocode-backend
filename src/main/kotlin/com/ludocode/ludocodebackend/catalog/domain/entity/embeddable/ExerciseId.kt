@@ -9,6 +9,6 @@ data class ExerciseId(
     @Column(name = "id")
     val id: UUID,
 
-    @Column(name = "version")
-    val version: Int
-) : java.io.Serializable
+    @Column(name = "version_number")
+    val versionNumber: Int
+)

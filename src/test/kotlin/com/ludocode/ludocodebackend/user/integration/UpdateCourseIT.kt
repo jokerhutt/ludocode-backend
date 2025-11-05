@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.user.integration
 
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROGRESS_COURSE
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.UPDATE_COURSE
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
@@ -80,7 +81,7 @@ class UpdateCourseIT : AbstractIntegrationTest() {
             .contentType(io.restassured.http.ContentType.JSON)
             .body(ChangeCourseRequest(newCourseId))
             .`when`()
-            .post("$USERS$UPDATE_COURSE")
+            .post("$PROGRESS_COURSE$UPDATE_COURSE")
             .then()
             .statusCode(200)
             .extract()
