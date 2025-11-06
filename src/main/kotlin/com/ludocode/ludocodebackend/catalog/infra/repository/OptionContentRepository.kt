@@ -10,13 +10,15 @@ import java.util.UUID
 interface OptionContentRepository : JpaRepository<OptionContent, UUID> {
 
     @Modifying
-    @Query(value = """
-        INSERT INTO option_content (content)
-        VALUES (:content)
-        ON CONFLICT (content) DO NOTHING
-        """, nativeQuery = true
+    @Query(
+        value = """
+      INSERT INTO option_content (id, content)
+      VALUES (:id, :content)
+      ON CONFLICT (content) DO NOTHING
+    """,
+        nativeQuery = true
     )
-    fun upsertOption(@Param("content") content: String)
+    fun upsertOption(@Param("id") id: UUID, @Param("content") content: String)
 
     fun findAllByContentIn(contents: Collection<String>): List<OptionContent>
 

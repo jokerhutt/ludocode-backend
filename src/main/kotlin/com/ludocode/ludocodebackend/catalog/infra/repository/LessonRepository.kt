@@ -133,7 +133,8 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
     @Query(value = """
         SELECT *
         FROM lesson
-        WHERE is_deleted = false
+        WHERE id = :id
+        AND is_deleted = false
         """, nativeQuery = true)
     fun findActiveById (@Param("id") id: UUID) : Lesson?
 

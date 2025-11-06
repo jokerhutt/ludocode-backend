@@ -1,191 +1,102 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnapshot
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
-import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
-import com.ludocode.ludocodebackend.catalog.domain.entity.Module
-import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
+import com.ludocode.ludocodebackend.catalog.app.service.SnapshotBuilderService
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.SNAPSHOT
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.SUBMIT_COURSE_SNAPSHOT
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.SUBMIT_MODULE_SNAPSHOT
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured.given
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import org.springframework.beans.factory.annotation.Autowired
 
 class ChangeCatalogIT : AbstractIntegrationTest() {
 
 
+    @Autowired
+    private lateinit var snapshotBuilderService: SnapshotBuilderService
 
     @BeforeEach
     fun seed () {
 
     }
 
-//    @Test
-//    fun submitChangeLessons_noDeletions_returnsChanged () {
-//
-//        val targetModule: Module = pyMod1
-//        val targetModulessons = py1Lessons
-//
-//        val lesson1: Lesson = targetModulessons[0]
-//        val lesson2: Lesson = targetModulessons[1]
-//
-//
-//
-//        val l1ExerciseToDelete = exercises[1]
-//        val l1ExerciseToModify = exercises[0]
-//
-//        val l5ExerciseToAddOptions = listOf(
-//            OptionSnap( content = "newOption", answerOrder = null),
-//            OptionSnap( content = "world", answerOrder = 1)
-//        )
-//        val l5ExerciseToAdd = ExerciseSnap(
-//            id = UUID.randomUUID(),
-//            title = "newLessonExercise",
-//            prompt = "hello ___",
-//            exerciseType = ExerciseType.CLOZE,
-//            correctOptions = l5ExerciseToAddOptions.filter { opt -> opt.answerOrder != null },
-//            distractors = l5ExerciseToAddOptions.filter {opt -> opt.answerOrder == null},
-//            subtitle = null
-//        )
-//        val l5LessonToAdd = LessonSnap(
-//            id = UUID.randomUUID(),
-//            title = "newLesson",
-//            exercises = listOf(l5ExerciseToAdd),
-//            orderIndex = 5
-//        )
-//
-//// existing lesson1: modify one exercise + add one exercise
-//        val l1ExerciseToAddOptions = listOf(
-//            OptionSnap(content = "meow", answerOrder = null),
-//            OptionSnap(content = "kachow", answerOrder = 1)
-//        )
-//        val l1ExerciseToAdd = ExerciseSnap(
-//            id = UUID.randomUUID(),
-//            title = "newLessonExercise",
-//            prompt = "hello ___",
-//            exerciseType = ExerciseType.CLOZE,
-//            correctOptions = l1ExerciseToAddOptions.filter { opt -> opt.answerOrder != null },
-//            distractors = l1ExerciseToAddOptions.filter {opt -> opt.answerOrder == null},
-//            subtitle = null
-//        )
-//        val newOptions = listOf(
-//            OptionSnap( content = "newcontent", answerOrder = null),
-//            OptionSnap(content = "house", answerOrder = 1)
-//        )
-//        val exerciseSnapsForL1 = listOf(
-//            ExerciseSnap(
-//                id = l1ExerciseToModify.exerciseId.id,
-//                title = "l1e1",
-//                prompt = l1ExerciseToModify.prompt!!,
-//                exerciseType = l1ExerciseToModify.exerciseType,
-//                correctOptions = newOptions.filter { opt -> opt.answerOrder != null },
-//                distractors = newOptions.filter {opt -> opt.answerOrder == null},
-//                subtitle = null
-//            ),
-//            l1ExerciseToAdd
-//        )
-//        val lesson1Snap = LessonSnap(
-//            id = lesson1.id!!,
-//            title = "l1",
-//            exercises = exerciseSnapsForL1,
-//            orderIndex = 2
-//        )
-//
-//// unchanged lessons to preserve order
-//        val lesson2Snap = LessonSnap(
-//            id = lesson2.id!!,
-//            title = lesson2.title,
-//            exercises = emptyList(),
-//            orderIndex = 1
-//        )
-//        val lesson3Snap = LessonSnap(
-//            id = py1Lessons[2].id!!,
-//            title = py1Lessons[2].title,
-//            exercises = emptyList(),
-//            orderIndex = 3
-//        )
-//        val lesson4Snap = LessonSnap(
-//            id = py1Lessons[3].id!!,
-//            title = py1Lessons[3].title,
-//            exercises = emptyList(),
-//            orderIndex = 4
-//        )
-//
-//// snapshot in desired order: [lesson2, lesson1, lesson3, lesson4, new lesson]
-//        val moduleDifReq = ModuleSnapshot(
-//            moduleId = targetModule.id!!,
-//            title = "New Title",
-//            lessons = listOf(lesson2Snap, lesson1Snap, lesson3Snap, lesson4Snap, l5LessonToAdd)
-//        )
-//
-//        val res = submitPostUpdateCatalog(req = moduleDifReq)
-//
-//        assertThat(res).isNotNull()
-//
-//        assertThat(res.title).isNotEqualTo(targetModule.title)
-//        assertThat(res.title).isEqualTo("New Title")
-//        assertThat(res.lessons.any { it.title == "newLesson" }).isTrue
-//
-//        for (lesson: LessonSnap in res.lessons) {
-//
-//            if (lesson.id == lesson1.id) {
-//                assertThat(lesson.title).isEqualTo("l1")
-//                assertThat(lesson.orderIndex).isEqualTo(2)
-//
-//                assertThat(lesson.exercises.map { it.id })
-//                    .contains(l1ExerciseToAdd.id)
-//
-//                for (exercise: ExerciseSnap in lesson.exercises) {
-//
-//                    assertThat(exercise.id).isNotEqualTo(l1ExerciseToDelete.exerciseId.id)
-//
-//                    if (exercise.id == l1ExerciseToModify.exerciseId.id) {
-//                        assertThat(exercise.title).isEqualTo("l1e1")
-//                        assertThat(exercise.prompt).isEqualTo(l1ExerciseToModify.prompt)
-//                    }
-//
-//                    if (exercise.id == l1ExerciseToAdd.id) {
-//                        assertThat(exercise.title).isEqualTo(l1ExerciseToAdd.title)
-//                        assertThat(exercise.prompt).isEqualTo(l1ExerciseToAdd.prompt)
-//                        assertThat(exercise.correctOptions.size).isEqualTo(1)
-//                        assertThat(exercise.distractors.size).isEqualTo(1)
-//                    }
-//                }
-//            }
-//
-//            if (lesson.title == l5ExerciseToAdd.title) {
-//                assertThat(lesson.orderIndex).isEqualTo(5)
-//                assertThat(lesson.exercises.size).isEqualTo(1)
-//                for (exercise: ExerciseSnap in lesson.exercises) {
-//                    assertThat(exercise.prompt).isEqualTo("hello ___")
-//                    assertThat(exercise.correctOptions.size).isEqualTo(1)
-//                    assertThat(exercise.correctOptions.size).isEqualTo(1)
-//                }
-//            }
-//
-//            if (lesson.id == lesson2.id) {
-//                assertThat(lesson.orderIndex).isEqualTo(1)
-//            }
-//        }
-//
-//
-//
-//    }
+    @Test
+    fun submitCourseChange_OneModuleChanged_returnsChanged() {
+        val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
 
-    private fun submitPostUpdateCatalog(req: ModuleSnapshot): ModuleSnapshot =
+        // capture "before" counts
+        val initialModule = pythonSnap.modules.first()
+        val initialLessonCount = initialModule.lessons.size
+        val lessonToChange = initialModule.lessons[0]
+        val lessonToDelete = initialModule.lessons[1]
+        val initialExerciseCountInChanged = lessonToChange.exercises.size
+        val exerciseToChange = lessonToChange.exercises[0]
+        val exerciseToDelete = lessonToChange.exercises[1]
+
+        // build mutated lesson
+        val mutatedLesson =
+            lessonToChange.copy(
+                title = "New Title",
+                exercises = lessonToChange.exercises
+                    .filter { it.id != exerciseToDelete.id }
+                    .map { ex ->
+                        if (ex.id == exerciseToChange.id) ex.copy(title = "Waka waka", subtitle = "Waka") else ex
+                    }
+            )
+
+        // build mutated module
+        val mutatedModule =
+            initialModule.copy(
+                lessons = initialModule.lessons
+                    .filter { it.id != lessonToDelete.id }
+                    .map { ls -> if (ls.id == mutatedLesson.id) mutatedLesson else ls }
+            )
+
+        // build mutated course
+        val mutatedCourse =
+            pythonSnap.copy(
+                modules = pythonSnap.modules.map { m ->
+                    if (m.moduleId == mutatedModule.moduleId) mutatedModule else m
+                }
+            )
+
+        // send
+        val res = submitPostUpdateCatalog(mutatedCourse)
+
+        // assert
+        assertThat(res).isNotNull
+        val changedModule = res.modules.first { it.moduleId == mutatedModule.moduleId }
+
+        assertThat(changedModule.lessons.size)
+            .isEqualTo(initialLessonCount - 1)
+
+        val changedLessonNew = changedModule.lessons.first { it.id == mutatedLesson.id }
+        assertThat(changedLessonNew.title).isEqualTo("New Title")
+        assertThat(changedLessonNew.exercises.size)
+            .isEqualTo(initialExerciseCountInChanged - 1)
+
+        val changedExercise = changedLessonNew.exercises.first { it.id == exerciseToChange.id }
+        assertThat(changedExercise.title).isEqualTo("Waka waka")
+        assertThat(changedExercise.subtitle).isEqualTo("Waka")
+
+        // sanity: deleted ids are gone
+        assertThat(changedModule.lessons.any { it.id == lessonToDelete.id }).isFalse
+        assertThat(changedLessonNew.exercises.any { it.id == exerciseToDelete.id }).isFalse
+    }
+
+    private fun submitPostUpdateCatalog(req: CourseSnap): CourseSnap =
         given()
             .contentType(io.restassured.http.ContentType.JSON)
             .body(req)
             .`when`()
-            .post("$SNAPSHOT$SUBMIT_MODULE_SNAPSHOT")
+            .post("$SNAPSHOT$SUBMIT_COURSE_SNAPSHOT")
             .then()
             .statusCode(200)
             .extract()
-            .`as`(ModuleSnapshot::class.java)
+            .`as`(CourseSnap::class.java)
 
 }

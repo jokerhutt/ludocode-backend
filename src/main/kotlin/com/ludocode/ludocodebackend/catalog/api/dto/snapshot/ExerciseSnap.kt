@@ -5,8 +5,8 @@ import java.util.UUID
 
 data class ExerciseSnap(
     val id: UUID,
-    val title: String,
-    val subtitle: String?,
+    var title: String,
+    var subtitle: String?,
     val prompt: String?,
     val media: String? = null,
     val exerciseType: ExerciseType,
