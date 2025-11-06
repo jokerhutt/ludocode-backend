@@ -22,7 +22,10 @@ object PathConstants {
     const val AUTH_ME : String = "/me"
     const val USERS : String = "$API_V1/users"
     const val USERS_IDS : String = "/ids"
+    const val SUBMIT_ONBOARDING : String = "/onboarding/submit"
     const val UPDATE_COURSE : String = "/update/course"
+
+    const val PREFERENCES : String = "/preferences"
 
 
     const val PROGRESS : String = "$API_V1/progress"

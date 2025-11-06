@@ -14,10 +14,10 @@ class LessonExercises (
     @EmbeddedId
     val lessonExercisesId: LessonExercisesId,
 
-    @Column(name = "exercise_id", nullable = false, unique = true)
+    @Column(name = "exercise_id")
     val exerciseId: UUID,
 
-    @Column(name = "exercise_version", nullable = false, unique = true)
+    @Column(name = "exercise_version")
     val exerciseVersion: Int
 
 

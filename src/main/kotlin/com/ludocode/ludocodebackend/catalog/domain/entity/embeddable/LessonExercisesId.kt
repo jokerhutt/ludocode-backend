@@ -9,6 +9,6 @@ data class LessonExercisesId(
     @Column(name = "lesson_id")
     var lessonId: UUID,
 
-    @Column(name = "order_index", nullable = false, unique = true)
+    @Column(name = "order_index")
     val orderIndex: Int
 ) : java.io.Serializable

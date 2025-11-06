@@ -24,7 +24,7 @@ interface ExerciseRepository : JpaRepository<Exercise, ExerciseId>{
         FROM exercise
         WHERE id = :id
           AND is_deleted = false
-        ORDER BY version DESC
+        ORDER BY version_number DESC
         LIMIT 1
         """,
         nativeQuery = true

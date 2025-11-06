@@ -19,10 +19,10 @@ class ExerciseOption (
     @Id
     var id: UUID,
 
-    @Column(name = "exercise_id", nullable = false, unique = true)
+    @Column(name = "exercise_id")
     var exerciseId: UUID,
 
-    @Column(name = "exercise_version", nullable = false, unique = true)
+    @Column(name = "exercise_version")
     var exerciseVersion: Int,
 
     @Column(name = "option_id", nullable = false)

@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
 import com.ludocode.ludocodebackend.catalog.domain.entity.LessonExercises
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLessons
+import com.ludocode.ludocodebackend.catalog.domain.entity.OptionContent
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.LessonExercisesId
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
@@ -189,24 +190,24 @@ abstract class AbstractIntegrationTest {
                     exerciseId = ExerciseId(UUID.randomUUID(), 1),
                     title = "Complete the expression",
                     prompt = "let sum = ___ + 4",
-                    exerciseType = ExerciseType.CLOZE,
+                    exerciseType = ExerciseType.CLOZE
                 ),
                 Exercise(
                     exerciseId = ExerciseId(UUID.randomUUID(), 1),
                     title = "Create a variable with a value of 'House'",
                     prompt = "const ___ = ___",
-                    exerciseType = ExerciseType.CLOZE,
+                    exerciseType = ExerciseType.CLOZE
                 ),
                 Exercise(
                     exerciseId = ExerciseId(UUID.randomUUID(), 1),
                     title = "What will the following code return",
                     prompt = "const score = 4 + 4;",
-                    exerciseType = ExerciseType.ANALYZE,
+                    exerciseType = ExerciseType.ANALYZE
                 ),
                 Exercise(
                     exerciseId = ExerciseId(UUID.randomUUID(), 1),
                     title = "Which of the following declares a variable that can not be reassigned",
-                    exerciseType = ExerciseType.TRIVIA,
+                    exerciseType = ExerciseType.TRIVIA
                 )
             )
         )
@@ -224,9 +225,15 @@ abstract class AbstractIntegrationTest {
         py1Lesson2Exercises = listOf(exercises[2], exercises[3])
 
         val optionContents = listOf("4", "house", "'house'", "8", "undefined", "let", "const")
-        optionContents.forEach { optionContentRepository.upsertOption(it) }
-        val dbOptions = optionContents.mapNotNull { optionContentRepository.findOptionContentByContent(it) }
 
+        val dbOptions = optionContents.map { content ->
+            optionContentRepository.save(
+                OptionContent(
+                    id = UUID.randomUUID(),
+                    content = content
+                )
+            )
+        }
         val exerciseOptions = exerciseOptionRepository.saveAll(
             listOf(
                 // Ex 1 (CLOZE): correct "4" → order 1; distractor "let" → null

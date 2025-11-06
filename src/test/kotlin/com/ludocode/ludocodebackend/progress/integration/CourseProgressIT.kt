@@ -25,8 +25,8 @@ class CourseProgressIT : AbstractIntegrationTest() {
         val user: User = user1
 
         val progressList = courseProgressRepository.saveAll(listOf(
-            CourseProgress(id = CourseProgressId(user.id!!, pythonCourse.id!!), currentLessonId = pyModule2Lessons[2].id),
-            CourseProgress(id = CourseProgressId(user.id!!, swiftCourse.id!!), currentLessonId = swiftModuleLessons[2].id)
+            CourseProgress(id = CourseProgressId(user.id!!, python.id!!), currentLessonId = py2Lessons[2].id),
+            CourseProgress(id = CourseProgressId(user.id!!, swift.id!!), currentLessonId = sw1Lessons[2].id)
         ))
 
         val courseToReset = progressList[0]
@@ -35,8 +35,8 @@ class CourseProgressIT : AbstractIntegrationTest() {
 
         assertThat(response).isNotNull()
         assertThat(response.courseId).isEqualTo(courseToReset.id.courseId)
-        assertThat(response.moduleId).isEqualTo(pyModule1.id)
-        assertThat(response.currentLessonId).isEqualTo(pyModule1Lessons[0].id)
+        assertThat(response.moduleId).isEqualTo(pyMod1.id)
+        assertThat(response.currentLessonId).isEqualTo(py1Lessons[0].id)
 
     }
 
@@ -46,8 +46,8 @@ class CourseProgressIT : AbstractIntegrationTest() {
         val user: User = user1
 
         val progressList = courseProgressRepository.saveAll(listOf(
-            CourseProgress(id = CourseProgressId(user.id!!, pythonCourse.id!!), currentLessonId = pyModule2Lessons[2].id),
-            CourseProgress(id = CourseProgressId(user.id!!, swiftCourse.id!!), currentLessonId = swiftModuleLessons[2].id)
+            CourseProgress(id = CourseProgressId(user.id!!, python.id!!), currentLessonId = py2Lessons[2].id),
+            CourseProgress(id = CourseProgressId(user.id!!, swift.id!!), currentLessonId = sw1Lessons[2].id)
         ))
 
         val enrolledIds : List<UUID> = progressList.map { progress -> progress.id.courseId!! }
@@ -62,13 +62,11 @@ class CourseProgressIT : AbstractIntegrationTest() {
 
         val byCourse = response.associateBy { it.courseId }
 
-        assertThat(byCourse[pythonCourse.id]!!.currentLessonId).isEqualTo(pyModule2Lessons[2].id)
-        assertThat(byCourse[pythonCourse.id]!!.moduleId).isEqualTo(pyModule2Lessons[2].moduleId)
-        assertThat(byCourse[pythonCourse.id]!!.moduleId).isEqualTo(pyModule2.id)
+        assertThat(byCourse[python.id]!!.currentLessonId).isEqualTo(py2Lessons[2].id)
+        assertThat(byCourse[python.id]!!.moduleId).isEqualTo(pyMod2.id)
 
-        assertThat(byCourse[swiftCourse.id]!!.currentLessonId).isEqualTo(swiftModuleLessons[2].id)
-        assertThat(byCourse[swiftCourse.id]!!.moduleId).isEqualTo(swiftModule1.id)
-        assertThat((byCourse[swiftCourse.id]!!.moduleId)).isEqualTo(swiftModuleLessons[2].moduleId)
+        assertThat(byCourse[swift.id]!!.currentLessonId).isEqualTo(sw1Lessons[2].id)
+        assertThat(byCourse[swift.id]!!.moduleId).isEqualTo(swMod1.id)
 
     }
 

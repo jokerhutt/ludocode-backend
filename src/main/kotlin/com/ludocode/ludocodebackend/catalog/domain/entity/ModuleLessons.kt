@@ -15,7 +15,7 @@ class ModuleLessons (
     @EmbeddedId
     val moduleLessonsId: ModuleLessonsId,
 
-    @Column(name = "lesson_id", nullable = false)
+    @Column(name = "lesson_id")
     val lessonId: UUID
 
 )

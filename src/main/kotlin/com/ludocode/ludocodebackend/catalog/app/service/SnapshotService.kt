@@ -117,7 +117,7 @@ class SnapshotService(
         for (i in 0 until submittedExerciseDiffs.size) {
             val submittedExerciseDiff = submittedExerciseDiffs[i]
             val existing = exerciseRepository.findLatestActiveById(submittedExerciseDiff.id)
-            val newVersion = if (existing != null) existing.exerciseId.version + 1 else 1
+            val newVersion = if (existing != null) existing.exerciseId.versionNumber + 1 else 1
 
             val newExercise = Exercise(
                 exerciseId = ExerciseId(submittedExerciseDiff.id, newVersion),
@@ -144,7 +144,7 @@ class SnapshotService(
             val newLessonExercise = LessonExercises(
                 lessonExercisesId = LessonExercisesId(lessonId = lessonId, orderIndex = newOrderIndex),
                 exerciseId = existingExercise!!.exerciseId.id,
-                exerciseVersion = existingExercise!!.exerciseId.version
+                exerciseVersion = existingExercise!!.exerciseId.versionNumber
             )
             val dbExercise = lessonExercisesRepository.save(newLessonExercise)
             val dbExerciseId = dbExercise.exerciseId
@@ -167,6 +167,7 @@ class SnapshotService(
                 id = UUID.randomUUID(),
                 exerciseId = dbExerciseId,
                 exerciseVersion = dbExerciseVersion,
+                answerOrder = option.answerOrder,
                 optionId = dbOption!!.id
             )
             exerciseOptionRepository.save(newExerciseOption)
