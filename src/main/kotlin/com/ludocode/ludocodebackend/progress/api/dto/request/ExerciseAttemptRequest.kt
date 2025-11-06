@@ -5,5 +5,5 @@ import java.util.UUID
 data class ExerciseAttemptRequest(
     val exerciseId: UUID,
     val isCorrect: Boolean,
-    val answer: List<UUID>,
+    val answer: List<AttemptToken>,
 )

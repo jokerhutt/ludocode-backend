@@ -52,6 +52,8 @@ abstract class AbstractIntegrationTest {
     lateinit var exercises: List<Exercise>
     lateinit var py1Lesson1Exercises: List<Exercise>
     lateinit var py1Lesson2Exercises: List<Exercise>
+    lateinit var exerciseOptions: List<ExerciseOption>
+    lateinit var dbOptions: List<OptionContent>
 
 
 
@@ -226,7 +228,7 @@ abstract class AbstractIntegrationTest {
 
         val optionContents = listOf("4", "house", "'house'", "8", "undefined", "let", "const")
 
-        val dbOptions = optionContents.map { content ->
+        dbOptions = optionContents.map { content ->
             optionContentRepository.save(
                 OptionContent(
                     id = UUID.randomUUID(),
@@ -234,7 +236,7 @@ abstract class AbstractIntegrationTest {
                 )
             )
         }
-        val exerciseOptions = exerciseOptionRepository.saveAll(
+        exerciseOptions = exerciseOptionRepository.saveAll(
             listOf(
                 // Ex 1 (CLOZE): correct "4" → order 1; distractor "let" → null
                 ExerciseOption(UUID.randomUUID(), exercises[0].exerciseId.id!!, 1, dbOptions[0].id, 1),

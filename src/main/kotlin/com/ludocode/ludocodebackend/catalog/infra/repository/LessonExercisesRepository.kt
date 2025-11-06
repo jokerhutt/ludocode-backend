@@ -21,7 +21,7 @@ interface LessonExercisesRepository : JpaRepository<LessonExercises, LessonExerc
       e.subtitle      AS subtitle,
       le.lesson_id    AS lessonId,
       le.order_index  AS orderIndex,
-      oc.id           AS optionId,
+      eo.id           AS optionId,
       oc.content      AS content,
       eo.answer_order AS answerOrder
     FROM lesson_exercises le

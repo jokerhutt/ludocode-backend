@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.progress.app.service
 
 import com.ludocode.ludocodebackend.catalog.api.dto.internal.LessonTreeWithIdDTO
 import com.ludocode.ludocodebackend.progress.api.dto.internal.StatsDelta
+import com.ludocode.ludocodebackend.progress.api.dto.request.AttemptToken
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseAttemptRequest
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseSubmissionRequest
 import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionRequest
@@ -102,8 +103,8 @@ class LessonCompletionService(
                 val exerciseAttempt = ExerciseAttempt(id = attemptId, userId = userId, exerciseId = attempt.exerciseId, exerciseVersion = version)
                 exerciseAttempts.add(exerciseAttempt)
 
-                for (token: UUID in attempt.answer) {
-                    attemptOptions.add(AttemptOption(attemptOptionId = AttemptOptionId(attemptId = attemptId, exerciseOptionId = token)))
+                for (token: AttemptToken in attempt.answer) {
+                    attemptOptions.add(AttemptOption(attemptOptionId = AttemptOptionId(attemptId = attemptId, exerciseOptionId = token.id)))
                 }
 
             }
