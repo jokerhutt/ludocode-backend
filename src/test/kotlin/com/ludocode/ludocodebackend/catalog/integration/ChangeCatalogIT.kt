@@ -1,8 +1,11 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnapshot
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotBuilderService
+import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.SNAPSHOT
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.SUBMIT_COURSE_SNAPSHOT
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.SUBMIT_MODULE_SNAPSHOT
@@ -12,6 +15,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import java.util.UUID
 
 class ChangeCatalogIT : AbstractIntegrationTest() {
 
@@ -25,17 +29,31 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun submitCourseChange_OneModuleChanged_returnsChanged() {
+    fun submitCourseChange_returnsChanged() {
         val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
 
         // capture "before" counts
         val initialModule = pythonSnap.modules.first()
+        val moduleToDelete = pythonSnap.modules[1]
+        val initialModuleCount = pythonSnap.modules.size
         val initialLessonCount = initialModule.lessons.size
         val lessonToChange = initialModule.lessons[0]
         val lessonToDelete = initialModule.lessons[1]
         val initialExerciseCountInChanged = lessonToChange.exercises.size
         val exerciseToChange = lessonToChange.exercises[0]
         val exerciseToDelete = lessonToChange.exercises[1]
+
+        val newExerciseId = UUID.randomUUID()
+
+        val exerciseToAdd = ExerciseSnap(
+            id = newExerciseId,
+            title = "New Exercise",
+            subtitle = "New subtitle",
+            prompt = "___'Hello world')",
+            exerciseType = ExerciseType.CLOZE,
+            correctOptions = listOf(OptionSnap(content = "(", answerOrder = 1, exerciseOptionId = UUID.randomUUID())),
+            distractors = listOf(OptionSnap(content = ")", answerOrder = null, exerciseOptionId = UUID.randomUUID()))
+        )
 
         // build mutated lesson
         val mutatedLesson =
@@ -59,9 +77,9 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         // build mutated course
         val mutatedCourse =
             pythonSnap.copy(
-                modules = pythonSnap.modules.map { m ->
-                    if (m.moduleId == mutatedModule.moduleId) mutatedModule else m
-                }
+                modules = pythonSnap.modules
+                    .filter { it.moduleId != moduleToDelete.moduleId } // remove module entirely
+                    .map { m -> if (m.moduleId == mutatedModule.moduleId) mutatedModule else m }
             )
 
         // send
@@ -69,6 +87,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
         // assert
         assertThat(res).isNotNull
+
+        assertThat(res.modules.size).isEqualTo(initialModuleCount - 1)
         val changedModule = res.modules.first { it.moduleId == mutatedModule.moduleId }
 
         assertThat(changedModule.lessons.size)
