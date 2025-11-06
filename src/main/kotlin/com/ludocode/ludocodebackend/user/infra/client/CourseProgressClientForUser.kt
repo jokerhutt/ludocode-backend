@@ -16,7 +16,7 @@ class CourseProgressClientForUser (
 ): CourseProgressPortForUser {
 
     override fun findOrCreate(userId: UUID, courseId: UUID) : CourseProgressResponseWithEnrolled  {
-        val url = "$progressServiceBaseUrl$ICOURSEPROGRESS$ICOURSEPROGRESSFINDCREATE"
+        val url = "$progressServiceBaseUrl$ICOURSEPROGRESS/$courseId/$userId"
         val resp = rest.postForEntity(url, null, CourseProgressResponseWithEnrolled::class.java)
         return resp.body ?: error("User service returned empty body")
     }

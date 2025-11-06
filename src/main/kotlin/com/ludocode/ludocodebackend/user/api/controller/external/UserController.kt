@@ -7,6 +7,7 @@ import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
 import com.ludocode.ludocodebackend.user.api.dto.response.UpdatedCourseResponse
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.service.UserService
+import com.ludocode.ludocodebackend.user.domain.entity.UserPreferences
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
@@ -30,6 +31,11 @@ class UserController(private val userService: UserService) {
     @PostMapping(PathConstants.SUBMIT_ONBOARDING)
     fun submitOnboarding(@RequestBody req: OnboardingSubmission, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<OnboardingResponse> {
         return ResponseEntity.ok(userService.createPreferences(req,userId))
+    }
+
+    @GetMapping(PathConstants.PREFERENCES)
+    fun getUserPreferences(@AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<UserPreferences> {
+        return ResponseEntity.ok(userService.getPreferences(userId))
     }
 
 

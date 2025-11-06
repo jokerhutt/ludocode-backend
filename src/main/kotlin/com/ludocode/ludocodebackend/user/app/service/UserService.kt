@@ -62,6 +62,11 @@ class UserService(
         return OnboardingResponse(preferences = savedPreferences, courseProgressResponse = newCourseProgressWithEnrolled)
     }
 
+    fun getPreferences (userId: UUID) : UserPreferences {
+        val preferences = userPreferencesRepository.findById(userId).orElseThrow()
+        return preferences
+    }
+
     override fun getById(id: UUID): UserResponse {
        return userMapper.toUserResponse(userRepository.findById(id).orElseThrow())
     }
