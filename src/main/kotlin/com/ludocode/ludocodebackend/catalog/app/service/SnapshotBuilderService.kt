@@ -7,6 +7,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
+import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseOptionRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.LessonRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
@@ -18,7 +19,8 @@ class SnapshotBuilderService(
     private val moduleRepository: ModuleRepository,
     private val lessonRepository: LessonRepository,
     private val moduleLessonsRepository: ModuleLessonsRepository,
-    private val catalogService: CatalogService
+    private val catalogService: CatalogService,
+    private val exerciseOptionRepository: ExerciseOptionRepository
 ) {
 
     fun buildCourseSnapshot (courseId: UUID): CourseSnap {
@@ -56,13 +58,15 @@ class SnapshotBuilderService(
                     correctOptions = exerciseResponse.correctOptions.map { opt ->
                         OptionSnap(
                             content = opt.content,
-                            answerOrder = opt.answerOrder
+                            answerOrder = opt.answerOrder,
+                            exerciseOptionId = (opt.id)
                         )
                     },
                     distractors = exerciseResponse.distractors.map { opt ->
                         OptionSnap(
                             content = opt.content,
-                            answerOrder = opt.answerOrder
+                            answerOrder = opt.answerOrder,
+                            exerciseOptionId = opt.id
                         )
                     }
                 )

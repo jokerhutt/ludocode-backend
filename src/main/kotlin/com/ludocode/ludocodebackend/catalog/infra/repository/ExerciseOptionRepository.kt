@@ -23,6 +23,15 @@ interface ExerciseOptionRepository: JpaRepository<ExerciseOption, UUID> {
         @Param("version") version: Int
     )
 
+    @Query(value = """
+        SELECT id
+        FROM exercise_option
+        WHERE exercise_id = :exerciseId
+        AND exercise_version = :version
+        AND option_id = :optionId
+        """, nativeQuery = true)
+    fun findByExerciseIdAndOptionId(@Param("exerciseId") exerciseId: UUID, @Param("version") version : Int, @Param("optionId") optionId: UUID) : UUID
+
 
 
 

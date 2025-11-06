@@ -1,5 +1,7 @@
 package com.ludocode.ludocodebackend.progress.integration
 
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.catalog.app.service.SnapshotBuilderService
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotService
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
@@ -29,219 +31,212 @@ import kotlin.test.Test
 
 class LessonSubmissionIT : AbstractIntegrationTest() {
 
-//    @Test
-//    fun submitLesson_endOfModule_returnsFirstLessonOfNextModule() {
-//
-//        val userStats = userStatsRepository.save(UserStats(user1.id!!, 0, 0))
-//
-//
-//
-//        val lesson1: Lesson = py1Lessons[3]
-//        val nextLesson: Lesson = py2Lessons[0]
-//
-//
-//        val progressList = courseProgressRepository.saveAll(listOf(
-//            CourseProgress(id = CourseProgressId(user1.id!!, python.id!!), currentLessonId = lesson1.id),
-//            CourseProgress(id = CourseProgressId(user1.id!!, swift.id!!), currentLessonId = sw1Lessons[2].id)
-//        ))
-//
-//
-//        val sub1 = ExerciseSubmissionRequest(
-//            exerciseId = exercises[0].exerciseId.id!!,
-//            version = exercises[0].exerciseId.version,
-//            attempts = listOf(
-//                ExerciseAttemptRequest(
-//                    exerciseId = exercises[0].exerciseId.id!!,
-//                    isCorrect = true,
-//                    answer = listOf("let", "sum", "=", "4"),
-//                )
-//            )
-//        )
-//
-//        val sub2 = ExerciseSubmissionRequest(
-//            exerciseId = exercises[1].exerciseId.id!!,
-//            version = exercises[1].exerciseId.version,
-//            attempts = listOf(
-//                ExerciseAttemptRequest(
-//                    exerciseId = exercises[1].exerciseId.id!!,
-//                    isCorrect = false,
-//                    answer = listOf("const", "x", "=", "house"), // wrong
-//                ),
-//                ExerciseAttemptRequest(
-//                    exerciseId = exercises[1].exerciseId.id!!,
-//                    isCorrect = true,
-//                    answer = listOf("const", "x", "=", "'house'"),
-//                )
-//            )
-//        )
-//
-//        val submissions: List<ExerciseSubmissionRequest> = listOf(sub1, sub2)
-//        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), lesson1.id!!, submissions = submissions)
-//
-//        val response = submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
-//
-//        assertThat(response).isNotNull()
-//
-//        val content : LessonCompletionResponse = response.content!!
-//
-//        assertThat(response.status).isEqualTo(LessonCompletionStatus.OK)
-//        assertThat(content.newStats.coins).isGreaterThan(0)
-//        assertThat(content.newCourseProgress.currentLessonId).isEqualTo(nextLesson.id)
-//        assertThat(content.newCourseProgress.courseId).isEqualTo(python.id)
-//        assertThat(content.newCourseProgress.moduleId).isEqualTo(pyMod2.id)
-//        assertThat(content.newCourseProgress.userId).isEqualTo(user1.id)
-//        assertThat(content.accuracy).isGreaterThan(BigDecimal("0.00"))
-//        assertThat(content.accuracy).isLessThan(BigDecimal("1.00"))
-//        assertThat(content.updatedCompletedLesson.id).isEqualTo(lesson1.id)
-//        assertThat(content.updatedCompletedLesson.isCompleted).isEqualTo(true)
-//
-//    }
+    @Autowired
+    private lateinit var snapshotBuilderService: SnapshotBuilderService
 
-//    @Test
-//    fun submitLesson_endOfCourse_returnsEndOfCourse() {
-//
-//        val userStats = userStatsRepository.save(UserStats(user1.id!!, 0, 0))
-//
-//        val lesson1: Lesson = py2Lessons[3]
-//
-//        courseProgressRepository.saveAll(listOf(
-//            CourseProgress(id = CourseProgressId(user1.id!!, python.id!!), currentLessonId = lesson1.id),
-//            CourseProgress(id = CourseProgressId(user1.id!!, swift.id!!), currentLessonId = sw1Lessons[2].id)
-//        ))
-//
-//
-//        val sub1 = ExerciseSubmissionRequest(
-//            exerciseId = exercises[0].exerciseId.id!!,
-//            version = exercises[0].exerciseId.versionNumber,
-//            attempts = listOf(
-//                ExerciseAttemptRequest(
-//                    exerciseId = exercises[0].exerciseId.id!!,
-//                    isCorrect = true,
-//                    answer = listOf(AttemptToken(id = exerciseOptions[0].id, value = dbOptions[0].content))
-//                )
-//            )
-//        )
-//
-//// For exercise 1 → user tried once WRONG, then tried again and got it RIGHT
-//        val sub2 = ExerciseSubmissionRequest(
-//            exerciseId = exercises[1].exerciseId.id!!,
-//            version = exercises[1].exerciseId.versionNumber,
-//            attempts = listOf(
-//                ExerciseAttemptRequest(
-//                    exerciseId = exercises[1].exerciseId.id!!,
-//                    isCorrect = false,
-//                    answer = listOf(AttemptToken(id = exerciseOptions[3].id, value = dbOptions[2].content),
-//                        AttemptToken(id = exerciseOptions[2].id, value = dbOptions[1].content)), // wrong
-//                ),
-//                ExerciseAttemptRequest(
-//                    exerciseId = exercises[1].exerciseId.id!!,
-//                    isCorrect = true,
-//                    answer = listOf(AttemptToken(id = exerciseOptions[2].id, value = dbOptions[1].content),
-//                        AttemptToken(id = exerciseOptions[3].id, value = dbOptions[2].content))
-//                )
-//            )
-//        )
-//
-//        val submissions: List<ExerciseSubmissionRequest> = listOf(sub1, sub2)
-//        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), lesson1.id!!, submissions = submissions)
-//
-//        val response = submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
-//
-//        assertThat(response).isNotNull()
-//
-//        val content = response.content!!
-//        assertThat(response.status).isEqualTo(LessonCompletionStatus.COURSE_COMPLETE)
-//        assertThat(content.newCourseProgress.courseId).isEqualTo(python.id)
-//        assertThat(content.newCourseProgress.currentLessonId).isEqualTo(lesson1.id)
-//        assertThat(content.newCourseProgress.moduleId).isEqualTo(pyMod2.id)
-//        assertThat(content.newStats.coins).isGreaterThan(0)
-//        assertThat(content.accuracy).isGreaterThan(BigDecimal("0.00"))
-//        assertThat(content.accuracy).isLessThan(BigDecimal("1.00"))
-//        assertThat(content.updatedCompletedLesson.id).isEqualTo(lesson1.id)
-//        assertThat(content.updatedCompletedLesson.isCompleted).isEqualTo(true)
-//
-//
-//    }
+    @Test
+    fun submitLesson_endOfModule_returnsFirstLessonOfNextModule() {
+
+        val userStats = userStatsRepository.save(UserStats(user1.id!!, 0, 0))
+
+        val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
+
+        assertThat(pythonSnap).isNotNull()
+
+        val currentCourse = pythonId
+        val currentLesson = py1L4
+        val nextLesson = py2L1
 
 
-//    @Autowired
-//    private lateinit var snapshotService: SnapshotService
-//
-//    @Test
-//    fun submitLesson_returnsNextLesson() {
-//
-//            val userStats = userStatsRepository.save(UserStats(user1.id!!, 0, 0))
-//
-//            val pythonSnap = snapshotService.getCourseSnapshot(pythonId)
-//
-//            val progressList = courseProgressRepository.saveAll(listOf(
-//                CourseProgress(id = CourseProgressId(user1.id!!, pythonId), currentLessonId = py1L1),
-//                CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentLessonId = sw1L3)
-//            ))
-//
-//            val lesson1 = py1L1
-//            val nextLesson = py1L2
-//
-//            val exercises = pythonSnap.modules[0].lessons[0].exercises
-//
-//
-//        val sub1 = ExerciseSubmissionRequest(
-//            exerciseId = exercises[0].id!!,
-//            version = 1,
-//            attempts = listOf(
-//                ExerciseAttemptRequest(
-//                    exerciseId = exercises[0].id!!,
-//                    isCorrect = true,
-//                    answer = listOf(exercises[0].correctOptions.map { it -> AttemptToken(id = ) })
-//                )
-//            )
-//        )
-//
-//// For exercise 1 → user tried once WRONG, then tried again and got it RIGHT
-//        val sub2 = ExerciseSubmissionRequest(
-//            exerciseId = exercises[1].exerciseId.id!!,
-//            version = exercises[1].exerciseId.versionNumber,
-//            attempts = listOf(
-//                ExerciseAttemptRequest(
-//                    exerciseId = exercises[1].exerciseId.id!!,
-//                    isCorrect = false,
-//                    answer = listOf(AttemptToken(id = exerciseOptions[3].id, value = dbOptions[2].content),
-//                        AttemptToken(id = exerciseOptions[2].id, value = dbOptions[1].content)), // wrong
-//                ),
-//                ExerciseAttemptRequest(
-//                    exerciseId = exercises[1].exerciseId.id!!,
-//                    isCorrect = true,
-//                    answer = listOf(AttemptToken(id = exerciseOptions[2].id, value = dbOptions[1].content),
-//                        AttemptToken(id = exerciseOptions[3].id, value = dbOptions[2].content))
-//                )
-//            )
-//        )
-//
-//        val submissions: List<ExerciseSubmissionRequest> = listOf(sub1, sub2)
-//        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), lesson1.id!!, submissions = submissions)
-//
-//        val response = submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
-//
-//        assertThat(response).isNotNull()
-//
-//        val content : LessonCompletionResponse = response.content!!
-//
-//        assertThat(response.status).isEqualTo(LessonCompletionStatus.OK)
-//        assertThat(content.newStats.coins).isGreaterThan(0)
-//        assertThat(content.newCourseProgress.currentLessonId).isEqualTo(nextLesson.id)
-//        assertThat(content.newCourseProgress.courseId).isEqualTo(python.id)
-//        assertThat(content.newCourseProgress.moduleId).isEqualTo(pyMod1.id)
-//        assertThat(content.newCourseProgress.userId).isEqualTo(user1.id)
-//        assertThat(content.accuracy).isGreaterThan(BigDecimal("0.00"))
-//        assertThat(content.accuracy).isLessThan(BigDecimal("1.00"))
-//
-//
-//        assertThat(content.updatedCompletedLesson.id).isEqualTo(lesson1.id)
-//        assertThat(content.updatedCompletedLesson.isCompleted).isEqualTo(true)
-//
-//
-//
-//    }
+        val progressList = courseProgressRepository.saveAll(listOf(
+            CourseProgress(id = CourseProgressId(user1.id!!, currentCourse), currentLessonId = currentLesson),
+            CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentLessonId = sw1L2)
+        ))
+
+        val exercises : List<ExerciseSnap> = pythonSnap.modules[0].lessons[3].exercises
+
+
+        val sub1 = ExerciseSubmissionRequest(
+            exerciseId = exercises[0].id,
+            version = 1,
+            attempts = listOf(
+                ExerciseAttemptRequest(
+                    exerciseId = exercises[0].id!!,
+                    isCorrect = true,
+                    answer = exercises[0].correctOptions.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
+                )
+            )
+        )
+
+        val sub2 = ExerciseSubmissionRequest(
+            exerciseId = exercises[1].id!!,
+            version = 1,
+            attempts = listOf(
+                ExerciseAttemptRequest(
+                    exerciseId = exercises[1].id!!,
+                    isCorrect = false,
+                    answer = exercises[1].distractors.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
+                ),
+                ExerciseAttemptRequest(
+                    exerciseId = exercises[1].id!!,
+                    isCorrect = true,
+                    answer = exercises[1].correctOptions.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
+                )
+            )
+        )
+
+        val submissions: List<ExerciseSubmissionRequest> = listOf(sub1, sub2)
+        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), currentLesson, submissions = submissions)
+
+        val response = submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
+
+        assertThat(response).isNotNull()
+
+        val content : LessonCompletionResponse = response.content!!
+
+        assertThat(response.status).isEqualTo(LessonCompletionStatus.OK)
+        assertThat(content.newStats.coins).isGreaterThan(0)
+        assertThat(content.newCourseProgress.currentLessonId).isEqualTo(nextLesson)
+        assertThat(content.newCourseProgress.courseId).isEqualTo(pythonId)
+        assertThat(content.newCourseProgress.moduleId).isEqualTo(pyMod2Id)
+        assertThat(content.newCourseProgress.userId).isEqualTo(user1.id)
+        assertThat(content.accuracy).isGreaterThan(BigDecimal("0.00"))
+        assertThat(content.accuracy).isLessThan(BigDecimal("1.00"))
+        assertThat(content.updatedCompletedLesson.id).isEqualTo(currentLesson)
+        assertThat(content.updatedCompletedLesson.isCompleted).isEqualTo(true)
+
+    }
+
+    @Test
+    fun submitLesson_endOfCourse_returnsEndOfCourse() {
+
+        val userStats = userStatsRepository.save(UserStats(user1.id!!, 0, 0))
+
+        val currentCourse = pythonId
+        val currentLesson = py2L2
+
+        courseProgressRepository.saveAll(listOf(
+            CourseProgress(id = CourseProgressId(user1.id!!, currentCourse), currentLessonId = currentLesson),
+            CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentLessonId = sw1L3)
+        ))
+
+        val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
+
+        val exercises : List<ExerciseSnap> = pythonSnap.modules[1].lessons[1].exercises
+
+
+        val sub1 = ExerciseSubmissionRequest(
+            exerciseId = exercises[0].id!!,
+            version = 1,
+            attempts = listOf(
+                ExerciseAttemptRequest(
+                    exerciseId = exercises[0].id!!,
+                    isCorrect = true,
+                    answer = exercises[0].correctOptions.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
+                )
+            )
+        )
+
+
+        val submissions: List<ExerciseSubmissionRequest> = listOf(sub1)
+        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), currentLesson, submissions = submissions)
+
+        val response = submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
+
+        assertThat(response).isNotNull()
+
+        val content = response.content!!
+        assertThat(response.status).isEqualTo(LessonCompletionStatus.COURSE_COMPLETE)
+        assertThat(content.newCourseProgress.courseId).isEqualTo(currentCourse)
+        assertThat(content.newCourseProgress.currentLessonId).isEqualTo(currentLesson)
+        assertThat(content.newCourseProgress.moduleId).isEqualTo(pyMod2Id)
+        assertThat(content.newStats.coins).isGreaterThan(0)
+        assertThat(content.accuracy).isGreaterThan(BigDecimal("0.00"))
+        assertThat(content.accuracy).isEqualTo(BigDecimal("1.00"))
+        assertThat(content.updatedCompletedLesson.id).isEqualTo(currentLesson)
+        assertThat(content.updatedCompletedLesson.isCompleted).isEqualTo(true)
+
+
+    }
+
+
+    @Test
+    fun submitLesson_returnsNextLesson() {
+        // user stats
+        userStatsRepository.save(UserStats(user1.id!!, 0, 0))
+
+        // progress: start at Python L1, expect next = L2
+        val currentCourse = pythonId
+        val currentLesson = py1L1
+        val nextLesson = py1L2
+
+        courseProgressRepository.saveAll(
+            listOf(
+                CourseProgress(id = CourseProgressId(user1.id!!, currentCourse), currentLessonId = currentLesson),
+                CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentLessonId = sw1L3)
+            )
+        )
+
+        // snapshot for tokens
+        val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
+        val lesson0 = pythonSnap.modules[0].lessons[0]
+        val exercises: List<ExerciseSnap> = lesson0.exercises
+        require(exercises.size >= 2) { "Lesson 1 must have at least two exercises for this test." }
+
+
+        // Ex2: wrong then right to avoid 1.00 accuracy
+        val sub1 = ExerciseSubmissionRequest(
+            exerciseId = exercises[0].id,
+            version = 1,
+            attempts = listOf(
+                ExerciseAttemptRequest(
+                    exerciseId = exercises[0].id,
+                    isCorrect = false,
+                    answer = exercises[0].distractors.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
+                ),
+                ExerciseAttemptRequest(
+                    exerciseId = exercises[1].id,
+                    isCorrect = true,
+                    answer = exercises[0].correctOptions.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
+                )
+            )
+        )
+
+        // Ex1: correct in one attempt
+        val sub2 = ExerciseSubmissionRequest(
+            exerciseId = exercises[1].id,
+            version = 1,
+            attempts = listOf(
+                ExerciseAttemptRequest(
+                    exerciseId = exercises[1].id,
+                    isCorrect = true,
+                    answer = exercises[1].correctOptions.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
+                )
+            )
+        )
+
+
+
+        val submissions = listOf(sub1, sub2)
+        val req = LessonSubmissionRequest(UUID.randomUUID(), currentLesson, submissions)
+
+        val packet = submitPostForLessonSubmission(user1.id!!, req)
+        val content = packet.content!!
+
+        // assertions
+        assertThat(packet.status).isEqualTo(LessonCompletionStatus.OK)
+        assertThat(content.newStats.coins).isGreaterThan(0)
+        assertThat(content.newCourseProgress.userId).isEqualTo(user1.id)
+        assertThat(content.newCourseProgress.courseId).isEqualTo(currentCourse)
+        assertThat(content.newCourseProgress.moduleId).isEqualTo(pyMod1Id)
+        assertThat(content.newCourseProgress.currentLessonId).isEqualTo(nextLesson)
+
+        assertThat(content.accuracy).isGreaterThan(BigDecimal("0.00"))
+        assertThat(content.accuracy).isLessThan(BigDecimal("1.00"))
+
+        assertThat(content.updatedCompletedLesson.id).isEqualTo(currentLesson)
+        assertThat(content.updatedCompletedLesson.isCompleted).isTrue()
+    }
 
     private fun submitPostForLessonSubmission(userId: UUID, submission: LessonSubmissionRequest): LessonCompletionPacket =
         given()

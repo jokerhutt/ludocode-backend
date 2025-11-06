@@ -235,7 +235,7 @@ abstract class AbstractIntegrationTest {
                         ex.correctOptions.forEachIndexed { i, opt ->
                             exerciseOptionRepository.save(
                                 ExerciseOption(
-                                    id = UUID.randomUUID(),
+                                    id = opt.exerciseOptionId,
                                     exerciseId = ex.id,
                                     exerciseVersion = defaultVersion,
                                     optionId = contentIdByText.getValue(opt.content),
@@ -247,7 +247,7 @@ abstract class AbstractIntegrationTest {
                         ex.distractors.forEach { opt ->
                             exerciseOptionRepository.save(
                                 ExerciseOption(
-                                    id = UUID.randomUUID(),
+                                    id = opt.exerciseOptionId,
                                     exerciseId = ex.id,
                                     exerciseVersion = defaultVersion,
                                     optionId = contentIdByText.getValue(opt.content),
@@ -283,10 +283,10 @@ abstract class AbstractIntegrationTest {
             media = null,
             exerciseType = ExerciseType.CLOZE,
             correctOptions = listOf(
-                OptionSnap(content = "4", answerOrder = 1)
+                OptionSnap(content = "4", answerOrder = 1, UUID.randomUUID())
             ),
             distractors = listOf(
-                OptionSnap(content = "let", answerOrder = null)
+                OptionSnap(content = "let", answerOrder = null, UUID.randomUUID())
             )
         )
 
@@ -298,8 +298,8 @@ abstract class AbstractIntegrationTest {
             media = null,
             exerciseType = ExerciseType.CLOZE,
             correctOptions = listOf(
-                OptionSnap(content = "house",  answerOrder = 1),
-                OptionSnap(content = "'house'", answerOrder = 2)
+                OptionSnap(content = "house",  answerOrder = 1, UUID.randomUUID()),
+                OptionSnap(content = "'house'", answerOrder = 2, UUID.randomUUID())
             ),
             distractors = emptyList()
         )
@@ -312,10 +312,10 @@ abstract class AbstractIntegrationTest {
             media = null,
             exerciseType = ExerciseType.ANALYZE,
             correctOptions = listOf(
-                OptionSnap(content = "8", answerOrder = 1)
+                OptionSnap(content = "8", answerOrder = 1, UUID.randomUUID())
             ),
             distractors = listOf(
-                OptionSnap(content = "undefined", answerOrder = null)
+                OptionSnap(content = "undefined", answerOrder = null, UUID.randomUUID())
             )
         )
 
@@ -327,10 +327,10 @@ abstract class AbstractIntegrationTest {
             media = null,
             exerciseType = ExerciseType.TRIVIA,
             correctOptions = listOf(
-                OptionSnap(content = "const", answerOrder = 1)
+                OptionSnap(content = "const", answerOrder = 1, UUID.randomUUID())
             ),
             distractors = listOf(
-                OptionSnap(content = "let", answerOrder = null)
+                OptionSnap(content = "let", answerOrder = null, UUID.randomUUID())
             )
         )
 
@@ -342,10 +342,10 @@ abstract class AbstractIntegrationTest {
             media = null,
             exerciseType = ExerciseType.ANALYZE,
             correctOptions = listOf(
-                OptionSnap(content = "True", answerOrder = 1)
+                OptionSnap(content = "True", answerOrder = 1, UUID.randomUUID())
             ),
             distractors = listOf(
-                OptionSnap(content = "False", answerOrder = null)
+                OptionSnap(content = "False", answerOrder = null, UUID.randomUUID())
             )
         )
 
@@ -357,10 +357,10 @@ abstract class AbstractIntegrationTest {
             media = null,
             exerciseType = ExerciseType.CLOZE,
             correctOptions = listOf(
-                OptionSnap(content = "if", answerOrder = 1)
+                OptionSnap(content = "if", answerOrder = 1, UUID.randomUUID())
             ),
             distractors = listOf(
-                OptionSnap(content = "let", answerOrder = null)
+                OptionSnap(content = "let", answerOrder = null, UUID.randomUUID())
             )
         )
 
@@ -372,10 +372,10 @@ abstract class AbstractIntegrationTest {
             media = null,
             exerciseType = ExerciseType.CLOZE,
             correctOptions = listOf(
-                OptionSnap(content = "==", answerOrder = 1)
+                OptionSnap(content = "==", answerOrder = 1, UUID.randomUUID())
             ),
             distractors = listOf(
-                OptionSnap(content = "===", answerOrder = null)
+                OptionSnap(content = "===", answerOrder = null, UUID.randomUUID())
             )
         )
 
@@ -387,10 +387,10 @@ abstract class AbstractIntegrationTest {
             media = null,
             exerciseType = ExerciseType.CLOZE,
             correctOptions = listOf(
-                OptionSnap(content = "in", answerOrder = 1)
+                OptionSnap(content = "in", answerOrder = 1, UUID.randomUUID())
             ),
             distractors = listOf(
-                OptionSnap(content = "while", answerOrder = null)
+                OptionSnap(content = "while", answerOrder = null, UUID.randomUUID())
             )
         )
 
@@ -401,7 +401,7 @@ abstract class AbstractIntegrationTest {
             ),
             LessonSnap(id = py1L2, title = "Variables II", orderIndex = 2, exercises = listOf(ex3, ex4)),
             LessonSnap(id = py1L3, title = "Data Types I", orderIndex = 3, exercises = listOf(ex5)),
-            LessonSnap(id = py1L4, title = "Data Types II", orderIndex = 4, exercises = listOf(ex6))
+            LessonSnap(id = py1L4, title = "Data Types II", orderIndex = 4, exercises = listOf(ex6, ex7))
         )
 
         val pyMod2Lessons = listOf(
