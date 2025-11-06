@@ -18,6 +18,9 @@ interface OptionContentRepository : JpaRepository<OptionContent, UUID> {
     )
     fun upsertOption(@Param("content") content: String)
 
+    fun findAllByContentIn(contents: Collection<String>): List<OptionContent>
+
+
     @Query(value = """
         SELECT *
         FROM option_content

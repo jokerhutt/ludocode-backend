@@ -33,28 +33,28 @@ class UpdateCourseIT : AbstractIntegrationTest() {
         courseProgressRepository.saveAll(
             listOf(
                 CourseProgress(
-                    id = CourseProgressId(user.id!!, python.id!!),
-                    currentLessonId = py2Lessons[2].id,
+                    id = CourseProgressId(user.id!!, pythonId),
+                    currentLessonId = py2L3,
                     updatedAt = now.minusDays(1)
                 ),
                 CourseProgress(
-                    id = CourseProgressId(user.id!!, swift.id!!),
-                    currentLessonId = sw1Lessons[2].id,
+                    id = CourseProgressId(user.id!!, swiftId),
+                    currentLessonId = sw1L3,
                     updatedAt = now
                 )
             )
         )
 
 
-        val response = submitPostUpdateCurrentCourse(userId = user.id!!, newCourseId = swift.id!!)
+        val response = submitPostUpdateCurrentCourse(userId = user.id!!, newCourseId = swiftId)
 
         assertThat(response).isNotNull()
 
         val courseProgressResponse = response.courseProgress
 
-        assertThat(courseProgressResponse.courseId).isEqualTo(swift.id)
+        assertThat(courseProgressResponse.courseId).isEqualTo(swiftId)
         assertThat(courseProgressResponse.userId).isEqualTo(user.id)
-        assertThat(courseProgressResponse.currentLessonId).isEqualTo(sw1Lessons[2].id)
+        assertThat(courseProgressResponse.currentLessonId).isEqualTo(sw1L3)
 
     }
 
@@ -63,14 +63,14 @@ class UpdateCourseIT : AbstractIntegrationTest() {
 
         courseProgressRepository.deleteAll()
         val user = user1
-        val newCourse = python
-        val firstLessonOfCourse = py1Lessons[0]
+        val newCourse = pythonId
+        val firstLessonOfCourse = py1L1
 
-        val response = submitPostUpdateCurrentCourse(user.id!!, newCourse.id!!)
+        val response = submitPostUpdateCurrentCourse(user.id!!, newCourse)
 
         assertThat(response).isNotNull()
-        assertThat(response.courseProgress.courseId).isEqualTo(newCourse.id)
-        assertThat(response.courseProgress.currentLessonId).isEqualTo(firstLessonOfCourse.id)
+        assertThat(response.courseProgress.courseId).isEqualTo(newCourse)
+        assertThat(response.courseProgress.currentLessonId).isEqualTo(firstLessonOfCourse)
 
     }
 

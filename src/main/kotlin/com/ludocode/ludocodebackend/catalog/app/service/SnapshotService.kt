@@ -124,6 +124,7 @@ class SnapshotService(
                 title = submittedExerciseDiff.title,
                 subtitle = submittedExerciseDiff.subtitle,
                 prompt = submittedExerciseDiff.prompt,
+                exerciseMedia = submittedExerciseDiff.media,
                 exerciseType = submittedExerciseDiff.exerciseType,
                 isDeleted = false
             )

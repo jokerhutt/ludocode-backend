@@ -1,4 +1,9 @@
 package com.ludocode.ludocodebackend.support
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnapshot
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
@@ -41,21 +46,27 @@ import java.util.UUID
 abstract class AbstractIntegrationTest {
 
 
-    lateinit var python: Course
-    lateinit var swift: Course
-    lateinit var pyMod1: Module
-    lateinit var pyMod2: Module
-    lateinit var swMod1: Module
-    lateinit var sw1Lessons: List<Lesson>
-    lateinit var py1Lessons: List<Lesson>
-    lateinit var py2Lessons: List<Lesson>
-    lateinit var exercises: List<Exercise>
-    lateinit var py1Lesson1Exercises: List<Exercise>
-    lateinit var py1Lesson2Exercises: List<Exercise>
-    lateinit var exerciseOptions: List<ExerciseOption>
-    lateinit var dbOptions: List<OptionContent>
+     var pythonId = UUID.randomUUID()
+     var swiftId  = UUID.randomUUID()
 
+     var pyMod1Id = UUID.randomUUID()
+     var pyMod2Id = UUID.randomUUID()
+     var swMod1Id = UUID.randomUUID()
 
+     var py1L1 = UUID.randomUUID()
+     var py1L2 = UUID.randomUUID()
+     var py1L3 = UUID.randomUUID()
+     var py1L4 = UUID.randomUUID()
+
+     var py2L1 = UUID.randomUUID()
+     var py2L2 = UUID.randomUUID()
+     var py2L3 = UUID.randomUUID()
+     var py2L4 = UUID.randomUUID()
+
+     var sw1L1 = UUID.randomUUID()
+     var sw1L2 = UUID.randomUUID()
+     var sw1L3 = UUID.randomUUID()
+     var sw1L4 = UUID.randomUUID()
 
     lateinit var user1: User
 
@@ -136,6 +147,120 @@ abstract class AbstractIntegrationTest {
 
     }
 
+    @Transactional
+    fun importSnapshots(snaps: List<CourseSnap>, defaultVersion: Int = 1) {
+        // 0) Validate snapshot invariants early if you want
+        //    e.g., cloze gap count == number of correct options, etc.
+
+        // 1) Preload all OptionContent in bulk to avoid per-row lookups
+        val allContents = snaps.flatMap { it.modules }
+            .flatMap { it.lessons }
+            .flatMap { it.exercises }
+            .flatMap { ex -> ex.correctOptions.map { it.content } + ex.distractors.map { it.content } }
+            .toSet()
+
+        val existing = optionContentRepository.findAllByContentIn(allContents)
+        val contentIdByText = existing.associate { it.content to it.id }.toMutableMap()
+
+        val missing = allContents - contentIdByText.keys
+        if (missing.isNotEmpty()) {
+            val toSave = missing.map { OptionContent(id = UUID.randomUUID(), content = it) }
+            optionContentRepository.saveAll(toSave)
+            toSave.forEach { contentIdByText[it.content] = it.id }
+        }
+
+        // 2) Upsert courses, modules, lessons, exercises
+        snaps.forEach { cs ->
+            courseRepository.save(Course(id = cs.courseId, title = cs.title /* or from elsewhere */))
+
+            cs.modules.forEachIndexed { mIdx, ms ->
+                moduleRepository.save(
+                    Module(
+                        id = ms.moduleId,
+                        title = ms.title,
+                        courseId = cs.courseId,
+                        orderIndex = mIdx + 1,
+                        isDeleted = false
+                    )
+                )
+
+                ms.lessons.forEach { ls ->
+                    lessonRepository.save(Lesson(id = ls.id, title = ls.title, isDeleted = false))
+
+                    // module ↔ lesson join
+                    moduleLessonsRepository.save(
+                        ModuleLessons(
+                            moduleLessonsId = ModuleLessonsId(
+                                moduleId = ms.moduleId,
+                                orderIndex = ls.orderIndex
+                            ),
+                            lessonId = ls.id
+                        )
+                    )
+
+                    // exercises
+                    ls.exercises.forEachIndexed { exIdx, ex ->
+                        val exId = ExerciseId(ex.id, defaultVersion)
+                        exerciseRepository.save(
+                            Exercise(
+                                exerciseId = exId,
+                                title = ex.title,
+                                subtitle = ex.subtitle,
+                                prompt = ex.prompt,
+                                exerciseMedia = ex.media,             // if your entity supports it
+                                exerciseType = ex.exerciseType,
+                                isDeleted = false
+                            )
+                        )
+
+                        // lesson ↔ exercise join (order = list index)
+                        lessonExercisesRepository.save(
+                            LessonExercises(
+                                LessonExercisesId(lessonId = ls.id, orderIndex = exIdx + 1),
+                                exerciseId = ex.id,
+                                exerciseVersion = defaultVersion
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        // 3) Exercise options after exercises exist
+        snaps.forEach { cs ->
+            cs.modules.forEach { ms ->
+                ms.lessons.forEach { ls ->
+                    ls.exercises.forEach { ex ->
+                        // correct
+                        ex.correctOptions.forEachIndexed { i, opt ->
+                            exerciseOptionRepository.save(
+                                ExerciseOption(
+                                    id = UUID.randomUUID(),
+                                    exerciseId = ex.id,
+                                    exerciseVersion = defaultVersion,
+                                    optionId = contentIdByText.getValue(opt.content),
+                                    answerOrder = opt.answerOrder ?: (i + 1)
+                                )
+                            )
+                        }
+                        // distractors
+                        ex.distractors.forEach { opt ->
+                            exerciseOptionRepository.save(
+                                ExerciseOption(
+                                    id = UUID.randomUUID(),
+                                    exerciseId = ex.id,
+                                    exerciseVersion = defaultVersion,
+                                    optionId = contentIdByText.getValue(opt.content),
+                                    answerOrder = null
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     protected fun initializeUsers () {
 
 
@@ -146,143 +271,171 @@ abstract class AbstractIntegrationTest {
 
     @Transactional
     fun initializeCatalog() {
-        // Courses
-        python = courseRepository.save(Course(id = UUID.randomUUID(), title = "Python"))
-        swift  = courseRepository.save(Course(id = UUID.randomUUID(), title = "Swift"))
+        // ---- IDs
 
-        // Modules (order on module itself)
-         pyMod1 = moduleRepository.save(
-            Module(id = UUID.randomUUID(), title = "Variables",   courseId = python.id, orderIndex = 1, isDeleted = false)
-        )
-        pyMod2 = moduleRepository.save(
-            Module(id = UUID.randomUUID(), title = "Conditionals", courseId = python.id, orderIndex = 2, isDeleted = false)
-        )
-        swMod1 = moduleRepository.save(
-            Module(id = UUID.randomUUID(), title = "Variables",   courseId = swift.id,  orderIndex = 1, isDeleted = false)
-        )
 
-        py1Lessons = saveLessons(
-            "Variables I",
-            "Variables II",
-            "Data Types I",
-            "Data Types II"
-        )
-
-        py2Lessons = saveLessons(
-            "If",
-            "Else",
-            "Else if",
-            "Switch"
-        )
-
-        sw1Lessons = saveLessons(
-            "Variables I",
-            "Variables II",
-            "Data Types I",
-            "Data Types II"
-        )
-
-        joinLessons(pyMod1.id!!, py1Lessons)
-        joinLessons(pyMod2.id!!, py2Lessons)
-        joinLessons(swMod1.id!!, sw1Lessons)
-
-        exercises = exerciseRepository.saveAll(
-            listOf(
-                Exercise(
-                    exerciseId = ExerciseId(UUID.randomUUID(), 1),
-                    title = "Complete the expression",
-                    prompt = "let sum = ___ + 4",
-                    exerciseType = ExerciseType.CLOZE
-                ),
-                Exercise(
-                    exerciseId = ExerciseId(UUID.randomUUID(), 1),
-                    title = "Create a variable with a value of 'House'",
-                    prompt = "const ___ = ___",
-                    exerciseType = ExerciseType.CLOZE
-                ),
-                Exercise(
-                    exerciseId = ExerciseId(UUID.randomUUID(), 1),
-                    title = "What will the following code return",
-                    prompt = "const score = 4 + 4;",
-                    exerciseType = ExerciseType.ANALYZE
-                ),
-                Exercise(
-                    exerciseId = ExerciseId(UUID.randomUUID(), 1),
-                    title = "Which of the following declares a variable that can not be reassigned",
-                    exerciseType = ExerciseType.TRIVIA
-                )
+        // ---- Exercises (default version handled inside importSnapshots)
+        val ex1 = ExerciseSnap(
+            id = UUID.randomUUID(),
+            title = "Complete the expression",
+            subtitle = null,
+            prompt = "let sum = ___ + 4",
+            media = null,
+            exerciseType = ExerciseType.CLOZE,
+            correctOptions = listOf(
+                OptionSnap(content = "4", answerOrder = 1)
+            ),
+            distractors = listOf(
+                OptionSnap(content = "let", answerOrder = null)
             )
         )
 
-        val lessonExercises = lessonExercisesRepository.saveAll(
-            listOf(
-                LessonExercises(LessonExercisesId(py1Lessons[0].id!!, 1), exercises[0].exerciseId.id!!, 1),
-                LessonExercises(LessonExercisesId(py1Lessons[0].id!!, 2), exercises[1].exerciseId.id!!, 1),
-                LessonExercises(LessonExercisesId(py2Lessons[1].id!!, 1), exercises[2].exerciseId.id!!, 1),
-                LessonExercises(LessonExercisesId(py2Lessons[1].id!!, 2), exercises[3].exerciseId.id!!, 1)
+        val ex2 = ExerciseSnap(
+            id = UUID.randomUUID(),
+            title = "Create a variable with a value of 'House'",
+            subtitle = null,
+            prompt = "const ___ = ___",
+            media = null,
+            exerciseType = ExerciseType.CLOZE,
+            correctOptions = listOf(
+                OptionSnap(content = "house",  answerOrder = 1),
+                OptionSnap(content = "'house'", answerOrder = 2)
+            ),
+            distractors = emptyList()
+        )
+
+        val ex3 = ExerciseSnap(
+            id = UUID.randomUUID(),
+            title = "What will the following code return",
+            subtitle = null,
+            prompt = "const score = 4 + 4;",
+            media = null,
+            exerciseType = ExerciseType.ANALYZE,
+            correctOptions = listOf(
+                OptionSnap(content = "8", answerOrder = 1)
+            ),
+            distractors = listOf(
+                OptionSnap(content = "undefined", answerOrder = null)
             )
         )
 
-        py1Lesson1Exercises = listOf(exercises[0], exercises[1])
-        py1Lesson2Exercises = listOf(exercises[2], exercises[3])
-
-        val optionContents = listOf("4", "house", "'house'", "8", "undefined", "let", "const")
-
-        dbOptions = optionContents.map { content ->
-            optionContentRepository.save(
-                OptionContent(
-                    id = UUID.randomUUID(),
-                    content = content
-                )
-            )
-        }
-        exerciseOptions = exerciseOptionRepository.saveAll(
-            listOf(
-                // Ex 1 (CLOZE): correct "4" → order 1; distractor "let" → null
-                ExerciseOption(UUID.randomUUID(), exercises[0].exerciseId.id!!, 1, dbOptions[0].id, 1),
-                ExerciseOption(UUID.randomUUID(), exercises[0].exerciseId.id!!, 1, dbOptions[5].id, null),
-
-                // Ex 2 (CLOZE): two corrects → "house"=1, "'house'"=2
-                ExerciseOption(UUID.randomUUID(), exercises[1].exerciseId.id!!, 1, dbOptions[1].id, 1),
-                ExerciseOption(UUID.randomUUID(), exercises[1].exerciseId.id!!, 1, dbOptions[2].id, 2),
-
-                // Ex 3 (ANALYZE): correct "8" → 1; distractor "undefined" → null
-                ExerciseOption(UUID.randomUUID(), exercises[2].exerciseId.id!!, 1, dbOptions[3].id, 1),
-                ExerciseOption(UUID.randomUUID(), exercises[2].exerciseId.id!!, 1, dbOptions[4].id, null),
-
-                // Ex 4 (TRIVIA): correct "const" → 1; distractor "let" → null
-                ExerciseOption(UUID.randomUUID(), exercises[3].exerciseId.id!!, 1, dbOptions[6].id, 1),
-                ExerciseOption(UUID.randomUUID(), exercises[3].exerciseId.id!!, 1, dbOptions[5].id, null),
+        val ex4 = ExerciseSnap(
+            id = UUID.randomUUID(),
+            title = "Which of the following declares a variable that can not be reassigned",
+            subtitle = null,
+            prompt = null,
+            media = null,
+            exerciseType = ExerciseType.TRIVIA,
+            correctOptions = listOf(
+                OptionSnap(content = "const", answerOrder = 1)
+            ),
+            distractors = listOf(
+                OptionSnap(content = "let", answerOrder = null)
             )
         )
 
-
-
-    }
-
-    private fun saveLessons(vararg titles: String): List<Lesson> =
-        lessonRepository.saveAll(
-            titles.map {
-                Lesson(
-                    id = UUID.randomUUID(),
-                    title = it,
-                    isDeleted = false
-                )
-            }
+        val ex5 = ExerciseSnap(
+            id = UUID.randomUUID(),
+            title = "What will this print?",
+            subtitle = null,
+            prompt = "print(2 == 2)",
+            media = null,
+            exerciseType = ExerciseType.ANALYZE,
+            correctOptions = listOf(
+                OptionSnap(content = "True", answerOrder = 1)
+            ),
+            distractors = listOf(
+                OptionSnap(content = "False", answerOrder = null)
+            )
         )
 
-    private fun joinLessons(moduleId: UUID, lessons: List<Lesson>) {
-        moduleLessonsRepository.saveAll(
-            lessons.mapIndexed { idx, lesson ->
-                ModuleLessons(
-                    moduleLessonsId = ModuleLessonsId(
-                        moduleId = moduleId,
-                        orderIndex = idx + 1
-                    ),
-                    lessonId = lesson.id!!
-                )
-            }
+        val ex6 = ExerciseSnap(
+            id = UUID.randomUUID(),
+            title = "Complete the expression",
+            subtitle = null,
+            prompt = "___ i == 5",
+            media = null,
+            exerciseType = ExerciseType.CLOZE,
+            correctOptions = listOf(
+                OptionSnap(content = "if", answerOrder = 1)
+            ),
+            distractors = listOf(
+                OptionSnap(content = "let", answerOrder = null)
+            )
         )
+
+        val ex7 = ExerciseSnap(
+            id = UUID.randomUUID(),
+            title = "Complete the expression",
+            subtitle = null,
+            prompt = "if i ___ 4",
+            media = null,
+            exerciseType = ExerciseType.CLOZE,
+            correctOptions = listOf(
+                OptionSnap(content = "==", answerOrder = 1)
+            ),
+            distractors = listOf(
+                OptionSnap(content = "===", answerOrder = null)
+            )
+        )
+
+        val ex8 = ExerciseSnap(
+            id = UUID.randomUUID(),
+            title = "Complete the expression",
+            subtitle = null,
+            prompt = "for i ___ points",
+            media = null,
+            exerciseType = ExerciseType.CLOZE,
+            correctOptions = listOf(
+                OptionSnap(content = "in", answerOrder = 1)
+            ),
+            distractors = listOf(
+                OptionSnap(content = "while", answerOrder = null)
+            )
+        )
+
+        val pyMod1Lessons = listOf(
+            LessonSnap(
+                id = py1L1, title = "Variables I", orderIndex = 1,
+                exercises = listOf(ex1, ex2)
+            ),
+            LessonSnap(id = py1L2, title = "Variables II", orderIndex = 2, exercises = listOf(ex3, ex4)),
+            LessonSnap(id = py1L3, title = "Data Types I", orderIndex = 3, exercises = listOf(ex5)),
+            LessonSnap(id = py1L4, title = "Data Types II", orderIndex = 4, exercises = listOf(ex6))
+        )
+
+        val pyMod2Lessons = listOf(
+            LessonSnap(id = py2L1, title = "If",       orderIndex = 1, exercises = listOf(ex7)),
+            LessonSnap(
+                id = py2L2, title = "Else",     orderIndex = 2,
+                exercises = listOf(ex8)
+            ),
+        )
+
+        val swMod1Lessons = listOf(
+            LessonSnap(id = sw1L1, title = "Variables I", orderIndex = 1, exercises = emptyList()),
+            LessonSnap(id = sw1L2, title = "Variables II", orderIndex = 2, exercises = emptyList()),
+            LessonSnap(id = sw1L3, title = "Data Types I", orderIndex = 3, exercises = emptyList()),
+            LessonSnap(id = sw1L4, title = "Data Types II", orderIndex = 4, exercises = emptyList())
+        )
+
+        // ---- Modules
+        val pythonModules = listOf(
+            ModuleSnapshot(moduleId = pyMod1Id, title = "Variables",   lessons = pyMod1Lessons),
+            ModuleSnapshot(moduleId = pyMod2Id, title = "Conditionals", lessons = pyMod2Lessons)
+        )
+        val swiftModules = listOf(
+            ModuleSnapshot(moduleId = swMod1Id, title = "Variables", lessons = swMod1Lessons)
+        )
+
+        // ---- Courses
+        val snaps = listOf(
+            CourseSnap(courseId = pythonId, title = "Python", modules = pythonModules),
+            CourseSnap(courseId = swiftId,  title = "Swift",  modules = swiftModules)
+        )
+
+        // Single transactional import
+        importSnapshots(snaps, defaultVersion = 1)
     }
 
 

@@ -36,6 +36,9 @@ class Exercise (
     @Column(name = "exercise_type", nullable = false)
     var exerciseType: ExerciseType,
 
+    @Column(name = "exercise_media")
+    val exerciseMedia: String? = null,
+
     @Column(name = "is_deleted")
     var isDeleted: Boolean = false,
 

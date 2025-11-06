@@ -24,11 +24,11 @@ class ExercisesIT : AbstractIntegrationTest() {
     @Test
     fun getExercises_returnsExercises() {
 
-        val lesson1: Lesson = py1Lessons[0]
-        val lesson2: Lesson = py1Lessons[0]
+        val lesson1Id = py1L1
+        val lesson2Id = py1L2
 
-        val response: List<ExerciseResponse> = submitGetExercisesByLessonId(lesson1.id!!)
-        val response2: List<ExerciseResponse> = submitGetExercisesByLessonId(lesson2.id!!)
+        val response: List<ExerciseResponse> = submitGetExercisesByLessonId(lesson1Id)
+        val response2: List<ExerciseResponse> = submitGetExercisesByLessonId(lesson2Id)
 
         assertThat(response).isNotEmpty()
         assertThat(response2).isNotEmpty()
@@ -36,7 +36,7 @@ class ExercisesIT : AbstractIntegrationTest() {
         for (res: ExerciseResponse in response) {
 
             assertThat(res.correctOptions.size).isGreaterThanOrEqualTo(1)
-            assertThat(res.lessonId).isEqualTo(lesson1.id)
+            assertThat(res.lessonId).isEqualTo(lesson1Id)
             assertThat(res.title).isNotNull()
             assertThat(res.prompt).isNotNull()
             assertThat(res.exerciseType).isEqualTo(ExerciseType.CLOZE)
@@ -45,7 +45,7 @@ class ExercisesIT : AbstractIntegrationTest() {
         for (res: ExerciseResponse in response2) {
             assertThat(res.correctOptions.size).isGreaterThanOrEqualTo(1)
             assertThat(res.exerciseType).isNotEqualTo(ExerciseType.CLOZE)
-            assertThat(res.lessonId).isEqualTo(lesson2.id)
+            assertThat(res.lessonId).isEqualTo(lesson2Id)
         }
 
     }

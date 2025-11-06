@@ -12,6 +12,7 @@ data class ExerciseResponse (
     val subtitle: String?,
     val prompt: String?,
     val exerciseType: ExerciseType,
+    val exerciseMedia: String?,
     val lessonId: UUID,
     val correctOptions: List<ExerciseOptionResponse>,
     val distractors: List<ExerciseOptionResponse>,

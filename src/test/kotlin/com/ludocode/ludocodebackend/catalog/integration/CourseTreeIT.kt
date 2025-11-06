@@ -2,7 +2,6 @@ package com.ludocode.ludocodebackend.catalog.integration
 
 import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTreeResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatModule
-import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.user.domain.entity.User
@@ -23,9 +22,9 @@ class CourseTreeIT : AbstractIntegrationTest() {
     fun getCourseTree_returnsCourseTree () {
 
         val user: User = user1
-        val course: Course = python
+        val courseId: UUID = pythonId
 
-        val response: FlatCourseTreeResponse = submitGetCourseTree(course.id!!, user.id!!)
+        val response: FlatCourseTreeResponse = submitGetCourseTree(courseId, user.id!!)
 
         // == ASSERT == //
         assertThat(response.modules).isNotEmpty()

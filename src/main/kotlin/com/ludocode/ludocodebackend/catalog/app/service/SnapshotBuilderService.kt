@@ -30,7 +30,7 @@ class SnapshotBuilderService(
             buildModuleSnapshot(module)
         }
 
-        return CourseSnap(courseId, moduleSnapshots)
+        return CourseSnap(courseId, title = "", moduleSnapshots)
 
 
     }
@@ -52,6 +52,7 @@ class SnapshotBuilderService(
                     subtitle = exerciseResponse.subtitle,
                     prompt = exerciseResponse.prompt,
                     exerciseType = exerciseResponse.exerciseType,
+                    media = exerciseResponse.exerciseMedia,
                     correctOptions = exerciseResponse.correctOptions.map { opt ->
                         OptionSnap(
                             content = opt.content,

@@ -50,7 +50,8 @@ class ExerciseMapper(private val basicMapper: BasicMapper) {
             orderIndex = order,
             subtitle = h.getSubtitle(),
             correctOptions = correctOptions,
-            distractors = distractors
+            distractors = distractors,
+            exerciseMedia = h.getExerciseMedia()
         )
     }
 

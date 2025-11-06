@@ -8,6 +8,7 @@ data class ExerciseSnap(
     val title: String,
     val subtitle: String?,
     val prompt: String?,
+    val media: String? = null,
     val exerciseType: ExerciseType,
     val correctOptions: List<OptionSnap>,
     val distractors: List<OptionSnap>

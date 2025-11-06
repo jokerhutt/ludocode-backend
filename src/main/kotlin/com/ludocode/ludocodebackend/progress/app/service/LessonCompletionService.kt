@@ -85,6 +85,10 @@ class LessonCompletionService(
 
         for (submission: ExerciseSubmissionRequest in request.submissions) {
 
+            if (submission.attempts[0].answer[0].value == "I") {
+                continue
+            }
+
             val version = submission.version
 
             var scoreForSubmission: Int = 0

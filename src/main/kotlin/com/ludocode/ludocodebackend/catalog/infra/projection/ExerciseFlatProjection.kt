@@ -13,7 +13,7 @@ interface ExerciseFlatProjection {
     fun getLessonId(): UUID
     fun getOrderIndex(): Int?
     fun getSubtitle(): String?
-
+    fun getExerciseMedia(): String?
     fun getOptionId(): UUID?
     fun getContent(): String?
     fun getAnswerOrder(): Int?

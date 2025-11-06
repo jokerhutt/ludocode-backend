@@ -24,19 +24,25 @@ class CourseProgressIT : AbstractIntegrationTest() {
 
         val user: User = user1
 
+        val course1Id = pythonId
+        val course1CurrentLesson = py2L2
+
+        val course2Id = swiftId
+        val course2CurrentLesson = sw1L3
+
         val progressList = courseProgressRepository.saveAll(listOf(
-            CourseProgress(id = CourseProgressId(user.id!!, python.id!!), currentLessonId = py2Lessons[2].id),
-            CourseProgress(id = CourseProgressId(user.id!!, swift.id!!), currentLessonId = sw1Lessons[2].id)
+            CourseProgress(id = CourseProgressId(user.id!!, course1Id), currentLessonId = course1CurrentLesson),
+            CourseProgress(id = CourseProgressId(user.id!!, course2Id), currentLessonId = course2CurrentLesson)
         ))
 
-        val courseToReset = progressList[0]
+        val courseToReset = course1Id
 
-        val response = submitResetCourseProgress(user.id!!, courseToReset.id!!.courseId!!)
+        val response = submitResetCourseProgress(user.id!!, courseToReset)
 
         assertThat(response).isNotNull()
-        assertThat(response.courseId).isEqualTo(courseToReset.id.courseId)
-        assertThat(response.moduleId).isEqualTo(pyMod1.id)
-        assertThat(response.currentLessonId).isEqualTo(py1Lessons[0].id)
+        assertThat(response.courseId).isEqualTo(courseToReset)
+        assertThat(response.moduleId).isEqualTo(pyMod1Id)
+        assertThat(response.currentLessonId).isEqualTo(py1L1)
 
     }
 
@@ -45,9 +51,17 @@ class CourseProgressIT : AbstractIntegrationTest() {
 
         val user: User = user1
 
+        val course1Id = pythonId
+        val course1CurrentModule = pyMod2Id
+        val course1CurrentLesson = py2L2
+
+        val course2Id = swiftId
+        val course2CurrentModule = swMod1Id
+        val course2CurrentLesson = sw1L3
+
         val progressList = courseProgressRepository.saveAll(listOf(
-            CourseProgress(id = CourseProgressId(user.id!!, python.id!!), currentLessonId = py2Lessons[2].id),
-            CourseProgress(id = CourseProgressId(user.id!!, swift.id!!), currentLessonId = sw1Lessons[2].id)
+            CourseProgress(id = CourseProgressId(user.id!!, course1Id), currentLessonId = course1CurrentLesson),
+            CourseProgress(id = CourseProgressId(user.id!!, course2Id), currentLessonId = course2CurrentLesson)
         ))
 
         val enrolledIds : List<UUID> = progressList.map { progress -> progress.id.courseId!! }
@@ -62,11 +76,11 @@ class CourseProgressIT : AbstractIntegrationTest() {
 
         val byCourse = response.associateBy { it.courseId }
 
-        assertThat(byCourse[python.id]!!.currentLessonId).isEqualTo(py2Lessons[2].id)
-        assertThat(byCourse[python.id]!!.moduleId).isEqualTo(pyMod2.id)
+        assertThat(byCourse[course1Id]!!.currentLessonId).isEqualTo(course1CurrentLesson)
+        assertThat(byCourse[course1Id]!!.moduleId).isEqualTo(course1CurrentModule)
 
-        assertThat(byCourse[swift.id]!!.currentLessonId).isEqualTo(sw1Lessons[2].id)
-        assertThat(byCourse[swift.id]!!.moduleId).isEqualTo(swMod1.id)
+        assertThat(byCourse[course2Id]!!.currentLessonId).isEqualTo(course2CurrentLesson)
+        assertThat(byCourse[course2Id]!!.moduleId).isEqualTo(course2CurrentModule)
 
     }
 
@@ -86,7 +100,7 @@ class CourseProgressIT : AbstractIntegrationTest() {
     private fun submitGetCourseProgressList(userId: UUID, courseIds: List<UUID>): List<CourseProgressResponse> =
         given()
             .header("X-Test-User-Id", userId.toString())
-            .queryParam("courseIds", courseIds)
+            .queryParam("courseIds", *courseIds.toTypedArray())
             .`when`()
             .get("$PROGRESS_COURSE/ids")
             .then()

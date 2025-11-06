@@ -18,6 +18,7 @@ interface LessonExercisesRepository : JpaRepository<LessonExercises, LessonExerc
       e.title         AS title,
       e.prompt        AS prompt,
       e.exercise_type AS exerciseType,
+      e.exercise_media AS exerciseMedia,
       e.subtitle      AS subtitle,
       le.lesson_id    AS lessonId,
       le.order_index  AS orderIndex,
