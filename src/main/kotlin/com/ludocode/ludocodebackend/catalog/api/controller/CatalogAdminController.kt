@@ -19,12 +19,6 @@ class CatalogAdminController(
                              private val snapshotService: SnapshotService
 ) {
 
-//
-//    @PostMapping(PathConstants.SUBMIT_MODULE_SNAPSHOT)
-//    fun applyModuleSnapshot(@RequestBody s: ModuleSnapshot) : ResponseEntity<ModuleSnapshot> {
-//        return ResponseEntity.ok(snapshotService.applyModuleSnapshot(s, s.tempId))
-//    }
-
     @PostMapping(PathConstants.SUBMIT_COURSE_SNAPSHOT)
     fun applyCourseSnapshot(@RequestBody s: CourseSnap) : ResponseEntity<CourseSnap> {
         return ResponseEntity.ok(snapshotService.applyNewSnapshot(s))
