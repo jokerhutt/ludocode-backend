@@ -16,10 +16,10 @@ class CourseProgress (
     val id: CourseProgressId,
 
     @Column(name = "created_at", nullable = false)
-    val createdAt: OffsetDateTime = OffsetDateTime.now(),
+    val createdAt: OffsetDateTime,
 
     @Column(name = "updated_at", nullable = false)
-    val updatedAt: OffsetDateTime  = OffsetDateTime.now(),
+    val updatedAt: OffsetDateTime,
 
     @Column(name = "current_lesson_id")
     val currentLessonId: UUID,

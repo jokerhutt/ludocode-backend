@@ -28,19 +28,21 @@ class UpdateCourseIT : AbstractIntegrationTest() {
     fun updateCourse_returnExistingCourseProgress () {
 
         val user = user1
-        val now = OffsetDateTime.now()
+        val now = OffsetDateTime.now(clock)
 
         courseProgressRepository.saveAll(
             listOf(
                 CourseProgress(
                     id = CourseProgressId(user.id!!, pythonId),
                     currentLessonId = py2L3,
-                    updatedAt = now.minusDays(1)
+                    updatedAt = now.minusDays(1),
+                    createdAt = now.minusDays(2),
                 ),
                 CourseProgress(
                     id = CourseProgressId(user.id!!, swiftId),
                     currentLessonId = sw1L3,
-                    updatedAt = now
+                    updatedAt = now,
+                    createdAt = now.minusDays(1)
                 )
             )
         )

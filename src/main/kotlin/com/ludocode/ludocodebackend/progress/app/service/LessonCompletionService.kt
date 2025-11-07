@@ -8,6 +8,7 @@ import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseSubmissionR
 import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionRequest
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionPacket
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionResponse
+import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
 import com.ludocode.ludocodebackend.progress.app.port.out.CatalogPortForProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.AttemptOption
 import com.ludocode.ludocodebackend.progress.domain.entity.ExerciseAttempt
@@ -22,7 +23,9 @@ import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.time.Clock
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.util.UUID
 
 
@@ -31,9 +34,11 @@ class LessonCompletionService(
     private val catalogPortForProgress: CatalogPortForProgress,
     private val exerciseAttemptRepository: ExerciseAttemptRepository,
     private val attemptOptionRepository: AttemptOptionRepository,
+    private val clock: Clock,
     private val lessonCompletionRepository: LessonCompletionRepository,
     private val userStatsService: UserStatsService,
-    private val courseProgressService: CourseProgressService
+    private val courseProgressService: CourseProgressService,
+    private val streakService: StreakService
 ) {
 
     @Transactional
@@ -61,7 +66,10 @@ class LessonCompletionService(
         val newCourseProgress = newCourseProgressWithCompletion!!.courseProgressResponse
         val isFirstCompletion = newCourseProgressWithCompletion!!.isFirstCompletion
 
-        val responseContent = LessonCompletionResponse(newStats, newCourseProgress, submittedLesson, accuracy = lessonCompletion.accuracy)
+        val nowUtc = OffsetDateTime.now(clock)
+        val newStreak: UserStreakResponse = streakService.recordGoalMet(userId, nowUtc)
+
+        val responseContent = LessonCompletionResponse(newStats, newStreak, newCourseProgress, submittedLesson, accuracy = lessonCompletion.accuracy)
 
         if (isFirstCompletion) return LessonCompletionPacket(content = responseContent, status = LessonCompletionStatus.COURSE_COMPLETE)
 
@@ -120,7 +128,7 @@ class LessonCompletionService(
         val accuracy = BigDecimal(correct)
             .divide(BigDecimal(total), 2, RoundingMode.HALF_UP)
 
-        val completion = LessonCompletion(id = request.id, userId = userId, score = scoreForLesson, completedAt = OffsetDateTime.now(), lessonId = currentLessonId, accuracy = accuracy, courseId = courseId)
+        val completion = LessonCompletion(id = request.id, userId = userId, score = scoreForLesson, completedAt = OffsetDateTime.now(clock), lessonId = currentLessonId, accuracy = accuracy, courseId = courseId)
         lessonCompletionRepository.save(completion)
         exerciseAttemptRepository.saveAll(exerciseAttempts)
         attemptOptionRepository.saveAll(attemptOptions)

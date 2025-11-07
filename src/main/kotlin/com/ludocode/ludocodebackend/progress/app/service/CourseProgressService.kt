@@ -11,6 +11,8 @@ import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepo
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import java.time.Clock
+import java.time.OffsetDateTime
 import java.util.UUID
 
 @Service
@@ -18,13 +20,14 @@ class CourseProgressService(
     private val courseProgressRepository: CourseProgressRepository,
     private val catalogPortForProgress: CatalogPortForProgress,
     private val courseProgressMapper: CourseProgressMapper,
+    private val clock: Clock,
     private val lessonCompletionRepository: LessonCompletionRepository,
 ) : CourseProgressUseCase {
 
     @Transactional
      override fun findOrCreate(userId: UUID, courseId: UUID) : CourseProgressResponseWithEnrolled {
         val firstLessonOfCourse = catalogPortForProgress.findFirstLessonIdInCourse(courseId)
-        courseProgressRepository.upsert(userId, courseId, firstLessonOfCourse!!)
+        courseProgressRepository.upsert(userId, courseId, firstLessonOfCourse!!, OffsetDateTime.now(clock))
         val userCourseProgress = courseProgressRepository.findProgressWithModule(userId, courseId)
         val enrolled = courseProgressRepository.findAllCourseIdsForUser(userId)
         return courseProgressMapper.toCourseProgressResponseWithEnrolled(userCourseProgress!!, enrolled)
@@ -61,7 +64,8 @@ class CourseProgressService(
 
         var isFirstCompletion = false
         if (newLessonId != null) {
-            courseProgressRepository.setCurrentLesson(userId = userId, courseId = courseId, newLessonId = newLessonId)
+            courseProgressRepository.setCurrentLesson(userId = userId, courseId = courseId, newLessonId = newLessonId,
+                OffsetDateTime.now(clock))
         } else {
             val courseProgress = courseProgressRepository.findById(CourseProgressId(userId, courseId)).orElseThrow()
             if (!courseProgress.isComplete) {

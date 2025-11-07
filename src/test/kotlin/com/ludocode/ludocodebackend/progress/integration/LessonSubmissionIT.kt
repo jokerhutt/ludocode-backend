@@ -18,6 +18,7 @@ import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionPa
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionResponse
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.UserStats
+import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
@@ -25,6 +26,7 @@ import io.restassured.RestAssured.given
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
+import java.time.OffsetDateTime
 
 import java.util.UUID
 import kotlin.test.Test
@@ -38,6 +40,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
     fun submitLesson_endOfModule_returnsFirstLessonOfNextModule() {
 
         val userStats = userStatsRepository.save(UserStats(user1.id!!, 0, 0))
+        userStreakRepository.save(UserStreak(userId = user1.id!!))
 
         val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
 
@@ -49,8 +52,8 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
 
         val progressList = courseProgressRepository.saveAll(listOf(
-            CourseProgress(id = CourseProgressId(user1.id!!, currentCourse), currentLessonId = currentLesson),
-            CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentLessonId = sw1L2)
+            CourseProgress(id = CourseProgressId(user1.id!!, currentCourse), currentLessonId = currentLesson, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
+            CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentLessonId = sw1L2, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
         ))
 
         val exercises : List<ExerciseSnap> = pythonSnap.modules[0].lessons[3].exercises
@@ -105,6 +108,9 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         assertThat(content.updatedCompletedLesson.id).isEqualTo(currentLesson)
         assertThat(content.updatedCompletedLesson.isCompleted).isEqualTo(true)
 
+        assertThat(content.newStreak.lastMet).isNotNull()
+        assertThat(content.newStreak.current).isEqualTo(1)
+
     }
 
     @Test
@@ -112,12 +118,13 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
         val userStats = userStatsRepository.save(UserStats(user1.id!!, 0, 0))
 
+
         val currentCourse = pythonId
         val currentLesson = py2L2
 
         courseProgressRepository.saveAll(listOf(
-            CourseProgress(id = CourseProgressId(user1.id!!, currentCourse), currentLessonId = currentLesson),
-            CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentLessonId = sw1L3)
+            CourseProgress(id = CourseProgressId(user1.id!!, currentCourse), currentLessonId = currentLesson, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
+            CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentLessonId = sw1L3, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
         ))
 
         val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
@@ -172,8 +179,8 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
         courseProgressRepository.saveAll(
             listOf(
-                CourseProgress(id = CourseProgressId(user1.id!!, currentCourse), currentLessonId = currentLesson),
-                CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentLessonId = sw1L3)
+                CourseProgress(id = CourseProgressId(user1.id!!, currentCourse), currentLessonId = currentLesson, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
+                CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentLessonId = sw1L3, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
             )
         )
 

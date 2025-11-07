@@ -7,4 +7,5 @@ import java.util.UUID
 interface UserUseCase {
     fun findOrCreate(req: FindOrCreateUserRequest): UserResponse
     fun getById(id: UUID): UserResponse
+    fun getUserTimezone(userId: UUID) : String?
 }

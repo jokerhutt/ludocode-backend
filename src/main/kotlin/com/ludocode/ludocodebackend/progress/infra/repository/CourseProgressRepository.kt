@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
+import java.time.OffsetDateTime
 import java.util.UUID
 
 interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgressId> {
@@ -88,35 +89,33 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
     @Modifying
     @Query(
         """
-    update course_progress
-       set current_lesson_id = :newLessonId, updated_at = now()
-       where user_id = :userId
-       and course_id = :courseId
-    """,
-        nativeQuery = true
+  update course_progress
+     set current_lesson_id = :newLessonId, updated_at = :now
+   where user_id = :userId and course_id = :courseId
+  """, nativeQuery = true
     )
-    fun setCurrentLesson(userId: UUID, courseId: UUID, newLessonId: UUID): Int
+    fun setCurrentLesson(
+        userId: UUID,
+        courseId: UUID,
+        newLessonId: UUID,
+        @Param("now") now: OffsetDateTime
+    ): Int
 
 
 
     @Modifying
     @Query(
-        value = """
+        """
   INSERT INTO course_progress (
-      user_id, course_id, current_lesson_id, is_complete, created_at, updated_at
-  )
-  VALUES (:userId, :courseId, :firstLessonId, false, now(), now())
+    user_id, course_id, current_lesson_id, is_complete, created_at, updated_at
+  ) VALUES (:userId, :courseId, :firstLessonId, false, :now, :now)
   ON CONFLICT (user_id, course_id) DO UPDATE
   SET current_lesson_id = COALESCE(course_progress.current_lesson_id, EXCLUDED.current_lesson_id),
-      updated_at        = now()
+      updated_at        = :now
   """,
         nativeQuery = true
     )
-    fun upsert(
-        @Param("userId") userId: UUID,
-        @Param("courseId") courseId: UUID,
-        @Param("firstLessonId") firstLessonId: UUID
-    ): Int
+    fun upsert(userId: UUID, courseId: UUID, firstLessonId: UUID, @Param("now") now: OffsetDateTime): Int
 
     @Modifying
     @Query(

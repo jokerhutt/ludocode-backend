@@ -34,7 +34,6 @@ class ExercisesIT : AbstractIntegrationTest() {
         assertThat(response2).isNotEmpty()
 
         for (res: ExerciseResponse in response) {
-
             assertThat(res.correctOptions.size).isGreaterThanOrEqualTo(1)
             assertThat(res.lessonId).isEqualTo(lesson1Id)
             assertThat(res.title).isNotNull()

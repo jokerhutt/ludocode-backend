@@ -21,7 +21,9 @@ import com.ludocode.ludocodebackend.progress.infra.repository.AttemptOptionRepos
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.ExerciseAttemptRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
+import com.ludocode.ludocodebackend.progress.infra.repository.UserDailyGoalRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.UserStatsRepository
+import com.ludocode.ludocodebackend.progress.infra.repository.UserStreakRepository
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import io.restassured.RestAssured
@@ -37,12 +39,14 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import java.time.OffsetDateTime
+import java.time.Clock
 import java.util.UUID
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
-@Import(TestSecurityConfig::class)
+
+@Import(TestSecurityConfig::class, FixedClockConfig::class)
 abstract class AbstractIntegrationTest {
 
 
@@ -95,6 +99,8 @@ abstract class AbstractIntegrationTest {
     @LocalServerPort
     protected var port: Int = 0
 
+    @Autowired
+    lateinit var clock: Clock
     @Autowired lateinit var courseProgressRepository: CourseProgressRepository
     @Autowired lateinit var userRepository: UserRepository
     @Autowired lateinit var courseRepository: CourseRepository
@@ -109,6 +115,8 @@ abstract class AbstractIntegrationTest {
     @Autowired lateinit var userStatsRepository: UserStatsRepository
     @Autowired lateinit var exerciseAttemptRepository: ExerciseAttemptRepository
     @Autowired lateinit var attemptOptionRepository: AttemptOptionRepository
+    @Autowired lateinit var userStreakRepository: UserStreakRepository
+    @Autowired lateinit var userDailyGoalRepository: UserDailyGoalRepository
 
     @Autowired
     protected lateinit var jdbc: JdbcTemplate
@@ -126,6 +134,8 @@ abstract class AbstractIntegrationTest {
         TRUNCATE TABLE 
           attempt_option,
           exercise_attempt,
+          user_daily_goal,
+          user_streak,
           lesson_completion,
           course_progress,
           user_stats,
@@ -266,7 +276,7 @@ abstract class AbstractIntegrationTest {
 
 
         user1 = userRepository.save(
-            User(firstName = "John", lastName = "Doe", pfpSrc = "Test", createdAt = OffsetDateTime.now(), email = "email@google.com"))
+            User(firstName = "John", lastName = "Doe", pfpSrc = "Test", createdAt = OffsetDateTime.now(clock), email = "email@google.com"))
     }
 
     @Transactional

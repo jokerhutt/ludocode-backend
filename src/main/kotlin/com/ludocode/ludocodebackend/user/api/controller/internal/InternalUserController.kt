@@ -29,5 +29,10 @@ class InternalUserController(
         return ResponseEntity.ok(userUseCase.getById(userId))
     }
 
+    @GetMapping(InternalPathConstants.IUSER_TIMEZONE)
+    fun getUserTimezone(@PathVariable userId: UUID) : ResponseEntity<String?> {
+        return ResponseEntity.ok(userUseCase.getUserTimezone(userId))
+    }
+
 
 }

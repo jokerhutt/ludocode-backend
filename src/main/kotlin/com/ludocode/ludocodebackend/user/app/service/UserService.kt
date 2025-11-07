@@ -16,6 +16,7 @@ import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
+import java.time.Clock
 import java.util.UUID
 
 @Service
@@ -23,6 +24,7 @@ class UserService(
     private val userRepository: UserRepository,
     private val externalAccountRepository: ExternalAccountRepository,
     private val userMapper: UserMapper,
+    private val clock: Clock,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val courseProgressPortForUser: CourseProgressPortForUser,
 ) : UserUseCase {
@@ -40,7 +42,7 @@ class UserService(
                 firstName = req.firstName ?: "",
                 lastName = req.lastName ?: "",
                 pfpSrc = req.avatarUrl,
-                createdAt = OffsetDateTime.now()
+                createdAt = OffsetDateTime.now(clock)
             )
         )
 
@@ -52,6 +54,10 @@ class UserService(
             )
         )
         return userMapper.toUserResponse(newUser)
+    }
+
+    override fun getUserTimezone(userId: UUID): String? {
+        return userRepository.findUserTimeZone(userId)
     }
 
     @Transactional

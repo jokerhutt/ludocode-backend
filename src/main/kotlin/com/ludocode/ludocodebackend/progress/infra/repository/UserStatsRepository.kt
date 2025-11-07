@@ -20,4 +20,6 @@ interface UserStatsRepository : JpaRepository<UserStats, UUID> {
     )
     fun upsertUserStats(@Param("userId") userId: UUID): Int
 
+
+
 }
