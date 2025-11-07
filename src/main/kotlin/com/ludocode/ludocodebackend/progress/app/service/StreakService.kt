@@ -1,10 +1,13 @@
 package com.ludocode.ludocodebackend.progress.app.service
 
+import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
+import com.ludocode.ludocodebackend.progress.app.mapper.UserStreakMapper
 import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak
 import com.ludocode.ludocodebackend.progress.infra.repository.UserDailyGoalRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.UserStreakRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.util.UUID
@@ -12,15 +15,16 @@ import java.util.UUID
 @Service
 class StreakService(
     private val userStreakRepository: UserStreakRepository,
-    private val userDailyGoalRepository: UserDailyGoalRepository
+    private val userDailyGoalRepository: UserDailyGoalRepository,
+    private val userStreakMapper: UserStreakMapper
 ) {
 
 
     @Transactional
-    fun getStreak(userId: UUID): UserStreak {
+    fun getStreak(userId: UUID): UserStreakResponse {
         userStreakRepository.initializeIfAbsent(userId)
-        val s = userStreakRepository.findByUserId(userId)!!
-        return s
+        val userStreak = userStreakRepository.findByUserId(userId)!!
+        return userStreakMapper.toStreakResponse(userStreak)
     }
 
     @Transactional
@@ -29,20 +33,15 @@ class StreakService(
         nowUtc: OffsetDateTime,
         userZone: ZoneId
     ): UserStreak {
+
         val today = nowUtc.atZoneSameInstant(userZone).toLocalDate()
 
-        val s = userStreakRepository.findByUserId(userId)  // may be null
-        val last = s?.lastMetLocalDate
+        val userStreak = userStreakRepository.findByUserId(userId)
+        val lastMetDate = userStreak?.lastMetLocalDate
 
-        val newCurrent =
-            when {
-                last == null -> 1
-                today == last.plusDays(1) -> (s?.currentStreakDays ?: 0) + 1
-                today.isAfter(last.plusDays(1)) -> 1
-                else -> s?.currentStreakDays ?: 0
-            }
+        val newCurrent = calculateNewStreak(today, lastMetDate, userStreak!!.currentStreakDays!!)
 
-        val newBest = maxOf(s?.bestStreakDays ?: 0, newCurrent)
+        val newBest = maxOf(userStreak?.bestStreakDays ?: 0, newCurrent)
 
         userStreakRepository.upsertProgress(
             userId = userId,
@@ -54,6 +53,17 @@ class StreakService(
 
         return userStreakRepository.findByUserId(userId)!!
     }
+
+    private fun calculateNewStreak (today: LocalDate, lastModified: LocalDate? ,currentStreakDays: Int): Int {
+        if (isFirstEverSubmission(lastModified)) return 1
+        if (isFirstSubmissionOfDay(today, lastModified!!)) return currentStreakDays + 1
+        if (hasMissedStreak(today, lastModified!!)) return 1
+        return currentStreakDays
+    }
+
+    private fun isFirstEverSubmission (lastModified: LocalDate?) : Boolean = lastModified == null
+    private fun isFirstSubmissionOfDay (today: LocalDate, lastModified: LocalDate) : Boolean = today == lastModified.plusDays(1)
+    private fun hasMissedStreak (today: LocalDate, lastModified: LocalDate) : Boolean = today.isAfter(lastModified.plusDays(1))
 
 
     @Transactional

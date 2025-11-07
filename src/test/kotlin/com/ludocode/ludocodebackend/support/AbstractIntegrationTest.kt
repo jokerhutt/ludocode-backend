@@ -21,6 +21,7 @@ import com.ludocode.ludocodebackend.progress.infra.repository.AttemptOptionRepos
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.ExerciseAttemptRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
+import com.ludocode.ludocodebackend.progress.infra.repository.UserDailyGoalRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.UserStatsRepository
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
@@ -109,6 +110,8 @@ abstract class AbstractIntegrationTest {
     @Autowired lateinit var userStatsRepository: UserStatsRepository
     @Autowired lateinit var exerciseAttemptRepository: ExerciseAttemptRepository
     @Autowired lateinit var attemptOptionRepository: AttemptOptionRepository
+    @Autowired lateinit var userStreakRepository: UserStatsRepository
+    @Autowired lateinit var userDailyGoalRepository: UserDailyGoalRepository
 
     @Autowired
     protected lateinit var jdbc: JdbcTemplate
@@ -126,6 +129,8 @@ abstract class AbstractIntegrationTest {
         TRUNCATE TABLE 
           attempt_option,
           exercise_attempt,
+          user_daily_goal,
+          user_streak,
           lesson_completion,
           course_progress,
           user_stats,

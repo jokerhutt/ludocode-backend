@@ -17,7 +17,7 @@ interface UserStreakRepository : JpaRepository<UserStreak, UUID> {
     @Modifying
     @Query( value =  """
         INSERT INTO user_streak (user_id)
-        VALUES ($1)
+        VALUES (:userId)
         ON CONFLICT (user_id) DO NOTHING
         """, nativeQuery = true)
     fun initializeIfAbsent(@Param("userId") userId: UUID)
