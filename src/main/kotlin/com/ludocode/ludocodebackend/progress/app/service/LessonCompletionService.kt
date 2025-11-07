@@ -23,6 +23,7 @@ import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.time.Clock
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
@@ -33,6 +34,7 @@ class LessonCompletionService(
     private val catalogPortForProgress: CatalogPortForProgress,
     private val exerciseAttemptRepository: ExerciseAttemptRepository,
     private val attemptOptionRepository: AttemptOptionRepository,
+    private val clock: Clock,
     private val lessonCompletionRepository: LessonCompletionRepository,
     private val userStatsService: UserStatsService,
     private val courseProgressService: CourseProgressService,
@@ -64,7 +66,8 @@ class LessonCompletionService(
         val newCourseProgress = newCourseProgressWithCompletion!!.courseProgressResponse
         val isFirstCompletion = newCourseProgressWithCompletion!!.isFirstCompletion
 
-        val newStreak: UserStreakResponse = streakService.recordGoalMet(userId, OffsetDateTime.now(ZoneOffset.UTC))
+        val nowUtc = OffsetDateTime.now(clock)
+        val newStreak: UserStreakResponse = streakService.recordGoalMet(userId, nowUtc)
 
         val responseContent = LessonCompletionResponse(newStats, newStreak, newCourseProgress, submittedLesson, accuracy = lessonCompletion.accuracy)
 
@@ -125,7 +128,7 @@ class LessonCompletionService(
         val accuracy = BigDecimal(correct)
             .divide(BigDecimal(total), 2, RoundingMode.HALF_UP)
 
-        val completion = LessonCompletion(id = request.id, userId = userId, score = scoreForLesson, completedAt = OffsetDateTime.now(), lessonId = currentLessonId, accuracy = accuracy, courseId = courseId)
+        val completion = LessonCompletion(id = request.id, userId = userId, score = scoreForLesson, completedAt = OffsetDateTime.now(clock), lessonId = currentLessonId, accuracy = accuracy, courseId = courseId)
         lessonCompletionRepository.save(completion)
         exerciseAttemptRepository.saveAll(exerciseAttempts)
         attemptOptionRepository.saveAll(attemptOptions)

@@ -9,6 +9,7 @@ import com.ludocode.ludocodebackend.user.domain.entity.User
 import io.restassured.RestAssured.given
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
 
@@ -31,8 +32,8 @@ class CourseProgressIT : AbstractIntegrationTest() {
         val course2CurrentLesson = sw1L3
 
         val progressList = courseProgressRepository.saveAll(listOf(
-            CourseProgress(id = CourseProgressId(user.id!!, course1Id), currentLessonId = course1CurrentLesson),
-            CourseProgress(id = CourseProgressId(user.id!!, course2Id), currentLessonId = course2CurrentLesson)
+            CourseProgress(id = CourseProgressId(user.id!!, course1Id), currentLessonId = course1CurrentLesson, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
+            CourseProgress(id = CourseProgressId(user.id!!, course2Id), currentLessonId = course2CurrentLesson, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
         ))
 
         val courseToReset = course1Id
@@ -60,8 +61,8 @@ class CourseProgressIT : AbstractIntegrationTest() {
         val course2CurrentLesson = sw1L3
 
         val progressList = courseProgressRepository.saveAll(listOf(
-            CourseProgress(id = CourseProgressId(user.id!!, course1Id), currentLessonId = course1CurrentLesson),
-            CourseProgress(id = CourseProgressId(user.id!!, course2Id), currentLessonId = course2CurrentLesson)
+            CourseProgress(id = CourseProgressId(user.id!!, course1Id), currentLessonId = course1CurrentLesson, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
+            CourseProgress(id = CourseProgressId(user.id!!, course2Id), currentLessonId = course2CurrentLesson, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
         ))
 
         val enrolledIds : List<UUID> = progressList.map { progress -> progress.id.courseId!! }

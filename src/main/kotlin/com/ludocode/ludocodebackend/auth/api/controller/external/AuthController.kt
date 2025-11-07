@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
@@ -21,7 +22,8 @@ class AuthController(private val authService: AuthService) {
 
     @PostMapping(PathConstants.GOOGLE_LOGIN)
     fun loginWithGoogle(
-        @RequestBody tokenDto: TokenDto, response: HttpServletResponse
+        @RequestBody tokenDto: TokenDto, response: HttpServletResponse,
+        @RequestHeader(name = "X-User-Timezone", required = false) tz: String?,
     ) : ResponseEntity<UserLoginResponse> {
         return ResponseEntity.ok(authService.loginWithGoogle(tokenDto.code, response))
     }

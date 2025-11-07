@@ -72,9 +72,7 @@ class StreakService(
 
     @Transactional
     fun recordGoalMet(userId: UUID, nowUtc: OffsetDateTime): UserStreakResponse {
-        val tz = userPortForProgress.getUserTimezone(userId)
-        val userZone = try { ZoneId.of(tz) } catch (_: Exception) { ZoneId.of("UTC") }
-
+        val userZone = ZoneId.of(userPortForProgress.getUserTimezone(userId))
         val today = nowUtc.atZoneSameInstant(userZone).toLocalDate()
 
         userStreakRepository.initializeIfAbsentReturning(userId)

@@ -39,12 +39,14 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import java.time.OffsetDateTime
+import java.time.Clock
 import java.util.UUID
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
-@Import(TestSecurityConfig::class)
+
+@Import(TestSecurityConfig::class, FixedClockConfig::class)
 abstract class AbstractIntegrationTest {
 
 
@@ -97,6 +99,8 @@ abstract class AbstractIntegrationTest {
     @LocalServerPort
     protected var port: Int = 0
 
+    @Autowired
+    lateinit var clock: Clock
     @Autowired lateinit var courseProgressRepository: CourseProgressRepository
     @Autowired lateinit var userRepository: UserRepository
     @Autowired lateinit var courseRepository: CourseRepository
@@ -272,7 +276,7 @@ abstract class AbstractIntegrationTest {
 
 
         user1 = userRepository.save(
-            User(firstName = "John", lastName = "Doe", pfpSrc = "Test", createdAt = OffsetDateTime.now(), email = "email@google.com"))
+            User(firstName = "John", lastName = "Doe", pfpSrc = "Test", createdAt = OffsetDateTime.now(clock), email = "email@google.com"))
     }
 
     @Transactional
