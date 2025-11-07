@@ -10,6 +10,7 @@ import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.annotations.UuidGenerator
 import org.hibernate.type.SqlTypes
 import java.time.OffsetDateTime
+import java.util.TimeZone
 import java.util.UUID
 
 @Entity
@@ -36,5 +37,8 @@ class User (
 
     @Column(name = "created_at")
     var createdAt: OffsetDateTime? = null,
+
+    @Column(name = "time_zone")
+    val timeZone: String = "UTC"
 
 )

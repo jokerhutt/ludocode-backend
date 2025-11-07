@@ -23,6 +23,7 @@ import com.ludocode.ludocodebackend.progress.infra.repository.ExerciseAttemptRep
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.UserDailyGoalRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.UserStatsRepository
+import com.ludocode.ludocodebackend.progress.infra.repository.UserStreakRepository
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import io.restassured.RestAssured
@@ -110,7 +111,7 @@ abstract class AbstractIntegrationTest {
     @Autowired lateinit var userStatsRepository: UserStatsRepository
     @Autowired lateinit var exerciseAttemptRepository: ExerciseAttemptRepository
     @Autowired lateinit var attemptOptionRepository: AttemptOptionRepository
-    @Autowired lateinit var userStreakRepository: UserStatsRepository
+    @Autowired lateinit var userStreakRepository: UserStreakRepository
     @Autowired lateinit var userDailyGoalRepository: UserDailyGoalRepository
 
     @Autowired

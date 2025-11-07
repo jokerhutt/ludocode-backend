@@ -8,6 +8,7 @@ import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseSubmissionR
 import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionRequest
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionPacket
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionResponse
+import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
 import com.ludocode.ludocodebackend.progress.app.port.out.CatalogPortForProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.AttemptOption
 import com.ludocode.ludocodebackend.progress.domain.entity.ExerciseAttempt
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.util.UUID
 
 
@@ -33,7 +35,8 @@ class LessonCompletionService(
     private val attemptOptionRepository: AttemptOptionRepository,
     private val lessonCompletionRepository: LessonCompletionRepository,
     private val userStatsService: UserStatsService,
-    private val courseProgressService: CourseProgressService
+    private val courseProgressService: CourseProgressService,
+    private val streakService: StreakService
 ) {
 
     @Transactional
@@ -61,7 +64,9 @@ class LessonCompletionService(
         val newCourseProgress = newCourseProgressWithCompletion!!.courseProgressResponse
         val isFirstCompletion = newCourseProgressWithCompletion!!.isFirstCompletion
 
-        val responseContent = LessonCompletionResponse(newStats, newCourseProgress, submittedLesson, accuracy = lessonCompletion.accuracy)
+        val newStreak: UserStreakResponse = streakService.recordGoalMet(userId, OffsetDateTime.now(ZoneOffset.UTC))
+
+        val responseContent = LessonCompletionResponse(newStats, newStreak, newCourseProgress, submittedLesson, accuracy = lessonCompletion.accuracy)
 
         if (isFirstCompletion) return LessonCompletionPacket(content = responseContent, status = LessonCompletionStatus.COURSE_COMPLETE)
 

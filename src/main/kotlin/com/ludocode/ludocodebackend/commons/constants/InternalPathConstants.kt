@@ -9,6 +9,7 @@ object InternalPathConstants {
     const val IUSERS: String = "$INTERNAL_V1/users"
     const val IUSERS_FIND_CREATE: String = "/find-create"
     const val IUSER_ID: String = "/{userId}"
+    const val IUSER_TIMEZONE: String = "/{userId}/timezone"
 
 
     const val ICATALOG: String = "$INTERNAL_V1/catalog"

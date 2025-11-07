@@ -54,6 +54,10 @@ class UserService(
         return userMapper.toUserResponse(newUser)
     }
 
+    override fun getUserTimezone(userId: UUID): String? {
+        return userRepository.findUserTimeZone(userId)
+    }
+
     @Transactional
     fun createPreferences (submission: OnboardingSubmission, userId: UUID) : OnboardingResponse {
         val toSubmit = UserPreferences(userId = userId, hasExperience = submission.hasProgrammingExperience, chosenPath = submission.chosenPath)

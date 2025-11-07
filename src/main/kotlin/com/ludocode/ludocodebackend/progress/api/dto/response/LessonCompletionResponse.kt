@@ -7,6 +7,7 @@ import java.math.BigDecimal
 
 data class LessonCompletionResponse(
     val newStats: UserStatsResponse,
+    val newStreak: UserStreakResponse,
     val newCourseProgress: CourseProgressResponse,
     val updatedCompletedLesson: LessonResponse,
     val accuracy: BigDecimal

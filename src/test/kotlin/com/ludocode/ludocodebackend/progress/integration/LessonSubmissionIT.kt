@@ -18,6 +18,7 @@ import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionPa
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionResponse
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.UserStats
+import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
@@ -38,6 +39,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
     fun submitLesson_endOfModule_returnsFirstLessonOfNextModule() {
 
         val userStats = userStatsRepository.save(UserStats(user1.id!!, 0, 0))
+        userStreakRepository.save(UserStreak(userId = user1.id!!))
 
         val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
 
@@ -104,6 +106,9 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         assertThat(content.accuracy).isLessThan(BigDecimal("1.00"))
         assertThat(content.updatedCompletedLesson.id).isEqualTo(currentLesson)
         assertThat(content.updatedCompletedLesson.isCompleted).isEqualTo(true)
+
+        assertThat(content.newStreak.lastMet).isNotNull()
+        assertThat(content.newStreak.current).isEqualTo(1)
 
     }
 

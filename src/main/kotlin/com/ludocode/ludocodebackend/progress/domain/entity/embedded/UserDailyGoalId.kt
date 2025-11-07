@@ -12,6 +12,6 @@ data class UserDailyGoalId (
     val userId: UUID,
 
     @Column(name = "local_date")
-    val localDate: LocalDate? = null
+    val localDate: LocalDate
 
 )
