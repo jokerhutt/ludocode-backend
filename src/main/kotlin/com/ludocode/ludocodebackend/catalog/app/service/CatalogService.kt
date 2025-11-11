@@ -21,6 +21,8 @@ import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.LessonExercisesRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.LessonRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -38,29 +40,30 @@ class CatalogService(
     private val lessonExercisesRepository: LessonExercisesRepository
 ) : CatalogUseCase {
 
-    override fun findFirstLessonIdInCourse(courseId: UUID): UUID? {
-       return lessonRepository.findFirstLessonIdInCourse(courseId)
+    override fun findFirstLessonIdInCourse(courseId: UUID): UUID {
+       return lessonRepository.findFirstLessonIdInCourse(courseId) ?: throw ApiException(ErrorCode.LESSON_NOT_FOUND)
     }
 
-    override fun findModuleIdForLesson(lessonId: UUID): UUID? {
-       return lessonRepository.findModuleIdForLesson(lessonId)
+    override fun findModuleIdForLesson(lessonId: UUID): UUID {
+       return lessonRepository.findModuleIdForLesson(lessonId) ?: throw ApiException(ErrorCode.MODULE_NOT_FOUND_FOR_LESSON)
     }
 
     override fun findNextLessonId(currentLesson: UUID): UUID? {
         return lessonRepository.findNextLessonId(currentLesson)
     }
 
-    override fun findCourseIdForLesson(lessonId: UUID): UUID? {
-       return lessonRepository.findCourseIdByLesson(lessonId)
+    override fun findCourseIdForLesson(lessonId: UUID): UUID {
+       return lessonRepository.findCourseIdByLesson(lessonId) ?: throw ApiException(ErrorCode.COURSE_NOT_FOUND)
     }
 
-    override fun findLessonIdTree(lessonId: UUID) : LessonTreeWithIdDTO? {
+    override fun findLessonIdTree(lessonId: UUID) : LessonTreeWithIdDTO {
        val raw = lessonRepository.findLessonIdTree(lessonId) ?: throw IllegalStateException("Lesson tree not found")
         return LessonTreeWithIdDTO(raw.lessonId, raw.moduleId, raw.courseId, raw.nextLessonId)
     }
 
     override fun findLessonResponseById(lessonId: UUID, userId: UUID): LessonResponse {
-        return lessonMapper.toLessonResponse(lessonRepository.findUserLesson(lessonId, userId) ?: throw IllegalStateException("No lesson"))
+        return lessonMapper.toLessonResponse(lessonRepository.findUserLesson(lessonId, userId) ?: throw ApiException(
+            ErrorCode.LESSON_NOT_FOUND))
     }
 
     fun getAllCourses (): List<CourseResponse> {

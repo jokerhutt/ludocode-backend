@@ -16,14 +16,14 @@ class CatalogClientForProgress (
     @Value("\${catalog.service.base-url}") private val catalogServiceBaseUrl: String
 ): CatalogPortForProgress {
 
-    override fun findFirstLessonIdInCourse(courseId: UUID): UUID? {
+    override fun findFirstLessonIdInCourse(courseId: UUID): UUID {
         val url = "$catalogServiceBaseUrl$ICATALOG/$courseId/first"
         System.out.println("URL IS: " + url)
         val resp = rest.getForEntity(url, UUID::class.java)
         return resp.body ?: error("Could not find first lesson")
     }
 
-    override fun findModuleIdForLesson(lessonId: UUID): UUID? {
+    override fun findModuleIdForLesson(lessonId: UUID): UUID {
         val url = "$catalogServiceBaseUrl$ICATALOG/$lessonId/module"
         val resp = rest.getForEntity(url, UUID::class.java)
         return resp.body ?: error("Could not find Module ID")
@@ -36,13 +36,13 @@ class CatalogClientForProgress (
     }
 
 
-    override fun findLessonIdTree(lessonId: UUID): LessonTreeWithIdDTO? {
+    override fun findLessonIdTree(lessonId: UUID): LessonTreeWithIdDTO {
         val url = "$catalogServiceBaseUrl$ICATALOG/$lessonId/tree"
         val resp = rest.getForEntity(url, LessonTreeWithIdDTO::class.java)
         return resp.body ?: error("Could not get lesson id tree")
     }
 
-    override fun findCourseIdForLesson(lessonId: UUID): UUID? {
+    override fun findCourseIdForLesson(lessonId: UUID): UUID {
         val url = "$catalogServiceBaseUrl$ICATALOG/$lessonId/course"
         val resp = rest.getForEntity(url, UUID::class.java)
         return resp.body ?: error("Could not find Course ID")

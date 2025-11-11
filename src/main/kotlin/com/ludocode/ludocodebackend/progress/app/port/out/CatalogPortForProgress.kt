@@ -6,10 +6,10 @@ import com.ludocode.ludocodebackend.catalog.infra.projection.LessonIdTreeProject
 import java.util.UUID
 
 interface CatalogPortForProgress {
-    fun findFirstLessonIdInCourse(courseId: UUID): UUID?
-    fun findModuleIdForLesson(lessonId: UUID): UUID?
-    fun findCourseIdForLesson(lessonId: UUID): UUID?
+    fun findFirstLessonIdInCourse(courseId: UUID): UUID
+    fun findModuleIdForLesson(lessonId: UUID): UUID
+    fun findCourseIdForLesson(lessonId: UUID): UUID
     fun findNextLessonId(lessonId: UUID): UUID?
-    fun findLessonIdTree(lessonId: UUID): LessonTreeWithIdDTO?
+    fun findLessonIdTree(lessonId: UUID): LessonTreeWithIdDTO
     fun findLessonResponseById(lessonId: UUID, userId: UUID): LessonResponse
 }

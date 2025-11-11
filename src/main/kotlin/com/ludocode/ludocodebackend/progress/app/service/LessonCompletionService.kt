@@ -45,7 +45,6 @@ class LessonCompletionService(
     fun submitLessonCompletion (request: LessonSubmissionRequest, userId: UUID) : LessonCompletionPacket {
 
         val currentLessonMD : LessonTreeWithIdDTO = catalogPortForProgress.findLessonIdTree(request.lessonId)
-            ?: throw IllegalStateException("Lesson not found: ${request.lessonId}")
 
         val currentLessonId = currentLessonMD.lessonId
         val nextLessonId = currentLessonMD.nextLessonId

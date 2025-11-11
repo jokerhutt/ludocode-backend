@@ -110,6 +110,7 @@ class CourseProgressIT : AbstractIntegrationTest() {
             .`as`(Array<CourseProgressResponse>::class.java)
             .toList()
 
+
     private fun submitResetCourseProgress(userId: UUID, courseId: UUID):CourseProgressResponse =
         given()
             .header("X-Test-User-Id", userId.toString())

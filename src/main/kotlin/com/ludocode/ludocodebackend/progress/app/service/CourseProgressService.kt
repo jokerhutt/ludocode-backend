@@ -1,5 +1,7 @@
 package com.ludocode.ludocodebackend.progress.app.service
 
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.progress.api.dto.internal.CourseProgressWithCompletion
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
@@ -37,7 +39,7 @@ class CourseProgressService(
     @Transactional
     fun resetUserCourseProgress(userId: UUID, courseId: UUID) : CourseProgressResponse {
         lessonCompletionRepository.deleteLessonCompletionsForUserAndCourse(userId, courseId)
-        val firstLessonIdInCourse = catalogPortForProgress.findFirstLessonIdInCourse(courseId) ?: throw IllegalStateException("Couldnt find first lesson")
+        val firstLessonIdInCourse = catalogPortForProgress.findFirstLessonIdInCourse(courseId)
         courseProgressRepository.resetCourseProgressForUser(userId, courseId, firstLessonIdInCourse)
         return findCourseProgress(userId, courseId)
     }
@@ -75,6 +77,8 @@ class CourseProgressService(
         }
         return CourseProgressWithCompletion(findCourseProgress(userId, courseId), isFirstCompletion)
     }
+
+
 
 
 }
