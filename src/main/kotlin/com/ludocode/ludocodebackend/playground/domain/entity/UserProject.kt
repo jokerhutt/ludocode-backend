@@ -7,29 +7,30 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
+import java.time.OffsetDateTime
 import java.util.UUID
 
 @Entity
-@Table(name = "project_file")
-class ProjectFile (
+@Table(name = "user_project")
+class UserProject (
 
     @Id
     val id : UUID,
 
-    @Column(name = "project_id")
-    val projectId: UUID,
-
     @Column(name = "name")
     val name : String,
 
-    @Column(name = "content_url")
-    val contentUrl : String,
-
-    @Column(name = "file_path")
-    val filePath : String,
+    @Column(name = "user_id")
+    val userId: UUID,
 
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(name = "file_language")
-    val fileLanguage : LanguageType
+    @Column(name = "project_language")
+    val projectLanguage: LanguageType,
+
+    @Column(name = "created_at")
+    var createdAt: OffsetDateTime? = null,
+
+    @Column(name = "updated_at")
+    var updatedAt: OffsetDateTime? = null
 
 )
