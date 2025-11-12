@@ -20,6 +20,9 @@ object InternalPathConstants {
     const val ILESSON_COURSE_ID: String = "/{lessonId}/course"
     const val INEXT_LESSON_ID: String = "/{lessonId}/next"
 
+    const val IGCS: String = "$INTERNAL_V1/gcs"
+    const val IGCS_GET_CONTENT_FROM_PATHS = "/get-content"
+
     const val ICOURSEPROGRESS: String = "$INTERNAL_V1/progress/course"
     const val ICOURSEPROGRESSFINDCREATE: String = "/{courseId}/{userId}"
 

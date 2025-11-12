@@ -17,6 +17,12 @@ object PathConstants {
     const val EXERCISES_LESSON_ID : String = "$EXERCISES/{lessonId}"
     const val COURSE_TREE : String = "$COURSES/{courseId}/tree"
 
+    const val PLAYGROUND : String = "$API_V1/playground"
+    const val PROJECT : String = "$API_V1/project"
+
+    const val SAVE_PROJECT : String = "/{pid}/save"
+    const val GET_PROJECT : String = "/{pid}/get"
+
     const val AUTH : String = "$API_V1/auth"
     const val GOOGLE_LOGIN : String = "/google-login"
     const val AUTH_ME : String = "/me"

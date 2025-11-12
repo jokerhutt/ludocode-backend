@@ -4,5 +4,6 @@ import java.util.UUID
 
 data class ProjectSnapshot(
    val projectId: UUID,
-   val files: ProjectFileSnapshot
+   val projectName: String,
+   val files: List<ProjectFileSnapshot>
 )
