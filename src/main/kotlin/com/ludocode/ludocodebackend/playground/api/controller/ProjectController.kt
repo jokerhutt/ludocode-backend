@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -16,8 +17,9 @@ import java.util.UUID
 @RequestMapping(PathConstants.PROJECT)
 class ProjectController(private val projectService: ProjectService) {
 
-    @PutMapping(PathConstants.SAVE_PROJECT)
-    fun saveProject (@PathVariable pid : UUID, @RequestBody projectSnapshot: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<String> {
+    @PostMapping(PathConstants.SAVE_PROJECT)
+    fun saveProject (@PathVariable pid : UUID, @RequestBody projectSnapshot: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectSnapshot> {
+         println("Reached save project controller")
          return ResponseEntity.ok(projectService.saveProjectSnapshot(projectSnapshot))
     }
 

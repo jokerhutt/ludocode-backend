@@ -5,7 +5,7 @@ import java.util.UUID
 
 data class ProjectFileSnapshot(
     val id: UUID?,
-    val path: String,
+    var path: String,
     val language: LanguageType,
-    val content: String
+    var content: String
 )

@@ -23,10 +23,10 @@ class ProjectFile (
     val contentUrl : String,
 
     @Column(name = "content_hash")
-    val contentHash: String,
+    var contentHash: String,
 
     @Column(name = "file_path")
-    val filePath : String,
+    var filePath : String,
 
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "file_language")

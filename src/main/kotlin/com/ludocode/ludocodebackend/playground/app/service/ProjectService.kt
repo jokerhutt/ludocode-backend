@@ -44,12 +44,14 @@ class ProjectService(
     }
 
     @Transactional
-    fun saveProjectSnapshot (projectSnapshot: ProjectSnapshot): String {
+    fun saveProjectSnapshot (projectSnapshot: ProjectSnapshot): ProjectSnapshot {
 
+        println("In save project")
         if (!userProjectRepository.existsById(projectSnapshot.projectId)) throw ApiException(ErrorCode.PROJECT_NOT_FOUND, "This project doesnt exist")
 
         val submittedFiles = projectSnapshot.files
 
+        println("validating snapshot")
         validateSnapshotRequest(submittedFiles)
 
         val existingFiles : List<ProjectFile> = projectFileRepository.findAllProjectFilesByProjectId(projectSnapshot.projectId)
@@ -62,7 +64,7 @@ class ProjectService(
             updateChangedFiles(projectId, snapshotDiff.toUpdate)
             saveNewFiles(projectId, snapshotDiff.toAdd)
 
-        return " Save success "
+        return getProjectSnapshotByProjectId(projectId)
 
 
 
@@ -70,25 +72,41 @@ class ProjectService(
 
     private fun validateSnapshotRequest (incoming: List<ProjectFileSnapshot>) {
         require(incoming.isNotEmpty()) { "No files submitted" }
+        println("Validation A")
         require(incoming.size == incoming.map { it.path }.toSet().size) { "Duplicate filenames in snapshot" }
+        println("Validation B")
         incoming.forEach { f ->
             require(f.path.matches(Regex("""^[\w\-.]+$"""))) { "Bad filename: ${f.path}" }
             require(f.content.length <= 512_000) { "File too large: ${f.path}" }
         }
+        println("Validation C")
     }
 
     private fun computeSnapshotDiff (incomingFiles: List<ProjectFileSnapshot>, existingFiles: List<ProjectFile>): ProjectSnapshotDiff {
 
 
-        val existingFileMap : Map<UUID, ProjectFile> = existingFiles.associateBy({it.id}, {it})
         val filesToAdd = mutableListOf<ProjectFileSnapshot>()
         val filesToUpdate = mutableListOf<ProjectFileSnapshot>()
         val filesToDelete = mutableListOf<ProjectFile>()
         val remainingFileIds = mutableListOf<UUID>()
 
-        for (incoming in incomingFiles) {
+        println("Computing diff")
+
+        val incomingIds = incomingFiles.mapNotNull { it.id }.toSet()
+        val existingFileMap = existingFiles
+            .filter { it.id in incomingIds }  // ← ONLY files with ID in incoming
+            .associateBy { it.id }
+        filesToDelete.addAll(existingFiles.map { it }.filter { it.id !in incomingIds })
+        val filesToDeleteIds = filesToDelete.map { it.id }
+
+        val filteredIncoming = incomingFiles.filter { it.id !in filesToDeleteIds }
+
+        println("Entering loop")
+
+        for (incoming in filteredIncoming) {
 
             if (incoming.id == null) {
+                println("Id null, adding")
                 filesToAdd.add(incoming)
                 continue
             }
@@ -96,20 +114,28 @@ class ProjectService(
             val existingFile = existingFileMap[incoming.id]
 
             if (existingFile == null) {
+                println("Existing null, adding")
                 filesToAdd.add(incoming)
                 continue
             }
 
             if (hasFileChanged(incoming, existingFile)) {
+                println("File changed, updating " +  incoming.id)
+
                 filesToUpdate.add(incoming)
             } else {
+                println("no change " + incoming.id)
                 remainingFileIds.add(incoming.id)
             }
 
         }
 
-        val incomingIds = incomingFiles.mapNotNull { it.id }.toSet()
-        filesToDelete.addAll(existingFiles.map { it }.filter { it.id !in incomingIds })
+        println("ToDelete size: " + filesToDelete.size)
+        println("ToUpdate size: " + filesToUpdate.size)
+        println("Remaining size: " + filesToDelete.size)
+        println("ToAdd size: " + filesToAdd.size)
+
+
 
         return ProjectSnapshotDiff(remainingFileIds = remainingFileIds, toAdd = filesToAdd, toDeleteFiles = filesToDelete, toUpdate = filesToUpdate )
 
@@ -175,16 +201,15 @@ class ProjectService(
             val contentUrl = "$projectId/${file.id}"
             gcsRequests.add(GcsPutRequest(contentUrl, file.content))
 
+            val existingFile = projectFileRepository.findById(file.id).orElseThrow()
+
             val newHash = sha256(file.content)
             val newPath = file.path
-            projectFileRepository.save(ProjectFile(
-                id = file.id,
-                projectId = projectId,
-                contentUrl = contentUrl,
-                filePath = newPath,
-                fileLanguage = file.language,
-                contentHash = newHash
-            ))
+
+            existingFile.contentHash = newHash
+            existingFile.filePath = newPath
+
+            projectFileRepository.save(existingFile)
         }
 
         try {
