@@ -43,8 +43,6 @@ create table module
 
 
 
-
-
 create table exercise
 (
     id             uuid               default gen_random_uuid()           not null,

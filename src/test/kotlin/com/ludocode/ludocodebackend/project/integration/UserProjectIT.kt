@@ -8,6 +8,7 @@ import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROGRESS_COU
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROJECT
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.SAVE_PROJECT
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.commons.util.sha256
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
@@ -202,14 +203,5 @@ class UserProjectIT : AbstractIntegrationTest() {
             .body("title", equalTo(errorCode.name))
     }
 
-
-
-
-    fun sha256(text: String): String {
-        val bytes = MessageDigest
-            .getInstance("SHA-256")
-            .digest(text.toByteArray(Charsets.UTF_8))
-        return bytes.joinToString("") { "%02x".format(it) }
-    }
 
 }
