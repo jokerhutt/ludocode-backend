@@ -90,7 +90,6 @@ abstract class AbstractIntegrationTest {
             registry.add("spring.datasource.url") { Containers.POSTGRES.jdbcUrl }
             registry.add("spring.datasource.username") { Containers.POSTGRES.username }
             registry.add("spring.datasource.password") { Containers.POSTGRES.password }
-            registry.add("spring.jpa.hibernate.ddl-auto") { "create-drop" }
             registry.add("app.gcs.host") {
                 "http://localhost:${Containers.FAKE_GCS.getMappedPort(4443)}"
             }
@@ -158,7 +157,7 @@ abstract class AbstractIntegrationTest {
           exercise_option,
           lesson_exercises,
           module_lessons,
-          exercise,
+          lesson,
           exercise, 
           module, 
           course

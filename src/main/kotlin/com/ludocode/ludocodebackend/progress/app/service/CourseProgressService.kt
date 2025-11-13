@@ -65,11 +65,13 @@ class CourseProgressService(
         if (isCompleted) return CourseProgressWithCompletion(findCourseProgress(userId, courseId), false)
 
         var isFirstCompletion = false
+
+        val courseProgress = courseProgressRepository.findById(CourseProgressId(userId, courseId)).orElseThrow()
         if (newLessonId != null) {
-            courseProgressRepository.setCurrentLesson(userId = userId, courseId = courseId, newLessonId = newLessonId,
-                OffsetDateTime.now(clock))
+            courseProgress.currentLessonId = newLessonId
+            courseProgress.updatedAt = OffsetDateTime.now(clock)
+            courseProgressRepository.save(courseProgress)
         } else {
-            val courseProgress = courseProgressRepository.findById(CourseProgressId(userId, courseId)).orElseThrow()
             if (!courseProgress.isComplete) {
                 courseProgressRepository.markCourseComplete(userId, courseId)
                 isFirstCompletion = true
