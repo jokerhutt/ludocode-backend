@@ -15,6 +15,7 @@ class ProjectMapper (private val basicMapper: BasicMapper) {
     fun toProjectFileSnapshot(projectFile: ProjectFile, fileContent: String?): ProjectFileSnapshot =
         basicMapper.one(projectFile) {
             ProjectFileSnapshot(
+                id = it.id,
                 path = it.filePath,
                 language = it.fileLanguage,
                 content = fileContent ?: ""

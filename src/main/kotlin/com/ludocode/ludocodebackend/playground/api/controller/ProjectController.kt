@@ -17,7 +17,7 @@ import java.util.UUID
 class ProjectController(private val projectService: ProjectService) {
 
     @PutMapping(PathConstants.SAVE_PROJECT)
-    fun saveProject (@PathVariable pid : UUID, @RequestBody projectSnapshot: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectSnapshot> {
+    fun saveProject (@PathVariable pid : UUID, @RequestBody projectSnapshot: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<String> {
          return ResponseEntity.ok(projectService.saveProjectSnapshot(projectSnapshot))
     }
 

@@ -13,6 +13,7 @@ import com.ludocode.ludocodebackend.gcs.app.dto.request.UploadedPaths
 import com.ludocode.ludocodebackend.gcs.app.port.GcsUseCase
 import com.ludocode.ludocodebackend.gcs.app.service.GcsService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 @RestController
 @RequestMapping(InternalPathConstants.IGCS)
@@ -38,8 +40,9 @@ class GcsController(private val storage: Storage, private val gcsService: GcsSer
     }
 
     @GetMapping(InternalPathConstants.IGCS_GET_CONTENT_FROM_PATHS)
-    fun getContentFromUrls (@RequestParam bucketName : String, @RequestParam paths: List<String>) : ResponseEntity<Map<String, String>> {
-        return ResponseEntity.ok(gcsUseCase.getContentFromUrls(bucketName, paths))
+    fun getContentFromUrls (@RequestParam paths: List<String>) : ResponseEntity<Map<String, String>> {
+        println("Reached GCS Controller")
+        return ResponseEntity.ok(gcsUseCase.getContentFromUrls(paths))
     }
 
 

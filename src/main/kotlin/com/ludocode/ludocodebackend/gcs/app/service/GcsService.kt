@@ -73,12 +73,27 @@ class GcsService(private val storage: Storage) : GcsUseCase {
         uploaded.forEach { path -> storage.delete(bucket, path) }
     }
 
-    override fun getContentFromUrls (bucket: String, paths: List<String>) : Map<String, String> {
-        val blobs = storage.get(paths.map { it -> BlobId.of(bucket, it)})
-        return blobs.mapIndexedNotNull { i, blob ->
-            blob?.let { paths[i] to it.getContent().toString(Charsets.UTF_8) }
-        }.toMap()
+    override fun getContentFromUrls(paths: List<String>): Map<String, String> {
 
+        val bucket = "ludo-file-content"
+        val result = mutableMapOf<String, String>()
+
+        println("One CH")
+
+        paths.forEach { path ->
+            try {
+                println("Pass")
+                val blob = storage.get(bucket, path)
+                if (blob != null) {
+                    val text = String(blob.getContent(), Charsets.UTF_8)
+                    result[path] = text
+                }
+            } catch (_: Exception) {
+                // ignore missing blobs
+            }
+        }
+
+        return result
     }
 
 

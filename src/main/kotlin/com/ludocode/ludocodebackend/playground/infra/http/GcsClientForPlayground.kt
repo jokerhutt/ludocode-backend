@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.playground.infra.http
 
+import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants
 import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants.IGCS_DELETE_FILES
 import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants.IGCS_GET_CONTENT_FROM_PATHS
 import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants.IGCS_UPLOAD_FILES
@@ -14,6 +15,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.util.UriComponentsBuilder
 
 @Component
 class GcsClientForPlayground (
@@ -21,29 +23,29 @@ class GcsClientForPlayground (
     @Value("\${catalog.service.base-url}") private val gcsServiceBaseUrl: String
 ) : GcsPortForPlayground {
 
-    override fun getContentFromUrls(bucket: String, paths: List<String>): Map<String, String> {
-        val url = "$gcsServiceBaseUrl/$IGCS_GET_CONTENT_FROM_PATHS"
+    override fun getContentFromUrls( paths: List<String>): Map<String, String> {
 
-        val response: ResponseEntity<Map<String, String>> =
-            rest.exchange(
-                "$url?bucket={bucket}&" + paths.joinToString("&") { "paths=$it" },
-                HttpMethod.GET,
-                null,
-                object : ParameterizedTypeReference<Map<String, String>>() {},
-                bucket
-            )
+        val url = "$gcsServiceBaseUrl${InternalPathConstants.IGCS}/get-content?${paths.joinToString("&") { "paths=$it" }}"
+
+        val response = rest.exchange(
+            url,
+            HttpMethod.GET,
+            null,
+            object : ParameterizedTypeReference<Map<String, String>>() {}
+        )
+
 
         return response.body ?: emptyMap()
     }
 
     override fun uploadDataList(reqs: GcsPutRequestList): UploadedPaths {
-        val url = "$gcsServiceBaseUrl/$IGCS_UPLOAD_FILES"
+        val url = "$gcsServiceBaseUrl${InternalPathConstants.IGCS}$IGCS_UPLOAD_FILES"
         val resp = rest.postForEntity(url, reqs, UploadedPaths::class.java)
         return resp.body ?: error("Could not upload files")
     }
 
     override fun deleteDataList(req: GcsDeleteRequestList): UploadedPaths {
-        val url = "$gcsServiceBaseUrl/$IGCS_DELETE_FILES"
+        val url = "$gcsServiceBaseUrl${InternalPathConstants.IGCS}$IGCS_DELETE_FILES"
         val resp = rest.postForEntity(url, req, UploadedPaths::class.java)
         return resp.body ?: error("Could not delete files")
     }

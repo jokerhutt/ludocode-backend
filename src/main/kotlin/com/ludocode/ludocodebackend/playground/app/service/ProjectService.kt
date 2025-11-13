@@ -29,11 +29,17 @@ class ProjectService(
 
 
     fun getProjectSnapshotByProjectId (projectId: UUID) : ProjectSnapshot {
+
+        println("Proj serv ch 1")
+
         val bucketName = "ludo-file-content"
         val projectName = userProjectRepository.getProjectNameById(projectId)
         val projectFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
         val fileContentUrls = projectFiles.map { it -> it.contentUrl }
-        val fileContentsMap = gcsClientForPlayground.getContentFromUrls(bucketName, fileContentUrls)
+        val fileContentsMap = gcsClientForPlayground.getContentFromUrls(fileContentUrls)
+
+        println("Proj serv ch 2")
+
         return projectMapper.toProjectSnapshot(projectId, projectName, projectFiles, fileContentsMap)
     }
 
