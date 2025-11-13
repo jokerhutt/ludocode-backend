@@ -1,5 +1,4 @@
 package com.ludocode.ludocodebackend.playground.api.controller
-
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.app.service.ProjectService
@@ -18,10 +17,8 @@ import java.util.UUID
 class ProjectController(private val projectService: ProjectService) {
 
     @PutMapping(PathConstants.SAVE_PROJECT)
-    fun saveProject (@PathVariable pid : UUID, @RequestBody projectFileContent: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectSnapshot> {
-
-
-
+    fun saveProject (@PathVariable pid : UUID, @RequestBody projectSnapshot: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectSnapshot> {
+         return ResponseEntity.ok(projectService.saveProjectSnapshot(projectSnapshot))
     }
 
     @GetMapping(PathConstants.GET_PROJECT)

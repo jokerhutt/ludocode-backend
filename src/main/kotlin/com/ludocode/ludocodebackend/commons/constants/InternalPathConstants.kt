@@ -22,6 +22,8 @@ object InternalPathConstants {
 
     const val IGCS: String = "$INTERNAL_V1/gcs"
     const val IGCS_GET_CONTENT_FROM_PATHS = "/get-content"
+    const val IGCS_UPLOAD_FILES = "/upload-files"
+    const val IGCS_DELETE_FILES = "/delete-files"
 
     const val ICOURSEPROGRESS: String = "$INTERNAL_V1/progress/course"
     const val ICOURSEPROGRESSFINDCREATE: String = "/{courseId}/{userId}"

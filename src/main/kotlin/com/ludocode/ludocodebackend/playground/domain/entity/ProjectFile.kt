@@ -19,11 +19,11 @@ class ProjectFile (
     @Column(name = "project_id")
     val projectId: UUID,
 
-    @Column(name = "name")
-    val name : String,
-
     @Column(name = "content_url")
     val contentUrl : String,
+
+    @Column(name = "content_hash")
+    val contentHash: String,
 
     @Column(name = "file_path")
     val filePath : String,

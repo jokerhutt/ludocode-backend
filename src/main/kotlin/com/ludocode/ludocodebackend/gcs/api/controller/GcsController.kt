@@ -5,7 +5,11 @@ import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
 import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants
+import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsDeleteRequestList
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequest
+import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequestList
+import com.ludocode.ludocodebackend.gcs.app.dto.request.UploadedPaths
 import com.ludocode.ludocodebackend.gcs.app.port.GcsUseCase
 import com.ludocode.ludocodebackend.gcs.app.service.GcsService
 import org.springframework.http.ResponseEntity
@@ -23,15 +27,22 @@ class GcsController(private val storage: Storage, private val gcsService: GcsSer
                     private val gcsUseCase: GcsUseCase
 ) {
 
-    @PostMapping("/send-data")
-    fun sendData (@RequestBody request: GcsPutRequest) : String {
-        return gcsService.uploadData(request)
+    @PostMapping(InternalPathConstants.IGCS_UPLOAD_FILES)
+    fun uploadDataList (@RequestBody request: GcsPutRequestList) : ResponseEntity<UploadedPaths> {
+        return ResponseEntity.ok(gcsUseCase.uploadDataList(request))
+    }
+
+    @PostMapping(InternalPathConstants.IGCS_DELETE_FILES)
+    fun deleteDataList (@RequestBody request: GcsDeleteRequestList) : ResponseEntity<UploadedPaths> {
+        return ResponseEntity.ok(gcsUseCase.deleteDataList(request))
     }
 
     @GetMapping(InternalPathConstants.IGCS_GET_CONTENT_FROM_PATHS)
     fun getContentFromUrls (@RequestParam bucketName : String, @RequestParam paths: List<String>) : ResponseEntity<Map<String, String>> {
         return ResponseEntity.ok(gcsUseCase.getContentFromUrls(bucketName, paths))
     }
+
+
 
 
 }
