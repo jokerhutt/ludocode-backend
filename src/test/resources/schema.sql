@@ -1,252 +1,173 @@
-create extension if not exists pgcrypto;
+CREATE EXTENSION if NOT EXISTS pgcrypto;
 
-create type desired_path as enum ('DATA', 'IOS');
-create type exercise_type as enum ('CLOZE', 'ANALYZE', 'TRIVIA', 'INFO');
-create type exercise_type_enum as enum ('CLOZE', 'INFO', 'TRIVIA', 'ANALYZE');
-create type language_type as enum ('python', 'web');
+CREATE TYPE desired_path AS ENUM('DATA', 'IOS');
 
+CREATE TYPE exercise_type AS ENUM('CLOZE', 'ANALYZE', 'TRIVIA', 'INFO');
 
+CREATE TYPE exercise_type_enum AS ENUM('CLOZE', 'INFO', 'TRIVIA', 'ANALYZE');
 
-create table ludo_user
-(
-    id         uuid                     default gen_random_uuid() not null
-        primary key,
-    first_name text                                               not null,
-    last_name  text                                               not null,
-    pfp_src    text,
-    email      text                                               not null,
-    created_at timestamp with time zone default now()             not null,
-    time_zone  text                     default 'UTC'::text       not null
+CREATE TYPE language_type AS ENUM('python', 'web');
+
+CREATE TABLE ludo_user (
+       id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
+       first_name TEXT NOT NULL,
+       last_name TEXT NOT NULL,
+       pfp_src TEXT,
+       email TEXT NOT NULL,
+       created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+       time_zone TEXT DEFAULT 'UTC'::TEXT NOT NULL
 );
 
-create table course
-(
-    id      uuid default gen_random_uuid() not null
-        primary key,
-    title   text                           not null
-        unique,
-    img_src text
+CREATE TABLE course (
+        id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
+        title TEXT NOT NULL UNIQUE,
+        img_src TEXT
 );
 
-create table module
-(
-    id          uuid default gen_random_uuid() not null
-        primary key,
-    title       text                           not null,
-    order_index integer                        not null
-        constraint module_order_index_check
-            check (order_index > 0),
-    is_deleted  boolean                        not null,
-    course_id   uuid                           not null
-        references course
+CREATE TABLE module (
+        id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
+        title TEXT NOT NULL,
+        order_index INTEGER NOT NULL CONSTRAINT module_order_index_check CHECK (order_index > 0),
+        is_deleted BOOLEAN NOT NULL,
+        course_id uuid NOT NULL REFERENCES course
 );
 
-
-
-create table exercise
-(
-    id             uuid               default gen_random_uuid()           not null,
-    version_number integer            default 1                           not null,
-    exercise_type  exercise_type_enum default 'CLOZE'::exercise_type_enum not null,
-    title          text                                                   not null,
-    subtitle       text,
-    prompt         text,
-    is_deleted     boolean            default false                       not null,
-    exercise_media text,
-    primary key (id, version_number)
+CREATE TABLE exercise (
+      id uuid DEFAULT gen_random_uuid () NOT NULL,
+      version_number INTEGER DEFAULT 1 NOT NULL,
+      exercise_type exercise_type_enum DEFAULT 'CLOZE'::exercise_type_enum NOT NULL,
+      title TEXT NOT NULL,
+      subtitle TEXT,
+      prompt TEXT,
+      is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
+      exercise_media TEXT,
+      PRIMARY KEY (id, version_number)
 );
 
-create table lesson
-(
-    id         uuid default gen_random_uuid() not null
-        primary key,
-    title      text                           not null,
-    is_deleted boolean                        not null
+CREATE TABLE lesson (
+    id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
+    title TEXT NOT NULL,
+    is_deleted BOOLEAN NOT NULL
 );
 
-create table module_lessons
-(
-    module_id   uuid    not null
-        references module
-            on delete cascade,
-    lesson_id   uuid    not null
-        constraint uq_lesson_single_module
-            unique
-        references lesson
-            on delete restrict,
-    order_index integer not null
-        constraint module_lessons_order_index_check
-            check (order_index > 0),
-    primary key (module_id, order_index),
-    unique (module_id, lesson_id)
+CREATE TABLE module_lessons (
+    module_id uuid NOT NULL REFERENCES module ON DELETE CASCADE,
+    lesson_id uuid NOT NULL CONSTRAINT uq_lesson_single_module UNIQUE REFERENCES lesson ON DELETE RESTRICT,
+    order_index INTEGER NOT NULL CONSTRAINT module_lessons_order_index_check CHECK (order_index > 0),
+    PRIMARY KEY (module_id, order_index),
+    UNIQUE (module_id, lesson_id)
 );
 
-create table lesson_completion
-(
-    id           uuid                                   not null
-        primary key,
-    user_id      uuid                                   not null
-        references ludo_user,
-    lesson_id    uuid                                   not null
-        references lesson,
-    course_id    uuid                                   not null
-        references course,
-    score        integer                  default 0     not null,
-    accuracy     numeric(4, 2),
-    completed_at timestamp with time zone default now() not null,
-    is_deleted   boolean                                not null
+CREATE TABLE lesson_completion (
+   id uuid NOT NULL PRIMARY KEY,
+   user_id uuid NOT NULL REFERENCES ludo_user,
+   lesson_id uuid NOT NULL REFERENCES lesson,
+   course_id uuid NOT NULL REFERENCES course,
+   score INTEGER DEFAULT 0 NOT NULL,
+   accuracy NUMERIC(4, 2),
+   completed_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+   is_deleted BOOLEAN NOT NULL
 );
 
-create table lesson_exercises
-(
-    lesson_id        uuid    not null
-        references lesson
-            on delete cascade,
-    exercise_id      uuid    not null,
-    exercise_version integer not null,
-    order_index      integer not null
-        constraint lesson_exercises_order_index_check
-            check (order_index > 0),
-    primary key (lesson_id, order_index),
-    unique (lesson_id, exercise_id, exercise_version),
-    foreign key (exercise_id, exercise_version) references exercise
-        on delete restrict
+CREATE TABLE lesson_exercises (
+  lesson_id uuid NOT NULL REFERENCES lesson ON DELETE CASCADE,
+  exercise_id uuid NOT NULL,
+  exercise_version INTEGER NOT NULL,
+  order_index INTEGER NOT NULL CONSTRAINT lesson_exercises_order_index_check CHECK (order_index > 0),
+  PRIMARY KEY (lesson_id, order_index),
+  UNIQUE (lesson_id, exercise_id, exercise_version),
+  FOREIGN key (exercise_id, exercise_version) REFERENCES exercise ON DELETE RESTRICT
 );
 
-create table option_content
-(
-    id      uuid default gen_random_uuid() not null
-        primary key,
-    content text                           not null
-        unique
+CREATE TABLE option_content (
+    id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
+    content TEXT NOT NULL UNIQUE
 );
 
-
-create table course_progress
-(
-    user_id           uuid                                   not null
-        references ludo_user,
-    course_id         uuid                                   not null
-        references course,
-    current_lesson_id uuid                                   not null
-        references lesson,
-    created_at        timestamp with time zone default now() not null,
-    updated_at        timestamp with time zone default now() not null,
-    is_complete       boolean                                not null,
-    primary key (user_id, course_id)
+CREATE TABLE course_progress (
+     user_id uuid NOT NULL REFERENCES ludo_user,
+     course_id uuid NOT NULL REFERENCES course,
+     current_lesson_id uuid NOT NULL REFERENCES lesson,
+     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+     is_complete BOOLEAN NOT NULL,
+     PRIMARY KEY (user_id, course_id)
 );
 
-create table user_project
-(
-    id               uuid                     default gen_random_uuid()        not null
-        primary key,
-    name             text                     default 'Untitled Project'::text not null,
-    user_id          uuid
-        references ludo_user,
-    project_language language_type                                             not null,
-    created_at       timestamp with time zone default now(),
-    updated_at       timestamp with time zone default now()
+CREATE TABLE user_project (
+      id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
+      name TEXT DEFAULT 'Untitled Project'::TEXT NOT NULL,
+      user_id uuid REFERENCES ludo_user,
+      project_language language_type NOT NULL,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
-create table project_file
-(
-    id            uuid default gen_random_uuid() not null
-        primary key,
-    project_id    uuid
-        references user_project,
-    content_url   text default ''::text,
-    file_path     text                           not null,
-    file_language language_type                  not null,
-    content_hash  text default ''::text          not null,
-    constraint project_file_unique_path
-        unique (project_id, file_path)
-            deferrable initially deferred
+CREATE TABLE project_file (
+      id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
+      project_id uuid REFERENCES user_project,
+      content_url TEXT DEFAULT ''::TEXT,
+      file_path TEXT NOT NULL,
+      file_language language_type NOT NULL,
+      content_hash TEXT DEFAULT ''::TEXT NOT NULL,
+      CONSTRAINT project_file_unique_path UNIQUE (project_id, file_path) DEFERRABLE INITIALLY deferred
 );
 
-create table user_daily_goal
-(
-    user_id    uuid not null,
-    local_date date not null,
-    primary key (user_id, local_date)
+CREATE TABLE user_daily_goal (
+     user_id uuid NOT NULL,
+     local_date date NOT NULL,
+     PRIMARY KEY (user_id, local_date)
 );
 
-create table user_stats
-(
-    user_id uuid              not null
-        primary key
-        references ludo_user
-            on delete cascade,
-    coins   integer default 0 not null,
-    streak  integer default 0 not null
+CREATE TABLE user_stats (
+    user_id uuid NOT NULL PRIMARY KEY REFERENCES ludo_user ON DELETE CASCADE,
+    coins INTEGER DEFAULT 0 NOT NULL,
+    streak INTEGER DEFAULT 0 NOT NULL
 );
 
-create table user_streak
-(
-    user_id             uuid              not null
-        primary key,
-    current_streak_days integer default 0 not null,
-    best_streak_days    integer default 0 not null,
-    last_met_local_date date,
-    last_met_goal_utc   timestamp with time zone
+CREATE TABLE user_streak (
+     user_id uuid NOT NULL PRIMARY KEY,
+     current_streak_days INTEGER DEFAULT 0 NOT NULL,
+     best_streak_days INTEGER DEFAULT 0 NOT NULL,
+     last_met_local_date date,
+     last_met_goal_utc TIMESTAMP WITH TIME ZONE
 );
 
-create table user_preferences
-(
-    user_id        uuid         not null
-        primary key
-        references ludo_user,
-    has_experience boolean      not null,
-    chosen_path    desired_path not null
+CREATE TABLE user_preferences (
+      user_id uuid NOT NULL PRIMARY KEY REFERENCES ludo_user,
+      has_experience BOOLEAN NOT NULL,
+      chosen_path desired_path NOT NULL
 );
 
-
-
-create table exercise_option
-(
-    id               uuid default gen_random_uuid() not null
-        primary key,
-    exercise_id      uuid                           not null,
-    exercise_version integer                        not null,
-    option_id        uuid                           not null
-        references option_content,
-    answer_order     integer,
-    unique (exercise_id, exercise_version, option_id),
-    foreign key (exercise_id, exercise_version) references exercise
-        on delete cascade
+CREATE TABLE exercise_option (
+     id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
+     exercise_id uuid NOT NULL,
+     exercise_version INTEGER NOT NULL,
+     option_id uuid NOT NULL REFERENCES option_content,
+     answer_order INTEGER,
+     UNIQUE (exercise_id, exercise_version, option_id),
+     FOREIGN key (exercise_id, exercise_version) REFERENCES exercise ON DELETE CASCADE
 );
 
-create table external_account
-(
-    id               uuid                     default gen_random_uuid() not null
-        primary key,
-    user_id          uuid                                               not null
-        references ludo_user
-            on delete cascade,
-    provider         text                                               not null,
-    provider_user_id text                                               not null,
-    created_at       timestamp with time zone default now()             not null,
-    unique (provider, provider_user_id)
+CREATE TABLE external_account (
+      id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
+      user_id uuid NOT NULL REFERENCES ludo_user ON DELETE CASCADE,
+      provider TEXT NOT NULL,
+      provider_user_id TEXT NOT NULL,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+      UNIQUE (provider, provider_user_id)
 );
 
-create table exercise_attempt
-(
-    id               uuid    not null
-        primary key,
-    exercise_id      uuid    not null,
-    exercise_version integer not null,
-    user_id          uuid    not null
-        references ludo_user,
-    foreign key (exercise_id, exercise_version) references exercise
-        on delete restrict
+CREATE TABLE exercise_attempt (
+      id uuid NOT NULL PRIMARY KEY,
+      exercise_id uuid NOT NULL,
+      exercise_version INTEGER NOT NULL,
+      user_id uuid NOT NULL REFERENCES ludo_user,
+      FOREIGN key (exercise_id, exercise_version) REFERENCES exercise ON DELETE RESTRICT
 );
 
-create table attempt_option
-(
-    attempt_id         uuid not null
-        references exercise_attempt
-            on delete cascade,
-    exercise_option_id uuid not null
-        references exercise_option
-            on delete restrict,
-    primary key (attempt_id, exercise_option_id)
+CREATE TABLE attempt_option (
+        attempt_id uuid NOT NULL REFERENCES exercise_attempt ON DELETE CASCADE,
+        exercise_option_id uuid NOT NULL REFERENCES exercise_option ON DELETE RESTRICT,
+        PRIMARY KEY (attempt_id, exercise_option_id)
 );
