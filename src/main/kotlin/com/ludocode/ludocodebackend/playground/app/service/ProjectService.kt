@@ -30,15 +30,10 @@ class ProjectService(
 
     fun getProjectSnapshotByProjectId (projectId: UUID) : ProjectSnapshot {
 
-        println("Proj serv ch 1")
-
-        val bucketName = "ludo-file-content"
         val projectName = userProjectRepository.getProjectNameById(projectId)
         val projectFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
         val fileContentUrls = projectFiles.map { it -> it.contentUrl }
         val fileContentsMap = gcsClientForPlayground.getContentFromUrls(fileContentUrls)
-
-        println("Proj serv ch 2")
 
         return projectMapper.toProjectSnapshot(projectId, projectName, projectFiles, fileContentsMap)
     }
@@ -46,12 +41,10 @@ class ProjectService(
     @Transactional
     fun saveProjectSnapshot (projectSnapshot: ProjectSnapshot): ProjectSnapshot {
 
-        println("In save project")
         if (!userProjectRepository.existsById(projectSnapshot.projectId)) throw ApiException(ErrorCode.PROJECT_NOT_FOUND, "This project doesnt exist")
 
         val submittedFiles = projectSnapshot.files
 
-        println("validating snapshot")
         validateSnapshotRequest(submittedFiles)
 
         val existingFiles : List<ProjectFile> = projectFileRepository.findAllProjectFilesByProjectId(projectSnapshot.projectId)
@@ -66,20 +59,22 @@ class ProjectService(
 
         return getProjectSnapshotByProjectId(projectId)
 
-
-
     }
 
     private fun validateSnapshotRequest (incoming: List<ProjectFileSnapshot>) {
-        require(incoming.isNotEmpty()) { "No files submitted" }
-        println("Validation A")
-        require(incoming.size == incoming.map { it.path }.toSet().size) { "Duplicate filenames in snapshot" }
-        println("Validation B")
-        incoming.forEach { f ->
-            require(f.path.matches(Regex("""^[\w\-.]+$"""))) { "Bad filename: ${f.path}" }
-            require(f.content.length <= 512_000) { "File too large: ${f.path}" }
+
+        if (incoming.isEmpty()) throw ApiException(ErrorCode.EMPTY_REQUEST)
+        if (incoming.size != incoming.map { it.path }.toSet().size) throw ApiException(ErrorCode.DUPLICATE_FILE_NAME)
+
+        incoming.forEach { file ->
+            if (!validateFilePathRegex(file.path)) throw ApiException(ErrorCode.INVALID_FILE_NAME)
+            if (file.content.length > 512_000) throw ApiException(ErrorCode.FILE_TOO_LARGE)
         }
-        println("Validation C")
+    }
+
+    private fun validateFilePathRegex (filePath: String) : Boolean {
+        val allowed = Regex("""^[\w.-]+\.(py|swift|js|css|html)$""")
+        return filePath.matches(allowed)
     }
 
     private fun computeSnapshotDiff (incomingFiles: List<ProjectFileSnapshot>, existingFiles: List<ProjectFile>): ProjectSnapshotDiff {
@@ -90,8 +85,6 @@ class ProjectService(
         val filesToDelete = mutableListOf<ProjectFile>()
         val remainingFileIds = mutableListOf<UUID>()
 
-        println("Computing diff")
-
         val incomingIds = incomingFiles.mapNotNull { it.id }.toSet()
         val existingFileMap = existingFiles
             .filter { it.id in incomingIds }  // ← ONLY files with ID in incoming
@@ -101,12 +94,9 @@ class ProjectService(
 
         val filteredIncoming = incomingFiles.filter { it.id !in filesToDeleteIds }
 
-        println("Entering loop")
-
         for (incoming in filteredIncoming) {
 
             if (incoming.id == null) {
-                println("Id null, adding")
                 filesToAdd.add(incoming)
                 continue
             }
@@ -114,17 +104,13 @@ class ProjectService(
             val existingFile = existingFileMap[incoming.id]
 
             if (existingFile == null) {
-                println("Existing null, adding")
                 filesToAdd.add(incoming)
                 continue
             }
 
             if (hasFileChanged(incoming, existingFile)) {
-                println("File changed, updating " +  incoming.id)
-
                 filesToUpdate.add(incoming)
             } else {
-                println("no change " + incoming.id)
                 remainingFileIds.add(incoming.id)
             }
 

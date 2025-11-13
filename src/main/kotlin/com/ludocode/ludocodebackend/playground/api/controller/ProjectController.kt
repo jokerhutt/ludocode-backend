@@ -19,7 +19,6 @@ class ProjectController(private val projectService: ProjectService) {
 
     @PostMapping(PathConstants.SAVE_PROJECT)
     fun saveProject (@PathVariable pid : UUID, @RequestBody projectSnapshot: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectSnapshot> {
-         println("Reached save project controller")
          return ResponseEntity.ok(projectService.saveProjectSnapshot(projectSnapshot))
     }
 
