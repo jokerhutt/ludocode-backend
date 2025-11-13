@@ -7,6 +7,7 @@ import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROGRESS_COURSE
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROJECT
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.SAVE_PROJECT
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
@@ -15,13 +16,14 @@ import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured.given
+import io.restassured.response.ValidatableResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import java.security.MessageDigest
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
-
+import org.hamcrest.Matchers.equalTo
 class UserProjectIT : AbstractIntegrationTest() {
 
     lateinit var existingProject: UserProject
@@ -116,7 +118,37 @@ class UserProjectIT : AbstractIntegrationTest() {
         assertThat(res.files[0].path).isEqualTo(snapshotCopy.files[0].path)
         assertThat(res.files[1].path).isEqualTo(snapshotCopy.files[1].path)
 
+    }
 
+    @Test
+    fun saveProject_duplicateNames_returnsError () {
+        val projectId = existingProject.id
+        val snapshot = submitGetProjectSnapshot(projectId, user1.id!!)
+        assertThat(snapshot).isNotNull()
+        val modifiedFiles = snapshot.files.toMutableList()
+        modifiedFiles[1].path = modifiedFiles[0].path
+        val snapshotCopy = snapshot.copy(files = modifiedFiles)
+        assertErrorOnSave(projectId, user1.id!!, snapshotCopy, ErrorCode.DUPLICATE_FILE_NAME)
+    }
+
+    @Test
+    fun saveProject_emptyRequest_returnsError () {
+        val projectId = existingProject.id
+        val snapshot = submitGetProjectSnapshot(projectId, user1.id!!)
+        assertThat(snapshot).isNotNull()
+        val snapshotCopy = snapshot.copy(files = listOf())
+        assertErrorOnSave(projectId, user1.id!!, snapshotCopy, ErrorCode.EMPTY_REQUEST)
+    }
+
+    @Test
+    fun saveProject_invalidFileName_returnsError () {
+        val projectId = existingProject.id
+        val snapshot = submitGetProjectSnapshot(projectId, user1.id!!)
+        assertThat(snapshot).isNotNull()
+        val modifiedFiles = snapshot.files.toMutableList()
+        modifiedFiles[1].path = "script1py"
+        val snapshotCopy = snapshot.copy(files = modifiedFiles)
+        assertErrorOnSave(projectId, user1.id!!, snapshotCopy, ErrorCode.INVALID_FILE_NAME)
     }
 
     @Test
@@ -155,6 +187,19 @@ class UserProjectIT : AbstractIntegrationTest() {
            .statusCode(200)
            .extract()
            .`as`(ProjectSnapshot::class.java)
+    }
+
+    private fun assertErrorOnSave (pid: UUID, userId: UUID, snapshot: ProjectSnapshot, errorCode: ErrorCode): ValidatableResponse? {
+        return given()
+            .header("X-Test-User-Id", userId.toString())
+            .contentType(io.restassured.http.ContentType.JSON)
+            .body(snapshot)
+            .`when`()
+            .post("$PROJECT/$pid/save")
+            .then()
+            .statusCode(errorCode.status.value())
+            .body("code", equalTo(errorCode.name))
+            .body("title", equalTo(errorCode.name))
     }
 
 
