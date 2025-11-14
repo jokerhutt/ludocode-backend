@@ -4,13 +4,16 @@ import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.BucketInfo
 import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTreeResponse
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.CREATE_PROJECT
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROGRESS_COURSE
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROJECT
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.SAVE_PROJECT
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.util.sha256
+import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
+import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
@@ -18,6 +21,7 @@ import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResp
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured.given
 import io.restassured.response.ValidatableResponse
+import org.apache.commons.codec.language.bm.Lang
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import java.security.MessageDigest
@@ -39,7 +43,8 @@ class UserProjectIT : AbstractIntegrationTest() {
             userId = user1.id!!,
             projectLanguage = LanguageType.python,
             createdAt = OffsetDateTime.now(clock).minusDays(1),
-            updatedAt = OffsetDateTime.now(clock)
+            updatedAt = OffsetDateTime.now(clock),
+            requestHash = UUID.randomUUID()
         ))
 
         val projectId = existingProject.id
@@ -74,6 +79,25 @@ class UserProjectIT : AbstractIntegrationTest() {
         )
     }
 
+
+    @Test
+    fun createProject_createsNew_returnsNewProjectsList() {
+
+        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguage = LanguageType.python, requestHash = UUID.randomUUID())
+        val response = submitPostCreateProject(newProjectRequest, user1.id!!)
+        assertThat(response).isNotNull()
+        assertThat(response.projects.size).isEqualTo(2)
+        assertThat(response.projects)
+            .anyMatch { it.projectName == "Second Project" }
+
+        val newProject = response.projects.find { it.projectName == "Second Project" }
+        assertThat(newProject).isNotNull()
+        assertThat(newProject!!.files.size).isEqualTo(1)
+        assertThat(newProject.files[0].content).isEqualTo("print('Hello Mimo!')")
+        assertThat(newProject.files[0].path).isEqualTo("script.py")
+
+    }
+
     @Test
     fun saveProject_deleteAddAndRename_returnsSuccess() {
         val projectId = existingProject.id
@@ -85,6 +109,7 @@ class UserProjectIT : AbstractIntegrationTest() {
 
         val modifiedFiles = snapshot.files.toMutableList()
         modifiedFiles.removeAt(1)
+        modifiedFiles.add(ProjectFileSnapshot(null, "script-2.py", LanguageType.python, "print(2 + 2)"))
         modifiedFiles[0] = modifiedFiles[0].copy(content = "print('Awesome')")
 
         val snapshotCopy = snapshot.copy(files = modifiedFiles)
@@ -93,9 +118,11 @@ class UserProjectIT : AbstractIntegrationTest() {
         assertThat(res).isNotNull()
         assertThat(res.projectId).isEqualTo(projectId)
 
-        assertThat(res.files.size).isEqualTo(1)
+        assertThat(res.files.size).isEqualTo(2)
         assertThat(res.files[0].path).isEqualTo(snapshotCopy.files[0].path)
         assertThat(res.files[0].content).isEqualTo(snapshotCopy.files[0].content)
+        assertThat(res.files[1].path).isEqualTo("script-2.py")
+        assertThat(res.files[1].content).isEqualTo("print(2 + 2)")
     }
 
     @Test
@@ -188,6 +215,19 @@ class UserProjectIT : AbstractIntegrationTest() {
            .statusCode(200)
            .extract()
            .`as`(ProjectSnapshot::class.java)
+    }
+
+    private fun submitPostCreateProject (request: CreateProjectRequest, userId: UUID) : ProjectListResponse {
+        return given()
+            .header("X-Test-User-Id", userId.toString())
+            .contentType(io.restassured.http.ContentType.JSON)
+            .body(request)
+            .`when`()
+            .post("$PROJECT$CREATE_PROJECT")
+            .then()
+            .statusCode(200)
+            .extract()
+            .`as`(ProjectListResponse::class.java)
     }
 
     private fun assertErrorOnSave (pid: UUID, userId: UUID, snapshot: ProjectSnapshot, errorCode: ErrorCode): ValidatableResponse? {

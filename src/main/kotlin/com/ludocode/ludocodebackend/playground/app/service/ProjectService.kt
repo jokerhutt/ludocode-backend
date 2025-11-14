@@ -7,18 +7,24 @@ import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsDeleteRequestList
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequest
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequestList
 import com.ludocode.ludocodebackend.playground.app.dto.internal.ProjectSnapshotDiff
+import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
+import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.playground.app.mapper.ProjectMapper
 import com.ludocode.ludocodebackend.playground.app.util.ProjectSnapshotDiffer
 import com.ludocode.ludocodebackend.playground.app.util.ProjectSnapshotValidator
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
+import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
+import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import com.ludocode.ludocodebackend.playground.infra.http.GcsClientForPlayground
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.security.MessageDigest
+import java.time.Clock
+import java.time.OffsetDateTime
 import java.util.UUID
 
 
@@ -28,8 +34,71 @@ class ProjectService(
     private val projectFileRepository: ProjectFileRepository,
     private val gcsClientForPlayground: GcsClientForPlayground,
     private val projectMapper: ProjectMapper,
+    private val clock: Clock,
 ) {
 
+    @Transactional
+    fun createProject(request: CreateProjectRequest, userId: UUID) : ProjectListResponse {
+
+        val projectName = request.projectName
+        val language = request.projectLanguage
+        val requestHash = request.requestHash
+
+        println("CH1")
+
+        val newProject = userProjectRepository.save(UserProject(
+            id = UUID.randomUUID(),
+            name = projectName,
+            userId = userId,
+            requestHash = requestHash,
+            projectLanguage = language,
+            createdAt = OffsetDateTime.now(clock),
+            updatedAt = OffsetDateTime.now(clock)
+        ))
+
+        println("CH2")
+
+        val firstFileName = getFirstFileName(language)
+        val firstFileId = UUID.randomUUID()
+        val firstFileContentUrl = "${newProject.id}/$firstFileId"
+        val firstFileContent = "print('Hello Mimo!')"
+        projectFileRepository.save(ProjectFile(
+            id = UUID.randomUUID(),
+            projectId = newProject.id,
+            contentUrl = firstFileContentUrl,
+            filePath = firstFileName,
+            fileLanguage = language,
+            contentHash = sha256(firstFileContent)
+        ))
+        println("CH3")
+
+        try {
+            gcsClientForPlayground.uploadDataList(GcsPutRequestList(requests = listOf(GcsPutRequest(path = firstFileContentUrl, content = firstFileContent))))
+        } catch (e: Exception) {
+            throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
+        }
+
+        println("CH4")
+        return getUserProjects(userId)
+
+    }
+
+    private fun getFirstFileName (language : LanguageType): String {
+        val name = when (language) {
+            LanguageType.python -> "script.py"
+            LanguageType.web -> "index.html"
+        }
+        return name
+    }
+
+    fun getUserProjects(userId: UUID) : ProjectListResponse {
+        val projectIds = userProjectRepository.findAllByUserId(userId)
+        val projectSnapshots = mutableListOf<ProjectSnapshot>()
+        for (projectId in projectIds) {
+            projectSnapshots.add(getProjectSnapshotByProjectId(projectId))
+        }
+        return ProjectListResponse(projectSnapshots)
+    }
 
     fun getProjectSnapshotByProjectId (projectId: UUID) : ProjectSnapshot {
 
@@ -108,6 +177,7 @@ class ProjectService(
         try {
             gcsClientForPlayground.uploadDataList(GcsPutRequestList(requests = gcsRequests))
         } catch (e: Exception) {
+            println("Failed")
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
         }
 

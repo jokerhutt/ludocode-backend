@@ -23,6 +23,9 @@ class UserProject (
     @Column(name = "user_id")
     val userId: UUID,
 
+    @Column(name = "request_hash")
+    val requestHash: UUID,
+
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "project_language")
     val projectLanguage: LanguageType,

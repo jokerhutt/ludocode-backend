@@ -11,4 +11,7 @@ interface UserProjectRepository : JpaRepository<UserProject, UUID> {
     @Query(value = "SELECT name FROM user_project WHERE id = :projectId", nativeQuery = true)
     fun getProjectNameById (@Param("projectId") projectId: UUID): String
 
+    @Query(value = "SELECT id FROM user_project WHERE user_id = :userId", nativeQuery = true)
+    fun findAllByUserId (@Param("userId") userId: UUID): List<UUID>
+
 }

@@ -100,7 +100,8 @@ CREATE TABLE user_project (
       user_id uuid REFERENCES ludo_user,
       project_language language_type NOT NULL,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-      updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+      request_hash uuid unique not null
 );
 
 CREATE TABLE project_file (

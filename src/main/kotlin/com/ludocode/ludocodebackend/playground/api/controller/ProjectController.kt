@@ -1,6 +1,8 @@
 package com.ludocode.ludocodebackend.playground.api.controller
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
+import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.playground.app.service.ProjectService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -20,6 +22,16 @@ class ProjectController(private val projectService: ProjectService) {
     @PostMapping(PathConstants.SAVE_PROJECT)
     fun saveProject (@PathVariable pid : UUID, @RequestBody projectSnapshot: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectSnapshot> {
          return ResponseEntity.ok(projectService.saveProjectSnapshot(projectSnapshot))
+    }
+
+    @PostMapping(PathConstants.CREATE_PROJECT)
+    fun createProject (@RequestBody request: CreateProjectRequest, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectListResponse> {
+        return ResponseEntity.ok(projectService.createProject(request, userId))
+    }
+
+    @GetMapping(PathConstants.GET_USER_PROJECTS)
+    fun getUserProjects (@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<ProjectListResponse> {
+        return ResponseEntity.ok(projectService.getUserProjects(userId))
     }
 
     @GetMapping(PathConstants.GET_PROJECT)
