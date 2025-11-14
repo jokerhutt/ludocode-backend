@@ -34,7 +34,7 @@ class UpdateCourseIT : AbstractIntegrationTest() {
             listOf(
                 CourseProgress(
                     id = CourseProgressId(user.id!!, pythonId),
-                    currentLessonId = py2L3,
+                    currentLessonId = py1L3,
                     updatedAt = now.minusDays(1),
                     createdAt = now.minusDays(2),
                 ),

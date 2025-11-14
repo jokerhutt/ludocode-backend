@@ -1,4 +1,5 @@
 package com.ludocode.ludocodebackend.support
+import com.google.cloud.storage.Storage
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonSnap
@@ -17,6 +18,8 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.LessonExerc
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.catalog.infra.repository.*
+import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
+import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.AttemptOptionRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.ExerciseAttemptRepository
@@ -77,6 +80,7 @@ abstract class AbstractIntegrationTest {
 
     init {
         Containers.POSTGRES.isRunning
+        Containers.FAKE_GCS.isRunning
     }
 
     companion object {
@@ -86,7 +90,9 @@ abstract class AbstractIntegrationTest {
             registry.add("spring.datasource.url") { Containers.POSTGRES.jdbcUrl }
             registry.add("spring.datasource.username") { Containers.POSTGRES.username }
             registry.add("spring.datasource.password") { Containers.POSTGRES.password }
-            registry.add("spring.jpa.hibernate.ddl-auto") { "create-drop" }
+            registry.add("app.gcs.host") {
+                "http://localhost:${Containers.FAKE_GCS.getMappedPort(4443)}"
+            }
         }
 
         @JvmStatic
@@ -117,6 +123,11 @@ abstract class AbstractIntegrationTest {
     @Autowired lateinit var attemptOptionRepository: AttemptOptionRepository
     @Autowired lateinit var userStreakRepository: UserStreakRepository
     @Autowired lateinit var userDailyGoalRepository: UserDailyGoalRepository
+    @Autowired lateinit var userProjectRepository: UserProjectRepository
+    @Autowired lateinit var projectFileRepository: ProjectFileRepository
+
+    @Autowired
+    lateinit var storage: Storage
 
     @Autowired
     protected lateinit var jdbc: JdbcTemplate
@@ -132,6 +143,8 @@ abstract class AbstractIntegrationTest {
         jdbc.execute(
             """
         TRUNCATE TABLE 
+          project_file,
+          user_project,
           attempt_option,
           exercise_attempt,
           user_daily_goal,
@@ -144,7 +157,7 @@ abstract class AbstractIntegrationTest {
           exercise_option,
           lesson_exercises,
           module_lessons,
-          exercise,
+          lesson,
           exercise, 
           module, 
           course
@@ -159,10 +172,7 @@ abstract class AbstractIntegrationTest {
 
     @Transactional
     fun importSnapshots(snaps: List<CourseSnap>, defaultVersion: Int = 1) {
-        // 0) Validate snapshot invariants early if you want
-        //    e.g., cloze gap count == number of correct options, etc.
 
-        // 1) Preload all OptionContent in bulk to avoid per-row lookups
         val allContents = snaps.flatMap { it.modules }
             .flatMap { it.lessons }
             .flatMap { it.exercises }

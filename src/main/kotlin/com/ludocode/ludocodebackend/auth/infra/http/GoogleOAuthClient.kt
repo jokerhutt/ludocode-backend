@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.auth.infra.http
 
 import com.ludocode.ludocodebackend.auth.api.dto.GoogleTokenResponse
 import com.ludocode.ludocodebackend.auth.app.port.out.GoogleAuthOutboundPort
+import com.ludocode.ludocodebackend.commons.constants.ExternalPathContstants
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -31,7 +32,7 @@ class GoogleOAuthClient(
         val req = HttpEntity(form, headers)
 
         return restTemplate.postForObject(
-            "https://oauth2.googleapis.com/token",
+            ExternalPathContstants.GOOGLE_OAUTH_TOKEN,
             req,
             GoogleTokenResponse::class.java
         ) ?: throw IllegalStateException("Google token exchange returned null body")
