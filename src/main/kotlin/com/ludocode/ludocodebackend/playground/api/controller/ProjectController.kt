@@ -3,6 +3,8 @@ import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectListResponse
+import com.ludocode.ludocodebackend.playground.app.dto.response.RunnerResult
+import com.ludocode.ludocodebackend.playground.app.service.CodeRunnerService
 import com.ludocode.ludocodebackend.playground.app.service.ProjectService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -17,7 +19,7 @@ import java.util.UUID
 
 @RestController
 @RequestMapping(PathConstants.PROJECT)
-class ProjectController(private val projectService: ProjectService) {
+class ProjectController(private val projectService: ProjectService, private val codeRunnerService: CodeRunnerService) {
 
     @PostMapping(PathConstants.SAVE_PROJECT)
     fun saveProject (@PathVariable pid : UUID, @RequestBody projectSnapshot: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectSnapshot> {
@@ -37,6 +39,11 @@ class ProjectController(private val projectService: ProjectService) {
     @GetMapping(PathConstants.GET_PROJECT)
     fun getProject (@PathVariable pid: UUID) : ResponseEntity<ProjectSnapshot> {
         return ResponseEntity.ok(projectService.getProjectSnapshotByProjectId(pid))
+    }
+
+    @PostMapping(PathConstants.RUN_PROJECT)
+    fun runProject (@RequestBody request: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<RunnerResult> {
+        return ResponseEntity.ok(codeRunnerService.runCode(request))
     }
 
 

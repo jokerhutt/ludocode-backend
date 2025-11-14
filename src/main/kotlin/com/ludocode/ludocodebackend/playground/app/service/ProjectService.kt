@@ -63,7 +63,7 @@ class ProjectService(
         val firstFileContentUrl = "${newProject.id}/$firstFileId"
         val firstFileContent = "print('Hello Mimo!')"
         projectFileRepository.save(ProjectFile(
-            id = UUID.randomUUID(),
+            id = firstFileId,
             projectId = newProject.id,
             contentUrl = firstFileContentUrl,
             filePath = firstFileName,
@@ -103,11 +103,12 @@ class ProjectService(
     fun getProjectSnapshotByProjectId (projectId: UUID) : ProjectSnapshot {
 
         val projectName = userProjectRepository.getProjectNameById(projectId)
+        val projectLanguage = userProjectRepository.getProjectLanaguageById(projectId)
         val projectFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
         val fileContentUrls = projectFiles.map { it -> it.contentUrl }
         val fileContentsMap = gcsClientForPlayground.getContentFromUrls(fileContentUrls)
 
-        return projectMapper.toProjectSnapshot(projectId, projectName, projectFiles, fileContentsMap)
+        return projectMapper.toProjectSnapshot(projectId, projectName, projectLanguage, projectFiles, fileContentsMap)
     }
 
     @Transactional

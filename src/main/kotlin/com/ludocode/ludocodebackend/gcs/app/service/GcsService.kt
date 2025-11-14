@@ -89,6 +89,7 @@ class GcsService(private val storage: Storage) : GcsUseCase {
                     result[path] = text
                 }
             } catch (_: Exception) {
+                println("Missing Content")
                 // ignore missing blobs
             }
         }
