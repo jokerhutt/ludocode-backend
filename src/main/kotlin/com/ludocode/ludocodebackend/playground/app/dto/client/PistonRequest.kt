@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PistonRequest(
     val language: String,
-    val version: String = "latest",
+    val version: String = "*",
     val files: List<PistonFile>,
     val stdin: String = "",
     val args: List<String> = emptyList(),
