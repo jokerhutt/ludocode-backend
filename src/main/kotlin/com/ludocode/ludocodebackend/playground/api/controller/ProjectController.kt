@@ -3,6 +3,7 @@ import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectListResponse
+import com.ludocode.ludocodebackend.playground.app.dto.response.RenameRequest
 import com.ludocode.ludocodebackend.playground.app.dto.response.RunnerResult
 import com.ludocode.ludocodebackend.playground.app.service.CodeRunnerService
 import com.ludocode.ludocodebackend.playground.app.service.ProjectService
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.nio.file.Path
 import java.util.UUID
 
 @RestController
@@ -29,6 +31,11 @@ class ProjectController(private val projectService: ProjectService, private val 
     @PostMapping(PathConstants.DELETE_PROJECT)
     fun deleteProject (@PathVariable pid : UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID ) : ResponseEntity<ProjectListResponse> {
         return ResponseEntity.ok(projectService.deleteProjectForUser(pid, userId))
+    }
+
+    @PostMapping(PathConstants.RENAME_PROJECT)
+    fun renameProject (@RequestBody request: RenameRequest, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectListResponse> {
+        return ResponseEntity.ok(projectService.renameProject(request, userId))
     }
 
     @PostMapping(PathConstants.CREATE_PROJECT)

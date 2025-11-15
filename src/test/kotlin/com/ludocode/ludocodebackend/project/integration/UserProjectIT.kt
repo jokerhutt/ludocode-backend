@@ -14,6 +14,7 @@ import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequ
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectListResponse
+import com.ludocode.ludocodebackend.playground.app.dto.response.RenameRequest
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
@@ -104,6 +105,21 @@ class UserProjectIT : AbstractIntegrationTest() {
         val projectId = existingProject.id
         val res = submitPostDeleteProject(projectId, user1.id!!)
         assertThat(res.projects).isEmpty()
+
+    }
+
+    @Test
+    fun renameProject_renamesProject_returnsRenamed () {
+
+        val projectId = existingProject.id
+        val newName = "Test Project Name"
+        val request = RenameRequest(targetId = projectId, newName = newName)
+        val res = submitPostRenameProject(request, user1.id!!)
+        assertThat(res).isNotNull()
+        assertThat(res.projects.size).isEqualTo(1)
+        assertThat(res.projects[0].projectId).isEqualTo(projectId)
+        assertThat(res.projects[0].projectName).isEqualTo(newName)
+
 
     }
 
@@ -258,6 +274,19 @@ class UserProjectIT : AbstractIntegrationTest() {
             .contentType(io.restassured.http.ContentType.JSON)
             .`when`()
             .post("$PROJECT/$pid/delete")
+            .then()
+            .statusCode(200)
+            .extract()
+            .`as`(ProjectListResponse::class.java)
+    }
+
+    private fun submitPostRenameProject (request: RenameRequest, userId: UUID) : ProjectListResponse {
+        return given()
+            .header("X-Test-User-Id", userId.toString())
+            .contentType(io.restassured.http.ContentType.JSON)
+            .body(request)
+            .`when`()
+            .post("$PROJECT/rename")
             .then()
             .statusCode(200)
             .extract()

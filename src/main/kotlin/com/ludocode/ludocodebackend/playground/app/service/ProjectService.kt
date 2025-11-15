@@ -11,6 +11,7 @@ import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequ
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectListResponse
+import com.ludocode.ludocodebackend.playground.app.dto.response.RenameRequest
 import com.ludocode.ludocodebackend.playground.app.mapper.ProjectMapper
 import com.ludocode.ludocodebackend.playground.app.util.ProjectSnapshotDiffer
 import com.ludocode.ludocodebackend.playground.app.util.ProjectSnapshotValidator
@@ -57,7 +58,6 @@ class ProjectService(
         ))
 
         println("CH2")
-
 
         val firstFileName = getFirstFileName(language)
         val firstFileId = UUID.randomUUID()
@@ -124,6 +124,20 @@ class ProjectService(
         userProjectRepository.deleteById(existingProject.id)
 
         deleteFiles(projectId, existingFiles)
+
+        return getUserProjects(userId)
+
+    }
+
+    @Transactional
+    fun renameProject (renameRequest: RenameRequest, userId: UUID) : ProjectListResponse {
+
+        val projectId = renameRequest.targetId
+        val newName = renameRequest.newName
+
+        var existingProject = userProjectRepository.findById(projectId).orElseThrow()
+        existingProject.name = newName
+        userProjectRepository.save(existingProject)
 
         return getUserProjects(userId)
 

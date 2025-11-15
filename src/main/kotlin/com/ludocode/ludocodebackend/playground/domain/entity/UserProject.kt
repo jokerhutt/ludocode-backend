@@ -18,7 +18,7 @@ class UserProject (
     val id : UUID,
 
     @Column(name = "name")
-    val name : String,
+    var name : String,
 
     @Column(name = "user_id")
     val userId: UUID,

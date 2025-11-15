@@ -23,6 +23,7 @@ object PathConstants {
     const val SAVE_PROJECT : String = "/{pid}/save"
     const val DELETE_PROJECT : String = "{pid}/delete"
     const val CREATE_PROJECT : String = "/create"
+    const val RENAME_PROJECT : String = "/rename"
     const val GET_PROJECT : String = "/{pid}/get"
     const val RUN_PROJECT : String = "/run"
     const val GET_USER_PROJECTS : String = "/get-projects"
