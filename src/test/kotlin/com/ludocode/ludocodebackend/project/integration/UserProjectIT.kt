@@ -99,6 +99,40 @@ class UserProjectIT : AbstractIntegrationTest() {
     }
 
     @Test
+    fun deleteProject_deletesOnlyProject_returnsEmptyList() {
+
+        val projectId = existingProject.id
+        val res = submitPostDeleteProject(projectId, user1.id!!)
+        assertThat(res.projects).isEmpty()
+
+    }
+
+    @Test
+    fun createAndDelete_onlyCreatedRemains_returnsOnlyCreated() {
+
+        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguage = LanguageType.python, requestHash = UUID.randomUUID())
+        val response = submitPostCreateProject(newProjectRequest, user1.id!!)
+        assertThat(response).isNotNull()
+        assertThat(response.projects.size).isEqualTo(2)
+        assertThat(response.projects)
+            .anyMatch { it.projectName == "Second Project" }
+
+        val newProject = response.projects.find { it.projectName == "Second Project" }
+        assertThat(newProject).isNotNull()
+        assertThat(newProject!!.files.size).isEqualTo(1)
+        assertThat(newProject.files[0].content).isEqualTo("print('Hello Mimo!')")
+        assertThat(newProject.files[0].path).isEqualTo("script.py")
+
+        val existingProjectId = existingProject.id
+        val deleteResponse = submitPostDeleteProject(existingProjectId, user1.id!!)
+        assertThat(deleteResponse).isNotNull()
+        assertThat(deleteResponse.projects.size).isEqualTo(1)
+        assertThat(deleteResponse.projects[0].projectId).isEqualTo(newProject.projectId)
+
+
+    }
+
+    @Test
     fun saveProject_deleteAddAndRename_returnsSuccess() {
         val projectId = existingProject.id
         val snapshot = submitGetProjectSnapshot(projectId, user1.id!!)
@@ -179,6 +213,7 @@ class UserProjectIT : AbstractIntegrationTest() {
         assertErrorOnSave(projectId, user1.id!!, snapshotCopy, ErrorCode.INVALID_FILE_NAME)
     }
 
+
     @Test
     fun getProject_returnsProjectSnapshot () {
 
@@ -215,6 +250,18 @@ class UserProjectIT : AbstractIntegrationTest() {
            .statusCode(200)
            .extract()
            .`as`(ProjectSnapshot::class.java)
+    }
+
+    private fun submitPostDeleteProject (pid: UUID, userId: UUID) : ProjectListResponse {
+        return given()
+        .header("X-Test-User-Id", userId.toString())
+            .contentType(io.restassured.http.ContentType.JSON)
+            .`when`()
+            .post("$PROJECT/$pid/delete")
+            .then()
+            .statusCode(200)
+            .extract()
+            .`as`(ProjectListResponse::class.java)
     }
 
     private fun submitPostCreateProject (request: CreateProjectRequest, userId: UUID) : ProjectListResponse {

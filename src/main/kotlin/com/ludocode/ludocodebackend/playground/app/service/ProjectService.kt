@@ -58,6 +58,7 @@ class ProjectService(
 
         println("CH2")
 
+
         val firstFileName = getFirstFileName(language)
         val firstFileId = UUID.randomUUID()
         val firstFileContentUrl = "${newProject.id}/$firstFileId"
@@ -109,6 +110,23 @@ class ProjectService(
         val fileContentsMap = gcsClientForPlayground.getContentFromUrls(fileContentUrls)
 
         return projectMapper.toProjectSnapshot(projectId, projectName, projectLanguage, projectFiles, fileContentsMap)
+    }
+
+    @Transactional
+    fun deleteProjectForUser (projectId: UUID, userId: UUID) : ProjectListResponse {
+
+        val existingProject = userProjectRepository.findById(projectId).orElseThrow()
+        val existingFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
+
+        for (file in existingFiles) {
+            projectFileRepository.deleteById(file.id)
+        }
+        userProjectRepository.deleteById(existingProject.id)
+
+        deleteFiles(projectId, existingFiles)
+
+        return getUserProjects(userId)
+
     }
 
     @Transactional

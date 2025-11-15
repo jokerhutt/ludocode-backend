@@ -26,6 +26,11 @@ class ProjectController(private val projectService: ProjectService, private val 
          return ResponseEntity.ok(projectService.saveProjectSnapshot(projectSnapshot))
     }
 
+    @PostMapping(PathConstants.DELETE_PROJECT)
+    fun deleteProject (@PathVariable pid : UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID ) : ResponseEntity<ProjectListResponse> {
+        return ResponseEntity.ok(projectService.deleteProjectForUser(pid, userId))
+    }
+
     @PostMapping(PathConstants.CREATE_PROJECT)
     fun createProject (@RequestBody request: CreateProjectRequest, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectListResponse> {
         return ResponseEntity.ok(projectService.createProject(request, userId))
