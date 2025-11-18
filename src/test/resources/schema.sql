@@ -21,7 +21,8 @@ CREATE TABLE ludo_user (
 CREATE TABLE course (
         id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
         title TEXT NOT NULL UNIQUE,
-        img_src TEXT
+        img_src TEXT,
+        request_hash UUID DEFAULT gen_random_uuid() NOT NULL UNIQUE
 );
 
 CREATE TABLE module (

@@ -1,8 +1,12 @@
 package com.ludocode.ludocodebackend.catalog.app.service
 
+import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
+import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnapshot
+import com.ludocode.ludocodebackend.catalog.app.mapper.CourseMapper
+import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
 import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
@@ -12,6 +16,8 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLessons
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.LessonExercisesId
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
+import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
+import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseOptionRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.LessonExercisesRepository
@@ -35,12 +41,84 @@ class SnapshotService(
     private val moduleRepository: ModuleRepository,
     private val exerciseOptionRepository: ExerciseOptionRepository,
     private val snapshotBuilderService: SnapshotBuilderService,
-    private val em: EntityManager
+    private val em: EntityManager,
+    private val courseMapper: CourseMapper,
+    private val courseRepository: CourseRepository
 ) {
 
     @Transactional
     fun applyNewSnapshot (reqSnapshot: CourseSnap): CourseSnap? {
         return applyModuleDiffs(reqSnapshot)
+    }
+
+    @Transactional
+    fun createCourse (request: CreateCourseRequest) : List<CourseResponse> {
+        val newCourseName = request.courseTitle
+        val newCourseHash = request.requestHash
+
+        val newCourseId = UUID.randomUUID()
+        val newModuleId = UUID.randomUUID()
+        val newLessonId = UUID.randomUUID()
+        val newExerciseId = UUID.randomUUID()
+
+        val newCourse = Course(
+            id = newCourseId,
+            title = newCourseName,
+            requestHash = newCourseHash
+        )
+
+        courseRepository.save(newCourse)
+
+        val newModuleTitle = "Intro to $newCourseName"
+
+        val newModule = Module (
+            id = newModuleId,
+            title = newModuleTitle,
+            isDeleted = false,
+            orderIndex = 1,
+            courseId = newCourseId
+        )
+        moduleRepository.save(newModule)
+
+        val newLesson = Lesson (
+            id = newLessonId,
+            title = "Hello world!",
+            isDeleted = false,
+        )
+
+        lessonRepository.save(newLesson)
+
+        val newModuleLessons = ModuleLessons(
+            moduleLessonsId = ModuleLessonsId(newModuleId, 1),
+            lessonId = newLessonId
+        )
+
+        moduleLessonsRepository.save(newModuleLessons)
+
+        val newExerciseTitle = "Welcome to $newCourseName"
+
+        val newExercise = Exercise (
+            exerciseId = ExerciseId(newExerciseId, 1),
+            title = newExerciseTitle,
+            prompt = null,
+            subtitle = null,
+            exerciseType = ExerciseType.INFO,
+            exerciseMedia = null,
+            isDeleted = false
+        )
+
+        exerciseRepository.save(newExercise)
+
+        val newLessonExercises = LessonExercises(
+            lessonExercisesId = LessonExercisesId(newLessonId, 1),
+            exerciseId = newExerciseId,
+            exerciseVersion = newExercise.exerciseId.versionNumber
+        )
+
+        lessonExercisesRepository.save(newLessonExercises)
+
+        return courseMapper.toCourseResponseList(courseRepository.findAll())
+
     }
 
     fun getCourseSnapshot (courseId: UUID): CourseSnap {

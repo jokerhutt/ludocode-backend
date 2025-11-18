@@ -13,8 +13,9 @@ class Course (
     val id: UUID,
 
     @Column(name = "title", nullable = false, unique = true)
-    val title: String
+    val title: String,
 
-
+    @Column(name = "request_hash")
+    val requestHash: UUID = UUID.randomUUID()
 
 )

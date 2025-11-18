@@ -58,6 +58,7 @@ object PathConstants {
     const val SNAPSHOT : String = "$API_V1/snapshot"
     const val SUBMIT_MODULE_SNAPSHOT : String = "/submit/module"
     const val SUBMIT_COURSE_SNAPSHOT : String = "/submit"
+    const val CREATE_COURSE : String = "$PROGRESS_COURSE/create"
     const val SNAPSHOTS_BY_COURSE : String = "/{courseId}"
 
 
