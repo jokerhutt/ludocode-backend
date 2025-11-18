@@ -32,10 +32,6 @@ class CreateCourseIT : AbstractIntegrationTest() {
 
         assertThat(created).isNotNull()
         assertThat(created.title).isEqualTo(newCourseName)
-
-
-
-
     }
 
 
