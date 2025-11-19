@@ -55,7 +55,6 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             distractors = listOf(OptionSnap(content = ")", answerOrder = null, exerciseOptionId = UUID.randomUUID()))
         )
 
-        // build mutated lesson
         val mutatedLesson =
             lessonToChange.copy(
                 title = "New Title",
@@ -66,7 +65,6 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
                     }
             )
 
-        // build mutated module
         val mutatedModule =
             initialModule.copy(
                 lessons = initialModule.lessons
@@ -74,7 +72,6 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
                     .map { ls -> if (ls.id == mutatedLesson.id) mutatedLesson else ls }
             )
 
-        // build mutated course
         val mutatedCourse =
             pythonSnap.copy(
                 modules = pythonSnap.modules
@@ -82,10 +79,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
                     .map { m -> if (m.moduleId == mutatedModule.moduleId) mutatedModule else m }
             )
 
-        // send
         val res = submitPostUpdateCatalog(mutatedCourse)
 
-        // assert
         assertThat(res).isNotNull
 
         assertThat(res.modules.size).isEqualTo(initialModuleCount - 1)
@@ -103,7 +98,6 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         assertThat(changedExercise.title).isEqualTo("Waka waka")
         assertThat(changedExercise.subtitle).isEqualTo("Waka")
 
-        // sanity: deleted ids are gone
         assertThat(changedModule.lessons.any { it.id == lessonToDelete.id }).isFalse
         assertThat(changedLessonNew.exercises.any { it.id == exerciseToDelete.id }).isFalse
     }

@@ -22,8 +22,8 @@ class UserStatsService(private val userStatsRepository: UserStatsRepository,
 
     @Transactional
     override fun findOrCreateStats (userId: UUID) : UserStatsResponse {
-        userStatsRepository.upsertUserStats(userId)
-        return userStatsMapper.toUserStatsResponse(userStatsRepository.findById(userId).orElseThrow())
+        val userStats = userStatsRepository.findById(userId).orElse(userStatsRepository.save(UserStats(userId, 0, 0)))
+        return userStatsMapper.toUserStatsResponse(userStats)
     }
 
     @Transactional
@@ -37,6 +37,8 @@ class UserStatsService(private val userStatsRepository: UserStatsRepository,
             StreakAction.RESET -> stats.streak = 0
             else -> {}
         }
+
+        println("New Stats: Streak: ${stats.streak} Coins: ${stats.coins}")
         return userStatsMapper.toUserStatsResponse(userStatsRepository.save(stats))
     }
 
