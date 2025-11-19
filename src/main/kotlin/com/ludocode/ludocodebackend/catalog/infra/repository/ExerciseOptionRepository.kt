@@ -9,30 +9,4 @@ import java.util.UUID
 
 interface ExerciseOptionRepository: JpaRepository<ExerciseOption, UUID> {
 
-    @Query(value = """
-    SELECT * FROM exercise_option
-    WHERE exercise_id = ANY(:exerciseIds)
-    ORDER BY exercise_id, id;
-    """, nativeQuery = true)
-    fun findOptionsForExerciseIds(@Param("exerciseIds") ids: List<UUID>): List<ExerciseOption>
-
-    @Modifying
-    @Query(value = "delete from exercise_option where exercise_id = :exerciseId and exercise_version = :version", nativeQuery = true)
-    fun deleteByExerciseIdAndVersion(
-        @Param("exerciseId") exerciseId: UUID,
-        @Param("version") version: Int
-    )
-
-    @Query(value = """
-        SELECT id
-        FROM exercise_option
-        WHERE exercise_id = :exerciseId
-        AND exercise_version = :version
-        AND option_id = :optionId
-        """, nativeQuery = true)
-    fun findByExerciseIdAndOptionId(@Param("exerciseId") exerciseId: UUID, @Param("version") version : Int, @Param("optionId") optionId: UUID) : UUID
-
-
-
-
 }

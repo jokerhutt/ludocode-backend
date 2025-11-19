@@ -80,4 +80,6 @@ class CourseProgressService(
         return CourseProgressWithCompletion(findCourseProgress(userId, courseId), isFirstCompletion)
     }
 
+
+
 }
