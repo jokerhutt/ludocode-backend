@@ -3,7 +3,8 @@ package com.ludocode.ludocodebackend.auth.app.service
 import com.ludocode.ludocodebackend.auth.api.dto.response.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.app.port.out.GoogleAuthOutboundPort
 import com.ludocode.ludocodebackend.auth.app.port.out.UserPortForAuth
-import com.ludocode.ludocodebackend.auth.app.port.out.UserStatsPortForAuth
+import com.ludocode.ludocodebackend.auth.app.port.out.UserCoinsPortForAuth
+import com.ludocode.ludocodebackend.auth.app.port.out.UserStreakPortForAuth
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
@@ -18,7 +19,8 @@ class AuthService(
     private val userPortForAuth: UserPortForAuth,
     private val jwtService: JwtService,
     private val authCookieService: AuthCookieService,
-    private val userStatsPortForAuth: UserStatsPortForAuth
+    private val userCoinsPortForAuth: UserCoinsPortForAuth,
+    private val userStreakPortForAuth: UserStreakPortForAuth
 ) {
 
     fun loginWithGoogle(code: String, response: HttpServletResponse): UserLoginResponse {
@@ -48,13 +50,13 @@ class AuthService(
             )
         )
 
-        val stats = userStatsPortForAuth.findOrCreateStats(user.id)
+        val coins = userCoinsPortForAuth.findOrCreateCoins(user.id)
+        val streak = userStreakPortForAuth.initializeStreak(user.id)
 
-        // 4) Sign JWT + set cookie
         val jwt = jwtService.createToken(user.id)
         authCookieService.setJwt(response, jwt)
 
-        return UserLoginResponse(user, stats)
+        return UserLoginResponse(user, coins, streak)
     }
 
     fun getAuthenticatedUser (id: UUID) : UserResponse {

@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.progress.app.service
 import com.ludocode.ludocodebackend.progress.api.dto.response.StreakResponsePacket
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
 import com.ludocode.ludocodebackend.progress.app.mapper.UserStreakMapper
+import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStreakUseCase
 import com.ludocode.ludocodebackend.progress.app.port.out.UserPortForProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak
 import com.ludocode.ludocodebackend.progress.domain.enums.StreakAction
@@ -23,7 +24,7 @@ class StreakService(
     private val userStreakMapper: UserStreakMapper,
     private val userPortForProgress: UserPortForProgress,
     private val clock: Clock,
-) {
+) : UserStreakUseCase {
 
     @Transactional
     fun upsertStreak(
@@ -65,7 +66,7 @@ class StreakService(
     }
 
     @Transactional
-    fun getStreak(userId: UUID): UserStreakResponse {
+    override fun getStreak(userId: UUID): UserStreakResponse {
         val userStreak = initializeIfAbsentReturning(userId)
         return userStreakMapper.toStreakResponse(userStreak)
     }

@@ -121,10 +121,9 @@ CREATE TABLE user_daily_goal (
      PRIMARY KEY (user_id, local_date)
 );
 
-CREATE TABLE user_stats (
+CREATE TABLE user_coins (
     user_id uuid NOT NULL PRIMARY KEY REFERENCES ludo_user ON DELETE CASCADE,
-    coins INTEGER DEFAULT 0 NOT NULL,
-    streak INTEGER DEFAULT 0 NOT NULL
+    coins INTEGER DEFAULT 0 NOT NULL
 );
 
 CREATE TABLE user_streak (

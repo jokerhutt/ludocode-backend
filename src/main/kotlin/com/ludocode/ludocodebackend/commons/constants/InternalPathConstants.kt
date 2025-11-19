@@ -28,8 +28,11 @@ object InternalPathConstants {
     const val ICOURSEPROGRESS: String = "$INTERNAL_V1/progress/course"
     const val ICOURSEPROGRESSFINDCREATE: String = "/{courseId}/{userId}"
 
-    const val ISTATSPROGRESS: String = "$INTERNAL_V1/progress/stats"
-    const val ISTATSUPSERT: String = "/{userId}/upsert"
+    const val ISTREAKPROGRESS: String = "$INTERNAL_V1/progress/streak"
+    const val ISTREAKINITIALIZE: String = "/{userId}/initialize"
+
+    const val ICOINSPROGRESS: String = "$INTERNAL_V1/progress/coins"
+    const val ICOINSUPSERT: String = "/{userId}/upsert"
 
 
 

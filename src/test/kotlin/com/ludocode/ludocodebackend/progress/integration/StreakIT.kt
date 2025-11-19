@@ -1,9 +1,8 @@
 package com.ludocode.ludocodebackend.progress.integration
 
-import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTreeResponse
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
-import com.ludocode.ludocodebackend.progress.domain.entity.UserStats
+import com.ludocode.ludocodebackend.progress.domain.entity.UserCoins
 import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured.given
@@ -19,7 +18,7 @@ class StreakIT : AbstractIntegrationTest() {
     fun submitGetStreak_noStreakYet_returnsNew () {
 
         val userId = user1.id
-        val userStats = userStatsRepository.save(UserStats(user1.id!!, 0, 0))
+        val userCoins = userCoinsRepository.save(UserCoins(user1.id!!, 0))
         val res = submitGetStreak(userId!!)
 
         assertThat(res).isNotNull()
@@ -32,7 +31,7 @@ class StreakIT : AbstractIntegrationTest() {
     @Test
     fun submitGetStreak_MissedStreak_returnsResetStreak () {
 
-        val userStats = userStatsRepository.save(UserStats(user1.id!!, 0, 0))
+        val userCoins = userCoinsRepository.save(UserCoins(user1.id!!, 0))
 
         val lastStreak = UserStreak(userId = user1.id!!, currentStreakDays = 4, bestStreakDays = 7, lastMetGoalUtc = OffsetDateTime.now(clock).minusDays(2), lastMetLocalDate = LocalDate.now(clock).minusDays(2))
         userStreakRepository.save(lastStreak)

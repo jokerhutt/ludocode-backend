@@ -2,12 +2,6 @@ package com.ludocode.ludocodebackend.progress.integration
 
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotBuilderService
-import com.ludocode.ludocodebackend.catalog.app.service.SnapshotService
-import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
-import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
-import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
-import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
-import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROGRESS_COMPLETION
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.SUBMIT_COMPLETION
 import com.ludocode.ludocodebackend.progress.api.dto.request.AttemptToken
@@ -17,7 +11,7 @@ import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionReq
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionPacket
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionResponse
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
-import com.ludocode.ludocodebackend.progress.domain.entity.UserStats
+import com.ludocode.ludocodebackend.progress.domain.entity.UserCoins
 import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
@@ -39,7 +33,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
     @Test
     fun submitLesson_endOfModule_returnsFirstLessonOfNextModule() {
 
-        val userStats = userStatsRepository.save(UserStats(user1.id!!, 0, 0))
+        val userCoins = userCoinsRepository.save(UserCoins(user1.id!!, 0))
         userStreakRepository.save(UserStreak(userId = user1.id!!))
 
         val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
@@ -98,7 +92,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         val content : LessonCompletionResponse = response.content!!
 
         assertThat(response.status).isEqualTo(LessonCompletionStatus.OK)
-        assertThat(content.newStats.coins).isGreaterThan(0)
+        assertThat(content.newCoins.coins).isGreaterThan(0)
         assertThat(content.newCourseProgress.currentLessonId).isEqualTo(nextLesson)
         assertThat(content.newCourseProgress.courseId).isEqualTo(pythonId)
         assertThat(content.newCourseProgress.moduleId).isEqualTo(pyMod2Id)
@@ -116,7 +110,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
     @Test
     fun submitLesson_endOfCourse_returnsEndOfCourse() {
 
-        val userStats = userStatsRepository.save(UserStats(user1.id!!, 0, 0))
+        val userCoins = userCoinsRepository.save(UserCoins(user1.id!!, 0))
 
 
         val currentCourse = pythonId
@@ -157,7 +151,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         assertThat(content.newCourseProgress.courseId).isEqualTo(currentCourse)
         assertThat(content.newCourseProgress.currentLessonId).isEqualTo(currentLesson)
         assertThat(content.newCourseProgress.moduleId).isEqualTo(pyMod2Id)
-        assertThat(content.newStats.coins).isGreaterThan(0)
+        assertThat(content.newCoins.coins).isGreaterThan(0)
         assertThat(content.accuracy).isGreaterThan(BigDecimal("0.00"))
         assertThat(content.accuracy).isEqualTo(BigDecimal("1.00"))
         assertThat(content.updatedCompletedLesson.id).isEqualTo(currentLesson)
@@ -170,7 +164,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
     @Test
     fun submitLesson_returnsNextLesson() {
         // user stats
-        userStatsRepository.save(UserStats(user1.id!!, 0, 0))
+        userCoinsRepository.save(UserCoins(user1.id!!, 0))
 
         // progress: start at Python L1, expect next = L2
         val currentCourse = pythonId
@@ -232,7 +226,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
         // assertions
         assertThat(packet.status).isEqualTo(LessonCompletionStatus.OK)
-        assertThat(content.newStats.coins).isGreaterThan(0)
+        assertThat(content.newCoins.coins).isGreaterThan(0)
         assertThat(content.newCourseProgress.userId).isEqualTo(user1.id)
         assertThat(content.newCourseProgress.courseId).isEqualTo(currentCourse)
         assertThat(content.newCourseProgress.moduleId).isEqualTo(pyMod1Id)

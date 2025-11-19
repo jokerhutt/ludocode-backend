@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.progress.app.service
 
 import com.ludocode.ludocodebackend.catalog.api.dto.internal.LessonTreeWithIdDTO
-import com.ludocode.ludocodebackend.progress.api.dto.internal.StatsDelta
+import com.ludocode.ludocodebackend.progress.api.dto.internal.PointsDelta
 import com.ludocode.ludocodebackend.progress.api.dto.request.AttemptToken
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseAttemptRequest
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseSubmissionRequest
@@ -9,14 +9,12 @@ import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionReq
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionPacket
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.StreakResponsePacket
-import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
 import com.ludocode.ludocodebackend.progress.app.port.out.CatalogPortForProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.AttemptOption
 import com.ludocode.ludocodebackend.progress.domain.entity.ExerciseAttempt
 import com.ludocode.ludocodebackend.progress.domain.entity.LessonCompletion
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.AttemptOptionId
 import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
-import com.ludocode.ludocodebackend.progress.domain.enums.StreakAction
 import com.ludocode.ludocodebackend.progress.infra.repository.AttemptOptionRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.ExerciseAttemptRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
@@ -26,7 +24,6 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Clock
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import java.util.UUID
 
 
@@ -37,7 +34,7 @@ class LessonCompletionService(
     private val attemptOptionRepository: AttemptOptionRepository,
     private val clock: Clock,
     private val lessonCompletionRepository: LessonCompletionRepository,
-    private val userStatsService: UserStatsService,
+    private val userCoinsService: UserCoinsService,
     private val courseProgressService: CourseProgressService,
     private val streakService: StreakService
 ) {
@@ -70,7 +67,7 @@ class LessonCompletionService(
         println("NOW UTC: $nowUtc")
         val newStreak: StreakResponsePacket = streakService.recordGoalMet(userId, nowUtc)
         println("Recorded goal met")
-        val newStats = userStatsService.apply(StatsDelta(userId = userId, pointsDelta = scoreForLesson))
+        val newStats = userCoinsService.apply(PointsDelta(userId = userId, pointsDelta = scoreForLesson))
         val responseContent = LessonCompletionResponse(newStats, newStreak.response, newCourseProgress, submittedLesson, accuracy = lessonCompletion.accuracy)
 
         if (isFirstCompletion) return LessonCompletionPacket(content = responseContent, status = LessonCompletionStatus.COURSE_COMPLETE)
