@@ -9,17 +9,4 @@ import java.util.UUID
 
 interface UserStatsRepository : JpaRepository<UserStats, UUID> {
 
-    @Modifying
-    @Query(
-        """
-  INSERT INTO user_stats(user_id, coins, streak)
-  VALUES (:userId, 0, 0)
-  ON CONFLICT (user_id) DO NOTHING
-  """,
-        nativeQuery = true
-    )
-    fun upsertUserStats(@Param("userId") userId: UUID): Int
-
-
-
 }

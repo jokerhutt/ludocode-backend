@@ -439,7 +439,6 @@ abstract class AbstractIntegrationTest {
             LessonSnap(id = sw1L4, title = "Data Types II", orderIndex = 4, exercises = emptyList())
         )
 
-        // ---- Modules
         val pythonModules = listOf(
             ModuleSnapshot(moduleId = pyMod1Id, title = "Variables",   lessons = pyMod1Lessons),
             ModuleSnapshot(moduleId = pyMod2Id, title = "Conditionals", lessons = pyMod2Lessons)
@@ -448,13 +447,11 @@ abstract class AbstractIntegrationTest {
             ModuleSnapshot(moduleId = swMod1Id, title = "Variables", lessons = swMod1Lessons)
         )
 
-        // ---- Courses
         val snaps = listOf(
             CourseSnap(courseId = pythonId, title = "Python", modules = pythonModules),
             CourseSnap(courseId = swiftId,  title = "Swift",  modules = swiftModules)
         )
 
-        // Single transactional import
         importSnapshots(snaps, defaultVersion = 1)
     }
 

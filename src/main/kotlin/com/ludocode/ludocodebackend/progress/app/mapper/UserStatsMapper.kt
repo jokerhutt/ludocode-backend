@@ -13,7 +13,6 @@ class UserStatsMapper (private val basicMapper: BasicMapper) {
             UserStatsResponse(
                 id = userStats.userId,
                 coins = userStats.coins,
-                streak = userStats.streak
             )
         }
     }

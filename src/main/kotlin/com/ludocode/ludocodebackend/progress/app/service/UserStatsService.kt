@@ -21,25 +21,24 @@ class UserStatsService(private val userStatsRepository: UserStatsRepository,
     }
 
     @Transactional
-    override fun findOrCreateStats (userId: UUID) : UserStatsResponse {
-        val userStats = userStatsRepository.findById(userId).orElse(userStatsRepository.save(UserStats(userId, 0, 0)))
-        return userStatsMapper.toUserStatsResponse(userStats)
+    override fun findOrCreateStats(userId: UUID): UserStatsResponse {
+        val stats = userStatsRepository.findById(userId)
+            .orElseGet {
+                userStatsRepository.save(UserStats(userId = userId, coins = 0, streak = 0))
+            }
+        return userStatsMapper.toUserStatsResponse(stats)
     }
 
     @Transactional
     fun apply(delta: StatsDelta): UserStatsResponse {
+        println("Applying Stats")
         val stats = userStatsRepository.findById(delta.userId).orElseGet {
             userStatsRepository.save(UserStats(delta.userId, 0, 0))
         }
+        println("Stats check 2")
         stats.coins += delta.pointsDelta
-        when (delta.streakAction) {
-            StreakAction.INCREMENT -> stats.streak += 1
-            StreakAction.RESET -> stats.streak = 0
-            else -> {}
-        }
-
-        println("New Stats: Streak: ${stats.streak} Coins: ${stats.coins}")
-        return userStatsMapper.toUserStatsResponse(userStatsRepository.save(stats))
+        val newStats = userStatsRepository.save(stats)
+        return userStatsMapper.toUserStatsResponse(newStats)
     }
 
 }

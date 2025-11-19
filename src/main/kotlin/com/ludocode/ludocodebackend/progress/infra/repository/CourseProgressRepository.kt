@@ -89,23 +89,6 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
     @Modifying
     @Query(
         """
-  update course_progress
-     set current_lesson_id = :newLessonId, updated_at = :now
-   where user_id = :userId and course_id = :courseId
-  """, nativeQuery = true
-    )
-    fun setCurrentLesson(
-        userId: UUID,
-        courseId: UUID,
-        newLessonId: UUID,
-        @Param("now") now: OffsetDateTime
-    ): Int
-
-
-
-    @Modifying
-    @Query(
-        """
   INSERT INTO course_progress (
     user_id, course_id, current_lesson_id, is_complete, created_at, updated_at
   ) VALUES (:userId, :courseId, :firstLessonId, false, :now, :now)

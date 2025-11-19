@@ -9,13 +9,13 @@ import org.springframework.stereotype.Component
 @Component
 class UserStreakMapper (private val basicMapper: BasicMapper) {
 
-    fun toStreakResponse (userStreak: UserStreakRow) : UserStreakResponse {
+    fun toStreakResponse (userStreak: UserStreak) : UserStreakResponse {
 
         return basicMapper.one(userStreak) {
             UserStreakResponse(
-                current = userStreak.getCurrentStreakDays()!!,
-                best = userStreak.getBestStreakDays()!!,
-                lastMet = userStreak.getLastMetLocalDate()
+                current = userStreak.currentStreakDays!!,
+                best = userStreak.bestStreakDays!!,
+                lastMet = userStreak.lastMetLocalDate
             )
         }
     }
