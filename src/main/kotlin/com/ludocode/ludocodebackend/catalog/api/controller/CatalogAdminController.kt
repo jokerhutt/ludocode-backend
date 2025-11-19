@@ -1,5 +1,7 @@
 package com.ludocode.ludocodebackend.catalog.api.controller
 
+import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
+import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnapshot
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotService
@@ -27,6 +29,11 @@ class CatalogAdminController(
     @GetMapping(PathConstants.SNAPSHOTS_BY_COURSE)
     fun getSnapshotsByCourseId(@PathVariable courseId: UUID) : ResponseEntity<CourseSnap> {
         return ResponseEntity.ok(snapshotService.getCourseSnapshot(courseId))
+    }
+
+    @PostMapping(PathConstants.CREATE_COURSE)
+    fun createCourse(@RequestBody request: CreateCourseRequest) : ResponseEntity<List<CourseResponse>> {
+        return ResponseEntity.ok(snapshotService.createCourse(request))
     }
 
 

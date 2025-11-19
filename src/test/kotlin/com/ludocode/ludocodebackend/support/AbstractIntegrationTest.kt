@@ -25,7 +25,7 @@ import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepo
 import com.ludocode.ludocodebackend.progress.infra.repository.ExerciseAttemptRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.UserDailyGoalRepository
-import com.ludocode.ludocodebackend.progress.infra.repository.UserStatsRepository
+import com.ludocode.ludocodebackend.progress.infra.repository.UserCoinsRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.UserStreakRepository
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
@@ -118,7 +118,7 @@ abstract class AbstractIntegrationTest {
     @Autowired lateinit var lessonExercisesRepository: LessonExercisesRepository
     @Autowired lateinit var exerciseOptionRepository: ExerciseOptionRepository
     @Autowired lateinit var optionContentRepository: OptionContentRepository
-    @Autowired lateinit var userStatsRepository: UserStatsRepository
+    @Autowired lateinit var userCoinsRepository: UserCoinsRepository
     @Autowired lateinit var exerciseAttemptRepository: ExerciseAttemptRepository
     @Autowired lateinit var attemptOptionRepository: AttemptOptionRepository
     @Autowired lateinit var userStreakRepository: UserStreakRepository
@@ -151,7 +151,7 @@ abstract class AbstractIntegrationTest {
           user_streak,
           lesson_completion,
           course_progress,
-          user_stats,
+          user_coins,
           ludo_user,
           option_content,
           exercise_option,
@@ -439,7 +439,6 @@ abstract class AbstractIntegrationTest {
             LessonSnap(id = sw1L4, title = "Data Types II", orderIndex = 4, exercises = emptyList())
         )
 
-        // ---- Modules
         val pythonModules = listOf(
             ModuleSnapshot(moduleId = pyMod1Id, title = "Variables",   lessons = pyMod1Lessons),
             ModuleSnapshot(moduleId = pyMod2Id, title = "Conditionals", lessons = pyMod2Lessons)
@@ -448,13 +447,11 @@ abstract class AbstractIntegrationTest {
             ModuleSnapshot(moduleId = swMod1Id, title = "Variables", lessons = swMod1Lessons)
         )
 
-        // ---- Courses
         val snaps = listOf(
             CourseSnap(courseId = pythonId, title = "Python", modules = pythonModules),
             CourseSnap(courseId = swiftId,  title = "Swift",  modules = swiftModules)
         )
 
-        // Single transactional import
         importSnapshots(snaps, defaultVersion = 1)
     }
 

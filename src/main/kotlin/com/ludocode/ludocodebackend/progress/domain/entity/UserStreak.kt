@@ -18,16 +18,16 @@ class UserStreak (
 
     @Column(name = "current_streak_days")
     @ColumnDefault("0")
-    val currentStreakDays: Int? = 0,
+    var currentStreakDays: Int? = 0,
 
     @Column(name = "best_streak_days")
     @ColumnDefault("0")
-    val bestStreakDays: Int? = 0,
+    var bestStreakDays: Int? = 0,
 
     @Column(name = "last_met_local_date")
-    val lastMetLocalDate: LocalDate? = null,
+    var lastMetLocalDate: LocalDate? = null,
 
     @Column(name = "last_met_goal_utc")
-    val lastMetGoalUtc: OffsetDateTime? = null
+    var lastMetGoalUtc: OffsetDateTime? = null
 
 )

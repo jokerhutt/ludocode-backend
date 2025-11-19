@@ -42,11 +42,11 @@ object PathConstants {
 
     const val PROGRESS : String = "$API_V1/progress"
     const val PROGRESS_COURSE : String = "$PROGRESS/course"
-    const val PROGRESS_STATS : String = "$PROGRESS/stats"
+    const val PROGRESS_COINS : String = "$PROGRESS/coins"
     const val PROGRESS_COMPLETION : String = "$PROGRESS/completion"
     const val SUBMIT_COMPLETION : String = "/submit"
     const val RESET_PROGRESS : String = "/{courseId}/reset"
-    const val STATS_BY_USER_IDS : String = "/ids"
+    const val COINS_BY_USER_IDS : String = "/ids"
     const val COURSE_PROGRESS_BY_COURSE_IDS : String = "/ids"
     const val CURRENT_COURSE : String = "/current"
     const val ENROLLED_IDS : String = "/enrolled"
@@ -58,6 +58,7 @@ object PathConstants {
     const val SNAPSHOT : String = "$API_V1/snapshot"
     const val SUBMIT_MODULE_SNAPSHOT : String = "/submit/module"
     const val SUBMIT_COURSE_SNAPSHOT : String = "/submit"
+    const val CREATE_COURSE : String = "/course/create"
     const val SNAPSHOTS_BY_COURSE : String = "/{courseId}"
 
 

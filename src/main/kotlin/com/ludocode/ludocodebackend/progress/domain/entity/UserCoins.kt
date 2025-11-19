@@ -7,14 +7,13 @@ import jakarta.persistence.Table
 import java.util.UUID
 
 @Entity
-@Table(name = "user_stats")
-class UserStats (
+@Table(name = "user_coins")
+class UserCoins (
 
     @Id
     @Column(name = "user_id")
     var userId: UUID,
 
     @Column(nullable = false) var coins: Int = 0,
-    @Column(nullable = false) var streak: Int = 0
 
 )

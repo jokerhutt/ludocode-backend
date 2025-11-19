@@ -21,7 +21,8 @@ CREATE TABLE ludo_user (
 CREATE TABLE course (
         id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
         title TEXT NOT NULL UNIQUE,
-        img_src TEXT
+        img_src TEXT,
+        request_hash UUID DEFAULT gen_random_uuid() NOT NULL UNIQUE
 );
 
 CREATE TABLE module (
@@ -120,10 +121,9 @@ CREATE TABLE user_daily_goal (
      PRIMARY KEY (user_id, local_date)
 );
 
-CREATE TABLE user_stats (
+CREATE TABLE user_coins (
     user_id uuid NOT NULL PRIMARY KEY REFERENCES ludo_user ON DELETE CASCADE,
-    coins INTEGER DEFAULT 0 NOT NULL,
-    streak INTEGER DEFAULT 0 NOT NULL
+    coins INTEGER DEFAULT 0 NOT NULL
 );
 
 CREATE TABLE user_streak (
