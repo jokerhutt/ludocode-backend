@@ -51,7 +51,7 @@ class AuthService(
         )
 
         val coins = userCoinsPortForAuth.findOrCreateCoins(user.id)
-        val streak = userStreakPortForAuth.initializeStreak(user.id)
+        val streak = userStreakPortForAuth.upsertStreak(user.id)
 
         val jwt = jwtService.createToken(user.id)
         authCookieService.setJwt(response, jwt)

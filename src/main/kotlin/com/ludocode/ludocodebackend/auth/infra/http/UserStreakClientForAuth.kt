@@ -17,10 +17,10 @@ class UserStreakClientForAuth (
     @Value("\${user-stats.service.base-url}") private val userStreakServiceBaseUrl: String
 ) : UserStreakPortForAuth {
 
-    override fun initializeStreak(userId: UUID): UserStreakResponse {
-        val url = "$userStreakServiceBaseUrl$ISTREAKPROGRESS/$userId/initialize"
+    override fun upsertStreak(userId: UUID): UserStreakResponse {
+        val url = "$userStreakServiceBaseUrl$ISTREAKPROGRESS/$userId/upsert"
         val resp = rest.postForEntity(url, null, UserStreakResponse::class.java)
-        return resp.body ?: error("Could not initialize user streak")
+        return resp.body ?: error("Could not upsert user streak")
     }
 
 }

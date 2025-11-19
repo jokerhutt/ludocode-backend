@@ -4,5 +4,5 @@ import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
 import java.util.UUID
 
 interface UserStreakPortForAuth {
-    fun initializeStreak(userId: UUID) : UserStreakResponse
+    fun upsertStreak(userId: UUID) : UserStreakResponse
 }
