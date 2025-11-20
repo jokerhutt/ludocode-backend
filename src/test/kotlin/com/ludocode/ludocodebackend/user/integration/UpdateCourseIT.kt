@@ -7,6 +7,7 @@ import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResp
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
+import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.user.api.dto.request.ChangeCourseRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UpdatedCourseResponse
 import io.restassured.RestAssured.given
@@ -47,7 +48,6 @@ class UpdateCourseIT : AbstractIntegrationTest() {
             )
         )
 
-
         val response = submitPostUpdateCurrentCourse(userId = user.id!!, newCourseId = swiftId)
 
         assertThat(response).isNotNull()
@@ -78,16 +78,8 @@ class UpdateCourseIT : AbstractIntegrationTest() {
 
 
     private fun submitPostUpdateCurrentCourse(userId: UUID, newCourseId: UUID): CourseProgressResponseWithEnrolled =
-        given()
-            .header("X-Test-User-Id", userId.toString())
-            .contentType(io.restassured.http.ContentType.JSON)
-            .body(ChangeCourseRequest(newCourseId))
-            .`when`()
-            .post("$PROGRESS_COURSE$UPDATE_COURSE")
-            .then()
-            .statusCode(200)
-            .extract()
-            .`as`(CourseProgressResponseWithEnrolled::class.java)
+        TestRestClient.postOk("$PROGRESS_COURSE$UPDATE_COURSE", userId, ChangeCourseRequest(newCourseId), CourseProgressResponseWithEnrolled::class.java)
+
 
 
 }

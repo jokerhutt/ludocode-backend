@@ -2,18 +2,15 @@ package com.ludocode.ludocodebackend.catalog.integration
 
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.CREATE_COURSE
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.SNAPSHOT
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.SUBMIT_COURSE_SNAPSHOT
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
-import io.restassured.RestAssured.given
+import com.ludocode.ludocodebackend.support.TestRestClient
 import org.assertj.core.api.Assertions.assertThat
 import java.util.UUID
 import kotlin.test.Test
 
 class CreateCourseIT : AbstractIntegrationTest() {
-
 
     @Test
     fun createCourse_createsCourse_returnsNewCourses () {
@@ -34,17 +31,14 @@ class CreateCourseIT : AbstractIntegrationTest() {
         assertThat(created.title).isEqualTo(newCourseName)
     }
 
-
-
     private fun submitPostCreateCourse(req: CreateCourseRequest): List<CourseResponse> =
-        given()
-            .contentType(io.restassured.http.ContentType.JSON)
-            .body(req)
-            .`when`()
-            .post("$SNAPSHOT$CREATE_COURSE")
-            .then()
-            .statusCode(200)
-            .extract()
-            .`as`(object : io.restassured.common.mapper.TypeRef<List<CourseResponse>>() {})
+        TestRestClient
+            .postOk(
+                "$SNAPSHOT$CREATE_COURSE",
+                user1.id!!,
+                req,
+                Array<CourseResponse>::class.java
+            )
+            .toList()
 
 }

@@ -9,17 +9,22 @@ import java.util.UUID
 
 object TestRestClient {
 
-    fun <T : Any> postOk(
+    fun <T : Any?> postOk(
         url: String,
         userId: UUID,
-        body: Any,
+        body: Any?,
         responseType: Class<T>,
     ): T {
-        return given()
+
+        val req = given()
             .header("X-Test-User-Id", userId.toString())
             .contentType(ContentType.JSON)
-            .body(body)
-            .`when`()
+
+        if (body != null) {
+            req.body(body)
+        }
+
+        return req.`when`()
             .post(url)
             .then()
             .statusCode(200)
@@ -34,6 +39,32 @@ object TestRestClient {
     ): T {
         return given()
             .header("X-Test-User-Id", userId.toString())
+            .`when`()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .`as`(responseType)
+    }
+
+    fun <T : Any> getOk(
+        url: String,
+        userId: UUID,
+        responseType: Class<T>,
+        queryParams: Map<String, Any?>
+    ): T {
+        val req = given()
+            .header("X-Test-User-Id", userId.toString())
+
+        queryParams.forEach { (k, v) ->
+            when (v) {
+                is Array<*> -> req.queryParam(k, *v)
+                is Iterable<*> -> req.queryParam(k, *(v.toList().toTypedArray()))
+                else -> req.queryParam(k, v)
+            }
+        }
+
+        return req
             .`when`()
             .get(url)
             .then()
