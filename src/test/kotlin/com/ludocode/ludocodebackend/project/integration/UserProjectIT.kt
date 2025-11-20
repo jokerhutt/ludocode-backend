@@ -229,6 +229,13 @@ class UserProjectIT : AbstractIntegrationTest() {
         assertErrorOnSave(projectId, user1.id!!, snapshotCopy, ErrorCode.INVALID_FILE_NAME)
     }
 
+    @Test
+    fun getProject_notOwnProject_returnsUnautharized () {
+        val projectId = existingProject.id
+        val userId = user2.id!!
+        assertErrorOnGet(projectId, userId, ErrorCode.NOT_ALLOWED)
+    }
+
 
     @Test
     fun getProject_returnsProjectSnapshot () {
@@ -243,6 +250,8 @@ class UserProjectIT : AbstractIntegrationTest() {
        assertThat(res.files.size).isEqualTo(2)
 
     }
+
+
 
     private fun submitGetProjectSnapshot (pid: UUID, userId: UUID): ProjectSnapshot {
         return given()
@@ -304,6 +313,18 @@ class UserProjectIT : AbstractIntegrationTest() {
             .statusCode(200)
             .extract()
             .`as`(ProjectListResponse::class.java)
+    }
+
+
+    private fun assertErrorOnGet (pid: UUID, userId: UUID, errorCode: ErrorCode): ValidatableResponse? {
+        return given()
+            .header("X-Test-User-Id", userId.toString())
+            .`when`()
+            .get("$PROJECT/$pid/get")
+            .then()
+            .statusCode(errorCode.status.value())
+            .body("code", equalTo(errorCode.name))
+            .body("title", equalTo(errorCode.name))
     }
 
     private fun assertErrorOnSave (pid: UUID, userId: UUID, snapshot: ProjectSnapshot, errorCode: ErrorCode): ValidatableResponse? {
