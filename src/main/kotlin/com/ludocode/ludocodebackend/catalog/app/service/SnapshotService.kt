@@ -52,7 +52,7 @@ class SnapshotService(
     }
 
     @Transactional
-    fun createCourse (request: CreateCourseRequest) : List<CourseResponse> {
+    internal fun createCourse (request: CreateCourseRequest) : List<CourseResponse> {
         val newCourseName = request.courseTitle
         val newCourseHash = request.requestHash
 
@@ -125,8 +125,7 @@ class SnapshotService(
         return snapshotBuilderService.buildCourseSnapshot(courseId)
     }
 
-    @Transactional
-    fun applyLessonDiffs(reqModuleSnapshot: ModuleSnapshot) {
+    private fun applyLessonDiffs(reqModuleSnapshot: ModuleSnapshot) {
 
         val moduleId = reqModuleSnapshot.moduleId
         val submittedLessonDiffs = reqModuleSnapshot.lessons
@@ -181,8 +180,7 @@ class SnapshotService(
 
     }
 
-    @Transactional
-    fun applyExerciseDiffs(lessonId: UUID, submittedExerciseDiffs: List<ExerciseSnap>) {
+    private fun applyExerciseDiffs(lessonId: UUID, submittedExerciseDiffs: List<ExerciseSnap>) {
 
         val activeExerciseIdsInLesson = lessonExercisesRepository.findActiveExercisesByLessonId(lessonId)
         val submittedExerciseDiffIds = submittedExerciseDiffs.map { it.id }
@@ -233,8 +231,7 @@ class SnapshotService(
 
     }
 
-    @Transactional
-    fun applyExerciseOptionDiffs(reqExerciseSnapshot: ExerciseSnap,  dbExerciseId: UUID, dbExerciseVersion: Int) {
+    private fun applyExerciseOptionDiffs(reqExerciseSnapshot: ExerciseSnap,  dbExerciseId: UUID, dbExerciseVersion: Int) {
 
         val allOptions = reqExerciseSnapshot.correctOptions + reqExerciseSnapshot.distractors
 
@@ -253,8 +250,7 @@ class SnapshotService(
         }
     }
 
-    @Transactional
-    fun applyModuleDiffs(reqSnapshot: CourseSnap): CourseSnap {
+    private fun applyModuleDiffs(reqSnapshot: CourseSnap): CourseSnap {
 
         val courseId : UUID = reqSnapshot.courseId
         val submittedModuleDiffs : List<ModuleSnapshot> = reqSnapshot.modules

@@ -66,26 +66,26 @@ class CatalogService(
             ErrorCode.LESSON_NOT_FOUND))
     }
 
-    fun getAllCourses (): List<CourseResponse> {
+    internal fun getAllCourses (): List<CourseResponse> {
         return courseMapper.toCourseResponseList(courseRepository.findAll())
     }
 
-    fun getFlatCourseTree(courseId: UUID): FlatCourseTreeResponse {
+    internal fun getFlatCourseTree(courseId: UUID): FlatCourseTreeResponse {
         val rows = moduleRepository.findFlatCourseTree(courseId)
         return flatCourseTreeMapper.toFlatTree(courseId, rows)
     }
 
-    fun getExercisesByLessonId (lessonId: UUID): List<ExerciseResponse> {
+    internal fun getExercisesByLessonId (lessonId: UUID): List<ExerciseResponse> {
        val exercisesWithOptionsFlat: List<ExerciseFlatProjection> = lessonExercisesRepository.getFlatExercisesWithOptions(lessonId)
        return exerciseMapper.toLessonExercises(exercisesWithOptionsFlat)
     }
 
-    fun getModulesByIds (moduleIds: List<UUID>) : List<ModuleResponse> {
+    internal fun getModulesByIds (moduleIds: List<UUID>) : List<ModuleResponse> {
         val modules: List<Module> = moduleRepository.findAllByIdIn(moduleIds)
         return moduleMapper.toModuleResponseList(modules)
     }
 
-    fun getLessonsByIds (lessonIds: List<UUID>, userId: UUID): List<LessonResponse> {
+    internal fun getLessonsByIds (lessonIds: List<UUID>, userId: UUID): List<LessonResponse> {
         val lessons: List<UserLessonProjection> = lessonRepository.findUserLessonsByIds(lessonIds, userId)
         return lessonMapper.toLessonResponseList(lessons)
     }

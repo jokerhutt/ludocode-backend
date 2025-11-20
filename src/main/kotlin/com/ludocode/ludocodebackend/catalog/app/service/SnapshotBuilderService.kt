@@ -37,7 +37,7 @@ class SnapshotBuilderService(
 
     }
 
-    fun buildModuleSnapshot (module: Module) : ModuleSnapshot {
+    private fun buildModuleSnapshot (module: Module) : ModuleSnapshot {
 
         val moduleId = module.id
 
