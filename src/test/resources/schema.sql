@@ -1,7 +1,7 @@
 CREATE EXTENSION if NOT EXISTS pgcrypto;
 
 CREATE TYPE desired_path AS ENUM('DATA', 'IOS');
-
+CREATE TYPE visibility AS ENUM ('PRIVATE', 'UNLISTED', 'PUBLIC');
 CREATE TYPE exercise_type AS ENUM('CLOZE', 'ANALYZE', 'TRIVIA', 'INFO');
 
 CREATE TYPE exercise_type_enum AS ENUM('CLOZE', 'INFO', 'TRIVIA', 'ANALYZE');
@@ -102,7 +102,8 @@ CREATE TABLE user_project (
       project_language language_type NOT NULL,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
       updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-      request_hash uuid unique not null
+      request_hash uuid unique not null,
+      project_visibility visibility NOT NULL DEFAULT 'PUBLIC'
 );
 
 CREATE TABLE project_file (
