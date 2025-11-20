@@ -37,31 +37,15 @@ class CourseProgressService(
 
 
     @Transactional
-    fun resetUserCourseProgress(userId: UUID, courseId: UUID) : CourseProgressResponse {
+    internal fun resetUserCourseProgress(userId: UUID, courseId: UUID) : CourseProgressResponse {
         lessonCompletionRepository.deleteLessonCompletionsForUserAndCourse(userId, courseId)
         val firstLessonIdInCourse = catalogPortForProgress.findFirstLessonIdInCourse(courseId)
         courseProgressRepository.resetCourseProgressForUser(userId, courseId, firstLessonIdInCourse)
         return findCourseProgress(userId, courseId)
     }
 
-    fun getEnrolledCourseIds(userId: UUID) : List<UUID> {
-        return courseProgressRepository.findAllCourseIdsForUser(userId)
-    }
 
-    fun findCurrentCourseId(userId: UUID) : UUID? {
-        return courseProgressRepository.findCurrentCourseIdForUser(userId)
-    }
-
-    fun findCourseProgressList(courseIds: List<UUID>, userId: UUID) : List<CourseProgressResponse> {
-        return courseProgressMapper.toCourseProgressResponseList(courseProgressRepository.findAllProgressWithModulesByUserAndCourses(userId, courseIds))
-    }
-
-    fun findCourseProgress(userId: UUID, courseId: UUID): CourseProgressResponse {
-        return courseProgressMapper.toCourseProgressResponse(courseProgressRepository.findProgressWithModule(userId, courseId) ?: throw IllegalStateException("progress not found"))
-    }
-
-    @Transactional
-    fun updateLesson(userId: UUID, courseId: UUID, isCompleted: Boolean, newLessonId: UUID?) : CourseProgressWithCompletion? {
+    internal fun updateLesson(userId: UUID, courseId: UUID, isCompleted: Boolean, newLessonId: UUID?) : CourseProgressWithCompletion? {
         if (isCompleted) return CourseProgressWithCompletion(findCourseProgress(userId, courseId), false)
 
         var isFirstCompletion = false
@@ -80,6 +64,23 @@ class CourseProgressService(
         return CourseProgressWithCompletion(findCourseProgress(userId, courseId), isFirstCompletion)
     }
 
+    internal fun getEnrolledCourseIds(userId: UUID) : List<UUID> {
+        return courseProgressRepository.findAllCourseIdsForUser(userId)
+    }
 
+   internal fun findCurrentCourseId(userId: UUID) : UUID? {
+        return courseProgressRepository.findCurrentCourseIdForUser(userId)
+    }
+
+    internal fun findCourseProgressList(courseIds: List<UUID>, userId: UUID) : List<CourseProgressResponse> {
+        return courseProgressMapper.toCourseProgressResponseList(courseProgressRepository.findAllProgressWithModulesByUserAndCourses(userId, courseIds))
+    }
+
+
+
+
+    private fun findCourseProgress(userId: UUID, courseId: UUID): CourseProgressResponse {
+        return courseProgressMapper.toCourseProgressResponse(courseProgressRepository.findProgressWithModule(userId, courseId) ?: throw IllegalStateException("progress not found"))
+    }
 
 }
