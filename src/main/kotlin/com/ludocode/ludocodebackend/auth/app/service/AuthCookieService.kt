@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 class AuthCookieService {
 
     @Value("\${auth.cookie.name:jwt}")
-    private lateinit var cookieName: String   // not nullable
+    private lateinit var cookieName: String
 
     @Value("\${auth.cookie.path:/}")
     private lateinit var cookiePath: String
@@ -28,27 +28,27 @@ class AuthCookieService {
     @Value("\${auth.cookie.max-age-seconds:86400}")
     private var defaultMaxAge: Long = 0
 
-    fun setJwt(response: HttpServletResponse, jwt: String, maxAgeSeconds: Long = defaultMaxAge) {
+    internal fun setJwt(response: HttpServletResponse, jwt: String, maxAgeSeconds: Long = defaultMaxAge) {
         addCookie(response, jwt, maxAgeSeconds)
     }
 
-    fun clearJwt(response: HttpServletResponse) {
+    internal fun clearJwt(response: HttpServletResponse) {
         addCookie(response, "", 0)
     }
 
-    fun readJwt(request: HttpServletRequest): String? =
+    internal fun readJwt(request: HttpServletRequest): String? =
         request.cookies?.firstOrNull { it.name == cookieName }?.value
 
     private fun addCookie(response: HttpServletResponse, value: String, maxAgeSeconds: Long) {
         val b = ResponseCookie.from(cookieName, value)
             .httpOnly(true)
             .secure(secure)
-            .sameSite(sameSite)   // "Lax" for same-site localhost; use "None" + secure=true for cross-site
+            .sameSite(sameSite)
             .path(cookiePath)
             .maxAge(maxAgeSeconds)
 
         if (cookieDomain.isNotBlank()) {
-            b.domain(cookieDomain)   // only set when nonblank; never set for localhost
+            b.domain(cookieDomain)
         }
 
         val header = b.build().toString()

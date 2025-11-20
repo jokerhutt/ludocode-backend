@@ -23,7 +23,7 @@ class AuthService(
     private val userStreakPortForAuth: UserStreakPortForAuth
 ) {
 
-    fun loginWithGoogle(code: String, response: HttpServletResponse): UserLoginResponse {
+    internal fun loginWithGoogle(code: String, response: HttpServletResponse): UserLoginResponse {
 
         val googleTokens = googleAuth.exchangeCodeForAccessToken(code)
 
@@ -56,7 +56,7 @@ class AuthService(
         return UserLoginResponse(user, coins, streak)
     }
 
-    fun getAuthenticatedUser (id: UUID) : UserResponse {
+    internal fun getAuthenticatedUser (id: UUID) : UserResponse {
         return userPortForAuth.getById(id)
     }
 
