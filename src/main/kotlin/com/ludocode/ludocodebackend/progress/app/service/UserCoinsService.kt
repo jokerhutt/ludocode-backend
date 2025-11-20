@@ -15,9 +15,7 @@ class UserCoinsService(private val userCoinsRepository: UserCoinsRepository,
                        private val userCoinsMapper: UserCoinsMapper
 ) : UserCoinsUseCase {
 
-    fun getUserCoinsList (userIds: List<UUID>) : List<UserCoinsResponse> {
-        return userCoinsMapper.toUserCoinsResponseList(userCoinsRepository.findAllById(userIds))
-    }
+
 
     @Transactional
     override fun findOrCreateCoins(userId: UUID): UserCoinsResponse {
@@ -28,8 +26,13 @@ class UserCoinsService(private val userCoinsRepository: UserCoinsRepository,
         return userCoinsMapper.toUserCoinsResponse(stats)
     }
 
+
+    internal fun getUserCoinsList (userIds: List<UUID>) : List<UserCoinsResponse> {
+        return userCoinsMapper.toUserCoinsResponseList(userCoinsRepository.findAllById(userIds))
+    }
+
     @Transactional
-    fun apply(delta: PointsDelta): UserCoinsResponse {
+    internal fun apply(delta: PointsDelta): UserCoinsResponse {
         val stats = userCoinsRepository.findById(delta.userId).orElseGet {
             userCoinsRepository.save(UserCoins(delta.userId, 0))
         }

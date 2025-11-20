@@ -39,7 +39,7 @@ class ProjectService(
 ) {
 
     @Transactional
-    fun createProject(request: CreateProjectRequest, userId: UUID) : ProjectListResponse {
+    internal fun createProject(request: CreateProjectRequest, userId: UUID) : ProjectListResponse {
 
         val projectName = request.projectName
         val language = request.projectLanguage
@@ -92,7 +92,7 @@ class ProjectService(
         return name
     }
 
-    fun getUserProjects(userId: UUID) : ProjectListResponse {
+    internal fun getUserProjects(userId: UUID) : ProjectListResponse {
         val projectIds = userProjectRepository.findAllByUserId(userId)
         val projectSnapshots = mutableListOf<ProjectSnapshot>()
         for (projectId in projectIds) {
@@ -101,7 +101,7 @@ class ProjectService(
         return ProjectListResponse(projectSnapshots)
     }
 
-    fun getProjectSnapshotByProjectId (projectId: UUID) : ProjectSnapshot {
+    internal fun getProjectSnapshotByProjectId (projectId: UUID) : ProjectSnapshot {
 
         val projectName = userProjectRepository.getProjectNameById(projectId)
         val projectLanguage = userProjectRepository.getProjectLanaguageById(projectId)
@@ -113,7 +113,7 @@ class ProjectService(
     }
 
     @Transactional
-    fun deleteProjectForUser (projectId: UUID, userId: UUID) : ProjectListResponse {
+    internal fun deleteProjectForUser (projectId: UUID, userId: UUID) : ProjectListResponse {
 
         val existingProject = userProjectRepository.findById(projectId).orElseThrow()
         val existingFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
@@ -130,7 +130,7 @@ class ProjectService(
     }
 
     @Transactional
-    fun renameProject (renameRequest: RenameRequest, userId: UUID) : ProjectListResponse {
+    internal fun renameProject (renameRequest: RenameRequest, userId: UUID) : ProjectListResponse {
 
         val projectId = renameRequest.targetId
         val newName = renameRequest.newName
@@ -144,7 +144,7 @@ class ProjectService(
     }
 
     @Transactional
-    fun saveProjectSnapshot (projectSnapshot: ProjectSnapshot): ProjectSnapshot {
+    internal fun saveProjectSnapshot (projectSnapshot: ProjectSnapshot): ProjectSnapshot {
 
         if (!userProjectRepository.existsById(projectSnapshot.projectId)) throw ApiException(ErrorCode.PROJECT_NOT_FOUND, "This project doesnt exist")
 

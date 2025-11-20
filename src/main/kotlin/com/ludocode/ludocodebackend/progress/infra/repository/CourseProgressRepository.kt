@@ -100,6 +100,7 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
     )
     fun upsert(userId: UUID, courseId: UUID, firstLessonId: UUID, @Param("now") now: OffsetDateTime): Int
 
+    //CAN STAY
     @Modifying
     @Query(
         """

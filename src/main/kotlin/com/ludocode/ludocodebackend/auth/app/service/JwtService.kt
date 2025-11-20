@@ -18,7 +18,7 @@ import java.util.UUID
 class JwtService(
     private val authCookieService: AuthCookieService
 ) {
-    private val expirationMillis = 1000L * 60 * 60 * 24 // 24h
+    private val expirationMillis = 1000L * 60 * 60 * 24
 
     @Value("\${jwt.secret}")
     private lateinit var jwtSecret: String
@@ -26,7 +26,7 @@ class JwtService(
     private fun getSigningKey(): Key =
         Keys.hmacShaKeyFor(jwtSecret.toByteArray(StandardCharsets.UTF_8))
 
-    fun createToken(userId: UUID): String =
+    internal fun createToken(userId: UUID): String =
         Jwts.builder()
             .setSubject(userId.toString())
             .setIssuedAt(Date())
@@ -34,7 +34,7 @@ class JwtService(
             .signWith(getSigningKey(), SignatureAlgorithm.HS256)
             .compact()
 
-    fun requireUserId(token: String): UUID {
+    internal fun requireUserId(token: String): UUID {
         if (token.isBlank())
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing token")
 

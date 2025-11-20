@@ -23,21 +23,18 @@ class AuthService(
     private val userStreakPortForAuth: UserStreakPortForAuth
 ) {
 
-    fun loginWithGoogle(code: String, response: HttpServletResponse): UserLoginResponse {
+    internal fun loginWithGoogle(code: String, response: HttpServletResponse): UserLoginResponse {
 
-        // 1) Exchange code with Google for tokens
         val googleTokens = googleAuth.exchangeCodeForAccessToken(code)
 
-        // 2) Parse Google ID token (sub, email, name, avatar)
         val claims = SignedJWT.parse(googleTokens.idToken).jwtClaimsSet
 
-        val providerSub = claims.subject // Google user ID
+        val providerSub = claims.subject
         val email = claims.getStringClaim("email")
         val firstName = claims.getStringClaim("given_name")
         val lastName = claims.getStringClaim("family_name")
         val avatar = claims.getStringClaim("picture")
 
-        // 3) Ask User microservice to findOrCreate the user
         val user = userPortForAuth.findOrCreate(
             FindOrCreateUserRequest(
                 provider = AuthProvider.GOOGLE,
@@ -59,7 +56,7 @@ class AuthService(
         return UserLoginResponse(user, coins, streak)
     }
 
-    fun getAuthenticatedUser (id: UUID) : UserResponse {
+    internal fun getAuthenticatedUser (id: UUID) : UserResponse {
         return userPortForAuth.getById(id)
     }
 

@@ -32,47 +32,6 @@ class GcsService(private val storage: Storage) : GcsUseCase {
 
     }
 
-    override fun deleteDataList(req: GcsDeleteRequestList): UploadedPaths {
-       val requests = req.paths
-       val bucket = "ludo-file-content"
-
-       try {
-           for (request in requests) {
-                deleteData(bucket, request)
-           }
-           return UploadedPaths(requests)
-       } catch (ex: Exception) {
-           throw ex
-       }
-
-    }
-
-    fun uploadData (bucketName: String, request: GcsPutRequest) : String {
-
-        val blobId = BlobId.of(bucketName, request.path)
-        val blobInfo = BlobInfo.newBuilder(blobId)
-            .setContentType("text/plain")
-            .build()
-
-        storage.create(blobInfo, request.content.toByteArray(Charsets.UTF_8))
-        return "File uploaded to GCP"
-
-    }
-
-    fun deleteData(bucketName: String, path: String): String {
-        val success = storage.delete(bucketName, path)
-
-        return if (success) {
-            "File deleted from GCS"
-        } else {
-            "File not found or already deleted"
-        }
-    }
-
-    fun rollbackAdditions (bucket: String, uploaded: List<String>) {
-        uploaded.forEach { path -> storage.delete(bucket, path) }
-    }
-
     override fun getContentFromUrls(paths: List<String>): Map<String, String> {
 
         val bucket = "ludo-file-content"
@@ -90,12 +49,54 @@ class GcsService(private val storage: Storage) : GcsUseCase {
                 }
             } catch (_: Exception) {
                 println("Missing Content")
-                // ignore missing blobs
             }
         }
 
         return result
     }
+
+    override fun deleteDataList(req: GcsDeleteRequestList): UploadedPaths {
+       val requests = req.paths
+       val bucket = "ludo-file-content"
+
+       try {
+           for (request in requests) {
+                deleteData(bucket, request)
+           }
+           return UploadedPaths(requests)
+       } catch (ex: Exception) {
+           throw ex
+       }
+
+    }
+
+    private fun uploadData (bucketName: String, request: GcsPutRequest) : String {
+
+        val blobId = BlobId.of(bucketName, request.path)
+        val blobInfo = BlobInfo.newBuilder(blobId)
+            .setContentType("text/plain")
+            .build()
+
+        storage.create(blobInfo, request.content.toByteArray(Charsets.UTF_8))
+        return "File uploaded to GCP"
+
+    }
+
+    private fun deleteData(bucketName: String, path: String): String {
+        val success = storage.delete(bucketName, path)
+
+        return if (success) {
+            "File deleted from GCS"
+        } else {
+            "File not found or already deleted"
+        }
+    }
+
+    private fun rollbackAdditions (bucket: String, uploaded: List<String>) {
+        uploaded.forEach { path -> storage.delete(bucket, path) }
+    }
+
+
 
 
 

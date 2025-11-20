@@ -29,6 +29,14 @@ class UserService(
     private val courseProgressPortForUser: CourseProgressPortForUser,
 ) : UserUseCase {
 
+    override fun getById(id: UUID): UserResponse {
+        return userMapper.toUserResponse(userRepository.findById(id).orElseThrow())
+    }
+
+    override fun getUserTimezone(userId: UUID): String? {
+        return userRepository.findUserTimeZone(userId)
+    }
+
     @Transactional
     override fun findOrCreate(req: FindOrCreateUserRequest): UserResponse {
 
@@ -56,28 +64,20 @@ class UserService(
         return userMapper.toUserResponse(newUser)
     }
 
-    override fun getUserTimezone(userId: UUID): String? {
-        return userRepository.findUserTimeZone(userId)
-    }
-
     @Transactional
-    fun createPreferences (submission: OnboardingSubmission, userId: UUID) : OnboardingResponse {
+    internal fun createPreferences (submission: OnboardingSubmission, userId: UUID) : OnboardingResponse {
         val toSubmit = UserPreferences(userId = userId, hasExperience = submission.hasProgrammingExperience, chosenPath = submission.chosenPath)
         val savedPreferences = userPreferencesRepository.save(toSubmit)
         val newCourseProgressWithEnrolled = courseProgressPortForUser.findOrCreate(userId, submission.chosenCourse)
         return OnboardingResponse(preferences = savedPreferences, courseProgressResponse = newCourseProgressWithEnrolled)
     }
 
-    fun getPreferences (userId: UUID) : UserPreferences {
+    internal fun getPreferences (userId: UUID) : UserPreferences {
         val preferences = userPreferencesRepository.findById(userId).orElseThrow()
         return preferences
     }
 
-    override fun getById(id: UUID): UserResponse {
-       return userMapper.toUserResponse(userRepository.findById(id).orElseThrow())
-    }
-
-    fun getUsersByIds(userIds: List<UUID>): List<UserResponse> {
+    internal fun getUsersByIds(userIds: List<UUID>): List<UserResponse> {
         val users = userRepository.findAllByIdIn(userIds)
         return userMapper.toUserResponseList(users)
     }

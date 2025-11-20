@@ -26,8 +26,36 @@ class StreakService(
     private val clock: Clock,
 ) : UserStreakUseCase {
 
+
     @Transactional
-    fun upsertStreak(
+    override fun getStreak(userId: UUID): UserStreakResponse {
+        val userStreak = initializeIfAbsentReturning(userId)
+        return userStreakMapper.toStreakResponse(userStreak)
+    }
+
+    @Transactional
+    internal fun recordGoalMet(userId: UUID, nowUtc: OffsetDateTime): StreakResponsePacket {
+        val userZone = ZoneId.of(userPortForProgress.getUserTimezone(userId))
+        val today = nowUtc.atZoneSameInstant(userZone).toLocalDate()
+        initializeIfAbsentReturning(userId)
+        val inserted = userDailyGoalRepository.insertOnce(userId, today)
+        if (inserted == 0) return StreakResponsePacket(action = StreakAction.NONE, response = getStreak(userId))
+        return StreakResponsePacket(action = StreakAction.INCREMENT, response = updateStreak(userId, nowUtc, userZone))
+    }
+
+    private fun initializeIfAbsentReturning(userId: UUID): UserStreak {
+        val streak = userStreakRepository.findByUserId(userId)
+        if (streak == null) {
+            return userStreakRepository.save(createNewStreak(userId))
+        }
+        if (shouldResetStreak(userId, streak.lastMetLocalDate)) {
+           streak.currentStreakDays = 0
+           userStreakRepository.save(streak)
+        }
+        return streak
+    }
+
+    private fun upsertStreak(
         userId: UUID,
         current: Int,
         best: Int,
@@ -42,37 +70,7 @@ class StreakService(
         userStreakRepository.save(existing)
     }
 
-    @Transactional
-    fun recordGoalMet(userId: UUID, nowUtc: OffsetDateTime): StreakResponsePacket {
-        val userZone = ZoneId.of(userPortForProgress.getUserTimezone(userId))
-        val today = nowUtc.atZoneSameInstant(userZone).toLocalDate()
-        initializeIfAbsentReturning(userId)
-        val inserted = userDailyGoalRepository.insertOnce(userId, today)
-        if (inserted == 0) return StreakResponsePacket(action = StreakAction.NONE, response = getStreak(userId))
-        return StreakResponsePacket(action = StreakAction.INCREMENT, response = updateStreak(userId, nowUtc, userZone))
-    }
-
-    @Transactional
-    fun initializeIfAbsentReturning(userId: UUID): UserStreak {
-        val streak = userStreakRepository.findByUserId(userId)
-        if (streak == null) {
-            return userStreakRepository.save(createNewStreak(userId))
-        }
-        if (shouldResetStreak(userId, streak.lastMetLocalDate)) {
-           streak.currentStreakDays = 0
-           userStreakRepository.save(streak)
-        }
-        return streak
-    }
-
-    @Transactional
-    override fun getStreak(userId: UUID): UserStreakResponse {
-        val userStreak = initializeIfAbsentReturning(userId)
-        return userStreakMapper.toStreakResponse(userStreak)
-    }
-
-    @Transactional
-    fun updateStreak(
+    private fun updateStreak(
         userId: UUID,
         nowUtc: OffsetDateTime,
         userZone: ZoneId
@@ -102,7 +100,6 @@ class StreakService(
         if (hasMissedStreak(today, lastModified!!)) return 1
         return currentStreakDays
     }
-
 
     private fun shouldResetStreak (userId: UUID, lastModified: LocalDate?) : Boolean {
         if (lastModified == null) return false;

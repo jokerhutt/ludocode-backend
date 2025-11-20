@@ -53,7 +53,6 @@ class LessonCompletionService(
         val lessonCompletion = addPointsAndCommitSubmission(request, userId, courseId)
         val scoreForLesson = lessonCompletion.score!!
 
-
         val submittedLesson = catalogPortForProgress.findLessonResponseById(currentLessonId, userId)
         val isCompleted = submittedLesson.isCompleted
         if (!submittedLesson.isCompleted) submittedLesson.isCompleted = true
@@ -63,10 +62,7 @@ class LessonCompletionService(
         val isFirstCompletion = newCourseProgressWithCompletion!!.isFirstCompletion
 
         val nowUtc = OffsetDateTime.now(clock)
-        println("Checking one")
-        println("NOW UTC: $nowUtc")
         val newStreak: StreakResponsePacket = streakService.recordGoalMet(userId, nowUtc)
-        println("Recorded goal met")
         val newStats = userCoinsService.apply(PointsDelta(userId = userId, pointsDelta = scoreForLesson))
         val responseContent = LessonCompletionResponse(newStats, newStreak.response, newCourseProgress, submittedLesson, accuracy = lessonCompletion.accuracy)
 
@@ -76,8 +72,7 @@ class LessonCompletionService(
 
     }
 
-    @Transactional
-    fun addPointsAndCommitSubmission (request: LessonSubmissionRequest, userId: UUID, courseId: UUID): LessonCompletion {
+    private fun addPointsAndCommitSubmission (request: LessonSubmissionRequest, userId: UUID, courseId: UUID): LessonCompletion {
 
         val currentLessonId = request.lessonId
 
