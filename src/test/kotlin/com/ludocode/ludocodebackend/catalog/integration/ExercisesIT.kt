@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach
 import java.util.UUID
 import kotlin.test.Test
 
+
 class ExercisesIT : AbstractIntegrationTest() {
 
     @BeforeEach
