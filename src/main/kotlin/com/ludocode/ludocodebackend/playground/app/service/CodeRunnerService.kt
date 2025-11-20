@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
 @Service
 class CodeRunnerService(private val pistonOutboundPort: PistonOutboundPort) {
 
-    fun runCode (project: ProjectSnapshot) : RunnerResult {
+    internal fun runCode (project: ProjectSnapshot) : RunnerResult {
 
         println("RC1")
 
