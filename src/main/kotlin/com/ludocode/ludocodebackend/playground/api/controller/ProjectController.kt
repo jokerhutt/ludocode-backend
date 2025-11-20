@@ -12,11 +12,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.nio.file.Path
 import java.util.UUID
 
 @RestController
@@ -43,14 +41,14 @@ class ProjectController(private val projectService: ProjectService, private val 
         return ResponseEntity.ok(projectService.createProject(request, userId))
     }
 
-    @GetMapping(PathConstants.GET_USER_PROJECTS)
+    @GetMapping(PathConstants.GET_MY_PROJECTS)
     fun getUserProjects (@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<ProjectListResponse> {
         return ResponseEntity.ok(projectService.getUserProjects(userId))
     }
 
     @GetMapping(PathConstants.GET_PROJECT)
-    fun getProject (@PathVariable pid: UUID) : ResponseEntity<ProjectSnapshot> {
-        return ResponseEntity.ok(projectService.getProjectSnapshotByProjectId(pid))
+    fun getProject (@PathVariable pid: UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectSnapshot> {
+        return ResponseEntity.ok(projectService.getProjectSnapshotForUserByProjectId(pid, userId))
     }
 
     @PostMapping(PathConstants.RUN_PROJECT)
