@@ -76,6 +76,7 @@ abstract class AbstractIntegrationTest {
      var sw1L4 = UUID.randomUUID()
 
     lateinit var user1: User
+    lateinit var user2: User
 
 
     init {
@@ -282,11 +283,11 @@ abstract class AbstractIntegrationTest {
     }
 
     protected fun initializeUsers () {
-
-
-
         user1 = userRepository.save(
             User(firstName = "John", lastName = "Doe", pfpSrc = "Test", createdAt = OffsetDateTime.now(clock), email = "email@google.com"))
+        user2 = userRepository.save(
+            User(firstName = "Micheal", lastName = "Scott", pfpSrc = "Test", createdAt = OffsetDateTime.now(clock), email = "mscott@google.com"))
+
     }
 
     @Transactional

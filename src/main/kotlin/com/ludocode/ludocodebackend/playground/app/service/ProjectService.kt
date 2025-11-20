@@ -96,12 +96,19 @@ class ProjectService(
         val projectIds = userProjectRepository.findAllByUserId(userId)
         val projectSnapshots = mutableListOf<ProjectSnapshot>()
         for (projectId in projectIds) {
-            projectSnapshots.add(getProjectSnapshotByProjectId(projectId))
+            projectSnapshots.add(getProjectSnapshotForUserByProjectId(projectId, userId))
         }
         return ProjectListResponse(projectSnapshots)
     }
 
-    internal fun getProjectSnapshotByProjectId (projectId: UUID) : ProjectSnapshot {
+    internal fun getProjectSnapshotForUserByProjectId (projectId: UUID, userId: UUID) : ProjectSnapshot {
+        val project = userProjectRepository.findById(projectId).orElseThrow()
+        val isOwnProject = project.userId == userId
+        if (!isOwnProject) throw ApiException(ErrorCode.NOT_ALLOWED)
+        return getProjectSnapshotByProjectId(projectId)
+    }
+
+    private fun getProjectSnapshotByProjectId (projectId: UUID) : ProjectSnapshot {
 
         val projectName = userProjectRepository.getProjectNameById(projectId)
         val projectLanguage = userProjectRepository.getProjectLanaguageById(projectId)

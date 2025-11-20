@@ -26,7 +26,7 @@ object PathConstants {
     const val RENAME_PROJECT : String = "/rename"
     const val GET_PROJECT : String = "/{pid}/get"
     const val RUN_PROJECT : String = "/run"
-    const val GET_USER_PROJECTS : String = "/get-projects"
+    const val GET_MY_PROJECTS : String = "/my-projects"
 
     const val AUTH : String = "$API_V1/auth"
     const val GOOGLE_LOGIN : String = "/google-login"
