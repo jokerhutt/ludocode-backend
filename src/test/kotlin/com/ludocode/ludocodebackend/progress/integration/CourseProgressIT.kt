@@ -1,12 +1,11 @@
 package com.ludocode.ludocodebackend.progress.integration
-
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROGRESS_COURSE
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
+import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.user.domain.entity.User
-import io.restassured.RestAssured.given
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import java.time.OffsetDateTime
@@ -31,7 +30,7 @@ class CourseProgressIT : AbstractIntegrationTest() {
         val course2Id = swiftId
         val course2CurrentLesson = sw1L3
 
-        val progressList = courseProgressRepository.saveAll(listOf(
+        courseProgressRepository.saveAll(listOf(
             CourseProgress(id = CourseProgressId(user.id!!, course1Id), currentLessonId = course1CurrentLesson, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
             CourseProgress(id = CourseProgressId(user.id!!, course2Id), currentLessonId = course2CurrentLesson, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
         ))
@@ -87,41 +86,29 @@ class CourseProgressIT : AbstractIntegrationTest() {
 
     @Test
     fun getCourseProgressList_NoCourses_returnsEmpty () {
-
         val user: User = user1
         courseProgressRepository.deleteAll()
-
         val response = submitGetCourseProgressList(user.id!!, listOf())
-
         assertThat(response).isEmpty()
 
     }
 
-
-    private fun submitGetCourseProgressList(userId: UUID, courseIds: List<UUID>): List<CourseProgressResponse> =
-        given()
-            .header("X-Test-User-Id", userId.toString())
-            .queryParam("courseIds", *courseIds.toTypedArray())
-            .`when`()
-            .get("$PROGRESS_COURSE/ids")
-            .then()
-            .statusCode(200)
-            .extract()
-            .`as`(Array<CourseProgressResponse>::class.java)
+    private fun submitGetCourseProgressList(
+        userId: UUID,
+        courseIds: List<UUID>
+    ): List<CourseProgressResponse> =
+        TestRestClient
+            .getOk(
+                "$PROGRESS_COURSE/ids",
+                userId,
+                Array<CourseProgressResponse>::class.java,
+                mapOf("courseIds" to courseIds)
+            )
             .toList()
 
 
     private fun submitResetCourseProgress(userId: UUID, courseId: UUID):CourseProgressResponse =
-        given()
-            .header("X-Test-User-Id", userId.toString())
-            .`when`()
-            .post("$PROGRESS_COURSE/$courseId/reset")
-            .then()
-            .statusCode(200)
-            .extract()
-            .`as`(CourseProgressResponse::class.java)
-
-
+        TestRestClient.postOk("$PROGRESS_COURSE/$courseId/reset", userId, null, CourseProgressResponse::class.java)
 
 
 }

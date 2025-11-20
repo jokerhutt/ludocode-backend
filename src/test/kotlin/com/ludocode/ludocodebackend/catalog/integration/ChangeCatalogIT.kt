@@ -2,15 +2,13 @@ package com.ludocode.ludocodebackend.catalog.integration
 
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotBuilderService
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.SNAPSHOT
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.SUBMIT_COURSE_SNAPSHOT
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.SUBMIT_MODULE_SNAPSHOT
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
-import io.restassured.RestAssured.given
+import com.ludocode.ludocodebackend.support.TestRestClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -32,7 +30,6 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
     fun submitCourseChange_returnsChanged() {
         val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
 
-        // capture "before" counts
         val initialModule = pythonSnap.modules.first()
         val moduleToDelete = pythonSnap.modules[1]
         val initialModuleCount = pythonSnap.modules.size
@@ -103,14 +100,6 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
     }
 
     private fun submitPostUpdateCatalog(req: CourseSnap): CourseSnap =
-        given()
-            .contentType(io.restassured.http.ContentType.JSON)
-            .body(req)
-            .`when`()
-            .post("$SNAPSHOT$SUBMIT_COURSE_SNAPSHOT")
-            .then()
-            .statusCode(200)
-            .extract()
-            .`as`(CourseSnap::class.java)
+        TestRestClient.postOk("$SNAPSHOT$SUBMIT_COURSE_SNAPSHOT", user1.id!!, req, CourseSnap::class.java)
 
 }

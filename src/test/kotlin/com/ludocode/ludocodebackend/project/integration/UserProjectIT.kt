@@ -2,12 +2,8 @@ package com.ludocode.ludocodebackend.project.integration
 
 import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.BucketInfo
-import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTreeResponse
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.CREATE_PROJECT
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROGRESS_COURSE
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROJECT
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.SAVE_PROJECT
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.util.sha256
 import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequest
@@ -18,18 +14,15 @@ import com.ludocode.ludocodebackend.playground.app.dto.response.RenameRequest
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
-import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
-import io.restassured.RestAssured.given
+import com.ludocode.ludocodebackend.support.TestRestClient
 import io.restassured.response.ValidatableResponse
-import org.apache.commons.codec.language.bm.Lang
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import java.security.MessageDigest
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
-import org.hamcrest.Matchers.equalTo
+
 class UserProjectIT : AbstractIntegrationTest() {
 
     lateinit var existingProject: UserProject
@@ -251,94 +244,27 @@ class UserProjectIT : AbstractIntegrationTest() {
 
     }
 
+    private fun submitGetProjectSnapshot (pid: UUID, userId: UUID): ProjectSnapshot =
+        TestRestClient.getOk("$PROJECT/$pid/get", userId, ProjectSnapshot::class.java)
 
+    private fun submitPostSaveProjectSnapshot (pid: UUID, userId: UUID, snapshot: ProjectSnapshot): ProjectSnapshot =
+        TestRestClient.postOk("$PROJECT/$pid/save", userId, snapshot, ProjectSnapshot::class.java)
 
-    private fun submitGetProjectSnapshot (pid: UUID, userId: UUID): ProjectSnapshot {
-        return given()
-            .header("X-Test-User-Id", userId.toString())
-            .`when`()
-            .get("$PROJECT/$pid/get")
-            .then()
-            .statusCode(200)
-            .extract()
-            .`as`(ProjectSnapshot::class.java)
-    }
+    private fun submitPostDeleteProject (pid: UUID, userId: UUID) : ProjectListResponse =
+        TestRestClient.postOk("$PROJECT/$pid/delete", userId, null, ProjectListResponse::class.java)
 
-    private fun submitPostSaveProjectSnapshot (pid: UUID, userId: UUID, snapshot: ProjectSnapshot): ProjectSnapshot {
-       return given()
-           .header("X-Test-User-Id", userId.toString())
-           .contentType(io.restassured.http.ContentType.JSON)
-           .body(snapshot)
-           .`when`()
-           .post("$PROJECT/$pid/save")
-           .then()
-           .statusCode(200)
-           .extract()
-           .`as`(ProjectSnapshot::class.java)
-    }
+    private fun submitPostRenameProject (request: RenameRequest, userId: UUID) : ProjectListResponse =
+        TestRestClient.postOk("$PROJECT/rename", userId, request, ProjectListResponse::class.java)
 
-    private fun submitPostDeleteProject (pid: UUID, userId: UUID) : ProjectListResponse {
-        return given()
-        .header("X-Test-User-Id", userId.toString())
-            .contentType(io.restassured.http.ContentType.JSON)
-            .`when`()
-            .post("$PROJECT/$pid/delete")
-            .then()
-            .statusCode(200)
-            .extract()
-            .`as`(ProjectListResponse::class.java)
-    }
+    private fun submitPostCreateProject (request: CreateProjectRequest, userId: UUID) : ProjectListResponse =
+        TestRestClient.postOk("$PROJECT$CREATE_PROJECT", userId, request, ProjectListResponse::class.java)
 
-    private fun submitPostRenameProject (request: RenameRequest, userId: UUID) : ProjectListResponse {
-        return given()
-            .header("X-Test-User-Id", userId.toString())
-            .contentType(io.restassured.http.ContentType.JSON)
-            .body(request)
-            .`when`()
-            .post("$PROJECT/rename")
-            .then()
-            .statusCode(200)
-            .extract()
-            .`as`(ProjectListResponse::class.java)
-    }
+    private fun assertErrorOnGet (pid: UUID, userId: UUID, errorCode: ErrorCode): ValidatableResponse? =
+        TestRestClient.assertError("GET", "$PROJECT/$pid/get", userId, null, errorCode)
 
-    private fun submitPostCreateProject (request: CreateProjectRequest, userId: UUID) : ProjectListResponse {
-        return given()
-            .header("X-Test-User-Id", userId.toString())
-            .contentType(io.restassured.http.ContentType.JSON)
-            .body(request)
-            .`when`()
-            .post("$PROJECT$CREATE_PROJECT")
-            .then()
-            .statusCode(200)
-            .extract()
-            .`as`(ProjectListResponse::class.java)
-    }
+    private fun assertErrorOnSave (pid: UUID, userId: UUID, snapshot: ProjectSnapshot, errorCode: ErrorCode): ValidatableResponse? =
+        TestRestClient.assertError("POST", "$PROJECT/$pid/save", userId, snapshot, errorCode)
 
-
-    private fun assertErrorOnGet (pid: UUID, userId: UUID, errorCode: ErrorCode): ValidatableResponse? {
-        return given()
-            .header("X-Test-User-Id", userId.toString())
-            .`when`()
-            .get("$PROJECT/$pid/get")
-            .then()
-            .statusCode(errorCode.status.value())
-            .body("code", equalTo(errorCode.name))
-            .body("title", equalTo(errorCode.name))
-    }
-
-    private fun assertErrorOnSave (pid: UUID, userId: UUID, snapshot: ProjectSnapshot, errorCode: ErrorCode): ValidatableResponse? {
-        return given()
-            .header("X-Test-User-Id", userId.toString())
-            .contentType(io.restassured.http.ContentType.JSON)
-            .body(snapshot)
-            .`when`()
-            .post("$PROJECT/$pid/save")
-            .then()
-            .statusCode(errorCode.status.value())
-            .body("code", equalTo(errorCode.name))
-            .body("title", equalTo(errorCode.name))
-    }
 
 
 }

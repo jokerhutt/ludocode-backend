@@ -1,14 +1,10 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
 import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
-import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
-import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
-import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
-import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
-import io.restassured.RestAssured.given
+import com.ludocode.ludocodebackend.support.TestRestClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import java.util.UUID
@@ -49,14 +45,11 @@ class ExercisesIT : AbstractIntegrationTest() {
 
     }
 
-    private fun submitGetExercisesByLessonId(lessonId: UUID): List<ExerciseResponse> =
-        given()
-            .`when`()
-            .get("${PathConstants.CATALOG}/exercises/$lessonId")
-            .then()
-            .statusCode(200)
-            .extract()
-            .`as`(Array<ExerciseResponse>::class.java)
-            .toList()
-
-}
+    private fun submitGetExercisesByLessonId(
+        lessonId: UUID
+    ): List<ExerciseResponse> =
+        TestRestClient
+            .getOk("${PathConstants.CATALOG}/exercises/$lessonId",
+                user1.id!!,
+                Array<ExerciseResponse>::class.java)
+            .toList()}

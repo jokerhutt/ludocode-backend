@@ -5,7 +5,7 @@ import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
 import com.ludocode.ludocodebackend.progress.domain.entity.UserCoins
 import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
-import io.restassured.RestAssured.given
+import com.ludocode.ludocodebackend.support.TestRestClient
 import org.assertj.core.api.Assertions.assertThat
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -44,14 +44,6 @@ class StreakIT : AbstractIntegrationTest() {
 
     }
 
-    private fun submitGetStreak (userId: UUID): UserStreakResponse {
-        return given()
-            .header("X-Test-User-Id", userId.toString())
-            .`when`()
-            .get("${PathConstants.STREAK}/get")
-            .then()
-            .statusCode(200)
-            .extract()
-            .`as`(UserStreakResponse::class.java)
-    }
+    private fun submitGetStreak (userId: UUID): UserStreakResponse =
+        TestRestClient.getOk("${PathConstants.STREAK}/get", userId, UserStreakResponse::class.java)
 }
