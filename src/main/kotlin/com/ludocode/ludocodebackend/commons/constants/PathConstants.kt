@@ -19,6 +19,7 @@ object PathConstants {
 
     const val PLAYGROUND : String = "$API_V1/playground"
     const val PROJECT : String = "$API_V1/project"
+    const val RUNNER : String = "$API_V1/runner"
 
     const val SAVE_PROJECT : String = "/{pid}/save"
     const val DELETE_PROJECT : String = "{pid}/delete"

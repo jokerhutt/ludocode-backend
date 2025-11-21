@@ -51,10 +51,5 @@ class ProjectController(private val projectService: ProjectService, private val 
         return ResponseEntity.ok(projectService.getProjectSnapshotForUserByProjectId(pid, userId))
     }
 
-    @PostMapping(PathConstants.RUN_PROJECT)
-    fun runProject (@RequestBody request: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<RunnerResult> {
-        return ResponseEntity.ok(codeRunnerService.runCode(request))
-    }
-
 
 }
