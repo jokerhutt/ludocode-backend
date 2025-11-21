@@ -12,6 +12,8 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     LESSON_NOT_FOUND_FOR_EXERCISE(HttpStatus.NOT_FOUND, "Lesson not found for given exercise"),
     COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Course not found"),
 
+    NOT_ENOUGH_CREDITS(HttpStatus.UNAUTHORIZED, "Not enough credits to perform this action"),
+
     NOT_ALLOWED(HttpStatus.UNAUTHORIZED, "Not allowed to retrieve content"),
 
     GCS_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload project files to cloud storage"),

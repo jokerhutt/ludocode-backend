@@ -247,12 +247,10 @@ abstract class AbstractIntegrationTest {
             }
         }
 
-        // 3) Exercise options after exercises exist
         snaps.forEach { cs ->
             cs.modules.forEach { ms ->
                 ms.lessons.forEach { ls ->
                     ls.exercises.forEach { ex ->
-                        // correct
                         ex.correctOptions.forEachIndexed { i, opt ->
                             exerciseOptionRepository.save(
                                 ExerciseOption(
@@ -264,7 +262,6 @@ abstract class AbstractIntegrationTest {
                                 )
                             )
                         }
-                        // distractors
                         ex.distractors.forEach { opt ->
                             exerciseOptionRepository.save(
                                 ExerciseOption(

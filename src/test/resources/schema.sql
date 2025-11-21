@@ -173,3 +173,9 @@ CREATE TABLE attempt_option (
         exercise_option_id uuid NOT NULL REFERENCES exercise_option ON DELETE RESTRICT,
         PRIMARY KEY (attempt_id, exercise_option_id)
 );
+
+CREATE TABLE user_ai_credits
+(
+    user_id UUID PRIMARY KEY REFERENCES ludo_user(id),
+    credits integer not null default 0 check (credits >= 0)
+);
