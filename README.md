@@ -15,6 +15,7 @@ The project is written using Kotlin 1.9.25 and Java 21. It uses PostgreSQL as a 
 - Spring Authentication
 - Ports and adapters style architecture
 - Timezone based streak system
+- AI chatbot assistant with credits system using Gemini API
 - Ability to create and modify coding projects with files
 - Diffing system for saving files
 - Code execution using Piston API
@@ -25,7 +26,6 @@ The project is written using Kotlin 1.9.25 and Java 21. It uses PostgreSQL as a 
 
 ## Planned Features
 - Analytics System
-- AI chatbot assistant
 - Backend caching
 
 ## Requirements
@@ -78,6 +78,11 @@ Required fields:
 
 1. Start the Piston Docker container (see: https://github.com/engineer-man/piston).
 2. Set `PISTON_BASE` to `http://{PISTON_IP}:{PISTON_PORT}/api/v2` in your environment variables.
+
+### Setting up Gemini (Optional)
+**This only affects the AI chatbot Service.**
+1. Go to https://aistudio.google.com/ -> Sign in with Google -> Get API Key.
+2. Fill in `ai.api.key` in application properties
 
 ---
 ### Setting up Tests
