@@ -21,6 +21,9 @@ object PathConstants {
     const val PROJECT : String = "$API_V1/project"
     const val RUNNER : String = "$API_V1/runner"
 
+    const val AI : String = "$API_V1/ai"
+    const val AI_SEND_PROMPT : String = "/send-prompt"
+
     const val SAVE_PROJECT : String = "/{pid}/save"
     const val DELETE_PROJECT : String = "{pid}/delete"
     const val CREATE_PROJECT : String = "/create"
