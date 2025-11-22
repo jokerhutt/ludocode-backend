@@ -1,5 +1,5 @@
 package com.ludocode.ludocodebackend.ai.api.controller
-import com.ludocode.ludocodebackend.ai.api.dto.response.AIMessagePart
+import com.ludocode.ludocodebackend.ai.api.dto.response.ChatMessageResponse
 import com.ludocode.ludocodebackend.ai.app.service.AIService
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import org.springframework.http.MediaType
@@ -20,13 +20,21 @@ class AIController(private val aIService: AIService) {
     @GetMapping(PathConstants.AI_SEND_PROMPT, produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
     fun streamPrompt(
         @RequestParam prompt: String,
+        @RequestParam file: String,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
-    ): Flux<ServerSentEvent<AIMessagePart>> {
-        println("Called Controller")
-        return aIService.streamTokens(prompt, userId)
+    ): Flux<ServerSentEvent<ChatMessageResponse>> {
+
+        val messageId = UUID.randomUUID().toString()
+
+        return aIService.streamTokens(prompt, file, userId)
             .map { part ->
-                ServerSentEvent.builder(part)
-                    .build()
+                val response = ChatMessageResponse(
+                    id = messageId,
+                    role = "assistant",
+                    part = part
+                )
+
+                ServerSentEvent.builder(response).build()
             }
     }
 

@@ -16,7 +16,9 @@ class AIService(
 ) {
 
 
-    fun streamTokens(req: String, userId: UUID): Flux<AIMessagePart> {
+    fun streamTokens(req: String, file: String, userId: UUID): Flux<AIMessagePart> {
+
+
 
         val credits = aICreditService.initializeOrGetCredits(userId)
         if (credits.credits <= 0) throw ApiException(ErrorCode.NOT_ENOUGH_CREDITS)
