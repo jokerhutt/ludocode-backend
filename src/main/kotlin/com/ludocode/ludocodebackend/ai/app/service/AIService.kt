@@ -29,7 +29,6 @@ class AIService(
 
         val geminiRequest = geminiMapper.mapToGemini(prompt)
 
-        // ---- 4. stream from Gemini ----
         return aIModelClient.stream(geminiRequest)
             .map { token ->
                 println("Token: $token")
