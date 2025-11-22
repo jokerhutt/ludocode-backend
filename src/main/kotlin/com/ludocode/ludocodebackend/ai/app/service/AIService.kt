@@ -1,15 +1,11 @@
 package com.ludocode.ludocodebackend.ai.app.service
-
-import com.ludocode.ludocodebackend.ai.api.dto.request.UserPromptRequest
-import com.ludocode.ludocodebackend.ai.api.dto.response.AIResponsePacket
+import com.ludocode.ludocodebackend.ai.api.dto.response.AIMessagePart
 import com.ludocode.ludocodebackend.ai.app.mapper.GeminiMapper
-import com.ludocode.ludocodebackend.ai.domain.entity.UserAICredits
 import com.ludocode.ludocodebackend.ai.infra.http.AIModelClient
-import com.ludocode.ludocodebackend.ai.infra.repository.UserAICreditsRepository
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
-import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import java.util.UUID
 
 @Service
@@ -19,34 +15,41 @@ class AIService(
     private val aICreditService: AICreditService
 ) {
 
-    fun executeUserPrompt (req: UserPromptRequest, userId: UUID): AIResponsePacket {
 
-        var userCredits = aICreditService.initializeOrGetCredits(userId)
-        if (userCredits.credits <= 0) throw ApiException(ErrorCode.NOT_ENOUGH_CREDITS)
-        val newCredits = aICreditService.handleDeductCredits(userId)
+    fun streamTokens(req: String, userId: UUID): Flux<AIMessagePart> {
+
+        val credits = aICreditService.initializeOrGetCredits(userId)
+        if (credits.credits <= 0) throw ApiException(ErrorCode.NOT_ENOUGH_CREDITS)
+        aICreditService.handleDeductCredits(userId)
+
+        println("Deducted")
 
         val prompt = buildPrompt(req)
-        val request = geminiMapper.mapToGemini(prompt)
+        println("PROMPT: $prompt")
 
-        val aiClientResponse = aIModelClient.execute(request)
-        val responseForFrontend = geminiMapper.mapToResponse(aiClientResponse)
+        val geminiRequest = geminiMapper.mapToGemini(prompt)
 
-        return AIResponsePacket(responseForFrontend, newCredits)
-
+        // ---- 4. stream from Gemini ----
+        return aIModelClient.stream(geminiRequest)
+            .map { token ->
+                println("Token: $token")
+                AIMessagePart(
+                    type = "text",
+                    text = token
+                )
+            }
     }
 
-    fun buildPrompt(req: UserPromptRequest): String =
+    private fun buildPrompt(req: String): String =
         """
-    You are the Ludocode tutor.
-    The user asks: ${req.userPrompt}
+        You are the Ludocode tutor.
+        The user asks: ${req}
 
-    Code:
-    ${req.fileContent}
+        Respond with:
+        - Explanation
+        - Hints
+        - Fixed code
+        """.trimIndent()
 
-    Respond with:
-    - Explanation
-    - Hints
-    - Fixed code
-    """.trimIndent()
 
 }

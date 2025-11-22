@@ -1,39 +1,52 @@
 package com.ludocode.ludocodebackend.ai.infra.http
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ludocode.ludocodebackend.ai.api.dto.request.GeminiRequest
 import com.ludocode.ludocodebackend.ai.api.dto.response.GeminiResponse
 import com.ludocode.ludocodebackend.ai.app.port.out.AIPort
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Flux
 
 @Component
 class AIModelClient(
     @Value("\${ai.api.key}") private val apiKey: String,
-    @Value("\${ai.model}") private val model: String
+    @Value("\${ai.model}") private val model: String,
+    builder: WebClient.Builder
 ) : AIPort {
 
-    private val rest = RestTemplate()
+    private val client = builder
+        .baseUrl("https://generativelanguage.googleapis.com")
+        .defaultHeader("x-goog-api-key", apiKey)
+        .build()
 
-    override fun execute(request: GeminiRequest): GeminiResponse {
-        val url =
-            "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey"
+    override fun stream(request: GeminiRequest): Flux<String> {
+        println("In Client of Gemini")
+        val streamUrl = "https://generativelanguage.googleapis.com/v1beta/models/$model:streamGenerateContent"
 
-        val headers = HttpHeaders().apply {
-            contentType = MediaType.APPLICATION_JSON
+        return client.post()
+            .uri(streamUrl)
+            .bodyValue(request)
+            .retrieve()
+            .bodyToFlux(JsonNode::class.java)
+            .flatMap { chunk -> extractTokens(chunk) }
+    }
+
+    fun extractTokens(node: JsonNode): Flux<String> {
+        val candidates = node["candidates"] ?: return Flux.empty()
+
+        val tokens = candidates.flatMap { cand ->
+            val parts = cand["content"]?.get("parts") ?: return@flatMap emptyList()
+            parts.mapNotNull { it["text"]?.asText() }
         }
 
-        val entity = HttpEntity(request, headers)
-
-        val response = rest.postForObject(
-            url,
-            entity,
-            GeminiResponse::class.java
-        ) ?: throw IllegalStateException("AI model returned null body")
-
-        return response
+        return Flux.fromIterable(tokens)
     }
 }

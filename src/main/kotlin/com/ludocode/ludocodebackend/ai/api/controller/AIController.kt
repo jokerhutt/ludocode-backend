@@ -1,15 +1,15 @@
 package com.ludocode.ludocodebackend.ai.api.controller
-
-import com.ludocode.ludocodebackend.ai.api.dto.request.UserPromptRequest
-import com.ludocode.ludocodebackend.ai.api.dto.response.AIResponsePacket
+import com.ludocode.ludocodebackend.ai.api.dto.response.AIMessagePart
 import com.ludocode.ludocodebackend.ai.app.service.AIService
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
-import org.springframework.http.ResponseEntity
+import org.springframework.http.MediaType
+import org.springframework.http.codec.ServerSentEvent
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.Flux
 import java.util.UUID
 
 
@@ -17,9 +17,17 @@ import java.util.UUID
 @RequestMapping(PathConstants.AI)
 class AIController(private val aIService: AIService) {
 
-    @PostMapping(PathConstants.AI_SEND_PROMPT)
-    fun sendPrompt (@RequestBody req: UserPromptRequest, @AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<AIResponsePacket> {
-        return ResponseEntity.ok(aIService.executeUserPrompt(req, userId))
+    @GetMapping(PathConstants.AI_SEND_PROMPT, produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    fun streamPrompt(
+        @RequestParam prompt: String,
+        @AuthenticationPrincipal(expression = "userId") userId: UUID
+    ): Flux<ServerSentEvent<AIMessagePart>> {
+        println("Called Controller")
+        return aIService.streamTokens(prompt, userId)
+            .map { part ->
+                ServerSentEvent.builder(part)
+                    .build()
+            }
     }
 
 }

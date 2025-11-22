@@ -13,9 +13,7 @@ class GeminiMapper {
         return GeminiRequest(
             contents = listOf(
                 GeminiContent(
-                    parts = listOf(
-                        GeminiPart(text = prompt)
-                    )
+                    parts = listOf(GeminiPart(text = prompt))
                 )
             )
         )
