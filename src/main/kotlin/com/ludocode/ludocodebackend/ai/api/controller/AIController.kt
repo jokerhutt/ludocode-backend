@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.ai.api.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ludocode.ludocodebackend.ai.api.dto.response.ChatMessageResponse
 import com.ludocode.ludocodebackend.ai.app.service.AIService
+import com.ludocode.ludocodebackend.ai.domain.enums.ChatType
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import org.springframework.http.MediaType
 import org.springframework.http.codec.ServerSentEvent
@@ -18,8 +19,8 @@ import java.util.UUID
 @RequestMapping(PathConstants.AI)
 class AIController(private val aIService: AIService, private val objectMapper: ObjectMapper) {
 
-    @GetMapping(PathConstants.AI_SEND_PROMPT, produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
-    fun streamPrompt(
+    @GetMapping(PathConstants.AI_SEND_PROJECT_PROMPT, produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    fun streamProjectPrompt(
         @RequestParam prompt: String,
         @RequestParam(required = false) fileId: UUID?,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
@@ -27,7 +28,7 @@ class AIController(private val aIService: AIService, private val objectMapper: O
 
         val messageId = UUID.randomUUID().toString()
 
-        return aIService.streamTokens(prompt, fileId, userId)
+        return aIService.streamTokens(prompt, ChatType.PROJECT, fileId, userId)
             .map { part ->
                 val response = ChatMessageResponse(
                     id = messageId,
@@ -40,5 +41,30 @@ class AIController(private val aIService: AIService, private val objectMapper: O
                 ).build()
             }
     }
+
+    @GetMapping(PathConstants.AI_SEND_EXERCISE_PROMPT, produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    fun streamExercisePrompt(
+        @RequestParam prompt: String,
+        @RequestParam exerciseId: UUID,
+        @AuthenticationPrincipal(expression = "userId") userId: UUID
+    ): Flux<ServerSentEvent<String>> {
+
+        val messageId = UUID.randomUUID().toString()
+
+        return aIService.streamTokens(prompt, ChatType.LESSON, exerciseId, userId)
+            .map { part ->
+                val response = ChatMessageResponse(
+                    id = messageId,
+                    role = "assistant",
+                    parts = listOf(part)
+                )
+
+                ServerSentEvent.builder(
+                    objectMapper.writeValueAsString(response)
+                ).build()
+            }
+    }
+
+
 
 }

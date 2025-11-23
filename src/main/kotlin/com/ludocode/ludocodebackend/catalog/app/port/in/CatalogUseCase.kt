@@ -14,6 +14,5 @@ interface CatalogUseCase {
     fun findCourseIdForLesson(lessonId: UUID): UUID
     fun findLessonIdTree(lessonId: UUID) : LessonTreeWithIdDTO
     fun findLessonResponseById(lessonId: UUID, userId: UUID): LessonResponse
-    fun findExerciseSnapshotById(exerciseId: UUID) : ExerciseSnap
 
 }

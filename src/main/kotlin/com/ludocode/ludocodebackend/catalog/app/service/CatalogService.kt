@@ -6,7 +6,6 @@ import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.LessonResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.ModuleResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTreeResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.app.mapper.CourseMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.ExerciseMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.FlatCourseTreeMapper
@@ -15,7 +14,6 @@ import com.ludocode.ludocodebackend.catalog.app.mapper.ModuleMapper
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogUseCase
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.infra.projection.ExerciseFlatProjection
-import com.ludocode.ludocodebackend.catalog.infra.projection.LessonIdTreeProjection
 import com.ludocode.ludocodebackend.catalog.infra.projection.UserLessonProjection
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseRepository
@@ -39,7 +37,6 @@ class CatalogService(
     private val lessonMapper: LessonMapper,
     private val flatCourseTreeMapper: FlatCourseTreeMapper,
     private val lessonExercisesRepository: LessonExercisesRepository,
-    private val snapshotBuilderService: SnapshotBuilderService
 ) : CatalogUseCase {
 
     override fun findFirstLessonIdInCourse(courseId: UUID): UUID {
@@ -48,11 +45,6 @@ class CatalogService(
 
     override fun findModuleIdForLesson(lessonId: UUID): UUID {
        return lessonRepository.findModuleIdForLesson(lessonId) ?: throw ApiException(ErrorCode.MODULE_NOT_FOUND_FOR_LESSON)
-    }
-
-    override fun findExerciseSnapshotById(exerciseId: UUID): ExerciseSnap {
-       val exerciseResponse = getExerciseByExerciseId(exerciseId)
-       return snapshotBuilderService.buildExerciseSnapshot(exerciseResponse)
     }
 
     override fun findNextLessonId(currentLesson: UUID): UUID? {
