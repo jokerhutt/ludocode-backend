@@ -1,4 +1,5 @@
 package com.ludocode.ludocodebackend.ai.api.controller
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.ludocode.ludocodebackend.ai.api.dto.response.ChatMessageResponse
 import com.ludocode.ludocodebackend.ai.app.service.AIService
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
@@ -15,26 +16,28 @@ import java.util.UUID
 
 @RestController
 @RequestMapping(PathConstants.AI)
-class AIController(private val aIService: AIService) {
+class AIController(private val aIService: AIService, private val objectMapper: ObjectMapper) {
 
     @GetMapping(PathConstants.AI_SEND_PROMPT, produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
     fun streamPrompt(
         @RequestParam prompt: String,
-        @RequestParam file: String,
+        @RequestParam(required = false) fileId: UUID?,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
-    ): Flux<ServerSentEvent<ChatMessageResponse>> {
+    ): Flux<ServerSentEvent<String>> {
 
         val messageId = UUID.randomUUID().toString()
 
-        return aIService.streamTokens(prompt, file, userId)
+        return aIService.streamTokens(prompt, fileId, userId)
             .map { part ->
                 val response = ChatMessageResponse(
                     id = messageId,
                     role = "assistant",
-                    part = part
+                    parts = listOf(part)
                 )
 
-                ServerSentEvent.builder(response).build()
+                ServerSentEvent.builder(
+                    objectMapper.writeValueAsString(response)
+                ).build()
             }
     }
 

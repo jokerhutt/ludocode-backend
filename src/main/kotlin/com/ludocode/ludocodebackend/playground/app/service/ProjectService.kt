@@ -13,6 +13,7 @@ import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.playground.app.dto.response.RenameRequest
 import com.ludocode.ludocodebackend.playground.app.mapper.ProjectMapper
+import com.ludocode.ludocodebackend.playground.app.port.`in`.PlaygroundUseCase
 import com.ludocode.ludocodebackend.playground.app.util.ProjectSnapshotDiffer
 import com.ludocode.ludocodebackend.playground.app.util.ProjectSnapshotValidator
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
@@ -36,7 +37,7 @@ class ProjectService(
     private val gcsClientForPlayground: GcsClientForPlayground,
     private val projectMapper: ProjectMapper,
     private val clock: Clock,
-) {
+) : PlaygroundUseCase {
 
     @Transactional
     internal fun createProject(request: CreateProjectRequest, userId: UUID) : ProjectListResponse {
@@ -99,6 +100,13 @@ class ProjectService(
             projectSnapshots.add(getProjectSnapshotForUserByProjectId(projectId, userId))
         }
         return ProjectListResponse(projectSnapshots)
+    }
+
+    override fun getFileContentById(fileId: UUID): String {
+        val file = projectFileRepository.findById(fileId)
+            .orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
+        println("FOUND FILE")
+        return gcsClientForPlayground.getContentFromPath(file.contentUrl)
     }
 
     internal fun getProjectSnapshotForUserByProjectId (projectId: UUID, userId: UUID) : ProjectSnapshot {

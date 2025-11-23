@@ -32,6 +32,17 @@ class GcsService(private val storage: Storage) : GcsUseCase {
 
     }
 
+    override fun getFileContentFromPath(path: String): String {
+        val bucket = "ludo-file-content"
+
+        val blob = storage.get(bucket, path)
+            ?: return ""
+
+        println("GOT BLOB: ${blob.getContent()}")
+
+        return String(blob.getContent(), Charsets.UTF_8)
+    }
+
     override fun getContentFromUrls(paths: List<String>): Map<String, String> {
 
         val bucket = "ludo-file-content"

@@ -11,6 +11,8 @@ object InternalPathConstants {
     const val IUSER_ID: String = "/{userId}"
     const val IUSER_TIMEZONE: String = "/{userId}/timezone"
 
+    const val IPROJECTS : String = "$INTERNAL_V1/projects"
+    const val IPROJECTS_FILE_CONTENT_BY_ID = "/{fileId}/content"
 
     const val ICATALOG: String = "$INTERNAL_V1/catalog"
     const val IFIRST_LESSON_ID: String = "/{courseId}/first"
@@ -21,7 +23,8 @@ object InternalPathConstants {
     const val INEXT_LESSON_ID: String = "/{lessonId}/next"
 
     const val IGCS: String = "$INTERNAL_V1/gcs"
-    const val IGCS_GET_CONTENT_FROM_PATHS = "/get-content"
+    const val IGCS_GET_CONTENT_FROM_PATH = "/get-content-single"
+    const val IGCS_GET_CONTENT_FROM_PATH_LIST = "/get-content"
     const val IGCS_UPLOAD_FILES = "/upload-files"
     const val IGCS_DELETE_FILES = "/delete-files"
 

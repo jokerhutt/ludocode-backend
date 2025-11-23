@@ -8,6 +8,7 @@ interface GcsPortForPlayground {
 
     fun getContentFromUrls (paths: List<String>) : Map<String, String>
     fun uploadDataList (reqs: GcsPutRequestList): UploadedPaths
+    fun getContentFromPath(path: String): String
     fun deleteDataList (req: GcsDeleteRequestList): UploadedPaths
 
 }

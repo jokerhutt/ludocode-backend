@@ -2,20 +2,18 @@ package com.ludocode.ludocodebackend.playground.infra.http
 
 import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants
 import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants.IGCS_DELETE_FILES
-import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants.IGCS_GET_CONTENT_FROM_PATHS
 import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants.IGCS_UPLOAD_FILES
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsDeleteRequestList
-import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequest
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequestList
 import com.ludocode.ludocodebackend.gcs.app.dto.request.UploadedPaths
 import com.ludocode.ludocodebackend.playground.app.port.out.GcsPortForPlayground
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
-import org.springframework.web.util.UriComponentsBuilder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @Component
 class GcsClientForPlayground (
@@ -36,6 +34,25 @@ class GcsClientForPlayground (
 
 
         return response.body ?: emptyMap()
+    }
+
+    override fun getContentFromPath(path: String): String {
+
+
+        val url = "$gcsServiceBaseUrl${InternalPathConstants.IGCS}/get-content-single?path=$path"
+
+        println("URL IS: " + url)
+
+        val response = rest.exchange(
+            url,
+            HttpMethod.GET,
+            null,
+            object : ParameterizedTypeReference<String>() {}
+        )
+
+        println("RES BODY: ${response.body}")
+
+        return response.body ?: ""
     }
 
     override fun uploadDataList(reqs: GcsPutRequestList): UploadedPaths {
