@@ -2,7 +2,9 @@ package com.ludocode.ludocodebackend.catalog.api.controller
 
 import com.ludocode.ludocodebackend.catalog.api.dto.internal.LessonTreeWithIdDTO
 import com.ludocode.ludocodebackend.catalog.api.dto.response.LessonResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogUseCase
+import com.ludocode.ludocodebackend.catalog.app.service.SnapshotBuilderService
 import com.ludocode.ludocodebackend.catalog.infra.projection.LessonIdTreeProjection
 import com.ludocode.ludocodebackend.commons.constants.InternalPathConstants
 import org.springframework.http.ResponseEntity
@@ -15,12 +17,18 @@ import java.util.UUID
 @RestController
 @RequestMapping(InternalPathConstants.ICATALOG)
 class InternalCatalogController (
-    private val catalogUseCase: CatalogUseCase
+    private val catalogUseCase: CatalogUseCase,
+    private val snapshotBuilderService: SnapshotBuilderService
 ) {
 
     @GetMapping(InternalPathConstants.ILESSON_ID_TREE)
     fun getFullLesson(@PathVariable lessonId: UUID) : ResponseEntity<LessonTreeWithIdDTO> {
         return ResponseEntity.ok(catalogUseCase.findLessonIdTree(lessonId))
+    }
+
+    @GetMapping(InternalPathConstants.IEXERCISE_SNAPSHOT)
+    fun getExerciseSnapshotById(@PathVariable exerciseId: UUID) : ResponseEntity<ExerciseSnap> {
+        return ResponseEntity.ok(catalogUseCase.findExerciseSnapshotById(exerciseId))
     }
 
     @GetMapping(InternalPathConstants.ILESSON_BY_ID)

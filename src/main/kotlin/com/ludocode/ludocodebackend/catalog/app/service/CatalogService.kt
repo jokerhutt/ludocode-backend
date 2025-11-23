@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.LessonResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.ModuleResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTreeResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.app.mapper.CourseMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.ExerciseMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.FlatCourseTreeMapper
@@ -37,7 +38,8 @@ class CatalogService(
     private val lessonRepository: LessonRepository,
     private val lessonMapper: LessonMapper,
     private val flatCourseTreeMapper: FlatCourseTreeMapper,
-    private val lessonExercisesRepository: LessonExercisesRepository
+    private val lessonExercisesRepository: LessonExercisesRepository,
+    private val snapshotBuilderService: SnapshotBuilderService
 ) : CatalogUseCase {
 
     override fun findFirstLessonIdInCourse(courseId: UUID): UUID {
@@ -46,6 +48,11 @@ class CatalogService(
 
     override fun findModuleIdForLesson(lessonId: UUID): UUID {
        return lessonRepository.findModuleIdForLesson(lessonId) ?: throw ApiException(ErrorCode.MODULE_NOT_FOUND_FOR_LESSON)
+    }
+
+    override fun findExerciseSnapshotById(exerciseId: UUID): ExerciseSnap {
+       val exerciseResponse = getExerciseByExerciseId(exerciseId)
+       return snapshotBuilderService.buildExerciseSnapshot(exerciseResponse)
     }
 
     override fun findNextLessonId(currentLesson: UUID): UUID? {
@@ -79,6 +86,13 @@ class CatalogService(
        val exercisesWithOptionsFlat: List<ExerciseFlatProjection> = lessonExercisesRepository.getFlatExercisesWithOptions(lessonId)
        return exerciseMapper.toLessonExercises(exercisesWithOptionsFlat)
     }
+
+    internal fun getExerciseByExerciseId (exerciseId: UUID) : ExerciseResponse {
+        val exerciseWithOptions = lessonExercisesRepository.getSingleExerciseNewestFlat(exerciseId)
+        return exerciseMapper.toExerciseResponse(exerciseWithOptions)
+    }
+
+
 
     internal fun getModulesByIds (moduleIds: List<UUID>) : List<ModuleResponse> {
         val modules: List<Module> = moduleRepository.findAllByIdIn(moduleIds)
