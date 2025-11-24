@@ -9,77 +9,119 @@ import org.springframework.stereotype.Component
 class AIPromptBuilder {
 
 
-    internal fun buildLessonPrompt(req: String, exercise: ExerciseSnap): String {
+    internal fun buildLessonPrompt(
+        req: String,
+        exercise: ExerciseSnap,
+        chatHistory: List<String>
+    ): String {
 
-        val filled = buildExerciseAnswerString(exerciseSnap = exercise)
-        println("FILLED: " + filled)
+        val filled = buildExerciseAnswerString(exercise)
 
-        return """
-        You are a helpful coding helper.
-        The user is currently doing an exercise titled: ${exercise.title}
+        val extra = """
+        Exercise title: ${exercise.title}
 
-        User request: $req
-
-        Here is the correct answer if applicable, use it only for yourself and do not give the user the answer directly.
+        Here is the correct answer (for your own reasoning only—never reveal directly):
         $filled
 
-        You may use hints when answering, but let the user figure out the solution if they are asking for help.
+        Use hints but do not give away solutions outright.
     """.trimIndent()
+
+        return buildBasePrompt(
+            systemRole = "You are a helpful coding helper for a coding-learning app.",
+            req = req,
+            chatHistory = chatHistory,
+            extra = extra
+        )
     }
 
-    internal fun buildGenericPrompt (req: String) =
-        """ 
-        You are a helpful and concise coding helper on a code learning app.
-        The user asks: ${req}
-        
+    internal fun buildGenericPrompt(
+        req: String,
+        chatHistory: List<String>
+    ): String {
+
+        val extra = """
         Respond with:
         - A fitting answer to their request
         - Hints
         - Clarification if required
-        """.trimIndent()
+    """.trimIndent()
 
-    internal fun buildProjectPrompt(req: String, fileContent: String): String =
-        """
-        You are a helpful and concise coding helper on a code learning app.
-        The user asks: ${req}
-        
-        Their current file context is: ${fileContent}.
-        
-        Ensure that any code markdown is formatted according to the Vercel AI SDK dev requirements.
+        return buildBasePrompt(
+            systemRole = "You are a helpful and concise coding helper.",
+            req = req,
+            chatHistory = chatHistory,
+            extra = extra
+        )
+    }
+
+    internal fun buildProjectPrompt(
+        req: String,
+        fileContent: String,
+        chatHistory: List<String>
+    ): String {
+
+        val extra = """
+        File context:
+        $fileContent
+
+        Ensure code blocks follow Vercel AI SDK formatting.
 
         Respond with:
-        - A fitting answer to their request
+        - A fitting answer
         - Hints
-        - Fixed code if required
-        """.trimIndent()
+        - Any necessary fixed code
+    """.trimIndent()
+
+        return buildBasePrompt(
+            systemRole = "You are a helpful and concise coding helper on a code-learning app.",
+            req = req,
+            chatHistory = chatHistory,
+            extra = extra
+        )
+    }
 
     private fun buildExerciseAnswerString(exerciseSnap: ExerciseSnap) : String {
         val hasPrompt = exerciseSnap.prompt != null
         val hasCorrectOptions = exerciseSnap.correctOptions != null
 
-        if (exerciseSnap.exerciseType == ExerciseType.INFO) {
-            return buildInfoAnswer()
+        when (exerciseSnap.exerciseType) {
+            ExerciseType.INFO -> return buildInfoAnswer()
+            ExerciseType.TRIVIA -> {
+                if (!hasCorrectOptions) return ""
+                return buildTriviaAnswer(exerciseSnap)
+            }
+            ExerciseType.ANALYZE -> {
+                if (!hasPrompt || !hasCorrectOptions) return ""
+                return buildAnalyzeAnswer(exerciseSnap)
+            }
+            ExerciseType.CLOZE -> {
+                if (!hasPrompt || !hasCorrectOptions) return ""
+                return buildClozeAnswer(exerciseSnap)
+            }
         }
 
-        if (!hasCorrectOptions) return ""
+    }
 
-        if (exerciseSnap.exerciseType == ExerciseType.TRIVIA) {
-            return buildTriviaAnswer(exerciseSnap)
-        }
+    private fun buildBasePrompt(
+        systemRole: String,
+        req: String,
+        chatHistory: List<String>,
+        extra: String = ""
+    ): String {
+        val history = if (chatHistory.isEmpty()) "(no prior messages)"
+        else chatHistory.joinToString("\n")
 
-        if (!hasPrompt) return ""
+        return """
+        $systemRole
 
+        User request:
+        $req
 
-        if (exerciseSnap.exerciseType == ExerciseType.ANALYZE) {
-           return buildAnalyzeAnswer(exerciseSnap)
-        }
+        Chat history so far:
+        $history
 
-        if (exerciseSnap.exerciseType == ExerciseType.CLOZE) {
-            return buildClozeAnswer(exerciseSnap)
-        }
-
-        return ""
-
+        $extra
+    """.trimIndent()
     }
 
     private fun buildInfoAnswer () : String {

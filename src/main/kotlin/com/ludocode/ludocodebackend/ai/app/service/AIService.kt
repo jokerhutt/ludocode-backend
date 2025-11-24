@@ -1,5 +1,8 @@
 package com.ludocode.ludocodebackend.ai.app.service
+import com.ludocode.ludocodebackend.ai.api.dto.internal.ChatPartsTuple
 import com.ludocode.ludocodebackend.ai.api.dto.response.AIMessagePart
+import com.ludocode.ludocodebackend.ai.api.dto.vercel.request.UIMessagePart
+import com.ludocode.ludocodebackend.ai.api.dto.vercel.request.UIMessageRequest
 import com.ludocode.ludocodebackend.ai.app.mapper.GeminiMapper
 import com.ludocode.ludocodebackend.ai.domain.enums.ChatType
 import com.ludocode.ludocodebackend.ai.infra.client.CatalogClientForAI
@@ -22,15 +25,17 @@ class AIService(
     private val aIPromptBuilder: AIPromptBuilder,
 ) {
 
-    fun streamTokens(req: String, chatType: ChatType?, targetId: UUID?, userId: UUID): Flux<AIMessagePart> {
+    fun streamTokens(messageHistory: List<UIMessageRequest>, chatType: ChatType?, targetId: UUID?, userId: UUID): Flux<AIMessagePart> {
 
         val credits = aICreditService.initializeOrGetCredits(userId)
         if (credits.credits <= 0) throw ApiException(ErrorCode.NOT_ENOUGH_CREDITS)
         aICreditService.handleDeductCredits(userId)
 
-        val prompt = getPrompt(req, targetId, chatType ?: ChatType.DEFAULT)
+        val chatTuple = getHistoryAndLast(messageHistory)
+        val userMessage = chatTuple.last
+        val chatHistory = chatTuple.history
 
-        println("PROMPT: $prompt")
+        val prompt = getPrompt(userMessage, chatHistory, targetId, chatType ?: ChatType.DEFAULT)
 
         val geminiRequest = geminiMapper.mapToGemini(prompt)
 
@@ -44,17 +49,39 @@ class AIService(
             }
     }
 
-    private fun getPrompt (userPrompt: String, targetId: UUID?, chatType: ChatType) : String {
+    private fun getHistoryAndLast(messages: List<UIMessageRequest>): ChatPartsTuple {
+        val roleTaggedTexts = messages.mapNotNull { msg ->
+            val combinedText = msg.parts
+                .filter { it.type == "text" }
+                .mapNotNull { it.text }
+                .joinToString(" ")
+                .takeIf { it.isNotBlank() }
+
+            if (combinedText == null) null
+            else "${msg.role}: $combinedText"
+        }
+
+        if (roleTaggedTexts.isEmpty()) {
+            return ChatPartsTuple(emptyList(), "")
+        }
+
+        val history = roleTaggedTexts.dropLast(1)
+        val last = roleTaggedTexts.last()
+
+        return ChatPartsTuple(history, last)
+    }
+
+    private fun getPrompt (userPrompt: String, chatHistory: List<String>, targetId: UUID?, chatType: ChatType) : String {
         when (chatType) {
-            ChatType.DEFAULT -> return aIPromptBuilder.buildGenericPrompt(userPrompt)
+            ChatType.DEFAULT -> return aIPromptBuilder.buildGenericPrompt(userPrompt, chatHistory)
             ChatType.LESSON -> {
-                if (targetId == null) return aIPromptBuilder.buildGenericPrompt(userPrompt)
+                if (targetId == null) return aIPromptBuilder.buildGenericPrompt(userPrompt, chatHistory)
                 val exerciseContent = getExerciseContent(exerciseId = targetId)
-                return aIPromptBuilder.buildLessonPrompt(userPrompt, exerciseContent)
+                return aIPromptBuilder.buildLessonPrompt(userPrompt, exerciseContent, chatHistory)
             }
             ChatType.PROJECT -> {
                 val fileContent = targetId?.let { getFileContent(it) } ?: ""
-                return aIPromptBuilder.buildProjectPrompt(userPrompt, fileContent)
+                return aIPromptBuilder.buildProjectPrompt(userPrompt, fileContent, chatHistory)
             }
         }
     }
