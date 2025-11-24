@@ -4,6 +4,8 @@ import com.ludocode.ludocodebackend.ai.api.dto.response.ChatMessageResponse
 import com.ludocode.ludocodebackend.ai.app.service.AIService
 import com.ludocode.ludocodebackend.ai.domain.enums.ChatType
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import org.springframework.http.MediaType
 import org.springframework.http.codec.ServerSentEvent
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -25,6 +27,8 @@ class AIController(private val aIService: AIService, private val objectMapper: O
         @RequestParam(required = false) fileId: UUID?,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
     ): Flux<ServerSentEvent<String>> {
+
+        if (userId == null) throw ApiException(ErrorCode.USER_NOT_FOUND)
 
         val messageId = UUID.randomUUID().toString()
 
@@ -48,6 +52,8 @@ class AIController(private val aIService: AIService, private val objectMapper: O
         @RequestParam exerciseId: UUID,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
     ): Flux<ServerSentEvent<String>> {
+
+        if (userId == null) throw ApiException(ErrorCode.USER_NOT_FOUND)
 
         val messageId = UUID.randomUUID().toString()
 
