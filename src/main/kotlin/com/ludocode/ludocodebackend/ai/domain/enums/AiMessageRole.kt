@@ -1,5 +1,5 @@
 package com.ludocode.ludocodebackend.ai.domain.enums
 
-enum class ChatType {
-    LESSON, PROJECT, DEFAULT
+enum class AiMessageRole {
+    system, user, assistant
 }

@@ -23,6 +23,7 @@ object PathConstants {
 
     const val AI : String = "$API_V1/ai"
     const val AI_SEND_PROJECT_PROMPT : String = "/project/send-prompt"
+    const val AI_SEND_PROMPT : String = "/send-prompt"
     const val AI_SEND_EXERCISE_PROMPT : String = "/exercise/send-prompt"
 
     const val SAVE_PROJECT : String = "/{pid}/save"

@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.commons.exception
 
 import jakarta.servlet.http.HttpServletRequest
+import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
+
+
 
     @ExceptionHandler(ApiException::class)
     fun handleApi(ex: ApiException, req: HttpServletRequest): ResponseEntity<ProblemDetail> {
@@ -67,6 +70,9 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun handleAny(ex: Exception, req: HttpServletRequest): ResponseEntity<ProblemDetail> {
+        val log = LoggerFactory.getLogger(this::class.java)
+        log.error("Unhandled exception in request ${req.requestURI}", ex)
+
         val pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR).apply {
             title = "INTERNAL_ERROR"
             detail = "Unexpected error"
@@ -74,6 +80,7 @@ class GlobalExceptionHandler {
             setProperty("path", req.requestURI)
             MDC.get("traceId")?.let { setProperty("traceId", it) }
         }
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(pd)
     }
 }
