@@ -8,9 +8,11 @@ import org.springframework.stereotype.Component
 @Component
 class AIPromptBuilder {
 
+
     internal fun buildLessonPrompt(req: String, exercise: ExerciseSnap): String {
 
         val filled = buildExerciseAnswerString(exerciseSnap = exercise)
+        println("FILLED: " + filled)
 
         return """
         You are a helpful coding helper.
@@ -24,6 +26,17 @@ class AIPromptBuilder {
         You may use hints when answering, but let the user figure out the solution if they are asking for help.
     """.trimIndent()
     }
+
+    internal fun buildGenericPrompt (req: String) =
+        """ 
+        You are a helpful and concise coding helper on a code learning app.
+        The user asks: ${req}
+        
+        Respond with:
+        - A fitting answer to their request
+        - Hints
+        - Clarification if required
+        """.trimIndent()
 
     internal fun buildProjectPrompt(req: String, fileContent: String): String =
         """
@@ -56,12 +69,13 @@ class AIPromptBuilder {
 
         if (!hasPrompt) return ""
 
+
         if (exerciseSnap.exerciseType == ExerciseType.ANALYZE) {
-           buildAnalyzeAnswer(exerciseSnap)
+           return buildAnalyzeAnswer(exerciseSnap)
         }
 
         if (exerciseSnap.exerciseType == ExerciseType.CLOZE) {
-            buildClozeAnswer(exerciseSnap)
+            return buildClozeAnswer(exerciseSnap)
         }
 
         return ""
@@ -73,6 +87,7 @@ class AIPromptBuilder {
     }
 
     private fun buildClozeAnswer (exerciseSnap: ExerciseSnap): String {
+        println("BLANKS: " + fillBlanks(exerciseSnap.prompt!!, exerciseSnap.correctOptions!!))
         return "The exercise's correct solution is: " + fillBlanks(exerciseSnap.prompt!!, exerciseSnap.correctOptions!!)
     }
 

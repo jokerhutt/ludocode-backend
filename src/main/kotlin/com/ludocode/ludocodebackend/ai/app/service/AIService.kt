@@ -44,12 +44,10 @@ class AIService(
             }
     }
 
-    //TODO fix the null target id on exercise
-    //TODO handle errors
     private fun getPrompt (userPrompt: String, targetId: UUID?, chatType: ChatType) : String {
         when (chatType) {
             ChatType.LESSON -> {
-                if (targetId == null) return "Provide a helpful answer to the user"
+                if (targetId == null) return aIPromptBuilder.buildGenericPrompt(userPrompt)
                 val exerciseContent = getExerciseContent(exerciseId = targetId)
                 return aIPromptBuilder.buildLessonPrompt(userPrompt, exerciseContent)
             }

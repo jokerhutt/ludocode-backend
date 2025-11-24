@@ -84,8 +84,6 @@ class CatalogService(
         return exerciseMapper.toExerciseResponse(exerciseWithOptions)
     }
 
-
-
     internal fun getModulesByIds (moduleIds: List<UUID>) : List<ModuleResponse> {
         val modules: List<Module> = moduleRepository.findAllByIdIn(moduleIds)
         return moduleMapper.toModuleResponseList(modules)

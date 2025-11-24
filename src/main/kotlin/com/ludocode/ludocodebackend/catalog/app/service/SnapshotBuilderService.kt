@@ -25,6 +25,12 @@ class SnapshotBuilderService(
     private val exerciseOptionRepository: ExerciseOptionRepository
 ) : SnapshotUseCase {
 
+
+    override fun findExerciseSnapshotById(exerciseId: UUID): ExerciseSnap {
+        val exerciseResponse = catalogService.getExerciseByExerciseId(exerciseId)
+        return buildExerciseSnapshot(exerciseResponse)
+    }
+
     fun buildCourseSnapshot (courseId: UUID): CourseSnap {
 
         val moduleIds = moduleRepository.findActiveIdsByCourse(courseId)
@@ -70,10 +76,7 @@ class SnapshotBuilderService(
         )
     }
 
-        override fun findExerciseSnapshotById(exerciseId: UUID): ExerciseSnap {
-            val exerciseResponse = catalogService.getExerciseByExerciseId(exerciseId)
-            return buildExerciseSnapshot(exerciseResponse)
-        }
+
 
     internal fun buildExerciseSnapshot (exerciseResponse: ExerciseResponse) : ExerciseSnap {
        return ExerciseSnap(
