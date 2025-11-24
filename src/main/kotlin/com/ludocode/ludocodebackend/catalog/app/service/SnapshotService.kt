@@ -133,11 +133,9 @@ class SnapshotService(
         val submittedLessonDiffsIds = submittedLessonDiffs.map { it.id }
         val lessonsToDelete: List<UUID> = getIdsToDelete(submittedLessonDiffsIds, activeLessonIdsInModule)
 
-        System.out.println("Deleting Lessons")
         for (lessonId in lessonsToDelete) {
             lessonRepository.softDeleteLessonById(lessonId)
         }
-        System.out.println("Deleted Lessons")
 
         for (i in 0 until submittedLessonDiffs.size) {
             val submittedDiff = submittedLessonDiffs[i]
@@ -154,13 +152,7 @@ class SnapshotService(
                 lessonRepository.save(existing)
             }
         }
-
-        System.out.println("deleting Lessons i nmodule")
-
-
         moduleLessonsRepository.deleteLessonsInModule(moduleId)
-        System.out.println("deleted Lessons i nmodule")
-
         em.flush()
         em.clear()
 
@@ -205,11 +197,9 @@ class SnapshotService(
                 isDeleted = false
             )
             exerciseRepository.save(newExercise)
-
         }
 
         lessonExercisesRepository.deleteExerciseInLesson(lessonId)
-
         em.flush()
         em.clear()
 

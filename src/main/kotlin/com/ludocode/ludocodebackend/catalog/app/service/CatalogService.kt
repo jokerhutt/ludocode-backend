@@ -14,7 +14,6 @@ import com.ludocode.ludocodebackend.catalog.app.mapper.ModuleMapper
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogUseCase
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.infra.projection.ExerciseFlatProjection
-import com.ludocode.ludocodebackend.catalog.infra.projection.LessonIdTreeProjection
 import com.ludocode.ludocodebackend.catalog.infra.projection.UserLessonProjection
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ExerciseRepository
@@ -37,7 +36,7 @@ class CatalogService(
     private val lessonRepository: LessonRepository,
     private val lessonMapper: LessonMapper,
     private val flatCourseTreeMapper: FlatCourseTreeMapper,
-    private val lessonExercisesRepository: LessonExercisesRepository
+    private val lessonExercisesRepository: LessonExercisesRepository,
 ) : CatalogUseCase {
 
     override fun findFirstLessonIdInCourse(courseId: UUID): UUID {
@@ -78,6 +77,11 @@ class CatalogService(
     internal fun getExercisesByLessonId (lessonId: UUID): List<ExerciseResponse> {
        val exercisesWithOptionsFlat: List<ExerciseFlatProjection> = lessonExercisesRepository.getFlatExercisesWithOptions(lessonId)
        return exerciseMapper.toLessonExercises(exercisesWithOptionsFlat)
+    }
+
+    internal fun getExerciseByExerciseId (exerciseId: UUID) : ExerciseResponse {
+        val exerciseWithOptions = lessonExercisesRepository.getSingleExerciseNewestFlat(exerciseId)
+        return exerciseMapper.toExerciseResponse(exerciseWithOptions)
     }
 
     internal fun getModulesByIds (moduleIds: List<UUID>) : List<ModuleResponse> {

@@ -18,6 +18,9 @@ class ExerciseMapper(private val basicMapper: BasicMapper) {
             .values
             .map { group -> toExerciseResponse(group) }
 
+    fun toExerciseResponse(rows: List<ExerciseFlatProjection>): ExerciseResponse =
+        toExerciseResponseInternal(rows)
+
     private fun toExerciseOptionResponse(p: ExerciseFlatProjection) =
         ExerciseOptionResponse(
             id = requireNotNull(p.getOptionId()),
@@ -26,7 +29,7 @@ class ExerciseMapper(private val basicMapper: BasicMapper) {
             exerciseVersion = p.getVersion()
         )
 
-    private fun toExerciseResponse(group: List<ExerciseFlatProjection>): ExerciseResponse {
+    private fun toExerciseResponseInternal(group: List<ExerciseFlatProjection>): ExerciseResponse {
         val h = group.first()
         val order = h.getOrderIndex() ?: 1
 
@@ -54,8 +57,4 @@ class ExerciseMapper(private val basicMapper: BasicMapper) {
             exerciseMedia = h.getExerciseMedia()
         )
     }
-
-
-
-
 }
