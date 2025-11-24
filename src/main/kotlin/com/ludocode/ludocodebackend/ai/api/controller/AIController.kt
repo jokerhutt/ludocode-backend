@@ -10,6 +10,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.codec.ServerSentEvent
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -20,6 +21,13 @@ import java.util.UUID
 @RestController
 @RequestMapping(PathConstants.AI)
 class AIController(private val aIService: AIService, private val objectMapper: ObjectMapper) {
+
+
+    @PostMapping(PathConstants.AI_SEND_PROMPT)
+    fun sendPrompt () {
+
+    }
+
 
     @GetMapping(PathConstants.AI_SEND_PROJECT_PROMPT, produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
     fun streamProjectPrompt(
