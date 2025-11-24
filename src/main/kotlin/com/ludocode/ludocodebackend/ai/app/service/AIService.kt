@@ -22,13 +22,13 @@ class AIService(
     private val aIPromptBuilder: AIPromptBuilder,
 ) {
 
-    fun streamTokens(req: String, chatType: ChatType, targetId: UUID?, userId: UUID): Flux<AIMessagePart> {
+    fun streamTokens(req: String, chatType: ChatType?, targetId: UUID?, userId: UUID): Flux<AIMessagePart> {
 
         val credits = aICreditService.initializeOrGetCredits(userId)
         if (credits.credits <= 0) throw ApiException(ErrorCode.NOT_ENOUGH_CREDITS)
         aICreditService.handleDeductCredits(userId)
 
-        val prompt = getPrompt(req, targetId, chatType)
+        val prompt = getPrompt(req, targetId, chatType ?: ChatType.DEFAULT)
 
         println("PROMPT: $prompt")
 
@@ -46,6 +46,7 @@ class AIService(
 
     private fun getPrompt (userPrompt: String, targetId: UUID?, chatType: ChatType) : String {
         when (chatType) {
+            ChatType.DEFAULT -> return aIPromptBuilder.buildGenericPrompt(userPrompt)
             ChatType.LESSON -> {
                 if (targetId == null) return aIPromptBuilder.buildGenericPrompt(userPrompt)
                 val exerciseContent = getExerciseContent(exerciseId = targetId)
