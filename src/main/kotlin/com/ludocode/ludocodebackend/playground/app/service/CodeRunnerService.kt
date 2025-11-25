@@ -13,13 +13,7 @@ class CodeRunnerService(private val pistonOutboundPort: PistonOutboundPort) {
 
     internal fun runCode (project: ProjectSnapshot) : RunnerResult {
 
-        println("RC1")
-
-        val runtime = when (project.projectLanguage) {
-            LanguageType.python -> "python"
-            LanguageType.web -> "node"
-            else -> error("Unsupported Language")
-        }
+        val runtime = project.projectLanguage.name
 
         val pistonFiles = project.files.map { file ->
             PistonFile(
@@ -28,9 +22,6 @@ class CodeRunnerService(private val pistonOutboundPort: PistonOutboundPort) {
             )
         }
 
-        println("RC2")
-
-
         val req = PistonRequest(
             language = runtime,
             files = pistonFiles,
@@ -38,10 +29,8 @@ class CodeRunnerService(private val pistonOutboundPort: PistonOutboundPort) {
             args = emptyList(),
             run_timeout = 3000
         )
-        println("RC3")
 
         val resp = pistonOutboundPort.execute(req)
-        println("RC4")
 
         val run = resp.run ?: return RunnerResult(
             stdout = "",
