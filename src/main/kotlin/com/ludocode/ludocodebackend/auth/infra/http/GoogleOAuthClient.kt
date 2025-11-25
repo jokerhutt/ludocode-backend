@@ -11,11 +11,10 @@ import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 
-@Component
 class GoogleOAuthClient(
-    @Value("\${google.client-id}")     private val clientId: String,
-    @Value("\${google.client-secret}") private val clientSecret: String,
-    @Value("\${google.redirect-uri}")  private val redirectUri: String
+    private val clientId: String,
+    private val clientSecret: String,
+    private val redirectUri: String
 ) : GoogleAuthOutboundPort {
 
     private val restTemplate = RestTemplate()

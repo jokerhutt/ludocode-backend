@@ -6,16 +6,13 @@ import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonRequest
 import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonResponse
 import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonRun
 import com.ludocode.ludocodebackend.playground.app.port.out.PistonOutboundPort
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
-import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 
-@Component
 class PistonClient (
-    @Value("\${piston.base}") private val pistonBase: String
+    private val pistonBase: String
 ) : PistonOutboundPort {
 
     private val rest = RestTemplate()

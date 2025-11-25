@@ -1,24 +1,13 @@
 package com.ludocode.ludocodebackend.ai.infra.http
-
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ludocode.ludocodebackend.ai.api.dto.request.GeminiRequest
-import com.ludocode.ludocodebackend.ai.api.dto.response.GeminiResponse
 import com.ludocode.ludocodebackend.ai.app.port.out.AIPort
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatusCode
-import org.springframework.http.MediaType
-import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Flux
 
-@Component
 class AIModelClient(
-    @Value("\${ai.api.key}") private val apiKey: String,
-    @Value("\${ai.model}") private val model: String,
+    apiKey: String,
+    private val model: String,
     builder: WebClient.Builder
 ) : AIPort {
 
