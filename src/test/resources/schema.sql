@@ -6,7 +6,7 @@ CREATE TYPE exercise_type AS ENUM('CLOZE', 'ANALYZE', 'TRIVIA', 'INFO');
 
 CREATE TYPE exercise_type_enum AS ENUM('CLOZE', 'INFO', 'TRIVIA', 'ANALYZE');
 
-CREATE TYPE language_type AS ENUM('python', 'web');
+create type project_language_type as enum ('python', 'javascript', 'lua');
 
 CREATE TABLE ludo_user (
        id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
@@ -99,7 +99,7 @@ CREATE TABLE user_project (
       id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
       name TEXT DEFAULT 'Untitled Project'::TEXT NOT NULL,
       user_id uuid REFERENCES ludo_user,
-      project_language language_type NOT NULL,
+      project_language project_language_type NOT NULL,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
       updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
       request_hash uuid unique not null,
@@ -111,7 +111,7 @@ CREATE TABLE project_file (
       project_id uuid REFERENCES user_project,
       content_url TEXT DEFAULT ''::TEXT,
       file_path TEXT NOT NULL,
-      file_language language_type NOT NULL,
+      file_language project_language_type NOT NULL,
       content_hash TEXT DEFAULT ''::TEXT NOT NULL,
       CONSTRAINT project_file_unique_path UNIQUE (project_id, file_path) DEFERRABLE INITIALLY deferred
 );

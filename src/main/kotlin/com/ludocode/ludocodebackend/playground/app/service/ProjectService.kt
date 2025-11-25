@@ -80,17 +80,18 @@ class ProjectService(
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
         }
 
-        println("CH4")
         return getUserProjects(userId)
 
     }
 
     private fun getFirstFileName (language : LanguageType): String {
+        val base = "script."
         val name = when (language) {
-            LanguageType.python -> "script.py"
-            LanguageType.web -> "index.html"
+            LanguageType.python -> "py"
+            LanguageType.javascript -> "js"
+            LanguageType.lua -> "lua"
         }
-        return name
+        return base + name
     }
 
     internal fun getUserProjects(userId: UUID) : ProjectListResponse {
