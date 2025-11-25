@@ -6,8 +6,8 @@ import com.google.cloud.storage.Storage
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsDeleteRequestList
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequest
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequestList
-import com.ludocode.ludocodebackend.gcs.app.dto.request.UploadedPaths
-import com.ludocode.ludocodebackend.gcs.app.port.GcsUseCase
+import com.ludocode.ludocodebackend.gcs.app.dto.response.UploadedPaths
+import com.ludocode.ludocodebackend.gcs.app.port.`in`.GcsUseCase
 import org.springframework.stereotype.Service
 
 @Service

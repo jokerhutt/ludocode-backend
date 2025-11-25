@@ -1,11 +1,10 @@
 package com.ludocode.ludocodebackend.playground.infra.http
 
-import com.ludocode.ludocodebackend.commons.constants.ExternalPathContstants
 import com.ludocode.ludocodebackend.commons.constants.ExternalPathContstants.PISTON_EXECUTE
 import com.ludocode.ludocodebackend.commons.constants.ExternalPathContstants.PISTON_RUNTIMES
-import com.ludocode.ludocodebackend.playground.app.dto.client.PistonRequest
-import com.ludocode.ludocodebackend.playground.app.dto.client.PistonResponse
-import com.ludocode.ludocodebackend.playground.app.dto.client.PistonRun
+import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonRequest
+import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonResponse
+import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonRun
 import com.ludocode.ludocodebackend.playground.app.port.out.PistonOutboundPort
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 
 @Component
-class HttpPistonOutboundClient (
+class PistonClient (
     @Value("\${piston.base}") private val pistonBase: String
 ) : PistonOutboundPort {
 

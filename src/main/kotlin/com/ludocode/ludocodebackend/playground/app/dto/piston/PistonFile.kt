@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.playground.app.dto.client
+package com.ludocode.ludocodebackend.playground.app.dto.piston
 
 import kotlinx.serialization.Serializable
 

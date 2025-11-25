@@ -1,8 +1,7 @@
 package com.ludocode.ludocodebackend.ai.app.service
 import com.ludocode.ludocodebackend.ai.api.dto.internal.ChatPartsTuple
 import com.ludocode.ludocodebackend.ai.api.dto.response.AIMessagePart
-import com.ludocode.ludocodebackend.ai.api.dto.vercel.request.UIMessagePart
-import com.ludocode.ludocodebackend.ai.api.dto.vercel.request.UIMessageRequest
+import com.ludocode.ludocodebackend.ai.api.dto.request.UIMessageRequest
 import com.ludocode.ludocodebackend.ai.app.mapper.GeminiMapper
 import com.ludocode.ludocodebackend.ai.domain.enums.ChatType
 import com.ludocode.ludocodebackend.ai.infra.client.CatalogClientForAI

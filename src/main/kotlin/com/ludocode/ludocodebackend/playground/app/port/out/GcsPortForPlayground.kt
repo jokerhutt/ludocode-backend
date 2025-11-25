@@ -2,7 +2,7 @@ package com.ludocode.ludocodebackend.playground.app.port.out
 
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsDeleteRequestList
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequestList
-import com.ludocode.ludocodebackend.gcs.app.dto.request.UploadedPaths
+import com.ludocode.ludocodebackend.gcs.app.dto.response.UploadedPaths
 
 interface GcsPortForPlayground {
 

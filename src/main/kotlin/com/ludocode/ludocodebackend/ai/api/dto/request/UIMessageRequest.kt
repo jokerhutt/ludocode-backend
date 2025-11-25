@@ -1,7 +1,4 @@
-package com.ludocode.ludocodebackend.ai.api.dto.vercel.request
-
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
+package com.ludocode.ludocodebackend.ai.api.dto.request
 import com.ludocode.ludocodebackend.ai.domain.enums.AiMessageRole
 import com.ludocode.ludocodebackend.ai.domain.enums.ChatType
 import java.util.UUID

@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.catalog.api.controller
+package com.ludocode.ludocodebackend.catalog.api.controller.external
 
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
-
 
 @RestController
 @RequestMapping(PathConstants.CATALOG)

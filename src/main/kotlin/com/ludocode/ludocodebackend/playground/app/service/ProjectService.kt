@@ -6,12 +6,12 @@ import com.ludocode.ludocodebackend.commons.util.sha256
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsDeleteRequestList
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequest
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequestList
-import com.ludocode.ludocodebackend.playground.app.dto.internal.ProjectSnapshotDiff
+import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectSnapshotDiff
 import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectListResponse
-import com.ludocode.ludocodebackend.playground.app.dto.response.RenameRequest
+import com.ludocode.ludocodebackend.playground.app.dto.request.RenameRequest
 import com.ludocode.ludocodebackend.playground.app.mapper.ProjectMapper
 import com.ludocode.ludocodebackend.playground.app.port.`in`.PlaygroundUseCase
 import com.ludocode.ludocodebackend.playground.app.util.ProjectSnapshotDiffer
@@ -19,7 +19,7 @@ import com.ludocode.ludocodebackend.playground.app.util.ProjectSnapshotValidator
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
-import com.ludocode.ludocodebackend.playground.infra.http.GcsClientForPlayground
+import com.ludocode.ludocodebackend.playground.infra.client.GcsClientForPlayground
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
 import jakarta.transaction.Transactional

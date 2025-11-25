@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.playground.app.service
 
-import com.ludocode.ludocodebackend.playground.app.dto.client.PistonFile
-import com.ludocode.ludocodebackend.playground.app.dto.client.PistonRequest
+import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonFile
+import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonRequest
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.response.RunnerResult
 import com.ludocode.ludocodebackend.playground.app.port.out.PistonOutboundPort

@@ -10,7 +10,7 @@ import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequ
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectListResponse
-import com.ludocode.ludocodebackend.playground.app.dto.response.RenameRequest
+import com.ludocode.ludocodebackend.playground.app.dto.request.RenameRequest
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType

@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.playground.api.controller
+package com.ludocode.ludocodebackend.playground.api.controller.external
 
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot

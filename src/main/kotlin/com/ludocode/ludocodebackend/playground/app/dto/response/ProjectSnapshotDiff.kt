@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.playground.app.dto.internal
+package com.ludocode.ludocodebackend.playground.app.dto.response
 
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile

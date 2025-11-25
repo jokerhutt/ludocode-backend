@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.playground.app.dto.response
+package com.ludocode.ludocodebackend.playground.app.dto.request
 
 import java.util.UUID
 

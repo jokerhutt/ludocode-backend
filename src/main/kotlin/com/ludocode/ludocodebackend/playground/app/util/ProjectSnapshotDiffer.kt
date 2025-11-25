@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.playground.app.util
 
 import com.ludocode.ludocodebackend.commons.util.sha256
-import com.ludocode.ludocodebackend.playground.app.dto.internal.ProjectSnapshotDiff
+import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectSnapshotDiff
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
 import java.util.UUID
@@ -20,7 +20,7 @@ object ProjectSnapshotDiffer {
 
         val incomingIds = incomingFiles.mapNotNull { it.id }.toSet()
         val existingFileMap = existingFiles
-            .filter { it.id in incomingIds }  // ← ONLY files with ID in incoming
+            .filter { it.id in incomingIds }
             .associateBy { it.id }
         filesToDelete.addAll(existingFiles.map { it }.filter { it.id !in incomingIds })
         val filesToDeleteIds = filesToDelete.map { it.id }
@@ -48,13 +48,6 @@ object ProjectSnapshotDiffer {
             }
 
         }
-
-        println("ToDelete size: " + filesToDelete.size)
-        println("ToUpdate size: " + filesToUpdate.size)
-        println("Remaining size: " + filesToDelete.size)
-        println("ToAdd size: " + filesToAdd.size)
-
-
 
         return ProjectSnapshotDiff(remainingFileIds = remainingFileIds, toAdd = filesToAdd, toDeleteFiles = filesToDelete, toUpdate = filesToUpdate )
 

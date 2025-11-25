@@ -1,9 +1,8 @@
-package com.ludocode.ludocodebackend.gcs.app.port
+package com.ludocode.ludocodebackend.gcs.app.port.`in`
 
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsDeleteRequestList
-import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequest
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequestList
-import com.ludocode.ludocodebackend.gcs.app.dto.request.UploadedPaths
+import com.ludocode.ludocodebackend.gcs.app.dto.response.UploadedPaths
 
 interface GcsUseCase {
 

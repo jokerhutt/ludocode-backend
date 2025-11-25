@@ -1,29 +1,20 @@
-package com.ludocode.ludocodebackend.ai.api.controller
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.ludocode.ludocodebackend.ai.api.dto.response.ChatMessageResponse
-import com.ludocode.ludocodebackend.ai.api.dto.vercel.request.ChatRequestBody
-import com.ludocode.ludocodebackend.ai.api.dto.vercel.request.UIMessagePart
+package com.ludocode.ludocodebackend.ai.api.controller.external
+
+import com.ludocode.ludocodebackend.ai.api.dto.request.ChatRequestBody
 import com.ludocode.ludocodebackend.ai.app.service.AIService
-import com.ludocode.ludocodebackend.ai.domain.enums.ChatType
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
-import com.ludocode.ludocodebackend.commons.exception.ApiException
-import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import org.springframework.http.MediaType
-import org.springframework.http.codec.ServerSentEvent
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Flux
 import java.util.UUID
-import org.slf4j.LoggerFactory
 
 @RestController
 @RequestMapping(PathConstants.AI)
-class AIController(private val aIService: AIService, private val objectMapper: ObjectMapper) {
+class AIController(private val aIService: AIService) {
 
     @PostMapping(
         value = [PathConstants.AI_SEND_PROMPT],

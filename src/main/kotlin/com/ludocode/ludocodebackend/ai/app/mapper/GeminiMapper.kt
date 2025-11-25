@@ -19,8 +19,4 @@ class GeminiMapper {
         )
     }
 
-    fun mapToResponse(res: GeminiResponse) : String {
-        return res.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text ?: ""
-    }
-
 }

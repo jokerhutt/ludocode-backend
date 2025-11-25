@@ -1,9 +1,8 @@
-package com.ludocode.ludocodebackend.catalog.api.controller
+package com.ludocode.ludocodebackend.catalog.api.controller.external
 
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnapshot
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotService
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import org.springframework.http.ResponseEntity
@@ -35,7 +34,6 @@ class CatalogAdminController(
     fun createCourse(@RequestBody request: CreateCourseRequest) : ResponseEntity<List<CourseResponse>> {
         return ResponseEntity.ok(snapshotService.createCourse(request))
     }
-
 
 
 }
