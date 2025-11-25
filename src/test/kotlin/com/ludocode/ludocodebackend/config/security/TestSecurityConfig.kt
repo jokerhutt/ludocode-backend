@@ -1,5 +1,6 @@
-package com.ludocode.ludocodebackend.support
+package com.ludocode.ludocodebackend.config.security
 
+import com.ludocode.ludocodebackend.config.security.AuthUser
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

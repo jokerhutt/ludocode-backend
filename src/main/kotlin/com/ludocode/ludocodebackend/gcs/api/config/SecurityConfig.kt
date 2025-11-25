@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.auth.api.config
+package com.ludocode.ludocodebackend.gcs.api.config
 
 import com.ludocode.ludocodebackend.auth.api.security.JwtCookieAuthenticationFilter
 import com.ludocode.ludocodebackend.commons.constants.PublicEndpointConstants

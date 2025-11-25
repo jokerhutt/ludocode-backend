@@ -18,6 +18,12 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.LessonExerc
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.catalog.infra.repository.*
+import com.ludocode.ludocodebackend.config.FixedClockConfig
+import com.ludocode.ludocodebackend.config.GcpTestConfig
+import com.ludocode.ludocodebackend.config.GeminiTestConfig
+import com.ludocode.ludocodebackend.config.GoogleOAuthTestConfig
+import com.ludocode.ludocodebackend.config.PistonTestConfig
+import com.ludocode.ludocodebackend.config.security.TestSecurityConfig
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.AttemptOptionRepository
@@ -49,7 +55,9 @@ import java.util.UUID
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
 
-@Import(TestSecurityConfig::class, FixedClockConfig::class)
+@Import(
+    TestSecurityConfig::class, FixedClockConfig::class, GcpTestConfig::class, GeminiTestConfig::class,
+    GoogleOAuthTestConfig::class, GcpTestConfig::class, PistonTestConfig::class)
 abstract class AbstractIntegrationTest {
 
 

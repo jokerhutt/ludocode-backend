@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.auth.api.config
+package com.ludocode.ludocodebackend.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

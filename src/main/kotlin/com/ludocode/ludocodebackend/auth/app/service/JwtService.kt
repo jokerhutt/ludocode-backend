@@ -16,7 +16,6 @@ import java.util.UUID
 
 @Component
 class JwtService(
-    private val authCookieService: AuthCookieService
 ) {
     private val expirationMillis = 1000L * 60 * 60 * 24
 
