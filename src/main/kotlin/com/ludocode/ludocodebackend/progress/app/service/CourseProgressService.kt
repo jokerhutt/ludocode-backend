@@ -45,12 +45,14 @@ class CourseProgressService(
     }
 
 
-    internal fun updateLesson(userId: UUID, courseId: UUID, isCompleted: Boolean, newLessonId: UUID?) : CourseProgressWithCompletion? {
-        if (isCompleted) return CourseProgressWithCompletion(findCourseProgress(userId, courseId), false)
+    internal fun updateLesson(userId: UUID, courseId: UUID, isCompleted: Boolean, newLessonId: UUID?, currentLessonId: UUID) : CourseProgressWithCompletion? {
+
+        val courseProgress = courseProgressRepository.findById(CourseProgressId(userId, courseId)).orElseThrow()
+        val hasJustFinishedCurrentLesson = courseProgress.currentLessonId == currentLessonId
+        if (!hasJustFinishedCurrentLesson && isCompleted) return CourseProgressWithCompletion(findCourseProgress(userId, courseId), false)
 
         var isFirstCompletion = false
 
-        val courseProgress = courseProgressRepository.findById(CourseProgressId(userId, courseId)).orElseThrow()
         if (newLessonId != null) {
             courseProgress.currentLessonId = newLessonId
             courseProgress.updatedAt = OffsetDateTime.now(clock)

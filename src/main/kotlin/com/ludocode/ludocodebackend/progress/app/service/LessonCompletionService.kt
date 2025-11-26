@@ -55,8 +55,12 @@ class LessonCompletionService(
 
         val submittedLesson = catalogPortForProgress.findLessonResponseById(currentLessonId, userId)
         val isCompleted = submittedLesson.isCompleted
+
+        println("IsCompleted = $isCompleted")
         if (!submittedLesson.isCompleted) submittedLesson.isCompleted = true
-        val newCourseProgressWithCompletion = courseProgressService.updateLesson(userId, newLessonId = nextLessonId, isCompleted = isCompleted, courseId = courseId)
+
+
+        val newCourseProgressWithCompletion = courseProgressService.updateLesson(userId, currentLessonId = currentLessonId, newLessonId = nextLessonId, isCompleted = isCompleted, courseId = courseId)
 
         val newCourseProgress = newCourseProgressWithCompletion!!.courseProgressResponse
         val isFirstCompletion = newCourseProgressWithCompletion!!.isFirstCompletion
