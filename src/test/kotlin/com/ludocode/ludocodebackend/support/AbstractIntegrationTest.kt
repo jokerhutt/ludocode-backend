@@ -33,9 +33,13 @@ import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRe
 import com.ludocode.ludocodebackend.progress.infra.repository.UserDailyGoalRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.UserCoinsRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.UserStreakRepository
+import com.ludocode.ludocodebackend.user.domain.entity.ExternalAccount
 import com.ludocode.ludocodebackend.user.domain.entity.User
+import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
+import com.ludocode.ludocodebackend.user.infra.repository.ExternalAccountRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import io.restassured.RestAssured
+import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -49,12 +53,12 @@ import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import java.time.OffsetDateTime
 import java.time.Clock
+import java.time.Instant
 import java.util.UUID
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
-
 @Import(
     TestSecurityConfig::class, FixedClockConfig::class, GcpTestConfig::class, GeminiTestConfig::class,
     GoogleOAuthTestConfig::class, GcpTestConfig::class, PistonTestConfig::class)
@@ -85,6 +89,8 @@ abstract class AbstractIntegrationTest {
 
     lateinit var user1: User
     lateinit var user2: User
+    lateinit var demoUser1: User
+    val demoToken: String = "9d495788fdc9fe95627f04ab32cc839e"
 
 
     init {
@@ -118,6 +124,7 @@ abstract class AbstractIntegrationTest {
     lateinit var clock: Clock
     @Autowired lateinit var courseProgressRepository: CourseProgressRepository
     @Autowired lateinit var userRepository: UserRepository
+    @Autowired lateinit var externalAccountRepository: ExternalAccountRepository
     @Autowired lateinit var courseRepository: CourseRepository
     @Autowired lateinit var lessonRepository: LessonRepository
     @Autowired lateinit var moduleRepository: ModuleRepository
@@ -161,6 +168,7 @@ abstract class AbstractIntegrationTest {
           lesson_completion,
           course_progress,
           user_coins,
+          external_account,
           ludo_user,
           option_content,
           exercise_option,
@@ -292,6 +300,18 @@ abstract class AbstractIntegrationTest {
             User(firstName = "John", lastName = "Doe", pfpSrc = "Test", createdAt = OffsetDateTime.now(clock), email = "email@google.com"))
         user2 = userRepository.save(
             User(firstName = "Micheal", lastName = "Scott", pfpSrc = "Test", createdAt = OffsetDateTime.now(clock), email = "mscott@google.com"))
+
+        demoUser1 = userRepository.save(
+            User(id= UUID.fromString("47ad6daf-2433-4e76-b9c1-305614c5c033"), firstName = "Demo", lastName = "User", pfpSrc = "Test", email = "demoUser", createdAt = OffsetDateTime.now(clock))
+        )
+
+        externalAccountRepository.save(ExternalAccount(
+            userId = demoUser1.id!!,
+            provider = AuthProvider.DEMO,
+            providerUserId = demoUser1.id.toString(),
+            createdAt = Instant.from(OffsetDateTime.now(clock))
+        ))
+
 
     }
 

@@ -35,6 +35,7 @@ object PathConstants {
     const val GET_MY_PROJECTS : String = "/my-projects"
 
     const val AUTH : String = "$API_V1/auth"
+    const val DEMO_LOGIN : String = "/demo-login"
     const val GOOGLE_LOGIN : String = "/google-login"
     const val AUTH_ME : String = "/me"
     const val USERS : String = "$API_V1/users"

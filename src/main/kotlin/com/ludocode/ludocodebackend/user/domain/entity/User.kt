@@ -18,10 +18,9 @@ import java.util.UUID
 class User (
 
     @Id
-    @UuidGenerator
     @JdbcTypeCode(SqlTypes.UUID)
     @Column(name = "id", nullable = false, updatable = false)
-    var id: UUID? = null,
+    var id: UUID = UUID.randomUUID(),
 
     @Column(name = "first_name", nullable = false)
     var firstName: String,
