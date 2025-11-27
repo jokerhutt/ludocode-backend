@@ -1,0 +1,61 @@
+
+spring:
+  application:
+    name: ludocode-backend
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+ai:
+  api:
+    key: ${GEMINI_API_KEY}
+  model: gemini-2.5-flash-lite
+
+jwt:
+  secret: ${JWT_SECRET}
+
+google:
+  client-id: ${GOOGLE_CLIENT_ID}
+  client-secret: ${GOOGLE_CLIENT_SECRET}
+  redirect-uri: postmessage
+
+app:
+  gcs-host:
+
+gcs:
+  bucket: ${GCS_BUCKET}
+  project:
+    id: ${GCS_PROJECT_ID}
+
+piston:
+  base: ${PISTON_BASE}
+
+demo:
+  enabled: true
+  token: ${DEMO_TOKEN}
+  user-id: ${DEMO_USER_ID}
+
+auth:
+  cookie:
+    name: jwt
+    path: /
+    same-site: Lax
+    secure: false
+    max-age-seconds: 86400
+
+user:
+  service:
+    base-url: ${USER_SERVICE_BASE_URL}
+
+catalog:
+  service:
+    base-url: ${CATALOG_SERVICE_BASE_URL}
+
+course-progress:
+  service:
+    base-url: ${COURSE_PROGRESS_SERVICE_BASE_URL}
+
+user-stats:
+  service:
+    base-url: ${USER_STATS_SERVICE_BASE_URL}

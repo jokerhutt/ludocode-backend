@@ -1,0 +1,43 @@
+
+server:
+  port: 18080
+
+jwt:
+  secret: test-secret
+
+piston:
+  base: ${PISTON_BASE}
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: none
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+
+demo:
+  enabled: true
+  token: 9d495788fdc9fe95627f04ab32cc839e
+  user-id: 47ad6daf-2433-4e76-b9c1-305614c5c033
+
+user:
+  service:
+    base-url: http://localhost:18080
+
+catalog:
+  service:
+    base-url: http://localhost:18080
+
+user-stats:
+  service:
+    base-url: http://localhost:18080
+
+course-progress:
+  service:
+    base-url: http://localhost:18080
