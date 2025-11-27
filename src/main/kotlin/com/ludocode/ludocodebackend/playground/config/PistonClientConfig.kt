@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Profile
 
 @Configuration
 @Profile("!test")
-class PistonConfig {
+class PistonClientConfig {
 
     @Bean
     fun pistonClient(

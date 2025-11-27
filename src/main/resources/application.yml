@@ -29,6 +29,7 @@ gcs:
     id: ${GCS_PROJECT_ID}
 
 piston:
+  enabled: true
   base: ${PISTON_BASE}
 
 demo:
