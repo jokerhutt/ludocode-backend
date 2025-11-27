@@ -1,15 +1,19 @@
-package com.ludocode.ludocodebackend.auth.integration
+package com.ludocode.ludocodebackend.auth.integration.demo
+
 import com.ludocode.ludocodebackend.auth.api.dto.response.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.config.DemoConfig
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
-import io.restassured.RestAssured.given
-import org.assertj.core.api.Assertions.assertThat
+import io.restassured.RestAssured
+import org.assertj.core.api.Assertions
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.junit.jupiter.EnabledIf
 import kotlin.test.Test
 
-@EnabledIf(expression = "#{environment.getProperty('demo.enabled') == 'true'}")
+@EnabledIf(
+    expression = "#{ '\${demo.enabled:false}' == 'true' }",
+    reason = "Runs only when demo mode is enabled"
+)
 class DemoAuthIntegrationTest : AbstractIntegrationTest() {
 
     @Autowired
@@ -20,17 +24,17 @@ class DemoAuthIntegrationTest : AbstractIntegrationTest() {
 
         val id = demoConfig.userId ?: error("demo.user-id must be set for test")
 
-        assertThat(id == demoUser1.id)
+        Assertions.assertThat(id == demoUser1.id)
 
         val res = submitGetDemoUser(demoToken)
-        assertThat(res).isNotNull()
-        assertThat(res.user.id).isEqualTo(id)
-        assertThat(res.user.firstName).isEqualTo(demoUser1.firstName)
-        assertThat(res.user.lastName).isEqualTo(demoUser1.lastName)
+        Assertions.assertThat(res).isNotNull()
+        Assertions.assertThat(res.user.id).isEqualTo(id)
+        Assertions.assertThat(res.user.firstName).isEqualTo(demoUser1.firstName)
+        Assertions.assertThat(res.user.lastName).isEqualTo(demoUser1.lastName)
     }
 
     private fun submitGetDemoUser(token: String): UserLoginResponse {
-        return given()
+        return RestAssured.given()
             .queryParam("token", token)
             .`when`()
             .get("${PathConstants.AUTH}${PathConstants.DEMO_LOGIN}")

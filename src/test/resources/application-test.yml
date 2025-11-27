@@ -22,7 +22,7 @@ spring:
       schema-locations: classpath:schema.sql
 
 demo:
-  enabled: true
+  enabled: false
   token: 9d495788fdc9fe95627f04ab32cc839e
   user-id: 47ad6daf-2433-4e76-b9c1-305614c5c033
 

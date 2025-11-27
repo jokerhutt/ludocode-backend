@@ -24,10 +24,6 @@ class DemoAuthController(
         response: HttpServletResponse
     ): ResponseEntity<UserLoginResponse> {
 
-        if (!demoConfig.enabled) {
-            return ResponseEntity.status(403).body(null)
-        }
-
         if (token != demoConfig.token) {
             return ResponseEntity.status(403).body(null)
         }
