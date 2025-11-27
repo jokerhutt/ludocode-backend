@@ -14,7 +14,7 @@ import kotlin.test.Test
     expression = "#{ '\${demo.enabled:false}' == 'true' }",
     reason = "Runs only when demo mode is enabled"
 )
-class DemoAuthIntegrationTest : AbstractIntegrationTest() {
+class DemoAuthIT : AbstractIntegrationTest() {
 
     @Autowired
     private lateinit var demoConfig: DemoConfig

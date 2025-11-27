@@ -6,6 +6,7 @@ jwt:
   secret: test-secret
 
 piston:
+  enabled: false
   base: ${PISTON_BASE}
 
 spring:
