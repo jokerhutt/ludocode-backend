@@ -97,8 +97,8 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         assertThat(content.newCourseProgress.courseId).isEqualTo(pythonId)
         assertThat(content.newCourseProgress.moduleId).isEqualTo(pyMod2Id)
         assertThat(content.newCourseProgress.userId).isEqualTo(user1.id)
-        assertThat(content.accuracy).isGreaterThan(BigDecimal("0.00"))
-        assertThat(content.accuracy).isLessThan(BigDecimal("1.00"))
+        assertThat(content.accuracy).isGreaterThan(BigDecimal(0))
+        assertThat(content.accuracy).isLessThan(BigDecimal(1))
         assertThat(content.updatedCompletedLesson.id).isEqualTo(currentLesson)
         assertThat(content.updatedCompletedLesson.isCompleted).isEqualTo(true)
 
@@ -152,8 +152,8 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         assertThat(content.newCourseProgress.currentLessonId).isEqualTo(currentLesson)
         assertThat(content.newCourseProgress.moduleId).isEqualTo(pyMod2Id)
         assertThat(content.newCoins.coins).isGreaterThan(0)
-        assertThat(content.accuracy).isGreaterThan(BigDecimal("0.00"))
-        assertThat(content.accuracy).isEqualTo(BigDecimal("1.00"))
+        assertThat(content.accuracy).isGreaterThan(BigDecimal(0))
+        assertThat(content.accuracy).isEqualTo(BigDecimal(1))
         assertThat(content.updatedCompletedLesson.id).isEqualTo(currentLesson)
         assertThat(content.updatedCompletedLesson.isCompleted).isEqualTo(true)
 

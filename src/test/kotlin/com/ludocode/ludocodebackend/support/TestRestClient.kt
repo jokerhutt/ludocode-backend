@@ -34,12 +34,19 @@ object TestRestClient {
 
     fun <T : Any> getOk(
         url: String,
-        userId: UUID,
+        userId: UUID? = null,
         responseType: Class<T>,
+        jwt: String? = null,
     ): T {
-        return given()
-            .header("X-Test-User-Id", userId.toString())
-            .`when`()
+        val req = given().contentType(ContentType.JSON)
+
+        when {
+            jwt != null -> req.cookie("AUTH", jwt)
+            userId != null -> req.header("X-Test-User-Id", userId.toString())
+            else -> error("Must provide either jwt or userId for test request")
+        }
+
+        return req.`when`()
             .get(url)
             .then()
             .statusCode(200)
