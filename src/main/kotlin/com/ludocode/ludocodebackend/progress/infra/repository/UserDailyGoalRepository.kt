@@ -26,4 +26,19 @@ interface UserDailyGoalRepository : JpaRepository<UserDailyGoal, UserDailyGoalId
         @Param("localDate") localDate: LocalDate
     ): Int
 
+    @Query(
+        value = """
+        SELECT *
+        FROM user_daily_goal
+        WHERE user_id = :userId
+        ORDER BY local_date DESC
+        LIMIT :limit
+    """,
+        nativeQuery = true
+    )
+    fun findRecentCompletions(
+        userId: UUID,
+        limit: Int
+    ): List<UserDailyGoal>
+
 }

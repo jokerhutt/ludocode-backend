@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend
 
-import com.ludocode.ludocodebackend.config.FixedClockConfig
+import com.ludocode.ludocodebackend.config.time.TestClockConfig
 import com.ludocode.ludocodebackend.config.GcpTestConfig
 import com.ludocode.ludocodebackend.config.GeminiTestConfig
 import com.ludocode.ludocodebackend.config.GoogleOAuthTestConfig
@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 
 @Import(TestcontainersConfiguration::class, GcpTestConfig::class, GeminiTestConfig::class, GoogleOAuthTestConfig::class, GcpTestConfig::class,
-	PistonTestConfig::class, TestSecurityConfig::class, FixedClockConfig::class)
+	PistonTestConfig::class, TestSecurityConfig::class, TestClockConfig::class)
 @SpringBootTest
 @ActiveProfiles("test")
 class LudocodeBackendApplicationTests {

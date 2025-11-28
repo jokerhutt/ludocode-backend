@@ -18,12 +18,13 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.LessonExerc
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.catalog.infra.repository.*
-import com.ludocode.ludocodebackend.config.FixedClockConfig
+import com.ludocode.ludocodebackend.config.time.TestClockConfig
 import com.ludocode.ludocodebackend.config.GcpTestConfig
 import com.ludocode.ludocodebackend.config.GeminiTestConfig
 import com.ludocode.ludocodebackend.config.GoogleOAuthTestConfig
 import com.ludocode.ludocodebackend.config.PistonTestConfig
 import com.ludocode.ludocodebackend.config.security.TestSecurityConfig
+import com.ludocode.ludocodebackend.config.time.MutableClock
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.AttemptOptionRepository
@@ -39,7 +40,6 @@ import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
 import com.ludocode.ludocodebackend.user.infra.repository.ExternalAccountRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import io.restassured.RestAssured
-import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -60,7 +60,7 @@ import java.util.UUID
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
 @Import(
-    TestSecurityConfig::class, FixedClockConfig::class, GcpTestConfig::class, GeminiTestConfig::class,
+    TestSecurityConfig::class, TestClockConfig::class, GcpTestConfig::class, GeminiTestConfig::class,
     GoogleOAuthTestConfig::class, GcpTestConfig::class, PistonTestConfig::class)
 abstract class AbstractIntegrationTest {
 
@@ -121,7 +121,7 @@ abstract class AbstractIntegrationTest {
     protected var port: Int = 0
 
     @Autowired
-    lateinit var clock: Clock
+    lateinit var clock: MutableClock
     @Autowired lateinit var courseProgressRepository: CourseProgressRepository
     @Autowired lateinit var userRepository: UserRepository
     @Autowired lateinit var externalAccountRepository: ExternalAccountRepository
