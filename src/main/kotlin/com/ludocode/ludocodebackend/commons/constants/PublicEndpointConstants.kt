@@ -5,6 +5,7 @@ import com.ludocode.ludocodebackend.commons.constants.PathConstants.AUTH
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.CATALOG
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.COURSES_ALL
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.COURSE_TREE
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.DEMO_LOGIN
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.EXERCISES_LESSON_ID
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.GOOGLE_LOGIN
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.MODULES_IDS
@@ -18,6 +19,7 @@ object PublicEndpointConstants {
     val PUBLIC_ENDPOINTS = arrayOf(
         "/actuator/**",
         "/internal/**",
+        AUTH + DEMO_LOGIN,
         CATALOG + MODULES_IDS,
         CATALOG + COURSES_ALL,
         CATALOG + EXERCISES_LESSON_ID,

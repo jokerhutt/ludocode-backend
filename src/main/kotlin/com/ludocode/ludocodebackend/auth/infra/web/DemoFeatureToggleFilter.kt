@@ -18,7 +18,8 @@ class DemoFeatureToggleFilter(
         response: HttpServletResponse,
         chain: FilterChain
     ) {
-        if (!request.requestURI.startsWith("${PathConstants.CATALOG}${ PathConstants.DEMO_LOGIN }")) {
+
+        if (!request.requestURI.startsWith("${PathConstants.AUTH}${ PathConstants.DEMO_LOGIN }")) {
             chain.doFilter(request, response)
             return
         }
@@ -27,6 +28,7 @@ class DemoFeatureToggleFilter(
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Demo disabled, to enable it edit the demo.enabled flag in application-yml")
             return
         }
+
 
         chain.doFilter(request, response)
     }
