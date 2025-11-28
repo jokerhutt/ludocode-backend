@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.progress.api.controller.external
 
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import com.ludocode.ludocodebackend.progress.api.dto.response.DailyGoalResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
 import com.ludocode.ludocodebackend.progress.app.service.StreakService
 import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak
@@ -18,6 +19,11 @@ class StreakController(private val streakService: StreakService) {
     @GetMapping(PathConstants.GET_STREAK)
     fun getUserStreak (@AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<UserStreakResponse> {
         return ResponseEntity.ok(streakService.getStreak(userId))
+    }
+
+    @GetMapping(PathConstants.GET_STREAK_PAST_WEEK)
+    fun getStreakPastWeek(@AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<List<DailyGoalResponse>> {
+        return ResponseEntity.ok(streakService.getPastWeek(userId))
     }
 
 }

@@ -1,4 +1,5 @@
 package com.ludocode.ludocodebackend.progress.app.service
+import com.ludocode.ludocodebackend.progress.api.dto.response.DailyGoalResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.StreakResponsePacket
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
 import com.ludocode.ludocodebackend.progress.app.mapper.UserStreakMapper
@@ -41,6 +42,22 @@ class StreakService(
         val inserted = userDailyGoalRepository.insertOnce(userId, today)
         if (inserted == 0) return StreakResponsePacket(action = StreakAction.NONE, response = getStreak(userId))
         return StreakResponsePacket(action = StreakAction.INCREMENT, response = updateStreak(userId, nowUtc, userZone))
+    }
+
+
+    internal fun getPastWeek(userId: UUID): List<DailyGoalResponse> {
+        val today = LocalDate.now(clock)
+        val week = (0L..6L).map { today.minusDays(it) }.sorted()
+        val completions = userDailyGoalRepository.findRecentCompletions(userId, 7)
+
+        val completedDates = completions.map { it.userDailyGoalId.localDate }.toSet()
+
+        return week.map { date ->
+            DailyGoalResponse(
+                date = date,
+                met = completedDates.contains(date)
+            )
+        }
     }
 
     private fun initializeIfAbsentReturning(userId: UUID): UserStreak {
@@ -118,6 +135,8 @@ class StreakService(
             lastMetGoalUtc = null
         )
     }
+
+
 
     private fun isFirstEverSubmission (lastModified: LocalDate?) : Boolean = lastModified == null
     private fun isFirstSubmissionOfDay (today: LocalDate, lastModified: LocalDate) : Boolean = today == lastModified.plusDays(1)

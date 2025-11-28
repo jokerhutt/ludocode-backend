@@ -1,14 +1,20 @@
 package com.ludocode.ludocodebackend.progress.integration
 
+import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import com.ludocode.ludocodebackend.progress.api.dto.response.DailyGoalResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
 import com.ludocode.ludocodebackend.progress.domain.entity.UserCoins
+import com.ludocode.ludocodebackend.progress.domain.entity.UserDailyGoal
 import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak
+import com.ludocode.ludocodebackend.progress.domain.entity.embedded.UserDailyGoalId
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
+import com.ludocode.ludocodebackend.support.TestClocks
 import com.ludocode.ludocodebackend.support.TestRestClient
 import org.assertj.core.api.Assertions.assertThat
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 import kotlin.test.Test
 
@@ -29,6 +35,46 @@ class StreakIT : AbstractIntegrationTest() {
     }
 
     @Test
+    fun submitGetStreakHistory_threeDaysMissing_returnsCorrect () {
+
+        val userId = user1.id
+        userCoinsRepository.save(UserCoins(user1.id!!, 0))
+
+        clock.set(TestClocks.FIXED_NOON_UTC_MONDAY.instant())
+
+        for (i in 0 until 7) {
+            clock.set(clock.instant().plus(1, ChronoUnit.DAYS))
+            val today = LocalDate.now(clock)
+
+            println("Today is: $today")
+
+            if (i !in listOf(3, 4, 6)) {
+                userDailyGoalRepository.save(
+                    UserDailyGoal(
+                        UserDailyGoalId(userId, today)
+                    )
+                )
+            }
+        }
+
+        val res = submitGetPastStreakWeek(userId)
+        assertThat(res).isNotNull()
+        assertThat(res.size).isEqualTo(7)
+
+        val metDays = res.filter { dailyGoal -> dailyGoal.met }
+
+        assertThat(metDays.size).isEqualTo(4)
+
+
+
+
+
+
+    }
+
+
+
+    @Test
     fun submitGetStreak_MissedStreak_returnsResetStreak () {
 
         val userCoins = userCoinsRepository.save(UserCoins(user1.id!!, 0))
@@ -46,4 +92,12 @@ class StreakIT : AbstractIntegrationTest() {
 
     private fun submitGetStreak (userId: UUID): UserStreakResponse =
         TestRestClient.getOk("${PathConstants.STREAK}/get", userId, UserStreakResponse::class.java)
+
+    private fun submitGetPastStreakWeek (userId: UUID) : List<DailyGoalResponse> =
+        TestRestClient
+            .getOk("${PathConstants.STREAK}${PathConstants.GET_STREAK_PAST_WEEK}",
+                user1.id!!,
+                Array<DailyGoalResponse>::class.java)
+            .toList()
+
 }

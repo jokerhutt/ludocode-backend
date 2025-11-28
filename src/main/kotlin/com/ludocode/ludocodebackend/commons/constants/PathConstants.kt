@@ -61,6 +61,7 @@ object PathConstants {
 
     const val STREAK : String = "$PROGRESS/streak"
     const val GET_STREAK : String = "/get"
+    const val GET_STREAK_PAST_WEEK : String = "/get/past-week"
 
     const val SNAPSHOT : String = "$API_V1/snapshot"
     const val SUBMIT_MODULE_SNAPSHOT : String = "/submit/module"
