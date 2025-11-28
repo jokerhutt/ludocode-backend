@@ -35,41 +35,48 @@ class StreakIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun submitGetStreakHistory_threeDaysMissing_returnsCorrect () {
+    fun submitGetStreakHistory_threeDaysMissing_returnsCorrect() {
+        val userId = user1.id!!
+        userCoinsRepository.save(UserCoins(userId, 0))
 
-        val userId = user1.id
-        userCoinsRepository.save(UserCoins(user1.id!!, 0))
+        clock.set(TestClocks.FIXED_NOON_UTC_MONDAY.instant())
+        val missingDays = setOf(3, 4, 6)
+
+        for (i in 0 until 7) {
+            val today = LocalDate.now(clock)
+
+            if (i !in missingDays) {
+                userDailyGoalRepository.save(UserDailyGoal(UserDailyGoalId(userId, today)))
+            }
+
+            clock.set(clock.instant().plus(1, ChronoUnit.DAYS))
+        }
+
+        clock.set(clock.instant().minus(1, ChronoUnit.DAYS))
+
+        val res = submitGetPastStreakWeek(userId)
+
+        assertThat(res).hasSize(7)
+        assertThat(res.count { it.met }).isEqualTo(4)
+    }
+
+    @Test
+    fun submitGetStreakHistory_completedLastWeek_isMondayOfNextWeek_returnsEmpty() {
+        val userId = user1.id!!
+        userCoinsRepository.save(UserCoins(userId, 0))
 
         clock.set(TestClocks.FIXED_NOON_UTC_MONDAY.instant())
 
         for (i in 0 until 7) {
-            clock.set(clock.instant().plus(1, ChronoUnit.DAYS))
             val today = LocalDate.now(clock)
-
-            println("Today is: $today")
-
-            if (i !in listOf(3, 4, 6)) {
-                userDailyGoalRepository.save(
-                    UserDailyGoal(
-                        UserDailyGoalId(userId, today)
-                    )
-                )
-            }
+            userDailyGoalRepository.save(UserDailyGoal(UserDailyGoalId(userId, today)))
+            clock.set(clock.instant().plus(1, ChronoUnit.DAYS))
         }
 
         val res = submitGetPastStreakWeek(userId)
-        assertThat(res).isNotNull()
-        assertThat(res.size).isEqualTo(7)
 
-        val metDays = res.filter { dailyGoal -> dailyGoal.met }
-
-        assertThat(metDays.size).isEqualTo(4)
-
-
-
-
-
-
+        assertThat(res).hasSize(7)
+        assertThat(res.count { it.met }).isEqualTo(0)
     }
 
 

@@ -12,9 +12,11 @@ import com.ludocode.ludocodebackend.progress.infra.repository.UserStreakReposito
 import java.time.Clock
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.time.temporal.TemporalAdjusters
 import java.util.UUID
 import kotlin.math.max
 
@@ -45,18 +47,20 @@ class StreakService(
     }
 
 
-    internal fun getPastWeek(userId: UUID): List<DailyGoalResponse> {
-        val today = LocalDate.now(clock)
-        val week = (0L..6L).map { today.minusDays(it) }.sorted()
-        val completions = userDailyGoalRepository.findRecentCompletions(userId, 7)
+    internal fun getPastWeekMondayToSunday(
+        userId: UUID,
+    ): List<DailyGoalResponse> {
 
+        val today = LocalDate.now(clock)
+
+        val monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val week = (0..6).map { monday.plusDays(it.toLong()) }
+
+        val completions = userDailyGoalRepository.findRecentCompletions(userId, 7)
         val completedDates = completions.map { it.userDailyGoalId.localDate }.toSet()
 
         return week.map { date ->
-            DailyGoalResponse(
-                date = date,
-                met = completedDates.contains(date)
-            )
+            DailyGoalResponse(date, completedDates.contains(date))
         }
     }
 

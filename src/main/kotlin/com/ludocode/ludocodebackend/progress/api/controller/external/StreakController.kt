@@ -4,7 +4,6 @@ import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.progress.api.dto.response.DailyGoalResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
 import com.ludocode.ludocodebackend.progress.app.service.StreakService
-import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
@@ -23,7 +22,7 @@ class StreakController(private val streakService: StreakService) {
 
     @GetMapping(PathConstants.GET_STREAK_PAST_WEEK)
     fun getStreakPastWeek(@AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<List<DailyGoalResponse>> {
-        return ResponseEntity.ok(streakService.getPastWeek(userId))
+        return ResponseEntity.ok(streakService.getPastWeekMondayToSunday(userId))
     }
 
 }
