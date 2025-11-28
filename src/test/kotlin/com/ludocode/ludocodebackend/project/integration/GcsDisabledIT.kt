@@ -6,13 +6,14 @@ import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
+import org.springframework.test.context.junit.jupiter.DisabledIf
 import org.springframework.test.context.junit.jupiter.EnabledIf
 import java.util.UUID
 import kotlin.test.Test
 
-@EnabledIf(
-    expression = "#{ '\${gcs.enabled:false}' == 'false' }",
-    reason = "Runs only when gcs is disabled and tests filter chain. To enable GCS & projects set gcs.enabled = true in application.yaml"
+@DisabledIf(
+    expression = "\${gcs.enabled}",
+    loadContext = true
 )
 class GcsDisabledIT : AbstractIntegrationTest() {
 

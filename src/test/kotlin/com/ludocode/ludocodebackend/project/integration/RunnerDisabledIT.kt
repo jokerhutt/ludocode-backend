@@ -7,13 +7,13 @@ import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
-import org.springframework.test.context.junit.jupiter.EnabledIf
+import org.springframework.test.context.junit.jupiter.DisabledIf
 import java.util.UUID
 import kotlin.test.Test
 
-@EnabledIf(
-    expression = "#{ '\${piston.enabled:false}' == 'false' }",
-    reason = "Runs only when piston is disabled (It should be disabled in test)"
+@DisabledIf(
+    expression = "\${piston.enabled}",
+    loadContext = true
 )
 class RunnerDisabledIT : AbstractIntegrationTest() {
 
