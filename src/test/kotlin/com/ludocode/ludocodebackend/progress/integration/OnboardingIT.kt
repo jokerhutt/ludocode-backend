@@ -36,7 +36,4 @@ class OnboardingIT : AbstractIntegrationTest() {
 
     private fun submitPostForOnboarding(userId: UUID, submission: OnboardingSubmission): OnboardingResponse =
         TestRestClient.postOk("$USERS$SUBMIT_ONBOARDING", userId, submission, OnboardingResponse::class.java)
-
-
-
 }

@@ -34,6 +34,8 @@ class StreakIT : AbstractIntegrationTest() {
 
     }
 
+
+
     @Test
     fun submitGetStreakHistory_threeDaysMissing_returnsCorrect() {
         val userId = user1.id!!
@@ -77,6 +79,33 @@ class StreakIT : AbstractIntegrationTest() {
 
         assertThat(res).hasSize(7)
         assertThat(res.count { it.met }).isEqualTo(0)
+    }
+
+
+    @Test
+    fun submitGetStreakHistory_completedLastWeek_isMondayOfNextWeek_returnsMondayComplete() {
+        val userId = user1.id!!
+        userCoinsRepository.save(UserCoins(userId, 0))
+
+        clock.set(TestClocks.FIXED_NOON_UTC_MONDAY.instant())
+
+        for (i in 0 until 7) {
+            val today = LocalDate.now(clock)
+            userDailyGoalRepository.save(UserDailyGoal(UserDailyGoalId(userId, today)))
+            clock.set(clock.instant().plus(1, ChronoUnit.DAYS))
+        }
+
+        val thisMonday = LocalDate.now(clock)
+        userDailyGoalRepository.save(UserDailyGoal(UserDailyGoalId(userId, thisMonday)))
+
+        val res = submitGetPastStreakWeek(userId)
+
+        assertThat(res).hasSize(7)
+
+        assertThat(res.count { it.met }).isEqualTo(1)
+
+        assertThat(res.first().met).isTrue()
+        assertThat(res.first().date.dayOfWeek.name).isEqualTo("MONDAY")
     }
 
 

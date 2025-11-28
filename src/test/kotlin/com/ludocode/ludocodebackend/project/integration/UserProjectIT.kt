@@ -25,8 +25,8 @@ import java.util.UUID
 import kotlin.test.Test
 
 @EnabledIf(
-    expression = "#{ '\${gcs.enabled:false}' == 'true' }",
-    reason = "Runs only when gcs mode is enabled"
+    expression = "\${gcs.enabled}",
+    loadContext = true
 )
 class UserProjectIT : AbstractIntegrationTest() {
 
