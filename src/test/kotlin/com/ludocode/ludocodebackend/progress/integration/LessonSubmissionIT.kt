@@ -160,6 +160,69 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
     }
 
+    @Test
+    fun submitInfoLesson_returnsNextLessonAndCompleteWithFullAccuracy() {
+        val userId = user1.id!!
+        userCoinsRepository.save(UserCoins(userId, 0))
+
+        val currentCourse = swiftId
+        val currentLesson = sw1L1
+        val nextLesson = sw1L2
+
+        courseProgressRepository.save(
+            CourseProgress(
+                id = CourseProgressId(userId, currentCourse),
+                currentLessonId = currentLesson,
+                createdAt = OffsetDateTime.now(clock),
+                updatedAt = OffsetDateTime.now(clock)
+            )
+        )
+
+        val swiftSnap = snapshotBuilderService.buildCourseSnapshot(swiftId)
+        val infoLesson = swiftSnap.modules[0].lessons[0]
+        val exercises = infoLesson.exercises
+        assertThat(exercises).isNotEmpty
+
+        val submissions = exercises.map { ex ->
+            ExerciseSubmissionRequest(
+                exerciseId = ex.id,
+                version = 1,
+                attempts = listOf(
+                    ExerciseAttemptRequest(
+                        exerciseId = ex.id,
+                        isCorrect = true,
+                        answer = listOf(
+                            AttemptToken(
+                                id = UUID.randomUUID(),
+                                value = "I"
+                            )
+                        )
+                    )
+                )
+            )
+        }
+
+        val req = LessonSubmissionRequest(
+            id = UUID.randomUUID(),
+            lessonId = currentLesson,
+            submissions = submissions
+        )
+
+        val packet = submitPostForLessonSubmission(userId, req)
+        val content = packet.content!!
+
+        assertThat(packet.status).isEqualTo(LessonCompletionStatus.OK)
+
+        assertThat(content.accuracy).isEqualByComparingTo("1")
+
+        assertThat(content.updatedCompletedLesson.id).isEqualTo(currentLesson)
+        assertThat(content.updatedCompletedLesson.isCompleted).isTrue()
+
+        assertThat(content.newCourseProgress.currentLessonId).isEqualTo(nextLesson)
+
+        assertThat(content.newCoins.coins).isGreaterThanOrEqualTo(0)
+    }
+
 
     @Test
     fun submitLesson_returnsNextLesson() {

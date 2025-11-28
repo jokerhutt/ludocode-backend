@@ -143,7 +143,6 @@ class UserProjectIT : AbstractIntegrationTest() {
         assertThat(deleteResponse.projects.size).isEqualTo(1)
         assertThat(deleteResponse.projects[0].projectId).isEqualTo(newProject.projectId)
 
-
     }
 
     @Test

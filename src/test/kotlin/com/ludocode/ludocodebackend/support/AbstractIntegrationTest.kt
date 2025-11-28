@@ -71,6 +71,7 @@ abstract class AbstractIntegrationTest {
      var pyMod1Id = UUID.randomUUID()
      var pyMod2Id = UUID.randomUUID()
      var swMod1Id = UUID.randomUUID()
+    var swMod2Id = UUID.randomUUID()
 
      var py1L1 = UUID.randomUUID()
      var py1L2 = UUID.randomUUID()
@@ -79,8 +80,6 @@ abstract class AbstractIntegrationTest {
 
      var py2L1 = UUID.randomUUID()
      var py2L2 = UUID.randomUUID()
-     var py2L3 = UUID.randomUUID()
-     var py2L4 = UUID.randomUUID()
 
      var sw1L1 = UUID.randomUUID()
      var sw1L2 = UUID.randomUUID()
@@ -440,6 +439,39 @@ abstract class AbstractIntegrationTest {
             )
         )
 
+        val ex9INFO = ExerciseSnap(
+            id = UUID.randomUUID(),
+            title = "If statements run if a condition is true",
+            subtitle = null,
+            prompt = null,
+            media = null,
+            exerciseType = ExerciseType.INFO,
+            correctOptions = emptyList(),
+            distractors = emptyList()
+        )
+
+        val ex10INFO = ExerciseSnap(
+            id = UUID.randomUUID(),
+            title = "They are very powerful",
+            subtitle = null,
+            prompt = null,
+            media = null,
+            exerciseType = ExerciseType.INFO,
+            correctOptions = emptyList(),
+            distractors = emptyList()
+        )
+
+        val ex11INFO = ExerciseSnap(
+            id = UUID.randomUUID(),
+            title = "Else statements run if none of the if statement conditions were true",
+            subtitle = null,
+            prompt = null,
+            media = null,
+            exerciseType = ExerciseType.INFO,
+            correctOptions = emptyList(),
+            distractors = emptyList()
+        )
+
         val pyMod1Lessons = listOf(
             LessonSnap(
                 id = py1L1, title = "Variables I", orderIndex = 1,
@@ -459,18 +491,19 @@ abstract class AbstractIntegrationTest {
         )
 
         val swMod1Lessons = listOf(
-            LessonSnap(id = sw1L1, title = "Variables I", orderIndex = 1, exercises = emptyList()),
-            LessonSnap(id = sw1L2, title = "Variables II", orderIndex = 2, exercises = emptyList()),
+            LessonSnap(id = sw1L1, title = "Variables I", orderIndex = 1, exercises = listOf(ex9INFO, ex10INFO)),
+            LessonSnap(id = sw1L2, title = "Variables II", orderIndex = 2, exercises = listOf(ex11INFO)),
             LessonSnap(id = sw1L3, title = "Data Types I", orderIndex = 3, exercises = emptyList()),
             LessonSnap(id = sw1L4, title = "Data Types II", orderIndex = 4, exercises = emptyList())
         )
+
 
         val pythonModules = listOf(
             ModuleSnapshot(moduleId = pyMod1Id, title = "Variables",   lessons = pyMod1Lessons),
             ModuleSnapshot(moduleId = pyMod2Id, title = "Conditionals", lessons = pyMod2Lessons)
         )
         val swiftModules = listOf(
-            ModuleSnapshot(moduleId = swMod1Id, title = "Variables", lessons = swMod1Lessons)
+            ModuleSnapshot(moduleId = swMod1Id, title = "Variables", lessons = swMod1Lessons),
         )
 
         val snaps = listOf(
