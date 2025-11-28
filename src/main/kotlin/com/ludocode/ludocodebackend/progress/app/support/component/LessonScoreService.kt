@@ -116,7 +116,7 @@ class LessonScoreService(
     }
 
     private fun computeAccuracy (correct: Int, total: Int): BigDecimal {
-        if (total == 1) return BigDecimal(1); //Entire exercise is INFO
+        if (total == 0) return BigDecimal(1); //Entire exercise is INFO
         return BigDecimal(correct)
             .divide(BigDecimal(total), 2, RoundingMode.HALF_UP)
 
