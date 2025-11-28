@@ -9,6 +9,9 @@ piston:
   enabled: false
   base: ${PISTON_BASE}
 
+gcs:
+  enabled: true
+
 spring:
   jpa:
     hibernate:

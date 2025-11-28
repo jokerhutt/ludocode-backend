@@ -24,6 +24,7 @@ app:
   gcs-host:
 
 gcs:
+  enabled: true
   bucket: ${GCS_BUCKET}
   project:
     id: ${GCS_PROJECT_ID}

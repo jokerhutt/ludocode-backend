@@ -19,10 +19,15 @@ import com.ludocode.ludocodebackend.support.TestRestClient
 import io.restassured.response.ValidatableResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.springframework.test.context.junit.jupiter.EnabledIf
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
 
+@EnabledIf(
+    expression = "#{ '\${gcs.enabled:false}' == 'true' }",
+    reason = "Runs only when gcs mode is enabled"
+)
 class UserProjectIT : AbstractIntegrationTest() {
 
     lateinit var existingProject: UserProject
