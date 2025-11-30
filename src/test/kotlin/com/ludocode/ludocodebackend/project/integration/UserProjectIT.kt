@@ -183,7 +183,7 @@ class UserProjectIT : AbstractIntegrationTest() {
 
         val snapshotCopy = snapshot.copy(files = modifiedFiles)
 
-        val res = submitPostSaveProjectSnapshot(projectId, user1.id!!, snapshotCopy)
+        val res = submitPostSaveProjectSnapshot(user1.id!!, snapshotCopy)
         assertThat(res).isNotNull()
         assertThat(res.projectId).isEqualTo(projectId)
 
@@ -207,7 +207,7 @@ class UserProjectIT : AbstractIntegrationTest() {
 
         val snapshotCopy = snapshot.copy(files = modifiedFiles)
 
-        val res = submitPostSaveProjectSnapshot(projectId, user1.id!!, snapshotCopy)
+        val res = submitPostSaveProjectSnapshot(user1.id!!, snapshotCopy)
 
         assertThat(res).isNotNull()
         assertThat(res.files.size).isEqualTo(2)
@@ -225,7 +225,7 @@ class UserProjectIT : AbstractIntegrationTest() {
         val modifiedFiles = snapshot.files.toMutableList()
         modifiedFiles[1].path = modifiedFiles[0].path
         val snapshotCopy = snapshot.copy(files = modifiedFiles)
-        assertErrorOnSave(projectId, user1.id!!, snapshotCopy, ErrorCode.DUPLICATE_FILE_NAME)
+        assertErrorOnSave(user1.id!!, snapshotCopy, ErrorCode.DUPLICATE_FILE_NAME)
     }
 
     @Test
@@ -234,7 +234,7 @@ class UserProjectIT : AbstractIntegrationTest() {
         val snapshot = submitGetProjectSnapshot(projectId, user1.id!!)
         assertThat(snapshot).isNotNull()
         val snapshotCopy = snapshot.copy(files = listOf())
-        assertErrorOnSave(projectId, user1.id!!, snapshotCopy, ErrorCode.EMPTY_REQUEST)
+        assertErrorOnSave(user1.id!!, snapshotCopy, ErrorCode.EMPTY_REQUEST)
     }
 
     @Test
@@ -245,7 +245,7 @@ class UserProjectIT : AbstractIntegrationTest() {
         val modifiedFiles = snapshot.files.toMutableList()
         modifiedFiles[1].path = "script1py"
         val snapshotCopy = snapshot.copy(files = modifiedFiles)
-        assertErrorOnSave(projectId, user1.id!!, snapshotCopy, ErrorCode.INVALID_FILE_NAME)
+        assertErrorOnSave(user1.id!!, snapshotCopy, ErrorCode.INVALID_FILE_NAME)
     }
 
     @Test
@@ -273,8 +273,8 @@ class UserProjectIT : AbstractIntegrationTest() {
     private fun submitGetProjectSnapshot (pid: UUID, userId: UUID): ProjectSnapshot =
         TestRestClient.getOk("$PROJECT/$pid/get", userId, ProjectSnapshot::class.java)
 
-    private fun submitPostSaveProjectSnapshot (pid: UUID, userId: UUID, snapshot: ProjectSnapshot): ProjectSnapshot =
-        TestRestClient.postOk("$PROJECT/$pid/save", userId, snapshot, ProjectSnapshot::class.java)
+    private fun submitPostSaveProjectSnapshot (userId: UUID, snapshot: ProjectSnapshot): ProjectSnapshot =
+        TestRestClient.postOk("$PROJECT/save", userId, snapshot, ProjectSnapshot::class.java)
 
     private fun submitPostDeleteProject (pid: UUID, userId: UUID) : ProjectListResponse =
         TestRestClient.postOk("$PROJECT/$pid/delete", userId, null, ProjectListResponse::class.java)
@@ -288,8 +288,8 @@ class UserProjectIT : AbstractIntegrationTest() {
     private fun assertErrorOnGet (pid: UUID, userId: UUID, errorCode: ErrorCode): ValidatableResponse? =
         TestRestClient.assertError("GET", "$PROJECT/$pid/get", userId, null, errorCode)
 
-    private fun assertErrorOnSave (pid: UUID, userId: UUID, snapshot: ProjectSnapshot, errorCode: ErrorCode): ValidatableResponse? =
-        TestRestClient.assertError("POST", "$PROJECT/$pid/save", userId, snapshot, errorCode)
+    private fun assertErrorOnSave (userId: UUID, snapshot: ProjectSnapshot, errorCode: ErrorCode): ValidatableResponse? =
+        TestRestClient.assertError("POST", "$PROJECT/save", userId, snapshot, errorCode)
 
 
 

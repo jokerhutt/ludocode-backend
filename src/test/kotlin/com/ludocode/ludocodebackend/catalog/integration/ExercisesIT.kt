@@ -49,7 +49,7 @@ class ExercisesIT : AbstractIntegrationTest() {
         lessonId: UUID
     ): List<ExerciseResponse> =
         TestRestClient
-            .getOk("${PathConstants.CATALOG}/exercises/$lessonId",
+            .getOk("${PathConstants.CATALOG}/lessons/$lessonId/exercises",
                 user1.id!!,
                 Array<ExerciseResponse>::class.java)
             .toList()}

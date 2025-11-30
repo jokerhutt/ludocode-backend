@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
 @RestController
-@RequestMapping(PathConstants.STREAK)
+@RequestMapping(PathConstants.PROGRESS_STREAK)
 class StreakController(private val streakService: StreakService) {
 
     @GetMapping(PathConstants.GET_STREAK)
@@ -20,7 +20,7 @@ class StreakController(private val streakService: StreakService) {
         return ResponseEntity.ok(streakService.getStreak(userId))
     }
 
-    @GetMapping(PathConstants.GET_STREAK_PAST_WEEK)
+    @GetMapping(PathConstants.GET_STREAK_WEEK)
     fun getStreakPastWeek(@AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<List<DailyGoalResponse>> {
         return ResponseEntity.ok(streakService.getPastWeekMondayToSunday(userId))
     }

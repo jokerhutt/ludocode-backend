@@ -1,17 +1,14 @@
 package com.ludocode.ludocodebackend.user.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
-import com.ludocode.ludocodebackend.user.api.dto.request.ChangeCourseRequest
 import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
 import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
-import com.ludocode.ludocodebackend.user.api.dto.response.UpdatedCourseResponse
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.service.UserService
 import com.ludocode.ludocodebackend.user.domain.entity.UserPreferences
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -23,7 +20,7 @@ import java.util.UUID
 @RequestMapping(PathConstants.USERS)
 class UserController(private val userService: UserService) {
 
-    @GetMapping(PathConstants.USERS_IDS)
+    @GetMapping(PathConstants.USERS_FROM_IDS)
     fun getUsersByIds(@RequestParam userIds: List<UUID>) : ResponseEntity<List<UserResponse>> {
         return ResponseEntity.ok(userService.getUsersByIds(userIds))
     }

@@ -3,15 +3,14 @@ package com.ludocode.ludocodebackend.commons.constants
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.AI
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.AUTH
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.CATALOG
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.COURSES_ALL
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.COURSE_TREE
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.DEMO_LOGIN
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.EXERCISES_LESSON_ID
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.LESSON_EXERCISES
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.GOOGLE_LOGIN
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.MODULES_IDS
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.MODULES_FROM_IDS
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.SNAPSHOT
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS_IDS
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS_FROM_IDS
 
 object PublicEndpointConstants {
 
@@ -19,11 +18,11 @@ object PublicEndpointConstants {
     val PUBLIC_ENDPOINTS = arrayOf(
         "/actuator/**",
         AUTH + DEMO_LOGIN,
-        CATALOG + MODULES_IDS,
-        CATALOG + COURSES_ALL,
-        CATALOG + EXERCISES_LESSON_ID,
+        CATALOG + MODULES_FROM_IDS,
+        CATALOG,
+        CATALOG + LESSON_EXERCISES,
         CATALOG + COURSE_TREE,
-        USERS + USERS_IDS,
+        USERS + USERS_FROM_IDS,
         AUTH + GOOGLE_LOGIN,
         "$AI/**",
         "$SNAPSHOT/**"

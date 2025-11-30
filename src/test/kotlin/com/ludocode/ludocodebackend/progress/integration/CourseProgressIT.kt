@@ -108,7 +108,7 @@ class CourseProgressIT : AbstractIntegrationTest() {
 
 
     private fun submitResetCourseProgress(userId: UUID, courseId: UUID):CourseProgressResponse =
-        TestRestClient.postOk("$PROGRESS_COURSE/$courseId/reset", userId, null, CourseProgressResponse::class.java)
+        TestRestClient.postOk("$PROGRESS_COURSE/course/$courseId/reset", userId, null, CourseProgressResponse::class.java)
 
 
 }
