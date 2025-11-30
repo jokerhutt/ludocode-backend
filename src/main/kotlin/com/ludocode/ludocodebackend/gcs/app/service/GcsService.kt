@@ -7,11 +7,11 @@ import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsDeleteRequestList
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequest
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequestList
 import com.ludocode.ludocodebackend.gcs.app.dto.response.UploadedPaths
-import com.ludocode.ludocodebackend.gcs.app.port.`in`.GcsUseCase
+import com.ludocode.ludocodebackend.gcs.app.port.`in`.GcsPortForPlayground
 import org.springframework.stereotype.Service
 
 @Service
-class GcsService(private val storage: Storage) : GcsUseCase {
+class GcsService(private val storage: Storage) : GcsPortForPlayground {
 
     override fun uploadDataList (reqs: GcsPutRequestList): UploadedPaths {
         val requests = reqs.requests
@@ -32,7 +32,7 @@ class GcsService(private val storage: Storage) : GcsUseCase {
 
     }
 
-    override fun getFileContentFromPath(path: String): String {
+    override fun getContentFromPath(path: String): String {
         val bucket = "ludo-file-content"
 
         val blob = storage.get(bucket, path)

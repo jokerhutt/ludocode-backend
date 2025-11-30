@@ -1,0 +1,8 @@
+package com.ludocode.ludocodebackend.progress.app.port.`in`
+
+import com.ludocode.ludocodebackend.progress.dto.response.CourseProgressResponseWithEnrolled
+import java.util.UUID
+
+interface CourseProgressPortForUser {
+    fun findOrCreate(userId: UUID, courseId: UUID) : CourseProgressResponseWithEnrolled
+}

@@ -91,20 +91,21 @@ Required fields:
 - The tests use a PostgreSQL schema found in `/test/kotlin/resources/schema.sql`.
 
 ---
-## Microservice Structure
+## Directory Structure
 ```
 api/
-  controllers/
-    internal/    # endpoints for internal services
-    external/    # endpoints exposed to frontend
+  controllers/   # HTTP controllers
+  filters/       # Authenticate requests, check feature flags
   dto/           # request/response DTOs
 
 app/
   mapper/        # entity -> DTO mapping
   port/
-    in/          # interfaces for other services to call
-    out/         # interfaces for calling other services
+    in/          # interfaces for other internal services to call
+    out/         # interfaces for calling external services
   service/       # application business logic
+
+configuration/   # configuration beans
 
 domain/
   entity/        # core repository entities
@@ -115,11 +116,10 @@ infra/
   projection/    # repository projections
   repository/    # jpa repositories for domain entities
   http/          # HTTP clients for calling external APIs (google, piston, etc.)
-  client/        # HTTP clients for calling other internal services
 ```
 
 ---
-## Microservices
+## Services
 
 ### Auth
 Handles user authentication, Google OAuth onboarding, and issuing JWT tokens + cookies.

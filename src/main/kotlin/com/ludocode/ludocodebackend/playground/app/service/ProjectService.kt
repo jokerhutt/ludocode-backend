@@ -6,19 +6,19 @@ import com.ludocode.ludocodebackend.commons.util.sha256
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsDeleteRequestList
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequest
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequestList
+import com.ludocode.ludocodebackend.gcs.app.port.`in`.GcsPortForPlayground
 import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.playground.app.dto.request.RenameRequest
 import com.ludocode.ludocodebackend.playground.app.mapper.ProjectMapper
-import com.ludocode.ludocodebackend.playground.app.port.`in`.PlaygroundUseCase
+import com.ludocode.ludocodebackend.playground.app.port.`in`.ProjectsPortForAI
 import com.ludocode.ludocodebackend.playground.app.util.ProjectSnapshotDiffer
 import com.ludocode.ludocodebackend.playground.app.util.ProjectSnapshotValidator
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
-import com.ludocode.ludocodebackend.playground.infra.client.GcsClientForPlayground
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
 import jakarta.transaction.Transactional
@@ -32,10 +32,10 @@ import java.util.UUID
 class ProjectService(
     private val userProjectRepository: UserProjectRepository,
     private val projectFileRepository: ProjectFileRepository,
-    private val gcsClientForPlayground: GcsClientForPlayground,
     private val projectMapper: ProjectMapper,
     private val clock: Clock,
-) : PlaygroundUseCase {
+    private val gcsPortForPlayground: GcsPortForPlayground,
+) : ProjectsPortForAI {
 
     @Transactional
     internal fun createProject(request: CreateProjectRequest, userId: UUID) : ProjectListResponse {
@@ -73,7 +73,7 @@ class ProjectService(
         println("CH3")
 
         try {
-            gcsClientForPlayground.uploadDataList(GcsPutRequestList(requests = listOf(GcsPutRequest(path = firstFileContentUrl, content = firstFileContent))))
+            gcsPortForPlayground.uploadDataList(GcsPutRequestList(requests = listOf(GcsPutRequest(path = firstFileContentUrl, content = firstFileContent))))
         } catch (e: Exception) {
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
         }
@@ -110,7 +110,7 @@ class ProjectService(
         val file = projectFileRepository.findById(fileId)
             .orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
         println("FOUND FILE")
-        return gcsClientForPlayground.getContentFromPath(file.contentUrl)
+        return gcsPortForPlayground.getContentFromPath(file.contentUrl)
     }
 
     internal fun getProjectSnapshotForUserByProjectId (projectId: UUID, userId: UUID) : ProjectSnapshot {
@@ -127,7 +127,7 @@ class ProjectService(
         val projectLanguage = project.projectLanguage
         val projectFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
         val fileContentUrls = projectFiles.map { it -> it.contentUrl }
-        val fileContentsMap = gcsClientForPlayground.getContentFromUrls(fileContentUrls)
+        val fileContentsMap = gcsPortForPlayground.getContentFromUrls(fileContentUrls)
 
         return projectMapper.toProjectSnapshot(projectId, projectName, projectLanguage, projectFiles, fileContentsMap)
     }
@@ -200,7 +200,7 @@ class ProjectService(
         val gcsDeleteRequest = GcsDeleteRequestList(toDeletePaths)
 
         try {
-            gcsClientForPlayground.deleteDataList(gcsDeleteRequest)
+            gcsPortForPlayground.deleteDataList(gcsDeleteRequest)
         } catch (e: Exception) {
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to delete files to GCS: ${e.message}")
         }
@@ -229,7 +229,7 @@ class ProjectService(
         }
 
         try {
-            gcsClientForPlayground.uploadDataList(GcsPutRequestList(requests = gcsRequests))
+            gcsPortForPlayground.uploadDataList(GcsPutRequestList(requests = gcsRequests))
         } catch (e: Exception) {
             println("Failed")
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
@@ -259,7 +259,7 @@ class ProjectService(
         }
 
         try {
-            gcsClientForPlayground.uploadDataList(GcsPutRequestList(requests = gcsRequests))
+            gcsPortForPlayground.uploadDataList(GcsPutRequestList(requests = gcsRequests))
         } catch (e: Exception) {
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
         }

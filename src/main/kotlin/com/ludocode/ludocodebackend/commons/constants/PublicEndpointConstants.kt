@@ -18,7 +18,6 @@ object PublicEndpointConstants {
     @JvmField
     val PUBLIC_ENDPOINTS = arrayOf(
         "/actuator/**",
-        "/internal/**",
         AUTH + DEMO_LOGIN,
         CATALOG + MODULES_IDS,
         CATALOG + COURSES_ALL,

@@ -5,11 +5,11 @@ import com.ludocode.ludocodebackend.ai.api.dto.request.UIMessageRequest
 import com.ludocode.ludocodebackend.ai.app.mapper.GeminiMapper
 import com.ludocode.ludocodebackend.ai.app.port.out.AIPort
 import com.ludocode.ludocodebackend.ai.domain.enums.ChatType
-import com.ludocode.ludocodebackend.ai.infra.client.CatalogClientForAI
-import com.ludocode.ludocodebackend.ai.infra.client.ProjectsClientForAI
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForAI
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.playground.app.port.`in`.ProjectsPortForAI
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import java.util.UUID
@@ -18,10 +18,10 @@ import java.util.UUID
 class AIService(
     private val geminiMapper: GeminiMapper,
     private val aICreditService: AICreditService,
-    private val projectsClientForAI: ProjectsClientForAI,
-    private val catalogClientForAI: CatalogClientForAI,
     private val aIPromptBuilder: AIPromptBuilder,
     private val aIPort: AIPort,
+    private val projectsPortForAI: ProjectsPortForAI,
+    private val catalogPortForAI: CatalogPortForAI,
 ) {
 
     fun streamTokens(messageHistory: List<UIMessageRequest>, chatType: ChatType?, targetId: UUID?, userId: UUID): Flux<AIMessagePart> {
@@ -86,11 +86,11 @@ class AIService(
     }
 
     private fun getFileContent (fileId: UUID) : String {
-        return projectsClientForAI.getFileContentById(fileId)
+        return projectsPortForAI.getFileContentById(fileId)
     }
 
     private fun getExerciseContent (exerciseId: UUID) : ExerciseSnap {
-        return catalogClientForAI.findExerciseSnapshotById(exerciseId)
+        return catalogPortForAI.findExerciseSnapshotById(exerciseId)
     }
 
 
