@@ -20,7 +20,7 @@ import java.util.UUID
 @RequestMapping(PathConstants.PROGRESS_COURSE)
 class CourseProgressController(private val courseProgressService: CourseProgressService) {
 
-    @GetMapping(PathConstants.COURSE_PROGRESS_BY_COURSE_IDS)
+    @GetMapping(PathConstants.COURSE_PROGRESS_FROM_COURSE_IDS)
     fun getProgressByCourseIds(@RequestParam courseIds: List<UUID>, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<List<CourseProgressResponse>> {
         return ResponseEntity.ok(courseProgressService.findCourseProgressList(courseIds, userId))
     }

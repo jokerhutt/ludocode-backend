@@ -126,11 +126,11 @@ class StreakIT : AbstractIntegrationTest() {
     }
 
     private fun submitGetStreak (userId: UUID): UserStreakResponse =
-        TestRestClient.getOk("${PathConstants.STREAK}/get", userId, UserStreakResponse::class.java)
+        TestRestClient.getOk("${PathConstants.PROGRESS_STREAK}/get", userId, UserStreakResponse::class.java)
 
     private fun submitGetPastStreakWeek (userId: UUID) : List<DailyGoalResponse> =
         TestRestClient
-            .getOk("${PathConstants.STREAK}${PathConstants.GET_STREAK_PAST_WEEK}",
+            .getOk("${PathConstants.PROGRESS_STREAK}${PathConstants.GET_STREAK_WEEK}",
                 user1.id!!,
                 Array<DailyGoalResponse>::class.java)
             .toList()

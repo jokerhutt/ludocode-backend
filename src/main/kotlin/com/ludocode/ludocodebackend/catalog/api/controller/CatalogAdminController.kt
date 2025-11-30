@@ -25,7 +25,7 @@ class CatalogAdminController(
         return ResponseEntity.ok(snapshotService.applyNewSnapshot(s))
     }
 
-    @GetMapping(PathConstants.SNAPSHOTS_BY_COURSE)
+    @GetMapping(PathConstants.GET_COURSE_SNAPSHOT)
     fun getSnapshotsByCourseId(@PathVariable courseId: UUID) : ResponseEntity<CourseSnap> {
         return ResponseEntity.ok(snapshotService.getCourseSnapshot(courseId))
     }

@@ -14,7 +14,7 @@ import java.util.UUID
 @RequestMapping(PathConstants.PROGRESS_COINS)
 class UserCoinsController(private val userCoinsService: UserCoinsService) {
 
-    @GetMapping(PathConstants.COINS_BY_USER_IDS)
+    @GetMapping(PathConstants.COINS_FROM_USER_IDS)
     fun getStatsListByUserIds (@RequestParam userIds: List<UUID>) : ResponseEntity<List<UserCoinsResponse>> {
         return ResponseEntity.ok(userCoinsService.getUserCoinsList(userIds))
     }
