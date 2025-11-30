@@ -34,13 +34,18 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
     ): CourseProgressWithModuleProjection
 
     @Modifying
-    @Query(""" 
-        update course_progress cp
-        set current_lesson_id = :newLessonId
-        where user_id = :userId
-        and course_id = :courseId
-    """, nativeQuery = true)
-    fun resetCourseProgressForUser(userId: UUID, courseId: UUID, newLessonId: UUID)
+    @Query("""
+    UPDATE course_progress
+    SET current_lesson_id = :newLessonId,
+        is_complete = false
+    WHERE user_id = :userId
+      AND course_id = :courseId
+""", nativeQuery = true)
+    fun resetCourseProgressForUser(
+        @Param("userId") userId: UUID,
+        @Param("courseId") courseId: UUID,
+        @Param("newLessonId") newLessonId: UUID
+    )
 
 
     @Query(
