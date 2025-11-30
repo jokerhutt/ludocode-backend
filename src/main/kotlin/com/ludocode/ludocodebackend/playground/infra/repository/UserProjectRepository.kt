@@ -9,13 +9,7 @@ import java.util.UUID
 
 interface UserProjectRepository : JpaRepository<UserProject, UUID> {
 
-    @Query(value = "SELECT name FROM user_project WHERE id = :projectId", nativeQuery = true)
-    fun getProjectNameById (@Param("projectId") projectId: UUID): String
-
-    @Query(value = "SELECT project_language FROM user_project WHERE id = :projectId", nativeQuery = true)
-    fun getProjectLanaguageById(@Param("projectId") projectId: UUID): LanguageType
-
-    @Query(value = "SELECT id FROM user_project WHERE user_id = :userId", nativeQuery = true)
-    fun findAllByUserId (@Param("userId") userId: UUID): List<UUID>
+    @Query(value = "SELECT id FROM user_project WHERE user_id = :userId ORDER BY updated_at DESC", nativeQuery = true)
+    fun findProjectIdsByUserId (@Param("userId") userId: UUID): List<UUID>
 
 }

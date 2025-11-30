@@ -41,8 +41,8 @@ class UserProjectIT : AbstractIntegrationTest() {
             name = "Untitled",
             userId = user1.id!!,
             projectLanguage = LanguageType.python,
-            createdAt = OffsetDateTime.now(clock).minusDays(1),
-            updatedAt = OffsetDateTime.now(clock),
+            createdAt = OffsetDateTime.now(clock).minusDays(2),
+            updatedAt = OffsetDateTime.now(clock).minusDays(1),
             requestHash = UUID.randomUUID()
         ))
 
@@ -117,6 +117,28 @@ class UserProjectIT : AbstractIntegrationTest() {
         assertThat(res.projects.size).isEqualTo(1)
         assertThat(res.projects[0].projectId).isEqualTo(projectId)
         assertThat(res.projects[0].projectName).isEqualTo(newName)
+
+    }
+
+    @Test
+    fun renameProject_renamesProject_returnsRenamedFirst () {
+
+        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguage = LanguageType.python, requestHash = UUID.randomUUID())
+        val response = submitPostCreateProject(newProjectRequest, user1.id!!)
+
+        val newProjectToModify = response.projects.find { it.projectName == "Second Project" }
+        assertThat(newProjectToModify).isNotNull()
+        val newProjectName = "Second Project Updated"
+
+        val request = RenameRequest(targetId = newProjectToModify!!.projectId, newProjectName)
+        val res = submitPostRenameProject(request, user1.id!!)
+        println(res.projects.joinToString("\n") { p ->
+            "projectId=${p.projectId}, name=${p.projectName}"
+        })
+        assertThat(res).isNotNull()
+        assertThat(res.projects.size).isEqualTo(2)
+        assertThat(res.projects[0].projectId).isEqualTo(newProjectToModify.projectId)
+        assertThat(res.projects[0].projectName).isEqualTo(newProjectName)
 
 
     }

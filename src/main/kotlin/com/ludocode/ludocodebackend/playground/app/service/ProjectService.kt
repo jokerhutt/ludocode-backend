@@ -6,7 +6,6 @@ import com.ludocode.ludocodebackend.commons.util.sha256
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsDeleteRequestList
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequest
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequestList
-import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectSnapshotDiff
 import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
@@ -24,7 +23,6 @@ import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepos
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
-import java.security.MessageDigest
 import java.time.Clock
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -95,11 +93,16 @@ class ProjectService(
     }
 
     internal fun getUserProjects(userId: UUID) : ProjectListResponse {
-        val projectIds = userProjectRepository.findAllByUserId(userId)
+        val projectIds = userProjectRepository.findProjectIdsByUserId(userId)
         val projectSnapshots = mutableListOf<ProjectSnapshot>()
         for (projectId in projectIds) {
             projectSnapshots.add(getProjectSnapshotForUserByProjectId(projectId, userId))
         }
+        println(
+            projectSnapshots.joinToString("\n") {
+                "projectId=${it.projectId}, name=${it.projectName}"
+            }
+        )
         return ProjectListResponse(projectSnapshots)
     }
 
@@ -119,8 +122,9 @@ class ProjectService(
 
     private fun getProjectSnapshotByProjectId (projectId: UUID) : ProjectSnapshot {
 
-        val projectName = userProjectRepository.getProjectNameById(projectId)
-        val projectLanguage = userProjectRepository.getProjectLanaguageById(projectId)
+        val project = userProjectRepository.findById(projectId).orElseThrow()
+        val projectName = project.name
+        val projectLanguage = project.projectLanguage
         val projectFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
         val fileContentUrls = projectFiles.map { it -> it.contentUrl }
         val fileContentsMap = gcsClientForPlayground.getContentFromUrls(fileContentUrls)
@@ -153,6 +157,7 @@ class ProjectService(
 
         var existingProject = userProjectRepository.findById(projectId).orElseThrow()
         existingProject.name = newName
+        existingProject.updatedAt = OffsetDateTime.now(clock)
         userProjectRepository.save(existingProject)
 
         return getUserProjects(userId)
