@@ -1,8 +1,8 @@
 package com.ludocode.ludocodebackend.progress.app.mapper
 
 import com.ludocode.ludocodebackend.commons.mapper.BasicMapper
-import com.ludocode.ludocodebackend.progress.api.dto.response.DailyGoalResponse
-import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
+import com.ludocode.ludocodebackend.progress.dto.response.DailyGoalResponse
+import com.ludocode.ludocodebackend.progress.dto.response.UserStreakResponse
 import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak
 import com.ludocode.ludocodebackend.progress.infra.projection.UserStreakRow
 import org.springframework.stereotype.Component

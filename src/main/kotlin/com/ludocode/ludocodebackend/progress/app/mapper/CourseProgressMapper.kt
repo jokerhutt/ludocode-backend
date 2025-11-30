@@ -1,8 +1,8 @@
 package com.ludocode.ludocodebackend.progress.app.mapper
 
 import com.ludocode.ludocodebackend.commons.mapper.BasicMapper
-import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
-import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
+import com.ludocode.ludocodebackend.progress.dto.response.CourseProgressResponse
+import com.ludocode.ludocodebackend.progress.dto.response.CourseProgressResponseWithEnrolled
 import com.ludocode.ludocodebackend.progress.infra.projection.CourseProgressWithModuleProjection
 import org.springframework.stereotype.Component
 import java.util.UUID

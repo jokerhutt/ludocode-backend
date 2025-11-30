@@ -5,8 +5,9 @@ import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
 import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.mapper.UserMapper
-import com.ludocode.ludocodebackend.user.app.port.`in`.UserUseCase
-import com.ludocode.ludocodebackend.user.app.port.out.CourseProgressPortForUser
+import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
+import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
+import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForProgress
 import com.ludocode.ludocodebackend.user.domain.entity.ExternalAccount
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.domain.entity.UserPreferences
@@ -27,7 +28,7 @@ class UserService(
     private val clock: Clock,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val courseProgressPortForUser: CourseProgressPortForUser,
-) : UserUseCase {
+) : UserPortForProgress, UserPortForAuth {
 
     override fun getById(id: UUID): UserResponse {
         return userMapper.toUserResponse(userRepository.findById(id).orElseThrow())

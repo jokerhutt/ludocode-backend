@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.auth.integration.demo
 
 import com.ludocode.ludocodebackend.auth.api.dto.response.UserLoginResponse
-import com.ludocode.ludocodebackend.auth.config.DemoConfig
+import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured

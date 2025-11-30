@@ -1,13 +1,12 @@
 package com.ludocode.ludocodebackend.progress.integration
 
-import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
-import com.ludocode.ludocodebackend.progress.api.dto.response.DailyGoalResponse
-import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
 import com.ludocode.ludocodebackend.progress.domain.entity.UserCoins
 import com.ludocode.ludocodebackend.progress.domain.entity.UserDailyGoal
 import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.UserDailyGoalId
+import com.ludocode.ludocodebackend.progress.dto.response.DailyGoalResponse
+import com.ludocode.ludocodebackend.progress.dto.response.UserStreakResponse
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestClocks
 import com.ludocode.ludocodebackend.support.TestRestClient

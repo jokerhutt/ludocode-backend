@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.progress.integration
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROGRESS_COURSE
-import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
+import com.ludocode.ludocodebackend.progress.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest

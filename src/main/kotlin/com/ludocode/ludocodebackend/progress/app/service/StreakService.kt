@@ -1,10 +1,10 @@
 package com.ludocode.ludocodebackend.progress.app.service
-import com.ludocode.ludocodebackend.progress.api.dto.response.DailyGoalResponse
-import com.ludocode.ludocodebackend.progress.api.dto.response.StreakResponsePacket
-import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
+import com.ludocode.ludocodebackend.progress.dto.response.DailyGoalResponse
+import com.ludocode.ludocodebackend.progress.dto.response.StreakResponsePacket
+import com.ludocode.ludocodebackend.progress.dto.response.UserStreakResponse
 import com.ludocode.ludocodebackend.progress.app.mapper.UserStreakMapper
-import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStreakUseCase
-import com.ludocode.ludocodebackend.progress.app.port.out.UserPortForProgress
+import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStreakPortForAuth
+import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak
 import com.ludocode.ludocodebackend.progress.domain.enums.StreakAction
 import com.ludocode.ludocodebackend.progress.infra.repository.UserDailyGoalRepository
@@ -27,7 +27,7 @@ class StreakService(
     private val userStreakMapper: UserStreakMapper,
     private val userPortForProgress: UserPortForProgress,
     private val clock: Clock,
-) : UserStreakUseCase {
+) : UserStreakPortForAuth {
 
 
     @Transactional
@@ -76,7 +76,7 @@ class StreakService(
         return streak
     }
 
-    private fun upsertStreak(
+    private fun upsertStreakInRepository(
         userId: UUID,
         current: Int,
         best: Int,
@@ -104,7 +104,7 @@ class StreakService(
         val newCurrent = calculateNewStreak(today, lastMet, currentDays)
         val newBest = maxOf(bestDays, newCurrent)
 
-        upsertStreak(
+        upsertStreakInRepository(
             userId = userId,
             current = newCurrent,
             best = newBest,

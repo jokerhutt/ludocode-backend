@@ -45,8 +45,6 @@ object PathConstants {
 
     const val PREFERENCES : String = "/preferences"
 
-
-
     const val PROGRESS : String = "$API_V1/progress"
     const val PROGRESS_COURSE : String = "$PROGRESS/course"
     const val PROGRESS_COINS : String = "$PROGRESS/coins"
@@ -57,7 +55,6 @@ object PathConstants {
     const val COURSE_PROGRESS_BY_COURSE_IDS : String = "/ids"
     const val CURRENT_COURSE : String = "/current"
     const val ENROLLED_IDS : String = "/enrolled"
-
 
     const val STREAK : String = "$PROGRESS/streak"
     const val GET_STREAK : String = "/get"

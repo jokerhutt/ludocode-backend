@@ -1,13 +1,10 @@
 package com.ludocode.ludocodebackend.progress.app.service
-
-import com.ludocode.ludocodebackend.commons.exception.ApiException
-import com.ludocode.ludocodebackend.commons.exception.ErrorCode
-import com.ludocode.ludocodebackend.progress.api.dto.internal.CourseProgressWithCompletion
-import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
-import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
+import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForProgress
+import com.ludocode.ludocodebackend.progress.dto.internal.CourseProgressWithCompletion
+import com.ludocode.ludocodebackend.progress.dto.response.CourseProgressResponse
+import com.ludocode.ludocodebackend.progress.dto.response.CourseProgressResponseWithEnrolled
 import com.ludocode.ludocodebackend.progress.app.mapper.CourseProgressMapper
-import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressUseCase
-import com.ludocode.ludocodebackend.progress.app.port.out.CatalogPortForProgress
+import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
@@ -20,11 +17,11 @@ import java.util.UUID
 @Service
 class CourseProgressService(
     private val courseProgressRepository: CourseProgressRepository,
-    private val catalogPortForProgress: CatalogPortForProgress,
     private val courseProgressMapper: CourseProgressMapper,
+    private val catalogPortForProgress: CatalogPortForProgress,
     private val clock: Clock,
     private val lessonCompletionRepository: LessonCompletionRepository,
-) : CourseProgressUseCase {
+) : CourseProgressPortForUser {
 
     @Transactional
      override fun findOrCreate(userId: UUID, courseId: UUID) : CourseProgressResponseWithEnrolled {

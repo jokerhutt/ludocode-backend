@@ -11,7 +11,8 @@ import com.ludocode.ludocodebackend.catalog.app.mapper.ExerciseMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.FlatCourseTreeMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.LessonMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.ModuleMapper
-import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogUseCase
+import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForAI
+import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForProgress
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.infra.projection.ExerciseFlatProjection
 import com.ludocode.ludocodebackend.catalog.infra.projection.UserLessonProjection
@@ -30,14 +31,13 @@ class CatalogService(
     private val courseMapper: CourseMapper,
     private val courseRepository: CourseRepository,
     private val moduleRepository: ModuleRepository,
-    private val exerciseRepository: ExerciseRepository,
     private val exerciseMapper: ExerciseMapper,
     private val moduleMapper: ModuleMapper,
     private val lessonRepository: LessonRepository,
     private val lessonMapper: LessonMapper,
     private val flatCourseTreeMapper: FlatCourseTreeMapper,
     private val lessonExercisesRepository: LessonExercisesRepository,
-) : CatalogUseCase {
+) : CatalogPortForProgress {
 
     override fun findFirstLessonIdInCourse(courseId: UUID): UUID {
        return lessonRepository.findFirstLessonIdInCourse(courseId) ?: throw ApiException(ErrorCode.LESSON_NOT_FOUND)

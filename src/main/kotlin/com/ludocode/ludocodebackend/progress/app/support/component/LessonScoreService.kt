@@ -1,9 +1,9 @@
 package com.ludocode.ludocodebackend.progress.app.support.component
 
-import com.ludocode.ludocodebackend.progress.api.dto.request.AttemptToken
-import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseAttemptRequest
-import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseSubmissionRequest
-import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionRequest
+import com.ludocode.ludocodebackend.progress.dto.request.AttemptToken
+import com.ludocode.ludocodebackend.progress.dto.request.ExerciseAttemptRequest
+import com.ludocode.ludocodebackend.progress.dto.request.ExerciseSubmissionRequest
+import com.ludocode.ludocodebackend.progress.dto.request.LessonSubmissionRequest
 import com.ludocode.ludocodebackend.progress.domain.entity.AttemptOption
 import com.ludocode.ludocodebackend.progress.domain.entity.ExerciseAttempt
 import com.ludocode.ludocodebackend.progress.domain.entity.LessonCompletion
