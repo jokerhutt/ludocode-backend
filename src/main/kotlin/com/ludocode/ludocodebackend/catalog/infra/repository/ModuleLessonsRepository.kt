@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.catalog.infra.repository
 
 import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
-import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLessons
+import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.util.UUID
 
-interface ModuleLessonsRepository : JpaRepository<ModuleLessons, ModuleLessonsId> {
+interface ModuleLessonsRepository : JpaRepository<ModuleLesson, ModuleLessonsId> {
 
     @Query(value = """
         SELECT lesson.id
@@ -38,10 +38,12 @@ interface ModuleLessonsRepository : JpaRepository<ModuleLessons, ModuleLessonsId
     fun findOrderIndexForLesson (@Param("moduleId") moduleId: UUID, @Param("lessonId") lessonId: UUID) : Int
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("""
-  DELETE FROM ModuleLessons ml
+    @Query(
+        """
+  DELETE FROM ModuleLesson ml
   WHERE ml.moduleLessonsId.moduleId = :moduleId
-""")
+"""
+    )
     fun deleteLessonsInModule(@Param("moduleId") moduleId: UUID)
 
     @Query(value = """

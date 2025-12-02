@@ -3,15 +3,15 @@ import com.google.cloud.storage.Storage
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnapshot
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
 import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
-import com.ludocode.ludocodebackend.catalog.domain.entity.LessonExercises
+import com.ludocode.ludocodebackend.catalog.domain.entity.LessonExercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
-import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLessons
+import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
 import com.ludocode.ludocodebackend.catalog.domain.entity.OptionContent
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.LessonExercisesId
@@ -52,7 +52,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import java.time.OffsetDateTime
-import java.time.Clock
 import java.time.Instant
 import java.util.UUID
 
@@ -189,6 +188,7 @@ abstract class AbstractIntegrationTest {
     @Transactional
     fun importSnapshots(snaps: List<CourseSnap>, defaultVersion: Int = 1) {
 
+
         val allContents = snaps.flatMap { it.modules }
             .flatMap { it.lessons }
             .flatMap { it.exercises }
@@ -225,7 +225,7 @@ abstract class AbstractIntegrationTest {
 
                     // module ↔ lesson join
                     moduleLessonsRepository.save(
-                        ModuleLessons(
+                        ModuleLesson(
                             moduleLessonsId = ModuleLessonsId(
                                 moduleId = ms.moduleId,
                                 orderIndex = ls.orderIndex
@@ -251,7 +251,7 @@ abstract class AbstractIntegrationTest {
 
                         // lesson ↔ exercise join (order = list index)
                         lessonExercisesRepository.save(
-                            LessonExercises(
+                            LessonExercise(
                                 LessonExercisesId(lessonId = ls.id, orderIndex = exIdx + 1),
                                 exerciseId = ex.id,
                                 exerciseVersion = defaultVersion
@@ -499,11 +499,11 @@ abstract class AbstractIntegrationTest {
 
 
         val pythonModules = listOf(
-            ModuleSnapshot(moduleId = pyMod1Id, title = "Variables",   lessons = pyMod1Lessons),
-            ModuleSnapshot(moduleId = pyMod2Id, title = "Conditionals", lessons = pyMod2Lessons)
+            ModuleSnap(moduleId = pyMod1Id, title = "Variables",   lessons = pyMod1Lessons),
+            ModuleSnap(moduleId = pyMod2Id, title = "Conditionals", lessons = pyMod2Lessons)
         )
         val swiftModules = listOf(
-            ModuleSnapshot(moduleId = swMod1Id, title = "Variables", lessons = swMod1Lessons),
+            ModuleSnap(moduleId = swMod1Id, title = "Variables", lessons = swMod1Lessons),
         )
 
         val snaps = listOf(

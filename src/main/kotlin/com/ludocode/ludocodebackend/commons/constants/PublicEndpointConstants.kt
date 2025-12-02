@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.commons.constants
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.AI
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.AUTH
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.CATALOG
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.COURSES
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.COURSE_TREE
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.DEMO_LOGIN
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.LESSON_EXERCISES
@@ -19,7 +20,7 @@ object PublicEndpointConstants {
         "/actuator/**",
         AUTH + DEMO_LOGIN,
         CATALOG + MODULES_FROM_IDS,
-        CATALOG,
+        CATALOG + COURSES,
         CATALOG + LESSON_EXERCISES,
         CATALOG + COURSE_TREE,
         USERS + USERS_FROM_IDS,

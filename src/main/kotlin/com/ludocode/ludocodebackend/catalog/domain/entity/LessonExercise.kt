@@ -9,7 +9,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "lesson_exercises")
-class LessonExercises (
+class LessonExercise (
 
     @EmbeddedId
     val lessonExercisesId: LessonExercisesId,

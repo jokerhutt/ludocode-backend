@@ -4,13 +4,12 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLesso
 import jakarta.persistence.Column
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
-import jakarta.persistence.Id
 import jakarta.persistence.Table
 import java.util.UUID
 
 @Entity
 @Table(name = "module_lessons")
-class ModuleLessons (
+class ModuleLesson (
 
     @EmbeddedId
     val moduleLessonsId: ModuleLessonsId,

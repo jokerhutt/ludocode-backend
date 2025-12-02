@@ -4,7 +4,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnapshot
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForAI
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
@@ -40,7 +40,7 @@ class SnapshotBuilderService(
 
     }
 
-    private fun buildModuleSnapshot (module: Module) : ModuleSnapshot {
+    private fun buildModuleSnapshot (module: Module) : ModuleSnap {
 
         val moduleId = module.id
 
@@ -64,7 +64,7 @@ class SnapshotBuilderService(
             )
         }
 
-        return ModuleSnapshot (
+        return ModuleSnap (
             moduleId = module!!.id,
             title = module.title,
             lessons = lessonSnapshots
