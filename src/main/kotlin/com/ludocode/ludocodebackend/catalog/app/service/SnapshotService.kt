@@ -4,15 +4,15 @@ import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnapshot
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnap
 import com.ludocode.ludocodebackend.catalog.app.mapper.CourseMapper
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
 import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
-import com.ludocode.ludocodebackend.catalog.domain.entity.LessonExercises
+import com.ludocode.ludocodebackend.catalog.domain.entity.LessonExercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
-import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLessons
+import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.LessonExercisesId
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
@@ -88,12 +88,12 @@ class SnapshotService(
 
         lessonRepository.save(newLesson)
 
-        val newModuleLessons = ModuleLessons(
+        val newModuleLesson = ModuleLesson(
             moduleLessonsId = ModuleLessonsId(newModuleId, 1),
             lessonId = newLessonId
         )
 
-        moduleLessonsRepository.save(newModuleLessons)
+        moduleLessonsRepository.save(newModuleLesson)
 
         val newExerciseTitle = "Welcome to $newCourseName"
 
@@ -109,13 +109,13 @@ class SnapshotService(
 
         exerciseRepository.save(newExercise)
 
-        val newLessonExercises = LessonExercises(
+        val newLessonExercise = LessonExercise(
             lessonExercisesId = LessonExercisesId(newLessonId, 1),
             exerciseId = newExerciseId,
             exerciseVersion = newExercise.exerciseId.versionNumber
         )
 
-        lessonExercisesRepository.save(newLessonExercises)
+        lessonExercisesRepository.save(newLessonExercise)
 
         return courseMapper.toCourseResponseList(courseRepository.findAll())
 
@@ -125,10 +125,10 @@ class SnapshotService(
         return snapshotBuilderService.buildCourseSnapshot(courseId)
     }
 
-    private fun applyLessonDiffs(reqModuleSnapshot: ModuleSnapshot) {
+    private fun applyLessonDiffs(reqModuleSnap: ModuleSnap) {
 
-        val moduleId = reqModuleSnapshot.moduleId
-        val submittedLessonDiffs = reqModuleSnapshot.lessons
+        val moduleId = reqModuleSnap.moduleId
+        val submittedLessonDiffs = reqModuleSnap.lessons
         val activeLessonIdsInModule = moduleLessonsRepository.findActiveLessonIdsByModuleId(moduleId)
         val submittedLessonDiffsIds = submittedLessonDiffs.map { it.id }
         val lessonsToDelete: List<UUID> = getIdsToDelete(submittedLessonDiffsIds, activeLessonIdsInModule)
@@ -159,7 +159,7 @@ class SnapshotService(
         for (i in 0 until submittedLessonDiffs.size) {
             val newOrderIndex = i + 1
             val lessonId = submittedLessonDiffs[i].id
-            val moduleLesson = ModuleLessons(
+            val moduleLesson = ModuleLesson(
                 moduleLessonsId = ModuleLessonsId(
                     moduleId = moduleId,
                     orderIndex = newOrderIndex
@@ -208,7 +208,7 @@ class SnapshotService(
             val exerciseId = submittedExerciseDiffs[i].id
             val existingExercise = exerciseRepository.findLatestActiveById(exerciseId)
 
-            val newLessonExercise = LessonExercises(
+            val newLessonExercise = LessonExercise(
                 lessonExercisesId = LessonExercisesId(lessonId = lessonId, orderIndex = newOrderIndex),
                 exerciseId = existingExercise!!.exerciseId.id,
                 exerciseVersion = existingExercise!!.exerciseId.versionNumber
@@ -240,10 +240,11 @@ class SnapshotService(
         }
     }
 
+    //TODO clean this up with delay
     private fun applyModuleDiffs(reqSnapshot: CourseSnap): CourseSnap {
 
         val courseId : UUID = reqSnapshot.courseId
-        val submittedModuleDiffs : List<ModuleSnapshot> = reqSnapshot.modules
+        val submittedModuleDiffs : List<ModuleSnap> = reqSnapshot.modules
         val activeModuleIds : List<UUID> = moduleRepository.findActiveIdsByCourse(courseId = courseId)
 
         val submittedModuleDiffsIds = submittedModuleDiffs.map { it.moduleId }

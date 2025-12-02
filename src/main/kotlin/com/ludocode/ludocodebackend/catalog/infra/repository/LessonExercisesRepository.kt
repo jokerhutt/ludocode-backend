@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.infra.repository
 
-import com.ludocode.ludocodebackend.catalog.domain.entity.LessonExercises
+import com.ludocode.ludocodebackend.catalog.domain.entity.LessonExercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.LessonExercisesId
 import com.ludocode.ludocodebackend.catalog.infra.projection.ExerciseFlatProjection
 import org.springframework.data.jpa.repository.JpaRepository
@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.util.UUID
 
-interface LessonExercisesRepository : JpaRepository<LessonExercises, LessonExercisesId> {
+interface LessonExercisesRepository : JpaRepository<LessonExercise, LessonExercisesId> {
 
     @Query(value = """
     SELECT 
