@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.progress.app.port.`in`
 
-import com.ludocode.ludocodebackend.progress.dto.response.UserStreakResponse
+import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
 import java.util.UUID
 
 interface UserStreakPortForAuth {

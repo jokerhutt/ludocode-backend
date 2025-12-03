@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.progress.dto.request
+package com.ludocode.ludocodebackend.progress.api.dto.request
 
 import java.util.UUID
 

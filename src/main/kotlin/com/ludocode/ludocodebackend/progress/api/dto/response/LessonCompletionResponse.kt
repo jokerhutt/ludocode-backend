@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.progress.dto.response
+package com.ludocode.ludocodebackend.progress.api.dto.response
 
 import com.ludocode.ludocodebackend.catalog.api.dto.response.LessonResponse
 import java.math.BigDecimal

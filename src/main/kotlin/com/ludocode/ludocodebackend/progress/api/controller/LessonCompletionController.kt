@@ -2,8 +2,8 @@ package com.ludocode.ludocodebackend.progress.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.progress.app.service.LessonCompletionService
-import com.ludocode.ludocodebackend.progress.dto.request.LessonSubmissionRequest
-import com.ludocode.ludocodebackend.progress.dto.response.LessonCompletionPacket
+import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionRequest
+import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionPacket
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.PostMapping

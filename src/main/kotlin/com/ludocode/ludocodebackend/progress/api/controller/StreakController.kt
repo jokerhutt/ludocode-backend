@@ -2,8 +2,8 @@ package com.ludocode.ludocodebackend.progress.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.progress.app.service.StreakService
-import com.ludocode.ludocodebackend.progress.dto.response.DailyGoalResponse
-import com.ludocode.ludocodebackend.progress.dto.response.UserStreakResponse
+import com.ludocode.ludocodebackend.progress.api.dto.response.DailyGoalResponse
+import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping

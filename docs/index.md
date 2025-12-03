@@ -26,10 +26,10 @@
 
 ### Progress
 
-- [Streak Service](./)
-- [Coins Service](./)
-- [Lesson Completion Service](./)
-- [Course Progress Service](./)
+- [Streak Service](./services/progress/streak-service.md)
+- [Coins Service](./services/progress/coins-service.md)
+- [Lesson Completion Service](./services/progress/lesson-completion-service.md)
+- [Course Progress Service](./services/progress/course-progress-service.md)
 
 ### User
 

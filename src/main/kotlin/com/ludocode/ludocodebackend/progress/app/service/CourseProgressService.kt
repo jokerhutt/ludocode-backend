@@ -1,8 +1,8 @@
 package com.ludocode.ludocodebackend.progress.app.service
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForProgress
-import com.ludocode.ludocodebackend.progress.dto.internal.CourseProgressWithCompletion
-import com.ludocode.ludocodebackend.progress.dto.response.CourseProgressResponse
-import com.ludocode.ludocodebackend.progress.dto.response.CourseProgressResponseWithEnrolled
+import com.ludocode.ludocodebackend.progress.api.dto.internal.CourseProgressWithCompletion
+import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
+import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
 import com.ludocode.ludocodebackend.progress.app.mapper.CourseProgressMapper
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId

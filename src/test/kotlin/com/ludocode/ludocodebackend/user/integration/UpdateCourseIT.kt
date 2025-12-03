@@ -4,11 +4,10 @@ import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROGRESS_COU
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.UPDATE_COURSE
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
-import com.ludocode.ludocodebackend.progress.dto.response.CourseProgressResponseWithEnrolled
+import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.user.api.dto.request.ChangeCourseRequest
-import io.restassured.RestAssured.given
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import java.time.OffsetDateTime

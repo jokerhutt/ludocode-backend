@@ -2,8 +2,8 @@ package com.ludocode.ludocodebackend.progress.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.progress.app.service.CourseProgressService
-import com.ludocode.ludocodebackend.progress.dto.response.CourseProgressResponse
-import com.ludocode.ludocodebackend.progress.dto.response.CourseProgressResponseWithEnrolled
+import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
+import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
 import com.ludocode.ludocodebackend.user.api.dto.request.ChangeCourseRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal

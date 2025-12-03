@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.progress.app.port.`in`
 
-import com.ludocode.ludocodebackend.progress.dto.response.UserCoinsResponse
+import com.ludocode.ludocodebackend.progress.api.dto.response.UserCoinsResponse
 import java.util.UUID
 
 interface UserCoinsPortForAuth {

@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.progress.app.service
-import com.ludocode.ludocodebackend.progress.dto.response.DailyGoalResponse
-import com.ludocode.ludocodebackend.progress.dto.response.StreakResponsePacket
-import com.ludocode.ludocodebackend.progress.dto.response.UserStreakResponse
+import com.ludocode.ludocodebackend.progress.api.dto.response.DailyGoalResponse
+import com.ludocode.ludocodebackend.progress.api.dto.response.StreakResponsePacket
+import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
 import com.ludocode.ludocodebackend.progress.app.mapper.UserStreakMapper
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStreakPortForAuth
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForProgress
