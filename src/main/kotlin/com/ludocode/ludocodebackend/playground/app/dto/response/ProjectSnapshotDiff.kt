@@ -5,7 +5,6 @@ import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
 import java.util.UUID
 
 data class ProjectSnapshotDiff(
-    val remainingFileIds: List<UUID>,
     val toAdd: List<ProjectFileSnapshot>,
     val toDeleteFiles: List<ProjectFile>,
     val toUpdate: List<ProjectFileSnapshot>
