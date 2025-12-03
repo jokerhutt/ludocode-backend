@@ -16,7 +16,6 @@ object ProjectSnapshotDiffer {
         val filesToAdd = mutableListOf<ProjectFileSnapshot>()
         val filesToUpdate = mutableListOf<ProjectFileSnapshot>()
         val filesToDelete = mutableListOf<ProjectFile>()
-        val remainingFileIds = mutableListOf<UUID>()
 
         val incomingIds = incomingFiles.mapNotNull { it.id }.toSet()
         val existingFileMap = existingFiles
@@ -43,13 +42,11 @@ object ProjectSnapshotDiffer {
 
             if (hasFileChanged(incoming, existingFile)) {
                 filesToUpdate.add(incoming)
-            } else {
-                remainingFileIds.add(incoming.id)
             }
 
         }
 
-        return ProjectSnapshotDiff(remainingFileIds = remainingFileIds, toAdd = filesToAdd, toDeleteFiles = filesToDelete, toUpdate = filesToUpdate )
+        return ProjectSnapshotDiff(toAdd = filesToAdd, toDeleteFiles = filesToDelete, toUpdate = filesToUpdate )
 
     }
 
