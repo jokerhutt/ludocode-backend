@@ -39,6 +39,8 @@ It is also invoked during authentication: the Auth Service triggers streak initi
 
 ---
 
+
+
 ## Boundaries & Non-Responsibilities
 
 The Streak Service does **not**:
