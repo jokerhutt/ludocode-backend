@@ -1,11 +1,11 @@
 package com.ludocode.ludocodebackend.progress.app.service
 
 import com.ludocode.ludocodebackend.catalog.api.dto.internal.LessonTreeWithIdDTO
-import com.ludocode.ludocodebackend.progress.dto.internal.PointsDelta
-import com.ludocode.ludocodebackend.progress.dto.request.LessonSubmissionRequest
-import com.ludocode.ludocodebackend.progress.dto.response.LessonCompletionPacket
-import com.ludocode.ludocodebackend.progress.dto.response.LessonCompletionResponse
-import com.ludocode.ludocodebackend.progress.dto.response.StreakResponsePacket
+import com.ludocode.ludocodebackend.progress.api.dto.internal.PointsDelta
+import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionRequest
+import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionPacket
+import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionResponse
+import com.ludocode.ludocodebackend.progress.api.dto.response.StreakResponsePacket
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForProgress
 import com.ludocode.ludocodebackend.progress.app.support.component.LessonScoreService
 import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus

@@ -2,7 +2,7 @@ package com.ludocode.ludocodebackend.progress.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.progress.app.service.UserCoinsService
-import com.ludocode.ludocodebackend.progress.dto.response.UserCoinsResponse
+import com.ludocode.ludocodebackend.progress.api.dto.response.UserCoinsResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping

@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.progress.app.service
 
-import com.ludocode.ludocodebackend.progress.dto.internal.PointsDelta
-import com.ludocode.ludocodebackend.progress.dto.response.UserCoinsResponse
+import com.ludocode.ludocodebackend.progress.api.dto.internal.PointsDelta
+import com.ludocode.ludocodebackend.progress.api.dto.response.UserCoinsResponse
 import com.ludocode.ludocodebackend.progress.app.mapper.UserCoinsMapper
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserCoinsPortForAuth
 import com.ludocode.ludocodebackend.progress.domain.entity.UserCoins

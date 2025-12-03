@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.progress.dto.response
+package com.ludocode.ludocodebackend.progress.api.dto.response
 
 import java.time.Instant
 import java.time.OffsetDateTime
