@@ -1,21 +1,25 @@
 package com.ludocode.ludocodebackend.playground.infra.http
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ludocode.ludocodebackend.commons.constants.ExternalPathContstants.PISTON_EXECUTE
 import com.ludocode.ludocodebackend.commons.constants.ExternalPathContstants.PISTON_RUNTIMES
 import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonRequest
 import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonResponse
 import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonRun
 import com.ludocode.ludocodebackend.playground.app.port.out.PistonOutboundPort
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.web.client.RestTemplate
 
+@ConditionalOnProperty(prefix = "piston", name = ["enabled"], havingValue = "true")
 class PistonClient (
     private val pistonBase: String
 ) : PistonOutboundPort {
 
     private val rest = RestTemplate()
+    private val mapper = jacksonObjectMapper()
 
     val executePath = "$pistonBase$PISTON_EXECUTE"
     val runtimesPath = "$pistonBase$PISTON_RUNTIMES"
@@ -23,6 +27,7 @@ class PistonClient (
     override fun execute(request: PistonRequest): PistonResponse {
 
         println("EXECUTE PATH: $executePath")
+        println("REQUEST JSON:\n${mapper.writeValueAsString(request)}")
         val headers = HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON }
         val entity = HttpEntity(request, headers)
 

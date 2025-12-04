@@ -6,8 +6,10 @@ import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.response.RunnerResult
 import com.ludocode.ludocodebackend.playground.app.port.out.PistonOutboundPort
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 
+@ConditionalOnProperty(prefix = "piston", name = ["enabled"], havingValue = "true")
 @Service
 class CodeRunnerService(private val pistonOutboundPort: PistonOutboundPort) {
 

@@ -12,8 +12,11 @@ class PistonClientConfig {
 
     @Bean
     fun pistonClient(
-        @Value("\${piston.base}") baseUrl: String
+        @Value("\${piston.base:}") baseUrl: String,
+        @Value("\${piston.public}") publicBase: String,
     ): PistonClient {
-        return PistonClient(baseUrl)
+        val selected = baseUrl.ifBlank { publicBase }
+        return PistonClient(selected)
     }
+
 }

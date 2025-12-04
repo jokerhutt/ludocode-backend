@@ -22,18 +22,20 @@ import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
 import jakarta.transaction.Transactional
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import java.time.Clock
 import java.time.OffsetDateTime
 import java.util.UUID
 
-
+@ConditionalOnProperty(prefix = "gcs", name = ["enabled"], havingValue = "true")
 @Service
 class ProjectService(
     private val userProjectRepository: UserProjectRepository,
     private val projectFileRepository: ProjectFileRepository,
     private val projectMapper: ProjectMapper,
     private val clock: Clock,
+
     private val gcsPortForPlayground: GcsPortForPlayground,
 ) : ProjectsPortForAI {
 
@@ -44,8 +46,6 @@ class ProjectService(
         val language = request.projectLanguage
         val requestHash = request.requestHash
 
-        println("CH1")
-
         val newProject = userProjectRepository.save(UserProject(
             id = UUID.randomUUID(),
             name = projectName,
@@ -55,8 +55,6 @@ class ProjectService(
             createdAt = OffsetDateTime.now(clock),
             updatedAt = OffsetDateTime.now(clock)
         ))
-
-        println("CH2")
 
         val firstFileName = getFirstFileName(language)
         val firstFileId = UUID.randomUUID()
@@ -70,7 +68,6 @@ class ProjectService(
             fileLanguage = language,
             contentHash = sha256(firstFileContent)
         ))
-        println("CH3")
 
         try {
             gcsPortForPlayground.uploadDataList(GcsPutRequestList(requests = listOf(GcsPutRequest(path = firstFileContentUrl, content = firstFileContent))))
@@ -110,7 +107,13 @@ class ProjectService(
         val file = projectFileRepository.findById(fileId)
             .orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
         println("FOUND FILE")
-        return gcsPortForPlayground.getContentFromPath(file.contentUrl)
+
+        try {
+            return gcsPortForPlayground.getContentFromPath(file.contentUrl)
+        } catch (e: Exception) {
+            throw ApiException(ErrorCode.GCS_GET_FAILED, "Failed to get files from GCS: ${e.message}")
+        }
+
     }
 
     internal fun getProjectSnapshotForUserByProjectId (projectId: UUID, userId: UUID) : ProjectSnapshot {

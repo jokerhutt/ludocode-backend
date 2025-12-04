@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.ai.api.controller
 import com.ludocode.ludocodebackend.ai.api.dto.request.ChatRequestBody
 import com.ludocode.ludocodebackend.ai.app.service.AIService
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.MediaType
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.PostMapping
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Flux
 import java.util.UUID
 
+@ConditionalOnProperty(prefix = "ai", name = ["enabled"], havingValue = "true")
 @RestController
 @RequestMapping(PathConstants.AI)
 class AIController(private val aIService: AIService) {

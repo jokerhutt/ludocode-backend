@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotService
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -21,7 +22,7 @@ class CatalogAdminController(
 ) {
 
     @PostMapping(PathConstants.SUBMIT_COURSE_SNAPSHOT)
-    fun applyCourseSnapshot(@RequestBody s: CourseSnap) : ResponseEntity<CourseSnap> {
+    fun applyCourseSnapshot(@RequestBody s: CourseSnap, @AuthenticationPrincipal (expression = "userId") userId: UUID) : ResponseEntity<CourseSnap> {
         return ResponseEntity.ok(snapshotService.applyNewSnapshot(s))
     }
 

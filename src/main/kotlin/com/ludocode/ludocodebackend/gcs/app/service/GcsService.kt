@@ -8,14 +8,17 @@ import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequest
 import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequestList
 import com.ludocode.ludocodebackend.gcs.app.dto.response.UploadedPaths
 import com.ludocode.ludocodebackend.gcs.app.port.`in`.GcsPortForPlayground
+import com.ludocode.ludocodebackend.playground.config.GcsFeatureConfig
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 
+@ConditionalOnProperty(prefix = "gcs", name = ["enabled"], havingValue = "true")
 @Service
-class GcsService(private val storage: Storage) : GcsPortForPlayground {
+class GcsService(private val storage: Storage, private val gcsConfig: GcsFeatureConfig) : GcsPortForPlayground {
 
     override fun uploadDataList (reqs: GcsPutRequestList): UploadedPaths {
         val requests = reqs.requests
-        val bucket = "ludo-file-content"
+        val bucket = gcsConfig.bucket
         val uploadedNames = mutableListOf<String>()
 
         try {
@@ -33,7 +36,7 @@ class GcsService(private val storage: Storage) : GcsPortForPlayground {
     }
 
     override fun getContentFromPath(path: String): String {
-        val bucket = "ludo-file-content"
+        val bucket = gcsConfig.bucket
 
         val blob = storage.get(bucket, path)
             ?: return ""
@@ -45,7 +48,7 @@ class GcsService(private val storage: Storage) : GcsPortForPlayground {
 
     override fun getContentFromUrls(paths: List<String>): Map<String, String> {
 
-        val bucket = "ludo-file-content"
+        val bucket = gcsConfig.bucket
         val result = mutableMapOf<String, String>()
 
         println("One CH")
@@ -68,7 +71,7 @@ class GcsService(private val storage: Storage) : GcsPortForPlayground {
 
     override fun deleteDataList(req: GcsDeleteRequestList): UploadedPaths {
        val requests = req.paths
-       val bucket = "ludo-file-content"
+        val bucket = gcsConfig.bucket
 
        try {
            for (request in requests) {

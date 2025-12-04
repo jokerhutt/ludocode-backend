@@ -19,9 +19,12 @@ target/
 *.iml
 *.ipr
 
+### SHELL ###
+*.sh
+
 ### ENV ###
-*.env
 .env
+!.example.env
 
 ### NetBeans ###
 /nbproject/private/

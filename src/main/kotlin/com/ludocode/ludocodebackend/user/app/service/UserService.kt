@@ -50,7 +50,7 @@ class UserService(
                 email = req.email ?: "",
                 firstName = req.firstName ?: "",
                 lastName = req.lastName ?: "",
-                pfpSrc = req.avatarUrl,
+                pfpSrc = req.avatarUrl ?: "",
                 createdAt = OffsetDateTime.now(clock)
             )
         )

@@ -10,17 +10,22 @@ import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForAI
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.playground.app.port.`in`.ProjectsPortForAI
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import java.util.UUID
 
+@ConditionalOnProperty(prefix = "ai", name = ["enabled"], havingValue = "true")
 @Service
 class AIService(
     private val geminiMapper: GeminiMapper,
     private val aICreditService: AICreditService,
     private val aIPromptBuilder: AIPromptBuilder,
     private val aIPort: AIPort,
-    private val projectsPortForAI: ProjectsPortForAI,
+
+    @Autowired(required = false)
+    private val projectsPortForAI: ProjectsPortForAI?,
     private val catalogPortForAI: CatalogPortForAI,
 ) {
 
@@ -86,7 +91,7 @@ class AIService(
     }
 
     private fun getFileContent (fileId: UUID) : String {
-        return projectsPortForAI.getFileContentById(fileId)
+        return projectsPortForAI?.getFileContentById(fileId) ?: ""
     }
 
     private fun getExerciseContent (exerciseId: UUID) : ExerciseSnap {

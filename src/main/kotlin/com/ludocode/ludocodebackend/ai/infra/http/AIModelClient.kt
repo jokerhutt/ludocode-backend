@@ -2,9 +2,11 @@ package com.ludocode.ludocodebackend.ai.infra.http
 import com.fasterxml.jackson.databind.JsonNode
 import com.ludocode.ludocodebackend.ai.api.dto.request.GeminiRequest
 import com.ludocode.ludocodebackend.ai.app.port.out.AIPort
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Flux
 
+@ConditionalOnProperty(prefix = "ai", name = ["enabled"], havingValue = "true")
 class AIModelClient(
     apiKey: String,
     private val model: String,
