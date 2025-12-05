@@ -59,7 +59,7 @@ class ProjectService(
         val firstFileName = getFirstFileName(language)
         val firstFileId = UUID.randomUUID()
         val firstFileContentUrl = "${newProject.id}/$firstFileId"
-        val firstFileContent = "print('Hello Mimo!')"
+        val firstFileContent = "print('Hello World!')"
         projectFileRepository.save(ProjectFile(
             id = firstFileId,
             projectId = newProject.id,

@@ -6,11 +6,12 @@ import com.ludocode.ludocodebackend.commons.mapper.BasicMapper
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 @Component
 class UserMapper (private val basicMapper: BasicMapper){
 
-    fun toUserResponse(user: User): UserResponse =
+    fun toUserResponse(user: User, hasOnboarded: Boolean): UserResponse =
         basicMapper.one(user) {
             UserResponse(
                 id = it.id!!,
@@ -19,12 +20,13 @@ class UserMapper (private val basicMapper: BasicMapper){
                 pfpSrc = it.pfpSrc!!,
                 email = it.email!!,
                 createdAt = it.createdAt!!,
+                hasOnboarded = hasOnboarded
             )
         }
 
-    fun toUserResponseList(users: List<User>): List<UserResponse> =
-        basicMapper.list(users) {user ->
-            toUserResponse(user)
+    fun toUserResponseList(users: List<User>, onboardingMap: Map<UUID, Boolean>): List<UserResponse> =
+        basicMapper.list(users) { user ->
+            toUserResponse(user, onboardingMap[user.id] ?: false)
         }
 
 }

@@ -10,4 +10,5 @@ data class UserResponse (
     val pfpSrc: String,
     val email: String,
     val createdAt: OffsetDateTime,
+    val hasOnboarded: Boolean
 )

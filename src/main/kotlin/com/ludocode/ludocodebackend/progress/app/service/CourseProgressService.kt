@@ -33,6 +33,11 @@ class CourseProgressService(
     }
 
 
+    override fun existsAnyByUserId (userId: UUID) : Boolean {
+        return courseProgressRepository.existsByUser(userId)
+    }
+
+
     @Transactional
     internal fun resetUserCourseProgress(userId: UUID, courseId: UUID) : CourseProgressResponse {
         lessonCompletionRepository.deleteLessonCompletionsForUserAndCourse(userId, courseId)

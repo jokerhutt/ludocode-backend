@@ -22,9 +22,17 @@ target/
 ### SHELL ###
 *.sh
 
-### ENV ###
-.env
-!.example.env
+# Ignore all env files
+*.env
+.env*
+
+# But keep this one
+!example.env
+
+docker-compose.*
+
+!docker-compose.ludocode.yml
+!docker-compose.db.yml
 
 ### NetBeans ###
 /nbproject/private/

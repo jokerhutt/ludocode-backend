@@ -1,12 +1,14 @@
 services:
   ludocode-backend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: ludocode-backend
     ports:
       - ${SERVER_PORTS}
     restart: unless-stopped
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
 
       GCS_ENABLED: ${GCS_ENABLED}
       PISTON_ENABLED: ${PISTON_ENABLED}
@@ -30,7 +32,7 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
 
-      GCS_BUCKET_NAME: ${GCS_BUCKET}
+      GCS_BUCKET_NAME: ${GCS_BUCKET_NAME}
       GCS_PROJECT_ID: ${GCS_PROJECT_ID}
 
       PISTON_BASE: ${PISTON_BASE}
