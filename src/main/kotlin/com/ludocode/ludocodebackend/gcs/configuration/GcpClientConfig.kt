@@ -4,6 +4,7 @@ import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.NoCredentials
 import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
+import com.ludocode.ludocodebackend.playground.config.GcsFeatureConfig
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -11,19 +12,19 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 
 @Configuration
+@ConditionalOnProperty(prefix = "gcs", name = ["enabled"], havingValue = "true")
 @Profile("!test")
 class GcpClientConfig(
-    @Value("\${app.gcs.host:}") private val gcsHost: String,
-    @Value("\${gcs.project.id}") private val projectId: String
+    private val gcs: GcsFeatureConfig
 ) {
 
     @Bean
     fun storage(): Storage {
         val builder = StorageOptions.newBuilder()
-            .setProjectId(projectId)
+            .setProjectId(gcs.projectId)
 
-        if (gcsHost.isNotBlank()) {
-            builder.setHost(gcsHost)
+        if (gcs.host.isNotBlank()) {
+            builder.setHost(gcs.host)
             builder.setCredentials(NoCredentials.getInstance())
         } else {
             builder.setCredentials(GoogleCredentials.getApplicationDefault())

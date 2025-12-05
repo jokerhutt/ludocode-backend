@@ -19,9 +19,20 @@ target/
 *.iml
 *.ipr
 
-### ENV ###
+### SHELL ###
+*.sh
+
+# Ignore all env files
 *.env
-.env
+.env*
+
+# But keep this one
+!example.env
+
+docker-compose.*
+
+!docker-compose.ludocode.yml
+!docker-compose.db.yml
 
 ### NetBeans ###
 /nbproject/private/

@@ -5,4 +5,5 @@ import java.util.UUID
 
 interface CourseProgressPortForUser {
     fun findOrCreate(userId: UUID, courseId: UUID) : CourseProgressResponseWithEnrolled
+    fun existsAnyByUserId (userId: UUID) : Boolean
 }

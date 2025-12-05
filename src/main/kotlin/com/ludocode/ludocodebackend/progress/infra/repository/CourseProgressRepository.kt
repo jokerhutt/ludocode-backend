@@ -12,6 +12,18 @@ import java.util.UUID
 
 interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgressId> {
 
+    @Query(
+        value = """
+        SELECT EXISTS(
+            SELECT 1
+            FROM course_progress
+            WHERE user_id = :userId
+        )
+    """,
+        nativeQuery = true
+    )
+    fun existsByUser(@Param("userId") userId: UUID): Boolean
+
     @Query(value = """
   SELECT 
     cp.course_id         AS courseId,

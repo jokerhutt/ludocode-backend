@@ -11,6 +11,5 @@ data class PistonRequest(
     val args: List<String> = emptyList(),
     val compile_timeout: Int = 3000,
     val run_timeout: Int = 3000,
-    val compile_memory_limit: Int = 256,
-    val run_memory_limit: Int = 256
 )
+

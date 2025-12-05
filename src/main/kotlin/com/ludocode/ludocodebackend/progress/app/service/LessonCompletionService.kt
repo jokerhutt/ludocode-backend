@@ -28,6 +28,8 @@ class LessonCompletionService(
     private val streakService: StreakService
 ) {
 
+
+
     @Transactional
     fun submitLessonCompletion (request: LessonSubmissionRequest, userId: UUID) : LessonCompletionPacket {
 

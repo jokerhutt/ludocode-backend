@@ -31,7 +31,7 @@ class UserService(
 ) : UserPortForProgress, UserPortForAuth {
 
     override fun getById(id: UUID): UserResponse {
-        return userMapper.toUserResponse(userRepository.findById(id).orElseThrow())
+        return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(), hasOnboarded(id))
     }
 
     override fun getUserTimezone(userId: UUID): String? {
@@ -50,7 +50,7 @@ class UserService(
                 email = req.email ?: "",
                 firstName = req.firstName ?: "",
                 lastName = req.lastName ?: "",
-                pfpSrc = req.avatarUrl,
+                pfpSrc = req.avatarUrl ?: "",
                 createdAt = OffsetDateTime.now(clock)
             )
         )
@@ -62,7 +62,14 @@ class UserService(
                 providerUserId = req.providerUserId
             )
         )
-        return userMapper.toUserResponse(newUser)
+
+        return userMapper.toUserResponse(newUser, hasOnboarded(newUser.id))
+    }
+
+    fun hasOnboarded (userId: UUID) : Boolean {
+        val preferencesExist = userPreferencesRepository.existsById(userId)
+        val currentCourseExists = courseProgressPortForUser.existsAnyByUserId(userId)
+        return preferencesExist && currentCourseExists
     }
 
     @Transactional
@@ -70,7 +77,7 @@ class UserService(
         val toSubmit = UserPreferences(userId = userId, hasExperience = submission.hasProgrammingExperience, chosenPath = submission.chosenPath)
         val savedPreferences = userPreferencesRepository.save(toSubmit)
         val newCourseProgressWithEnrolled = courseProgressPortForUser.findOrCreate(userId, submission.chosenCourse)
-        return OnboardingResponse(preferences = savedPreferences, courseProgressResponse = newCourseProgressWithEnrolled)
+        return OnboardingResponse(refreshedUser = getById(userId), savedPreferences, courseProgressResponse = newCourseProgressWithEnrolled)
     }
 
     internal fun getPreferences (userId: UUID) : UserPreferences {
@@ -80,7 +87,8 @@ class UserService(
 
     internal fun getUsersByIds(userIds: List<UUID>): List<UserResponse> {
         val users = userRepository.findAllByIdIn(userIds)
-        return userMapper.toUserResponseList(users)
+        val onboardingMap = userIds.associateWith { hasOnboarded(it) }
+        return userMapper.toUserResponseList(users, onboardingMap)
     }
 
 

@@ -5,6 +5,9 @@ import org.springframework.stereotype.Component
 
 @ConfigurationProperties("gcs")
 @Component
-class ProjectFeatureConfig {
-    var enabled: Boolean = true
-}
+data class GcsFeatureConfig(
+    var enabled: Boolean = true,
+    var projectId: String = "",
+    var host: String = "",
+    var bucket: String = ""
+)

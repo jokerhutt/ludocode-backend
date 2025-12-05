@@ -3,8 +3,8 @@
 ## Table of Contents
 1. [Overview](#overview)
 2. [Project Setup](#running-the-project)
-3. [Microservice Structure](#microservice-structure)
-4. [Microservices](#microservices)
+3. [Services Structure](#microservice-structure)
+4. [Services](#microservices)
 
 ## Overview
 This repository contains the backend code for Ludocode, a code learning website intended primarily as a showcase project for Mimo.
@@ -36,6 +36,8 @@ The project is written using Kotlin 1.9.25 and Java 21. It uses PostgreSQL as a 
 
 ## Project Setup
 
+### Running the project locally
+
 1. Clone the project
 ```
 git@github.com:jokerhutt/ludocode-backend.git
@@ -48,6 +50,49 @@ cd /path/to/ludocode-backend
 ```
 ./mvnw spring-boot:run
 ```
+
+### Running the project with Docker
+
+
+### Setting the environment variables
+
+Below is a list of environment variables that need to be set:
+
+```
+# REQUIRED
+
+# === Database ===
+DB_URL=jdbc:postgresql://your-db-url:your-db-port/your-db-name
+DB_USER=your-db-username
+DB_PASSWORD=your-db-password
+
+# === GOOGLE AUTH ===
+GOOGLE_CLIENT_ID=803670292191-ril5j113o5t85sbaduefgk3jn55423b1.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=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
+
+# === JWT ===
+JWT_SECRET=096c24a818694d2758390584c1066fd2
+
+# OPTIONAL
+
+# === GEMINI ===
+# Leave blank to disable gemini
+GEMINI_API_KEY= your-gemini-api-key
+
+# === GCS ===
+GCS_BUCKET_NAME=ludo-file-content;
+GCS_PROJECT_ID=awesome-advice-473015-m6
+
+# === Fake GCS host (docker) ===
+GCS_HOST=http://localhost:4443
+
+# === PISTON ===
+PISTON_BASE=
+
+```
+
+
+
 4. Set up a PostgreSQL container and fill in `DB_URL`, `DB_USER`, and `DB_PASSWORD` with their respective values in your environment variables
 
 ### Setting up Google OAuth (Optional)
@@ -67,6 +112,9 @@ Required fields:
 ---
 ### Setting up GCS (Optional)
 **This only affects the playground service, as files are stored in the bucket.**
+
+To disable GCS, set ``
+
 1. Create a Google Cloud account
 2. Create a Google Cloud project
 3. Create a Cloud storage bucket
@@ -82,7 +130,7 @@ Required fields:
 ### Setting up Gemini (Optional)
 **This only affects the AI chatbot Service.**
 1. Go to https://aistudio.google.com/ -> Sign in with Google -> Get API Key.
-2. Fill in `ai.api.key` in application properties
+2. Fill in `GEMINI_API_KEY` in your .env file
 
 ---
 ### Setting up Tests
