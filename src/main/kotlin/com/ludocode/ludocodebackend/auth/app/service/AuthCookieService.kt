@@ -1,34 +1,16 @@
 package com.ludocode.ludocodebackend.auth.app.service
 
+import com.ludocode.ludocodebackend.auth.configuration.AuthCookieConfig
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
 import org.springframework.stereotype.Component
 
 @Component
-class AuthCookieService {
+class AuthCookieService (private val cookieConfig: AuthCookieConfig) {
 
-    @Value("\${auth.cookie.name:jwt}")
-    private lateinit var cookieName: String
-
-    @Value("\${auth.cookie.path:/}")
-    private lateinit var cookiePath: String
-
-    @Value("\${auth.cookie.domain:}")
-    private lateinit var cookieDomain: String
-
-    @Value("\${auth.cookie.same-site:Lax}")
-    private lateinit var sameSite: String
-
-    @Value("\${auth.cookie.secure:false}")
-    private var secure: Boolean = false
-
-    @Value("\${auth.cookie.max-age-seconds:86400}")
-    private var defaultMaxAge: Long = 0
-
-    internal fun setJwt(response: HttpServletResponse, jwt: String, maxAgeSeconds: Long = defaultMaxAge) {
+    internal fun setJwt(response: HttpServletResponse, jwt: String, maxAgeSeconds: Long = cookieConfig.maxAgeSeconds) {
         addCookie(response, jwt, maxAgeSeconds)
     }
 
@@ -37,18 +19,19 @@ class AuthCookieService {
     }
 
     internal fun readJwt(request: HttpServletRequest): String? =
-        request.cookies?.firstOrNull { it.name == cookieName }?.value
+        request.cookies?.firstOrNull { it.name == cookieConfig.name }?.value
 
     private fun addCookie(response: HttpServletResponse, value: String, maxAgeSeconds: Long) {
-        val b = ResponseCookie.from(cookieName, value)
+        val c = cookieConfig
+        val b = ResponseCookie.from(c.name, value)
             .httpOnly(true)
-            .secure(secure)
-            .sameSite(sameSite)
-            .path(cookiePath)
+            .secure(c.secure)
+            .sameSite(c.sameSite)
+            .path(c.path)
             .maxAge(maxAgeSeconds)
 
-        if (cookieDomain.isNotBlank()) {
-            b.domain(cookieDomain)
+        if (c.domain.isNotBlank()) {
+            b.domain(c.domain)
         }
 
         val header = b.build().toString()
