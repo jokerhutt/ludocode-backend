@@ -1,20 +1,23 @@
-package com.ludocode.ludocodebackend.gcs.app.service
+package com.ludocode.ludocodebackend.storage.app.service
 
 import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.Storage
-import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsDeleteRequestList
-import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequest
-import com.ludocode.ludocodebackend.gcs.app.dto.request.GcsPutRequestList
-import com.ludocode.ludocodebackend.gcs.app.dto.response.UploadedPaths
-import com.ludocode.ludocodebackend.gcs.app.port.`in`.GcsPortForPlayground
+import com.ludocode.ludocodebackend.storage.app.dto.request.GcsDeleteRequestList
+import com.ludocode.ludocodebackend.storage.app.dto.request.GcsPutRequest
+import com.ludocode.ludocodebackend.storage.app.dto.request.GcsPutRequestList
+import com.ludocode.ludocodebackend.storage.app.dto.response.UploadedPaths
+import com.ludocode.ludocodebackend.storage.app.port.`in`.StoragePortForPlayground
 import com.ludocode.ludocodebackend.playground.config.GcsFeatureConfig
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 
-@ConditionalOnProperty(prefix = "gcs", name = ["enabled"], havingValue = "true")
-@Service
-class GcsService(private val storage: Storage, private val gcsConfig: GcsFeatureConfig) : GcsPortForPlayground {
+@ConditionalOnProperty(
+    prefix = "storage.gcs",
+    name = ["enabled"],
+    havingValue = "true"
+)
+class GcsStorageService(private val storage: Storage, private val gcsConfig: GcsFeatureConfig) : StoragePortForPlayground {
 
     override fun uploadDataList (reqs: GcsPutRequestList): UploadedPaths {
         val requests = reqs.requests

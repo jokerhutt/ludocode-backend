@@ -39,3 +39,6 @@ services:
 
       DEMO_TOKEN: ${DEMO_TOKEN}
       DEMO_USER_ID: ${DEMO_USER_ID}
+
+    volumes:
+      - ./local-storage:/data/local-bucket

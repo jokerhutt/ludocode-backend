@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
-@ConditionalOnProperty(prefix = "gcs", name = ["enabled"], havingValue = "true")
 @RestController
 @RequestMapping(PathConstants.PROJECT)
 class ProjectController(private val projectService: ProjectService, private val codeRunnerService: CodeRunnerService) {

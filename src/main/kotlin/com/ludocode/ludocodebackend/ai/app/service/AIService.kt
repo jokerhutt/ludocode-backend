@@ -23,9 +23,7 @@ class AIService(
     private val aICreditService: AICreditService,
     private val aIPromptBuilder: AIPromptBuilder,
     private val aIPort: AIPort,
-
-    @Autowired(required = false)
-    private val projectsPortForAI: ProjectsPortForAI?,
+    private val projectsPortForAI: ProjectsPortForAI,
     private val catalogPortForAI: CatalogPortForAI,
 ) {
 
