@@ -3,10 +3,10 @@ package com.ludocode.ludocodebackend.playground.app.service
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.util.sha256
-import com.ludocode.ludocodebackend.storage.app.dto.request.GcsDeleteRequestList
-import com.ludocode.ludocodebackend.storage.app.dto.request.GcsPutRequest
-import com.ludocode.ludocodebackend.storage.app.dto.request.GcsPutRequestList
-import com.ludocode.ludocodebackend.storage.app.port.`in`.StoragePortForPlayground
+import com.ludocode.ludocodebackend.storage.app.dto.request.StorageDeleteRequest
+import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequest
+import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequestList
+import com.ludocode.ludocodebackend.storage.app.port.`in`.StoragePortForServices
 import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
@@ -22,9 +22,6 @@ import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
 import jakarta.transaction.Transactional
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import java.time.Clock
 import java.time.OffsetDateTime
@@ -36,7 +33,7 @@ class ProjectService(
     private val projectFileRepository: ProjectFileRepository,
     private val projectMapper: ProjectMapper,
     private val clock: Clock,
-    private val storagePortForPlayground: StoragePortForPlayground,
+    private val storagePortForServices: StoragePortForServices,
 ) : ProjectsPortForAI {
 
     @Transactional
@@ -70,7 +67,7 @@ class ProjectService(
         ))
 
         try {
-            storagePortForPlayground.uploadDataList(GcsPutRequestList(requests = listOf(GcsPutRequest(path = firstFileContentUrl, content = firstFileContent))))
+            storagePortForServices.uploadDataList(StoragePutRequestList(requests = listOf(StoragePutRequest(path = firstFileContentUrl, content = firstFileContent))))
         } catch (e: Exception) {
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
         }
@@ -109,7 +106,7 @@ class ProjectService(
         println("FOUND FILE")
 
         try {
-            return storagePortForPlayground.getContentFromPath(file.contentUrl)
+            return storagePortForServices.getContentFromPath(file.contentUrl)
         } catch (e: Exception) {
             throw ApiException(ErrorCode.GCS_GET_FAILED, "Failed to get files from GCS: ${e.message}")
         }
@@ -130,7 +127,7 @@ class ProjectService(
         val projectLanguage = project.projectLanguage
         val projectFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
         val fileContentUrls = projectFiles.map { it -> it.contentUrl }
-        val fileContentsMap = storagePortForPlayground.getContentFromUrls(fileContentUrls)
+        val fileContentsMap = storagePortForServices.getContentFromUrls(fileContentUrls)
 
         return projectMapper.toProjectSnapshot(projectId, projectName, projectLanguage, projectFiles, fileContentsMap)
     }
@@ -200,10 +197,10 @@ class ProjectService(
             projectFileRepository.deleteById(file.id)
         }
 
-        val gcsDeleteRequest = GcsDeleteRequestList(toDeletePaths)
+        val gcsDeleteRequest = StorageDeleteRequest(toDeletePaths)
 
         try {
-            storagePortForPlayground.deleteDataList(gcsDeleteRequest)
+            storagePortForServices.deleteDataList(gcsDeleteRequest)
         } catch (e: Exception) {
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to delete files to GCS: ${e.message}")
         }
@@ -212,7 +209,7 @@ class ProjectService(
 
     private fun saveNewFiles (projectId: UUID, files: List<ProjectFileSnapshot>) {
 
-        val gcsRequests = mutableListOf<GcsPutRequest>()
+        val gcsRequests = mutableListOf<StoragePutRequest>()
 
         for (file in files) {
             val hash = sha256(file.content)
@@ -220,7 +217,7 @@ class ProjectService(
             val fileId = file.id ?: UUID.randomUUID()
 
             val contentUrl = "$projectId/${fileId}"
-            gcsRequests.add(GcsPutRequest(contentUrl, file.content))
+            gcsRequests.add(StoragePutRequest(contentUrl, file.content))
             projectFileRepository.save(ProjectFile(
                 id = fileId,
                 projectId = projectId,
@@ -232,7 +229,7 @@ class ProjectService(
         }
 
         try {
-            storagePortForPlayground.uploadDataList(GcsPutRequestList(requests = gcsRequests))
+            storagePortForServices.uploadDataList(StoragePutRequestList(requests = gcsRequests))
         } catch (e: Exception) {
             println("Failed")
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
@@ -242,13 +239,13 @@ class ProjectService(
 
     private fun updateChangedFiles (projectId: UUID, files: List<ProjectFileSnapshot>) {
 
-        val gcsRequests = mutableListOf<GcsPutRequest>()
+        val gcsRequests = mutableListOf<StoragePutRequest>()
 
         for (file in files) {
             if (file.id == null) throw ApiException(ErrorCode.PROJECT_FILE_ID_NULL, "The Project file id is null for an existing file")
 
             val contentUrl = "$projectId/${file.id}"
-            gcsRequests.add(GcsPutRequest(contentUrl, file.content))
+            gcsRequests.add(StoragePutRequest(contentUrl, file.content))
 
             val existingFile = projectFileRepository.findById(file.id).orElseThrow()
 
@@ -262,7 +259,7 @@ class ProjectService(
         }
 
         try {
-            storagePortForPlayground.uploadDataList(GcsPutRequestList(requests = gcsRequests))
+            storagePortForServices.uploadDataList(StoragePutRequestList(requests = gcsRequests))
         } catch (e: Exception) {
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
         }
