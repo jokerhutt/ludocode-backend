@@ -194,7 +194,7 @@ INSERT INTO ludo_user (
              'Demo',
              'User',
              'demo@ludocode.app',
-             'demo-pfp-src',
+             null,
              'UTC'
          )
 ON CONFLICT (id) DO NOTHING;

@@ -17,7 +17,7 @@ class UserMapper (private val basicMapper: BasicMapper){
                 id = it.id!!,
                 firstName = it.firstName!!,
                 lastName = it.lastName!!,
-                pfpSrc = it.pfpSrc!!,
+                pfpSrc = it.pfpSrc,
                 email = it.email!!,
                 createdAt = it.createdAt!!,
                 hasOnboarded = hasOnboarded
@@ -30,3 +30,4 @@ class UserMapper (private val basicMapper: BasicMapper){
         }
 
 }
+

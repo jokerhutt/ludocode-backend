@@ -2,7 +2,7 @@ package com.ludocode.ludocodebackend.storage.configuration
 
 import com.google.cloud.storage.Storage
 import com.ludocode.ludocodebackend.playground.config.GcsFeatureConfig
-import com.ludocode.ludocodebackend.storage.app.port.`in`.StoragePortForPlayground
+import com.ludocode.ludocodebackend.storage.app.port.`in`.StoragePortForServices
 import com.ludocode.ludocodebackend.storage.app.service.GcsStorageService
 import com.ludocode.ludocodebackend.storage.app.service.LocalStorageService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -17,13 +17,13 @@ class StorageConfig(
 
     @Bean
     @ConditionalOnProperty(prefix = "storage.gcs", name = ["enabled"], havingValue = "true")
-    fun gcsStorageService(storage: Storage): StoragePortForPlayground {
+    fun gcsStorageService(storage: Storage): StoragePortForServices {
         return GcsStorageService(storage, gcsConfig)
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "storage.gcs", name = ["enabled"], havingValue = "false", matchIfMissing = true)
-    fun localStorageService(): StoragePortForPlayground {
+    @ConditionalOnProperty(prefix = "storage.gcs", name = ["enabled"], havingValue = "false")
+    fun localStorageService(): StoragePortForServices {
         return LocalStorageService(localConfig)
     }
 }
