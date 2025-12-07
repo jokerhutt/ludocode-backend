@@ -2,17 +2,25 @@
 
 ## Table of Contents
 1. [Overview](#overview)
-2. [Project Setup](#running-the-project)
-3. [Services Structure](#microservice-structure)
-4. [Services](#microservices)
+2. [Project Setup](#project-setup)
+3. [Tests Setup](#setting-up-tests)
+3. [Services Structure](#directory-structure)
+4. [Services](#services)
 
 ## Overview
-This repository contains the backend code for Ludocode, a code learning website intended primarily as a showcase project for Mimo.
+This repository contains the backend code for Ludocode, a code learning website.
 
 The project is written using Kotlin 1.9.25 and Java 21. It uses PostgreSQL as a database.
 
+For in depth documentation of each feature, see the [documentation](docs/index.md).
+
+This repository includes docker compose files for running the project locally with core functionality without needing to provide any external credentials. The only parts that require (optional) credentials are AI features & OAuth features, both of which disable gracefully if not enabled.
+
 ## Features
 - Spring Authentication
+- Demo users
+- Optional Google OAuth Authentication
+- Blob Storage with local & GCS option.
 - Ports and adapters style architecture
 - Timezone based streak system
 - AI chatbot assistant with credits system using Gemini API
@@ -27,16 +35,20 @@ The project is written using Kotlin 1.9.25 and Java 21. It uses PostgreSQL as a 
 ## Planned Features
 - Analytics System
 - Backend caching
+- 
 
 ## Requirements
-- Kotlin 1.9+
-- Java 21+
 - Docker
-- Google Cloud Project **(Optional - Only for auth and code projects)**
+- A Gemini API key (Optional, for AI)
+- A Google OAuth Client ID & Credentials (Optional, for auth)
+
+
 
 ## Project Setup
 
-### Running the project locally
+### Simple Setup
+
+If you are only interested in running the project locally, I have provided a setup that creates a local PostgreSQL instance with the schema & pre-seeded with a demo user / course. With this, you'll have access to all features except AI and Google authentication.
 
 1. Clone the project
 ```
@@ -46,62 +58,34 @@ git@github.com:jokerhutt/ludocode-backend.git
 ```
 cd /path/to/ludocode-backend
 ```
-3. Run the Application
+3. Copy & Paste the `example.env` into a `.env` file in the project directory
+
+4. Run the PostgreSQL Container
 ```
-./mvnw spring-boot:run
+ docker compose -f docker-compose.db.yml up -d
 ```
-
-### Running the project with Docker
-
-
-### Setting the environment variables
-
-Below is a list of environment variables that need to be set:
-
+5. Run the Application Container (Might take ~60sec)
 ```
-# REQUIRED
-
-# === Database ===
-DB_URL=jdbc:postgresql://your-db-url:your-db-port/your-db-name
-DB_USER=your-db-username
-DB_PASSWORD=your-db-password
-
-# === GOOGLE AUTH ===
-GOOGLE_CLIENT_ID=803670292191-ril5j113o5t85sbaduefgk3jn55423b1.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=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
-
-# === JWT ===
-JWT_SECRET=096c24a818694d2758390584c1066fd2
-
-# OPTIONAL
-
-# === GEMINI ===
-# Leave blank to disable gemini
-GEMINI_API_KEY= your-gemini-api-key
-
-# === GCS ===
-GCS_BUCKET_NAME=ludo-file-content;
-GCS_PROJECT_ID=awesome-advice-473015-m6
-
-# === Fake GCS host (docker) ===
-GCS_HOST=http://localhost:4443
-
-# === PISTON ===
-PISTON_BASE=
-
+docker compose -f docker-compose.ludocode.yml build ludocode-backend
+docker compose -f docker-compose.ludocode.yml up -d ludocode-backend
 ```
 
+After you have your Postgres & Application containers running, you will have a pre-seeded demo user. On the frontend, simply visit `your-frontend-url/demo` to bypass the google authentication stage.
 
+### Enabling AI features
+To enable AI features, you need a Gemini API Key & enable the feature in the environment variables.
 
-4. Set up a PostgreSQL container and fill in `DB_URL`, `DB_USER`, and `DB_PASSWORD` with their respective values in your environment variables
+1. Go to https://aistudio.google.com/ -> Sign in with Google -> Get API Key.
+2. Set `AI_ENABLED=true` in your environment variables.
+3. Set `GEMINI_API_KEY` to your Gemini API Key
 
 ### Setting up Google OAuth (Optional)
-**This only affects authentication. Leaving the `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` blank will override authentication checks.**
+**This only affects authentication. Leaving the `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` blank means you will need to use the demo user authentication.**
 1. Create a Google Cloud account
 2. Create a Google Cloud project
 3. Go to Google Cloud Console → APIs & Services → Credentials
 4. Create OAuth 2.0 Client (type: Web application)
-Required fields:
+   Required fields:
 - Authorized JavaScript origins:
   https://your-frontend-domain.com
 - Authorized redirect URIs:
@@ -109,29 +93,83 @@ Required fields:
 5. Set `GOOGLE_CLIENT_ID` to your Google client ID and `GOOGLE_CLIENT_SECRET` to your Google client secret.
 6. Generate a JWT secret and set `JWT_SECRET` to its value in your environment variables
 
----
-### Setting up GCS (Optional)
-**This only affects the playground service, as files are stored in the bucket.**
 
-To disable GCS, set ``
+### Setting the environment variables (Optional)
 
-1. Create a Google Cloud account
-2. Create a Google Cloud project
-3. Create a Cloud storage bucket
-4. Set `GCS_BUCKET` to your GCS bucket name and `GCS_PROJECT_ID` to your GCS project ID in your environment variables.
+**YOU CAN LEAVE ALL OF THESE AS-IS. ONLY CHANGE THESE IF YOU HAVE DIFFERENT PORTS / WANT A SPECIFIC FEATURE**
 
----
-### Setting up Piston API (Optional)
-**Note: It's best to have a linux environment for this, the MacOS ARM versions have trouble with dependencies. I have not tested it on Windows or Intel MacOS**
+Below is a list of all possible environment variables. Unless you want some specific customization, the only things worth changing here are `AI_ENABLED`, `GEMINI_API_KEY`, `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET`. You can might want to change the frontend origin, the port, the profile, or the database port (if needed).
 
-1. Start the Piston Docker container (see: https://github.com/engineer-man/piston).
-2. Set `PISTON_BASE` to `http://{PISTON_IP}:{PISTON_PORT}/api/v2` in your environment variables.
+The remaining ones you should only change if you know what you are doing. E.g. if for whatever reason you want to change the demo user id, make sure you also change the `db/init.sql` insert for that user.
 
-### Setting up Gemini (Optional)
-**This only affects the AI chatbot Service.**
-1. Go to https://aistudio.google.com/ -> Sign in with Google -> Get API Key.
-2. Fill in `GEMINI_API_KEY` in your .env file
+```
+# === === CHANGE IF NEEDED === ===
 
+# === ACTIVE PROFILE === 
+SPRING_PROFILES_ACTIVE=admin
+
+# === FRONTEND ORIGIN ===
+# Change this to your frontend url if needed
+FRONTEND_ORIGINS=http://localhost:5173
+
+# === SERVER PORT ===
+# Change this if your server isn't running on 8080
+SERVER_PORTS=8080:8080
+
+# === Database ===
+# Leave as is unless your local postgres is on a different port or you are using your own external DB
+DB_URL=jdbc:postgresql://postgres:5432/ludocode
+DB_NAME=ludocode
+DB_USER=ludo
+DB_PASSWORD=password
+
+# === GOOGLE AUTH ===
+# Fill this in for Google OAUTH, leave as-is if you want to use demo users
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# === GEMINI ===
+# Set this to true and fill out GEMINI_API_KEY if you want AI features
+AI_ENABLED=false
+GEMINI_API_KEY=your-gemini-api-key
+GEMINI_MODEL=gemini-2.5-flash-lite
+
+
+# === === ONLY CHANGE BELOW IF YOU KNOW WHAT YOU ARE DOING === ===
+
+# === COOKIE ===
+# Leave this as is unless you want extra security
+COOKIE_DOMAIN=localhost
+COOKIE_SAME_SITE=Lax
+COOKIE_SECURE=false
+
+# === DEMO ===
+# Leave this untouched if want demo users
+# If you change the demo user ID, make sure to change it in /db/init.sql as well
+DEMO_ENABLED=true
+DEMO_TOKEN=demo-user-token
+DEMO_USER_ID=598ccbea-4957-4569-81cb-ea901b62c329
+
+# === JWT ===
+# You dont need to change this
+JWT_SECRET=9d5df235a21c67fb4238d23abd61d9a8
+
+# === Local Storage ===
+# Don't change this unless you know what you're doing or have set up GCS
+LOCAL_BUCKET_NAME=/data/local-bucket
+
+# === GCS ===
+# Leave this false unless you want to use GCS. If you set GCS_ENABLED=true the local storage option won't work.
+GCS_ENABLED=false
+GCS_BUCKET_NAME=your-gcs-bucket-name
+GCS_PROJECT_ID=your-gcs-project-id
+
+# === PISTON ===
+# Leave this as is for code execution, it will contact the public piston API
+PISTON_ENABLED=true
+PISTON_BASE=https://emkc.org/api/v2/piston
+
+```
 ---
 ### Setting up Tests
 - The test suite uses **Test containers**. Ensure Docker is installed and running before executing tests. (Ensure Docker Desktop on MacOS / Windows)
