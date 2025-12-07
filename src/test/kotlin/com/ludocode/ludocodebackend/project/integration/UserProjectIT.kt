@@ -80,7 +80,7 @@ class UserProjectIT : AbstractIntegrationTest() {
 
 
     @Test
-    fun createProject_createsNew_returnsNewProjectsList() {
+    fun createPythonProject_createsNew_returnsNewProjectsList() {
 
         val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguage = LanguageType.python, requestHash = UUID.randomUUID())
         val response = submitPostCreateProject(newProjectRequest, user1.id!!)
@@ -92,8 +92,26 @@ class UserProjectIT : AbstractIntegrationTest() {
         val newProject = response.projects.find { it.projectName == "Second Project" }
         assertThat(newProject).isNotNull()
         assertThat(newProject!!.files.size).isEqualTo(1)
-        assertThat(newProject.files[0].content).isEqualTo("print('Hello Mimo!')")
+        assertThat(newProject.files[0].content).isEqualTo("print('Hello World!')")
         assertThat(newProject.files[0].path).isEqualTo("script.py")
+
+    }
+
+    @Test
+    fun createJsProject_createsNew_returnsNewProjectsList() {
+
+        val newProjectRequest = CreateProjectRequest(projectName = "Third Project", projectLanguage = LanguageType.javascript, requestHash = UUID.randomUUID())
+        val response = submitPostCreateProject(newProjectRequest, user1.id!!)
+        assertThat(response).isNotNull()
+        assertThat(response.projects.size).isEqualTo(2)
+        assertThat(response.projects)
+            .anyMatch { it.projectName == "Third Project" }
+
+        val newProject = response.projects.find { it.projectName == "Third Project" }
+        assertThat(newProject).isNotNull()
+        assertThat(newProject!!.files.size).isEqualTo(1)
+        assertThat(newProject.files[0].content).isEqualTo("console.log('Hello World!')")
+        assertThat(newProject.files[0].path).isEqualTo("script.js")
 
     }
 
@@ -156,7 +174,7 @@ class UserProjectIT : AbstractIntegrationTest() {
         val newProject = response.projects.find { it.projectName == "Second Project" }
         assertThat(newProject).isNotNull()
         assertThat(newProject!!.files.size).isEqualTo(1)
-        assertThat(newProject.files[0].content).isEqualTo("print('Hello Mimo!')")
+        assertThat(newProject.files[0].content).isEqualTo("print('Hello World!')")
         assertThat(newProject.files[0].path).isEqualTo("script.py")
 
         val existingProjectId = existingProject.id

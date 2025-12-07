@@ -60,7 +60,7 @@ import java.util.UUID
 @ActiveProfiles("test")
 @Import(
     TestSecurityConfig::class, TestClockConfig::class, GcpTestConfig::class, GeminiTestConfig::class,
-    GoogleOAuthTestConfig::class, GcpTestConfig::class, PistonTestConfig::class)
+    GoogleOAuthTestConfig::class, GcpTestConfig::class)
 abstract class AbstractIntegrationTest {
 
 

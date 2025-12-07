@@ -20,7 +20,7 @@ import java.util.UUID
 
 @RestController
 @RequestMapping(PathConstants.PROJECT)
-class ProjectController(private val projectService: ProjectService, private val codeRunnerService: CodeRunnerService) {
+class ProjectController(private val projectService: ProjectService) {
 
     @PostMapping(PathConstants.SAVE_PROJECT)
     fun saveProject (@RequestBody projectSnapshot: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectSnapshot> {

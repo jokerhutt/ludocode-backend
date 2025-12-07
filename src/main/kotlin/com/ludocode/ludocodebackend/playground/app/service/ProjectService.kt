@@ -36,6 +36,14 @@ class ProjectService(
     private val storagePortForServices: StoragePortForServices,
 ) : ProjectsPortForAI {
 
+    private fun getFirstFileContent(language: LanguageType) : String {
+        return when (language) {
+            LanguageType.python -> "print('Hello World!')"
+            LanguageType.lua -> "print('Hello World!)"
+            LanguageType.javascript -> "console.log('Hello World!')"
+        }
+    }
+
     @Transactional
     internal fun createProject(request: CreateProjectRequest, userId: UUID) : ProjectListResponse {
 
@@ -56,7 +64,7 @@ class ProjectService(
         val firstFileName = getFirstFileName(language)
         val firstFileId = UUID.randomUUID()
         val firstFileContentUrl = "${newProject.id}/$firstFileId"
-        val firstFileContent = "print('Hello World!')"
+        val firstFileContent = getFirstFileContent(language)
         projectFileRepository.save(ProjectFile(
             id = firstFileId,
             projectId = newProject.id,
