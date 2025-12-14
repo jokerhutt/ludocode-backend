@@ -61,19 +61,19 @@ class UserProjectIT : AbstractIntegrationTest() {
         ))
 
         try {
-            storage.create(BucketInfo.of("ludo-file-content"))
+            storage.create(BucketInfo.of("lumo-file-content"))
         } catch (_: Exception) {}
 
-        storage.list("ludo-file-content")
+        storage.list("lumo-file-content")
             .iterateAll()
             .forEach { blob -> storage.delete(blob.blobId) }
 
         storage.create(
-            BlobInfo.newBuilder("ludo-file-content", f1Url).build(),
+            BlobInfo.newBuilder("lumo-file-content", f1Url).build(),
             f1Content.toByteArray()
         )
         storage.create(
-            BlobInfo.newBuilder("ludo-file-content", f2Url).build(),
+            BlobInfo.newBuilder("lumo-file-content", f2Url).build(),
             f2Content.toByteArray()
         )
     }

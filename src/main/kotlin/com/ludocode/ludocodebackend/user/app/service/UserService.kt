@@ -50,6 +50,15 @@ class UserService(
     }
 
     @Transactional
+    internal fun deleteUser(userId: UUID) {
+        val existingUser = userRepository.findById(userId).orElseThrow()
+
+
+
+
+    }
+
+    @Transactional
     override fun findOrCreate(req: FindOrCreateUserRequest): UserResponse {
 
         val existingUser : ExternalAccount? = externalAccountRepository.findByProviderAndProviderUserId(req.provider, req.providerUserId)

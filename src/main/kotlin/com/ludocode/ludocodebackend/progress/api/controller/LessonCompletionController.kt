@@ -21,6 +21,4 @@ class LessonCompletionController(private val lessonCompletionService: LessonComp
         return ResponseEntity.ok(lessonCompletionService.submitLessonCompletion(request, userId))
     }
 
-
-
 }
