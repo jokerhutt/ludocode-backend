@@ -1,8 +1,5 @@
 services:
   ludocode-backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
     container_name: ludocode-backend
     ports:
       - ${SERVER_PORTS}
