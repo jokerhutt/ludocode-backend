@@ -42,8 +42,6 @@ This repository includes docker compose files for running the project locally wi
 - A Gemini API key (Optional, for AI)
 - A Google OAuth Client ID & Credentials (Optional, for auth)
 
-
-
 ## Project Setup
 
 ### Simple Setup

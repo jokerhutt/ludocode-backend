@@ -35,9 +35,4 @@ class UserController(private val userService: UserService) {
         return ResponseEntity.ok(userService.getPreferences(userId))
     }
 
-
-
-
-
-
 }

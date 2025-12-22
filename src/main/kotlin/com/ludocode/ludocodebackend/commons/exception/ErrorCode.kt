@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus
 
 enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found"),
+    TREE_NOT_FOUND(HttpStatus.NOT_FOUND, "Tree not found"),
     LESSON_NOT_FOUND(HttpStatus.NOT_FOUND, "Lesson not found"),
     MODULE_NOT_FOUND(HttpStatus.NOT_FOUND, "Module not found"),
     PROJECT_NOT_FOUND(HttpStatus.NOT_FOUND, "Project not found"),
