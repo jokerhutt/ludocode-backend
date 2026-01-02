@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.auth.app.service
 
-import com.ludocode.ludocodebackend.auth.api.dto.response.UserLoginResponse
+import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.app.port.out.GoogleAuthOutboundPort
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserCoinsPortForAuth

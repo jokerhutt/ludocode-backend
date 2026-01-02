@@ -19,7 +19,7 @@ import java.io.IOException
 class JwtCookieAuthenticationFilter(
     private val authCookieService: AuthCookieService,
     private val jwtService: JwtService
-) : OncePerRequestFilter() {   // extend this to actually hook into Spring Security
+) : OncePerRequestFilter() {
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         val path = request.requestURI
@@ -45,7 +45,6 @@ class JwtCookieAuthenticationFilter(
                 SecurityContextHolder.getContext().authentication = auth
             } catch (e: Exception) {
             println("JWT invalid: ${e.message}")
-            // swallow silently
         }
         }
         chain.doFilter(req, res)

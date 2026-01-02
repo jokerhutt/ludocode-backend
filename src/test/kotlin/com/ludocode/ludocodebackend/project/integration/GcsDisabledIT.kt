@@ -12,7 +12,7 @@ import java.util.UUID
 import kotlin.test.Test
 
 @DisabledIf(
-    expression = "\${gcs.enabled}",
+    expression = "\${storage.gcs.enabled}",
     loadContext = true
 )
 class GcsDisabledIT : AbstractIntegrationTest() {

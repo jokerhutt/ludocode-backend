@@ -9,6 +9,7 @@ import com.ludocode.ludocodebackend.storage.app.port.`in`.StoragePortForServices
 import com.ludocode.ludocodebackend.storage.configuration.LocalStorageConfig
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.context.annotation.Profile
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path

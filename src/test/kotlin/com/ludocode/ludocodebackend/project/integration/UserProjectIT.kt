@@ -25,7 +25,7 @@ import java.util.UUID
 import kotlin.test.Test
 
 @EnabledIf(
-    expression = "\${gcs.enabled}",
+    expression = "\${storage.gcs.enabled}",
     loadContext = true
 )
 class UserProjectIT : AbstractIntegrationTest() {

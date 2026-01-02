@@ -19,8 +19,8 @@ class GcpTestConfig {
         fun registerFakeGcs(reg: DynamicPropertyRegistry) {
             val gcs = Containers.FAKE_GCS
             reg.add("app.gcs.host") { "http://${gcs.host}:${gcs.getMappedPort(4443)}" }
-            reg.add("gcs.project.id") { "test-project" }
-            reg.add("gcs.bucket") { "test-bucket" }
+            reg.add("gcs.project.id") { "lumo-test" }
+            reg.add("gcs.bucket") { "lumo-file-content" }
         }
     }
 
@@ -30,7 +30,7 @@ class GcpTestConfig {
         val host = "http://${gcs.host}:${gcs.getMappedPort(4443)}"
 
         return StorageOptions.newBuilder()
-            .setProjectId("test-project")
+            .setProjectId("lumo-test")
             .setHost(host)
             .setCredentials(NoCredentials.getInstance())
             .build()

@@ -9,8 +9,14 @@ piston:
   enabled: false
   base: ${PISTON_BASE}
 
-gcs:
-  enabled: true
+storage:
+  gcs:
+    enabled: ${GCS_ENABLED:true}
+    bucket: ${GCS_BUCKET_NAME}
+    project:
+      id: ${GCS_PROJECT_ID}
+  local:
+    bucket-name: ${LOCAL_BUCKET_NAME:/data/local-bucket}
 
 spring:
   jpa:
