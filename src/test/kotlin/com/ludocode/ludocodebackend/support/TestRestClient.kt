@@ -32,6 +32,25 @@ object TestRestClient {
             .`as`(responseType)
     }
 
+    fun postNoContent(
+        url: String,
+        userId: UUID,
+        body: Any? = null,
+    ) {
+        val req = given()
+            .header("X-Test-User-Id", userId.toString())
+            .contentType(ContentType.JSON)
+
+        if (body != null) {
+            req.body(body)
+        }
+
+        req.`when`()
+            .post(url)
+            .then()
+            .statusCode(204)
+    }
+
     fun <T : Any> getOk(
         url: String,
         userId: UUID? = null,

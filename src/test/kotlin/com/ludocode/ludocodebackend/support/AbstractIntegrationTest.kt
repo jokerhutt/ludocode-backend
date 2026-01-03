@@ -305,6 +305,13 @@ abstract class AbstractIntegrationTest {
         )
 
         externalAccountRepository.save(ExternalAccount(
+            userId = user1.id!!,
+            provider = AuthProvider.GOOGLE,
+            providerUserId = user1.id.toString(),
+            createdAt = Instant.from(OffsetDateTime.now(clock))
+        ))
+
+        externalAccountRepository.save(ExternalAccount(
             userId = demoUser1.id!!,
             provider = AuthProvider.DEMO,
             providerUserId = demoUser1.id.toString(),
