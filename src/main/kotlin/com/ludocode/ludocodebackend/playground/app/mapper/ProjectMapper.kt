@@ -33,8 +33,9 @@ class ProjectMapper (private val basicMapper: BasicMapper) {
             toProjectFileSnapshot(file, fileContentMap[file.contentUrl])
         }
 
-    fun toProjectSnapshot(projectId: UUID, projectName: String, projectLanguage: LanguageType,  projectFiles: List<ProjectFile>, fileContentMap: Map<String, String>) : ProjectSnapshot {
-        return ProjectSnapshot(projectId, projectName, projectLanguage, toProjectFileSnapshotList(projectFiles, fileContentMap))
+    fun toProjectSnapshot(projectId: UUID, projectName: String, projectLanguage: LanguageType, updatedAt: OffsetDateTime?, projectFiles: List<ProjectFile>, fileContentMap: Map<String, String>) : ProjectSnapshot {
+        println("updatedAt in DTO = ${updatedAt}")
+        return ProjectSnapshot(projectId, projectName, projectLanguage, updatedAt, toProjectFileSnapshotList(projectFiles, fileContentMap))
     }
 
 

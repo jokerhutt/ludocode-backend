@@ -8,5 +8,6 @@ data class ProjectSnapshot(
    val projectId: UUID,
    val projectName: String,
    val projectLanguage: LanguageType,
+   val updatedAt: OffsetDateTime?,
    val files: List<ProjectFileSnapshot>,
 )

@@ -8,6 +8,7 @@ import com.ludocode.ludocodebackend.support.TestRestClient
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.springframework.test.context.junit.jupiter.DisabledIf
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
@@ -21,7 +22,7 @@ class RunnerDisabledIT : AbstractIntegrationTest() {
     @Test
     fun runCode_returns403_whenFeatureDisabled() {
 
-        val testRequest = ProjectSnapshot(projectId = UUID.randomUUID(), projectName = "I Wont run", projectLanguage = LanguageType.python, files = listOf())
+        val testRequest = ProjectSnapshot(projectId = UUID.randomUUID(), projectName = "I Wont run", updatedAt = OffsetDateTime.now(clock), projectLanguage = LanguageType.python, files = listOf())
 
         given()
             .header("X-Test-User-Id", user1.id.toString())
