@@ -11,4 +11,7 @@ interface ExternalAccountRepository : JpaRepository<ExternalAccount, UUID> {
         provider: AuthProvider,
         providerUserId: String
     ): ExternalAccount?
+
+    fun findByUserId(userId: UUID): ExternalAccount?
+
 }

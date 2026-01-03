@@ -15,7 +15,10 @@ interface UserRepository : JpaRepository<User, UUID> {
         SELECT u.time_zone
         FROM ludo_user u
         where u.id = :userId
+        AND u.is_deleted = FALSE
         """, nativeQuery = true)
     fun findUserTimeZone(@Param("userId") userId: UUID): String?
+
+    fun existsByIdAndIsDeletedFalse(id: UUID): Boolean
 
 }

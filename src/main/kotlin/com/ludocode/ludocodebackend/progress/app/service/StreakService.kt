@@ -1,4 +1,6 @@
 package com.ludocode.ludocodebackend.progress.app.service
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.progress.api.dto.response.DailyGoalResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.StreakResponsePacket
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse

@@ -61,6 +61,7 @@ object PathConstants {
     const val USERS_FROM_IDS : String = "/ids"
     const val PREFERENCES : String = "/preferences"
     const val SUBMIT_ONBOARDING : String = "/onboarding/submit"
+    const val DELETE_USER : String = "/delete"
 
     // == PROGRESS == //
     const val PROGRESS_COURSE : String = "$PROGRESS/course"

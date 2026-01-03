@@ -1,5 +1,7 @@
 package com.ludocode.ludocodebackend.user.app.service
 
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.playground.config.GcsFeatureConfig
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
 import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
@@ -8,8 +10,6 @@ import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.mapper.UserMapper
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
 import com.ludocode.ludocodebackend.storage.app.dto.request.MediaPutRequest
-import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequest
-import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequestList
 import com.ludocode.ludocodebackend.storage.app.port.`in`.StoragePortForServices
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForProgress
@@ -21,13 +21,11 @@ import com.ludocode.ludocodebackend.user.infra.repository.UserPreferencesReposit
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
-import java.io.ByteArrayInputStream
 import java.net.URL
 import java.net.URLConnection
 import java.time.OffsetDateTime
 import java.time.Clock
 import java.util.UUID
-import javax.imageio.ImageIO
 
 @Service
 class UserService(
@@ -51,11 +49,10 @@ class UserService(
 
     @Transactional
     internal fun deleteUser(userId: UUID) {
-        val existingUser = userRepository.findById(userId).orElseThrow()
-
-
-
-
+        var existingUser = userRepository.findById(userId).orElseThrow()
+        val userExternalAccount = externalAccountRepository.findByUserId(userId) ?: throw ApiException(ErrorCode.USER_NOT_FOUND, "Could not find external account for user")
+        externalAccountRepository.delete(userExternalAccount)
+        existingUser.isDeleted = true
     }
 
     @Transactional
@@ -150,9 +147,5 @@ class UserService(
         val onboardingMap = userIds.associateWith { hasOnboarded(it) }
         return userMapper.toUserResponseList(users, onboardingMap)
     }
-
-
-
-
 
 }

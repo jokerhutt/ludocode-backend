@@ -22,7 +22,7 @@ import com.ludocode.ludocodebackend.config.time.TestClockConfig
 import com.ludocode.ludocodebackend.config.GcpTestConfig
 import com.ludocode.ludocodebackend.config.GeminiTestConfig
 import com.ludocode.ludocodebackend.config.GoogleOAuthTestConfig
-import com.ludocode.ludocodebackend.config.PistonTestConfig
+import com.ludocode.ludocodebackend.config.MockOauthConstants
 import com.ludocode.ludocodebackend.config.security.TestSecurityConfig
 import com.ludocode.ludocodebackend.config.time.MutableClock
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
@@ -54,6 +54,7 @@ import org.springframework.test.context.DynamicPropertySource
 import java.time.OffsetDateTime
 import java.time.Instant
 import java.util.UUID
+
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -303,6 +304,13 @@ abstract class AbstractIntegrationTest {
         demoUser1 = userRepository.save(
             User(id= UUID.fromString("47ad6daf-2433-4e76-b9c1-305614c5c033"), firstName = "Demo", lastName = "User", pfpSrc = "Test", email = "demoUser", createdAt = OffsetDateTime.now(clock))
         )
+
+        externalAccountRepository.save(ExternalAccount(
+            userId = user1.id!!,
+            provider = AuthProvider.GOOGLE,
+            providerUserId = MockOauthConstants.USER_1_GOOGLE_SUB,
+            createdAt = Instant.from(OffsetDateTime.now(clock))
+        ))
 
         externalAccountRepository.save(ExternalAccount(
             userId = demoUser1.id!!,

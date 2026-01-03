@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.auth.api.security
 import com.ludocode.ludocodebackend.auth.api.dto.AuthUser
 import com.ludocode.ludocodebackend.auth.app.service.AuthCookieService
 import com.ludocode.ludocodebackend.auth.app.service.JwtService
+import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
@@ -18,7 +19,8 @@ import java.io.IOException
 @Component
 class JwtCookieAuthenticationFilter(
     private val authCookieService: AuthCookieService,
-    private val jwtService: JwtService
+    private val jwtService: JwtService,
+    private val userRepository: UserRepository
 ) : OncePerRequestFilter() {
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
@@ -39,6 +41,14 @@ class JwtCookieAuthenticationFilter(
         if (token != null) {
             try {
                 val userId = jwtService.requireUserId(token)
+
+                val userExists = userRepository.existsByIdAndIsDeletedFalse(userId)
+                if (!userExists) {
+                    SecurityContextHolder.clearContext()
+                    chain.doFilter(req, res)
+                    return
+                }
+
                 val principal = AuthUser(userId)
                 val auth = UsernamePasswordAuthenticationToken(principal, null, emptyList<GrantedAuthority>())
                 auth.details = WebAuthenticationDetailsSource().buildDetails(req)

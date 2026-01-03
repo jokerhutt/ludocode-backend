@@ -81,7 +81,6 @@ class AuthService(
         return UserLoginResponse(user, coins, streak)
     }
 
-
     internal fun getAuthenticatedUser (id: UUID) : UserResponse {
         return userPortForAuth.getById(id)
     }
