@@ -30,6 +30,12 @@ class UserController(private val userService: UserService) {
         return ResponseEntity.ok(userService.createPreferences(req,userId))
     }
 
+    @PostMapping(PathConstants.DELETE_USER)
+    fun deleteUser(@AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<Void> {
+        userService.deleteUser(userId)
+        return ResponseEntity.noContent().build()
+    }
+
     @GetMapping(PathConstants.PREFERENCES)
     fun getUserPreferences(@AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<UserPreferences> {
         return ResponseEntity.ok(userService.getPreferences(userId))

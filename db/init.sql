@@ -15,8 +15,13 @@ CREATE TABLE ludo_user (
                            pfp_src TEXT,
                            email TEXT NOT NULL,
                            created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
-                           time_zone TEXT DEFAULT 'UTC'::TEXT NOT NULL
+                           time_zone TEXT DEFAULT 'UTC'::TEXT NOT NULL,
+                           is_deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
+
+CREATE UNIQUE INDEX uniq_ludo_user_email_active
+    ON ludo_user (email)
+    WHERE is_deleted = false;
 
 CREATE TABLE external_account (
                           id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
@@ -24,7 +29,8 @@ CREATE TABLE external_account (
                           provider TEXT NOT NULL,
                           provider_user_id TEXT NOT NULL,
                           created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
-                          UNIQUE (provider, provider_user_id)
+                          UNIQUE (provider, provider_user_id),
+                          UNIQUE (user_id)
 );
 
 CREATE TABLE course (

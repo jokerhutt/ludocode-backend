@@ -9,7 +9,17 @@ import java.util.UUID
 
 interface UserProjectRepository : JpaRepository<UserProject, UUID> {
 
-    @Query(value = "SELECT id FROM user_project WHERE user_id = :userId ORDER BY updated_at DESC", nativeQuery = true)
-    fun findProjectIdsByUserId (@Param("userId") userId: UUID): List<UUID>
+    @Query(
+        value = """
+        SELECT p.id
+        FROM user_project p
+        JOIN ludo_user u ON u.id = p.user_id
+        WHERE p.user_id = :userId
+            AND u.is_deleted = FALSE
+        ORDER BY p.updated_at DESC
+    """,
+        nativeQuery = true
+    )
+    fun findProjectIdsByUserId(@Param("userId") userId: UUID): List<UUID>
 
 }
