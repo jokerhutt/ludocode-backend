@@ -9,14 +9,19 @@ CREATE TYPE exercise_type_enum AS ENUM('CLOZE', 'INFO', 'TRIVIA', 'ANALYZE');
 create type project_language_type as enum ('python', 'javascript', 'lua');
 
 CREATE TABLE ludo_user (
-       id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
-       first_name TEXT NOT NULL,
-       last_name TEXT NOT NULL,
-       pfp_src TEXT,
-       email TEXT NOT NULL,
-       created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
-       time_zone TEXT DEFAULT 'UTC'::TEXT NOT NULL
+   id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
+   first_name TEXT NOT NULL,
+   last_name TEXT NOT NULL,
+   pfp_src TEXT,
+   email TEXT NOT NULL,
+   created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+   time_zone TEXT DEFAULT 'UTC'::TEXT NOT NULL,
+   is_deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
+
+CREATE UNIQUE INDEX uniq_ludo_user_email_active
+    ON ludo_user (email)
+    WHERE is_deleted = false;
 
 CREATE TABLE course (
         id uuid DEFAULT gen_random_uuid () NOT NULL PRIMARY KEY,
@@ -157,7 +162,8 @@ CREATE TABLE external_account (
       provider TEXT NOT NULL,
       provider_user_id TEXT NOT NULL,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
-      UNIQUE (provider, provider_user_id)
+      UNIQUE (provider, provider_user_id),
+      UNIQUE (user_id)
 );
 
 CREATE TABLE exercise_attempt (

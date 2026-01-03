@@ -7,7 +7,9 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.UuidGenerator
+import org.hibernate.annotations.Where
 import org.hibernate.type.SqlTypes
 import java.time.OffsetDateTime
 import java.util.TimeZone
@@ -15,6 +17,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "ludo_user")
+@SQLRestriction("is_deleted = false")
 class User (
 
     @Id
@@ -38,6 +41,9 @@ class User (
     var createdAt: OffsetDateTime? = null,
 
     @Column(name = "time_zone")
-    val timeZone: String = "UTC"
+    val timeZone: String = "UTC",
+
+    @Column(name = "is_deleted")
+    var isDeleted: Boolean = false
 
 )
