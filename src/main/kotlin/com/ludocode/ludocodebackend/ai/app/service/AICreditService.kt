@@ -5,19 +5,15 @@ import com.ludocode.ludocodebackend.ai.infra.repository.UserAICreditsRepository
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import jakarta.transaction.Transactional
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import java.util.UUID
 
+@ConditionalOnProperty(prefix = "ai", name = ["enabled"], havingValue = "true")
 @Service
 class AICreditService(private val userAICreditsRepository: UserAICreditsRepository) {
 
     private val INITIAL_USER_CREDITS: Int = 10
-
-    @Transactional
-    internal fun handleDeductCredits (userId: UUID): Int {
-        val creditsToDeduct = 1
-        return adjustCredits(userId, creditsToDeduct)
-    }
 
     @Transactional
     internal fun addCredits (userId: UUID, amount: Int): Int {
@@ -35,7 +31,7 @@ class AICreditService(private val userAICreditsRepository: UserAICreditsReposito
     @Transactional
     internal fun deductCredits (userId: UUID, amountToDeduct: Int): Int {
         if (amountToDeduct <= 0) {
-            throw ApiException(ErrorCode.BAD_REQ, "Amount must be a positive integer but received $amount")
+            throw ApiException(ErrorCode.BAD_REQ, "Amount must be a positive integer but received $amountToDeduct")
         }
         return adjustCredits(userId, (amountToDeduct * -1))
     }
