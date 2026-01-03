@@ -12,6 +12,7 @@ import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapsh
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.playground.app.dto.request.RenameRequest
+import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectSnapshotDiff
 import com.ludocode.ludocodebackend.playground.app.mapper.ProjectMapper
 import com.ludocode.ludocodebackend.playground.app.port.`in`.ProjectsPortForAI
 import com.ludocode.ludocodebackend.playground.app.util.ProjectSnapshotDiffer
@@ -131,13 +132,14 @@ class ProjectService(
     private fun getProjectSnapshotByProjectId (projectId: UUID) : ProjectSnapshot {
 
         val project = userProjectRepository.findById(projectId).orElseThrow()
+        val lastUpdated = project.updatedAt
         val projectName = project.name
         val projectLanguage = project.projectLanguage
         val projectFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
         val fileContentUrls = projectFiles.map { it -> it.contentUrl }
         val fileContentsMap = storagePortForServices.getContentFromUrls(fileContentUrls)
 
-        return projectMapper.toProjectSnapshot(projectId, projectName, projectLanguage, projectFiles, fileContentsMap)
+        return projectMapper.toProjectSnapshot(projectId, projectName, projectLanguage, lastUpdated, projectFiles, fileContentsMap)
     }
 
     @Transactional
@@ -157,6 +159,17 @@ class ProjectService(
 
     }
 
+    private fun refreshUpdatedAt(existing: UserProject): UserProject {
+        existing.updatedAt = OffsetDateTime.now(clock)
+        return existing
+    }
+
+    private fun refreshUpdatedAt(existingId: UUID) {
+        var existingProject = userProjectRepository.findById(existingId).orElseThrow()
+        existingProject.updatedAt = OffsetDateTime.now(clock)
+        userProjectRepository.save(existingProject)
+    }
+
     @Transactional
     internal fun renameProject (renameRequest: RenameRequest, userId: UUID) : ProjectListResponse {
 
@@ -165,7 +178,7 @@ class ProjectService(
 
         var existingProject = userProjectRepository.findById(projectId).orElseThrow()
         existingProject.name = newName
-        existingProject.updatedAt = OffsetDateTime.now(clock)
+        existingProject = refreshUpdatedAt(existingProject)
         userProjectRepository.save(existingProject)
 
         return getUserProjects(userId)
@@ -187,12 +200,23 @@ class ProjectService(
 
         val projectId = projectSnapshot.projectId
 
-            deleteFiles(projectId, snapshotDiff.toDeleteFiles)
-            updateChangedFiles(projectId, snapshotDiff.toUpdate)
-            saveNewFiles(projectId, snapshotDiff.toAdd)
+        if (hasProjectChanged(snapshotDiff)) {
+            refreshUpdatedAt(projectId)
+        }
+
+        deleteFiles(projectId, snapshotDiff.toDeleteFiles)
+        updateChangedFiles(projectId, snapshotDiff.toUpdate)
+        saveNewFiles(projectId, snapshotDiff.toAdd)
 
         return getProjectSnapshotByProjectId(projectId)
 
+    }
+
+    private fun hasProjectChanged (projectSnapshotDiff: ProjectSnapshotDiff) : Boolean {
+        if (projectSnapshotDiff.toAdd.isNotEmpty()) return true
+        if (projectSnapshotDiff.toUpdate.isNotEmpty()) return true
+        if (projectSnapshotDiff.toDeleteFiles.isNotEmpty()) return true
+        return false
     }
 
 
