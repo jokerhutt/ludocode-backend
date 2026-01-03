@@ -19,4 +19,6 @@ interface UserRepository : JpaRepository<User, UUID> {
         """, nativeQuery = true)
     fun findUserTimeZone(@Param("userId") userId: UUID): String?
 
+    fun existsByIdAndIsDeletedFalse(id: UUID): Boolean
+
 }
