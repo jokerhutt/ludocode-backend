@@ -31,7 +31,7 @@ class AIService(
 
         val credits = aICreditService.initializeOrGetCredits(userId)
         if (credits.credits <= 0) throw ApiException(ErrorCode.NOT_ENOUGH_CREDITS)
-        aICreditService.handleDeductCredits(userId)
+        aICreditService.deductCredits(userId)
 
         val chatTuple = getHistoryAndLast(messageHistory)
         val userMessage = chatTuple.last

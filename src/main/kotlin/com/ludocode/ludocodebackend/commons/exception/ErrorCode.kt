@@ -4,6 +4,9 @@ package com.ludocode.ludocodebackend.commons.exception
 import org.springframework.http.HttpStatus
 
 enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
+
+    BAD_REQ(HttpStatus.BAD_REQUEST, "Bad Request"),
+
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found"),
     TREE_NOT_FOUND(HttpStatus.NOT_FOUND, "Tree not found"),
     LESSON_NOT_FOUND(HttpStatus.NOT_FOUND, "Lesson not found"),

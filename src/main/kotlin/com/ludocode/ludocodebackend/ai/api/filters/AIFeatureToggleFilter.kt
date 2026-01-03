@@ -19,6 +19,11 @@ class AIFeatureToggleFilter(
             return
         }
 
+        if (!req.requestURI.startsWith("${PathConstants.CREDITS}")) {
+            chain.doFilter(req, res)
+            return
+        }
+
         if (!aiFeatureConfig.enabled) {
             res.sendError(403, "AI disabled — toggle ai.enabled=true to enable")
             return
