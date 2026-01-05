@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.user.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
+import com.ludocode.ludocodebackend.user.api.dto.response.AvatarInfo
 import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.service.UserService
@@ -28,6 +29,11 @@ class UserController(private val userService: UserService) {
     @PostMapping(PathConstants.SUBMIT_ONBOARDING)
     fun submitOnboarding(@RequestBody req: OnboardingSubmission, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<OnboardingResponse> {
         return ResponseEntity.ok(userService.createPreferences(req,userId))
+    }
+
+    @PostMapping(PathConstants.CHANGE_AVATAR)
+    fun changeUserAvatar(@RequestBody req: AvatarInfo, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<UserResponse> {
+        return ResponseEntity.ok(userService.changeUserAvatar(userId, req))
     }
 
     @PostMapping(PathConstants.DELETE_USER)
