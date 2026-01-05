@@ -7,7 +7,8 @@ data class UserResponse (
     val id: UUID,
     val firstName: String,
     val lastName: String,
-    val pfpSrc: String?,
+    val avatarVersion: String,
+    val avatarIndex: Int,
     val email: String,
     val createdAt: OffsetDateTime,
     val hasOnboarded: Boolean

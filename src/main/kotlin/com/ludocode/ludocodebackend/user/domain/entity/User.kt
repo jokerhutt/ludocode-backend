@@ -34,6 +34,12 @@ class User (
     @Column(name = "pfp_src")
     var pfpSrc: String? = null,
 
+    @Column(name = "avatar_version")
+    var avatarVersion: String = "v1",
+
+    @Column(name = "avatar_index")
+    var avatarIndex: Int = 1,
+
     @Column(name = "email")
     var email: String? = null,
 

@@ -25,6 +25,10 @@ google:
 cors:
   origins: ${FRONTEND_ORIGINS}
 
+avatar:
+  version: v1
+  count: 10
+
 app:
   gcs-host:
 
