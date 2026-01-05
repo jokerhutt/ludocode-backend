@@ -13,6 +13,8 @@ CREATE TABLE ludo_user (
    first_name TEXT NOT NULL,
    last_name TEXT NOT NULL,
    pfp_src TEXT,
+   avatar_version TEXT NOT NULL,
+   avatar_index INT NOT NULL,
    email TEXT NOT NULL,
    created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
    time_zone TEXT DEFAULT 'UTC'::TEXT NOT NULL,

@@ -17,7 +17,8 @@ class UserMapper (private val basicMapper: BasicMapper){
                 id = it.id!!,
                 firstName = it.firstName!!,
                 lastName = it.lastName!!,
-                pfpSrc = it.pfpSrc,
+                avatarVersion = it.avatarVersion,
+                avatarIndex = it.avatarIndex,
                 email = it.email!!,
                 createdAt = it.createdAt!!,
                 hasOnboarded = hasOnboarded
