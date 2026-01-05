@@ -84,9 +84,30 @@ class UserService(
     }
 
     private fun assignAvatar (): AvatarInfo{
-        val index = Random.nextInt(avatarConfig.count)
+        val index = Random.nextInt(1, avatarConfig.count + 1)
         val version = avatarConfig.version
         return AvatarInfo(version, index)
+    }
+
+    @Transactional
+    internal fun changeUserAvatar(userId: UUID, avatarInfo: AvatarInfo): UserResponse{
+        val user = userRepository.findById(userId)
+            .orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
+        val selectedAvatarIndex = avatarInfo.index
+        val selectedAvatarVersion = avatarInfo.version
+        val hasUserOnboarded = hasOnboarded(userId)
+
+        val validIndexes = avatarConfig.count
+        if (selectedAvatarIndex < 1 || selectedAvatarIndex > validIndexes) throw ApiException(ErrorCode.BAD_REQ, "This avatar does not exist")
+
+        if (user.avatarIndex == selectedAvatarIndex && user.avatarVersion == selectedAvatarVersion) {
+            return userMapper.toUserResponse(user, hasUserOnboarded)
+        }
+
+        user.avatarVersion = selectedAvatarVersion
+        user.avatarIndex = selectedAvatarIndex
+        userRepository.save(user)
+        return userMapper.toUserResponse(user, hasUserOnboarded)
 
     }
 
