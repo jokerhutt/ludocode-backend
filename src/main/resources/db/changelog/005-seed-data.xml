@@ -65,7 +65,7 @@
         </sql>
     </changeSet>
 
-    <changeSet id="005-05-lesson" author="dave" context="dev,test" dbms="postgresql">
+    <changeSet id="005-05-lesson" author="dave" context="dev" dbms="postgresql">
         <sql>
             INSERT INTO lesson (id, title, is_deleted)
             VALUES (
