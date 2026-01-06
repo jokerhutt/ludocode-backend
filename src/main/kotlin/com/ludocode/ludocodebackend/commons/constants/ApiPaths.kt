@@ -2,38 +2,82 @@ package com.ludocode.ludocodebackend.commons.constants
 
 object ApiPaths {
 
-    const val API_PREFIX: String = "/api/v1"
+    const val API_PREFIX = "/api/v1"
 
     object AI {
-        const val BASE : String = "/ai"
-    }
-
-    object CREDITS {
-        const val BASE: String = "/credits"
+        const val BASE = "$API_PREFIX/ai"
+        const val COMPLETIONS = "/completions"
     }
 
     object AUTH {
-        const val BASE: String = "/auth"
+        const val BASE = "$API_PREFIX/auth"
+        const val LOGIN_DEMO = "/login/demo"
+        const val LOGIN_GOOGLE = "/login/google"
+        const val ME = "/me"
     }
 
     object CATALOG {
-        const val BASE : String = "/catalog"
+        const val BASE = "$API_PREFIX/catalog"
+        const val COURSES = "/courses"
+        const val COURSE_TREE = "/courses{courseId}/tree"
+        const val MODULES = "/modules"
+        const val LESSONS = "/lessons"
+        const val LESSON_EXERCISES = "/lessons/{lessonId}/exercises"
     }
 
-    object PROJECT {
-        const val BASE : String = "/projects"
+    object CREDITS {
+        const val BASE = "$API_PREFIX/credits"
+    }
+
+    object FEATURES {
+        const val BASE = "$API_PREFIX/features"
     }
 
     object PROGRESS {
-        const val BASE : String = "/progress"
+        const val BASE = "$API_PREFIX/progress"
+
+        object COINS {
+            const val BASE = "/coins"
+        }
+
+        object COMPLETION {
+            const val BASE = "/completion"
+        }
+
+        object COURSES {
+            const val BASE = "/courses"
+            const val BY_ID = "/{courseId}"
+            const val CURRENT = "/current"
+        }
+
+        object STREAK {
+            const val BASE = "/streak"
+        }
+
+    }
+
+    object PROJECTS {
+        const val BASE = "$API_PREFIX/projects"
+        const val BY_ID = "/{projectId}"
+        const val NAME = "/{projectId}/name"
     }
 
     object RUNNER {
-        const val BASE : String = "/runner"
+        const val BASE = "$API_PREFIX/runner"
+        const val EXECUTE = "/executions"
     }
 
-    object SNAPSHOT {
-        const val BASE : String = "/snapshot"
+    object SNAPSHOTS {
+        const val BASE = "$API_PREFIX/snapshots"
+        const val BY_COURSE = "/{courseId}"
+    }
+
+    object USERS {
+        const val BASE = "$API_PREFIX/users"
+        const val ME = "/me"
+        const val PREFERENCES = "/me/preferences"
+        const val AVATAR = "/me/avatar"
+        const val ONBOARDING = "/me/onboarding"
     }
 
 

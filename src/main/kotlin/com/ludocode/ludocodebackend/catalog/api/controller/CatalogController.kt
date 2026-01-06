@@ -45,11 +45,4 @@ class CatalogController(private val catalogService: CatalogService) {
         return ResponseEntity.ok(catalogService.getLessonsByIds(lessonIds, userId))
     }
 
-
-
-
-
-
-
-
 }
