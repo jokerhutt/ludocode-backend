@@ -5,6 +5,10 @@ spring:
     url: ${DB_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    contexts: dev
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:prod}
 
