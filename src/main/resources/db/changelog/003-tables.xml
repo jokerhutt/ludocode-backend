@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+      http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <!-- ===================== ludo_user ===================== -->
+    <changeSet id="003-01-ludo-user" author="dave">
+        <createTable tableName="ludo_user">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="first_name" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="pfp_src" type="text"/>
+            <column name="avatar_version" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="avatar_index" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamptz" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time_zone" type="text" defaultValue="UTC">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- ===================== external_account ===================== -->
+    <changeSet id="003-02-external-account" author="dave">
+        <createTable tableName="external_account">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="user_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="provider" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="provider_user_id" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamptz" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint constraintName="uq_external_provider_user"
+                             tableName="external_account"
+                             columnNames="provider,provider_user_id"/>
+
+        <addUniqueConstraint constraintName="uq_external_user"
+                             tableName="external_account"
+                             columnNames="user_id"/>
+
+        <addForeignKeyConstraint constraintName="fk_external_user"
+                                 baseTableName="external_account"
+                                 baseColumnNames="user_id"
+                                 referencedTableName="ludo_user"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+    <!-- ===================== course ===================== -->
+    <changeSet id="003-03-course" author="dave">
+        <createTable tableName="course">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="title" type="text">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="img_src" type="text"/>
+            <column name="request_hash" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- ===================== module ===================== -->
+    <changeSet id="003-04-module" author="dave">
+        <createTable tableName="module">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="title" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_index" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_deleted" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="course_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_module_course"
+                                 baseTableName="module"
+                                 baseColumnNames="course_id"
+                                 referencedTableName="course"
+                                 referencedColumnNames="id"/>
+
+        <sql>ALTER TABLE module ADD CONSTRAINT module_order_index_check CHECK (order_index &gt; 0);</sql>
+    </changeSet>
+
+    <!-- ===================== exercise ===================== -->
+    <changeSet id="003-05-exercise" author="dave">
+        <createTable tableName="exercise">
+            <column name="id" type="uuid"/>
+            <column name="version_number" type="int" defaultValueNumeric="1"/>
+            <column name="exercise_type" type="exercise_type_enum" defaultValue="CLOZE"/>
+            <column name="title" type="text"/>
+            <column name="subtitle" type="text"/>
+            <column name="prompt" type="text"/>
+            <column name="is_deleted" type="boolean" defaultValueBoolean="false"/>
+            <column name="exercise_media" type="text"/>
+        </createTable>
+
+        <addPrimaryKey constraintName="pk_exercise"
+                       tableName="exercise"
+                       columnNames="id,version_number"/>
+    </changeSet>
+
+    <!-- ===================== lesson ===================== -->
+    <changeSet id="003-06-lesson" author="dave">
+        <createTable tableName="lesson">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="title" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_deleted" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- ===================== module_lessons ===================== -->
+    <changeSet id="003-07-module-lessons" author="dave">
+        <createTable tableName="module_lessons">
+            <column name="module_id" type="uuid"/>
+            <column name="lesson_id" type="uuid"/>
+            <column name="order_index" type="int"/>
+        </createTable>
+
+        <addPrimaryKey constraintName="pk_module_lessons"
+                       tableName="module_lessons"
+                       columnNames="module_id,order_index"/>
+
+        <addUniqueConstraint constraintName="uq_module_lesson"
+                             tableName="module_lessons"
+                             columnNames="module_id,lesson_id"/>
+
+        <addForeignKeyConstraint constraintName="fk_ml_module"
+                                 baseTableName="module_lessons"
+                                 baseColumnNames="module_id"
+                                 referencedTableName="module"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint constraintName="fk_ml_lesson"
+                                 baseTableName="module_lessons"
+                                 baseColumnNames="lesson_id"
+                                 referencedTableName="lesson"
+                                 referencedColumnNames="id"
+                                 onDelete="RESTRICT"/>
+
+        <sql>ALTER TABLE module_lessons ADD CONSTRAINT module_lessons_order_index_check CHECK (order_index &gt; 0);</sql>
+    </changeSet>
+
+    <!-- ===================== lesson_completion ===================== -->
+    <changeSet id="003-08-lesson-completion" author="dave">
+        <createTable tableName="lesson_completion">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="user_id" type="uuid"/>
+            <column name="lesson_id" type="uuid"/>
+            <column name="course_id" type="uuid"/>
+            <column name="score" type="int" defaultValueNumeric="0"/>
+            <column name="accuracy" type="numeric(4,2)"/>
+            <column name="completed_at" type="timestamptz" defaultValueComputed="now()"/>
+            <column name="is_deleted" type="boolean"/>
+        </createTable>
+    </changeSet>
+
+    <!-- ===================== lesson_exercises ===================== -->
+    <changeSet id="003-09-lesson-exercises" author="dave">
+        <createTable tableName="lesson_exercises">
+            <column name="lesson_id" type="uuid"/>
+            <column name="exercise_id" type="uuid"/>
+            <column name="exercise_version" type="int"/>
+            <column name="order_index" type="int"/>
+        </createTable>
+
+        <addPrimaryKey constraintName="pk_lesson_exercises"
+                       tableName="lesson_exercises"
+                       columnNames="lesson_id,order_index"/>
+
+        <addUniqueConstraint constraintName="uq_lesson_exercise"
+                             tableName="lesson_exercises"
+                             columnNames="lesson_id,exercise_id,exercise_version"/>
+
+        <sql>ALTER TABLE lesson_exercises ADD CONSTRAINT lesson_exercises_order_index_check CHECK (order_index &gt; 0);</sql>
+    </changeSet>
+
+    <!-- ===================== option_content ===================== -->
+    <changeSet id="003-10-option-content" author="dave">
+        <createTable tableName="option_content">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="content" type="text">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- ===================== course_progress ===================== -->
+    <changeSet id="003-11-course-progress" author="dave">
+        <createTable tableName="course_progress">
+            <column name="user_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="course_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="current_lesson_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamptz" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamptz" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_complete" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey
+                constraintName="pk_course_progress"
+                tableName="course_progress"
+                columnNames="user_id,course_id"/>
+
+        <addForeignKeyConstraint
+                constraintName="fk_course_progress_user"
+                baseTableName="course_progress"
+                baseColumnNames="user_id"
+                referencedTableName="ludo_user"
+                referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+                constraintName="fk_course_progress_course"
+                baseTableName="course_progress"
+                baseColumnNames="course_id"
+                referencedTableName="course"
+                referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+                constraintName="fk_course_progress_current_lesson"
+                baseTableName="course_progress"
+                baseColumnNames="current_lesson_id"
+                referencedTableName="lesson"
+                referencedColumnNames="id"/>
+    </changeSet>
+
+    <!-- ===================== user_project ===================== -->
+    <changeSet id="003-12-user-project" author="dave">
+        <createTable tableName="user_project">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="text" defaultValue="Untitled Project"/>
+            <column name="user_id" type="uuid"/>
+            <column name="project_language" type="project_language_type"/>
+            <column name="created_at" type="timestamptz" defaultValueComputed="now()"/>
+            <column name="updated_at" type="timestamptz" defaultValueComputed="now()"/>
+            <column name="request_hash" type="uuid">
+                <constraints unique="true"/>
+            </column>
+            <column name="project_visibility" type="visibility" defaultValue="PUBLIC"/>
+        </createTable>
+    </changeSet>
+
+    <!-- ===================== project_file ===================== -->
+    <changeSet id="003-13-project-file" author="dave">
+        <createTable tableName="project_file">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="project_id" type="uuid"/>
+            <column name="content_url" type="text" defaultValue=""/>
+            <column name="file_path" type="text"/>
+            <column name="file_language" type="project_language_type"/>
+            <column name="content_hash" type="text" defaultValue=""/>
+        </createTable>
+
+        <sql>
+            ALTER TABLE project_file
+                ADD CONSTRAINT project_file_unique_path
+                    UNIQUE (project_id, file_path)
+                DEFERRABLE INITIALLY DEFERRED;
+        </sql>
+    </changeSet>
+
+    <!-- ===================== user_daily_goal ===================== -->
+    <changeSet id="003-14-user-daily-goal" author="dave">
+        <createTable tableName="user_daily_goal">
+            <column name="user_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="local_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey
+                constraintName="pk_user_daily_goal"
+                tableName="user_daily_goal"
+                columnNames="user_id,local_date"/>
+    </changeSet>
+
+
+    <!-- ===================== user_coins ===================== -->
+    <changeSet id="003-15-user-coins" author="dave">
+        <createTable tableName="user_coins">
+            <column name="user_id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="coins" type="int" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                constraintName="fk_user_coins_user"
+                baseTableName="user_coins"
+                baseColumnNames="user_id"
+                referencedTableName="ludo_user"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+
+    <!-- ===================== user_streak ===================== -->
+    <changeSet id="003-16-user-streak" author="dave">
+        <createTable tableName="user_streak">
+            <column name="user_id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="current_streak_days" type="int" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="best_streak_days" type="int" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_met_local_date" type="date"/>
+            <column name="last_met_goal_utc" type="timestamptz"/>
+        </createTable>
+    </changeSet>
+
+
+    <!-- ===================== user_preferences ===================== -->
+    <changeSet id="003-17-user-preferences" author="dave">
+        <createTable tableName="user_preferences">
+            <column name="user_id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="has_experience" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="chosen_path" type="desired_path">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                constraintName="fk_user_preferences_user"
+                baseTableName="user_preferences"
+                baseColumnNames="user_id"
+                referencedTableName="ludo_user"
+                referencedColumnNames="id"/>
+    </changeSet>
+
+    <!-- ===================== exercise_attempt ===================== -->
+    <changeSet id="003-18-exercise-attempt" author="dave">
+        <createTable tableName="exercise_attempt">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="exercise_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exercise_version" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                constraintName="fk_exercise_attempt_user"
+                baseTableName="exercise_attempt"
+                baseColumnNames="user_id"
+                referencedTableName="ludo_user"
+                referencedColumnNames="id"/>
+
+        <sql dbms="postgresql">
+            ALTER TABLE exercise_attempt
+                ADD CONSTRAINT fk_exercise_attempt_exercise
+                    FOREIGN KEY (exercise_id, exercise_version)
+                        REFERENCES exercise (id, version_number)
+                        ON DELETE RESTRICT;
+        </sql>
+    </changeSet>
+
+
+    <!-- ===================== exercise_option ===================== -->
+    <changeSet id="003-19-exercise-option" author="dave">
+        <createTable tableName="exercise_option">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="exercise_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exercise_version" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="option_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="answer_order" type="int"/>
+        </createTable>
+
+        <addUniqueConstraint
+                constraintName="uq_exercise_option_triplet"
+                tableName="exercise_option"
+                columnNames="exercise_id,exercise_version,option_id"/>
+
+        <addForeignKeyConstraint
+                constraintName="fk_exercise_option_option"
+                baseTableName="exercise_option"
+                baseColumnNames="option_id"
+                referencedTableName="option_content"
+                referencedColumnNames="id"/>
+
+        <sql dbms="postgresql">
+            ALTER TABLE exercise_option
+                ADD CONSTRAINT fk_exercise_option_exercise
+                    FOREIGN KEY (exercise_id, exercise_version)
+                        REFERENCES exercise (id, version_number)
+                        ON DELETE CASCADE;
+        </sql>
+    </changeSet>
+
+    <!-- ===================== attempt_option ===================== -->
+    <changeSet id="003-20-attempt-option" author="dave">
+        <createTable tableName="attempt_option">
+            <column name="attempt_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exercise_option_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey
+                constraintName="pk_attempt_option"
+                tableName="attempt_option"
+                columnNames="attempt_id,exercise_option_id"/>
+
+        <addForeignKeyConstraint
+                constraintName="fk_attempt_option_attempt"
+                baseTableName="attempt_option"
+                baseColumnNames="attempt_id"
+                referencedTableName="exercise_attempt"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                constraintName="fk_attempt_option_exercise_option"
+                baseTableName="attempt_option"
+                baseColumnNames="exercise_option_id"
+                referencedTableName="exercise_option"
+                referencedColumnNames="id"
+                onDelete="RESTRICT"/>
+    </changeSet>
+
+
+
+
+    <!-- ===================== user_ai_credits ===================== -->
+    <changeSet id="003-21-user-ai-credits" author="dave">
+        <createTable tableName="user_ai_credits">
+            <column name="user_id" type="uuid">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="credits" type="int" defaultValueNumeric="0"/>
+        </createTable>
+
+        <sql>ALTER TABLE user_ai_credits ADD CONSTRAINT credits_non_negative CHECK (credits &gt;= 0);</sql>
+    </changeSet>
+
+
+
+</databaseChangeLog>

@@ -3,7 +3,7 @@ server:
   port: 18080
 
 jwt:
-  secret: test-secret
+  secret: 4f714869e9768d05e466fc7470cb001c977dde52ce407ea3dba6d660f8b75781
 
 piston:
   enabled: false
@@ -28,8 +28,10 @@ spring:
           auto: none
   sql:
     init:
-      mode: always
-      schema-locations: classpath:schema.sql
+      mode: never
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    contexts: test
 
 demo:
   enabled: true

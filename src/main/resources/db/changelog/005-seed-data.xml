@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+      http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <!-- ===================== DEMO USER ===================== -->
+    <changeSet id="005-01-demo-user" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO ludo_user (
+                id, first_name, last_name, email, pfp_src, time_zone
+            ) VALUES (
+                         '598ccbea-4957-4569-81cb-ea901b62c329',
+                         'Demo',
+                         'User',
+                         'demo@ludocode.app',
+                         NULL,
+                         'UTC'
+                     )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-02-demo-external-account" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO external_account (
+                id, user_id, provider, provider_user_id
+            ) VALUES (
+                         '598ccbea-4957-4569-81cb-ea901b62c329',
+                         '598ccbea-4957-4569-81cb-ea901b62c329',
+                         'DEMO',
+                         '598ccbea-4957-4569-81cb-ea901b62c329'
+                     )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <!-- ===================== COURSE STRUCTURE ===================== -->
+    <changeSet id="005-03-course" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO course (id, title, img_src, request_hash)
+            VALUES (
+                       '75975805-3f02-43c2-9106-c990d944dfd2',
+                       'Python',
+                       NULL,
+                       '6873b087-9f85-4f1d-8bc9-04a84e704a29'
+                   )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-04-module" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO module (id, title, order_index, is_deleted, course_id)
+            VALUES (
+                       'a99d4abd-895f-4a4b-b4ea-570fac609f6f',
+                       'Hello World!',
+                       1,
+                       false,
+                       '75975805-3f02-43c2-9106-c990d944dfd2'
+                   )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-05-lesson" author="dave" context="dev,test" dbms="postgresql">
+        <sql>
+            INSERT INTO lesson (id, title, is_deleted)
+            VALUES (
+                       '7eeaaddd-2d87-495e-bd40-24cfd9f06b4b',
+                       'Print Statements',
+                       false
+                   )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-06-module-lessons" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO module_lessons (module_id, lesson_id, order_index)
+            VALUES (
+                       'a99d4abd-895f-4a4b-b4ea-570fac609f6f',
+                       '7eeaaddd-2d87-495e-bd40-24cfd9f06b4b',
+                       1
+                   )
+            ON CONFLICT (module_id, lesson_id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <!-- ===================== EXERCISES ===================== -->
+    <changeSet id="005-07-exercises" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO exercise (id, version_number, exercise_type, title, subtitle, prompt, is_deleted, exercise_media)
+            VALUES
+                (
+                    'fd00de96-49ef-4bed-8bd7-2a05ff1b1393',
+                    1,
+                    'INFO',
+                    'Welcome to the Ludocode Python course!',
+                    'It appears you have used the docker postgres. To edit this and other courses, check out the builder!',
+                    '',
+                    false,
+                    NULL
+                ),
+                (
+                    'c8229944-d5f1-4e67-b9b3-87b9c9e90852',
+                    1,
+                    'CLOZE',
+                    'Here is an example exercise!',
+                    'Complete the code below',
+                    'print(2 ___ 2)',
+                    false,
+                    NULL
+                )
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <!-- ===================== OPTIONS ===================== -->
+    <changeSet id="005-08-option-content" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO option_content (id, content)
+            VALUES
+                ('6b44be8f-da0b-43be-8bfd-1230e25b8476', '+'),
+                ('10012de8-3869-4c57-bcb9-bccba11de2e3', '=')
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-09-exercise-options" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO exercise_option (id, exercise_id, exercise_version, option_id, answer_order)
+            VALUES
+                (
+                    '2288b789-9ff4-4c68-8ca8-b33defc74b3a',
+                    'c8229944-d5f1-4e67-b9b3-87b9c9e90852',
+                    1,
+                    '6b44be8f-da0b-43be-8bfd-1230e25b8476',
+                    1
+                ),
+                (
+                    '9ccac67a-dc70-49bd-bfcd-5eeca95d61ad',
+                    'c8229944-d5f1-4e67-b9b3-87b9c9e90852',
+                    1,
+                    '10012de8-3869-4c57-bcb9-bccba11de2e3',
+                    NULL
+                )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-10-lesson-exercises" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO lesson_exercises (lesson_id, exercise_id, exercise_version, order_index)
+            VALUES
+                ('7eeaaddd-2d87-495e-bd40-24cfd9f06b4b', 'fd00de96-49ef-4bed-8bd7-2a05ff1b1393', 1, 1),
+                ('7eeaaddd-2d87-495e-bd40-24cfd9f06b4b', 'c8229944-d5f1-4e67-b9b3-87b9c9e90852', 1, 2)
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <!-- ===================== USER PROGRESS / PREFS ===================== -->
+    <changeSet id="005-11-user-preferences" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO user_preferences (user_id, has_experience, chosen_path)
+            VALUES (
+                       '598ccbea-4957-4569-81cb-ea901b62c329',
+                       false,
+                       'DATA'
+                   )
+            ON CONFLICT (user_id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-12-course-progress" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO course_progress (user_id, course_id, current_lesson_id, is_complete)
+            VALUES (
+                       '598ccbea-4957-4569-81cb-ea901b62c329',
+                       '75975805-3f02-43c2-9106-c990d944dfd2',
+                       '7eeaaddd-2d87-495e-bd40-24cfd9f06b4b',
+                       false
+                   )
+            ON CONFLICT (user_id, course_id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
