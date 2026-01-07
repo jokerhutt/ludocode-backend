@@ -10,13 +10,15 @@
     <changeSet id="005-01-demo-user" author="dave" context="dev" dbms="postgresql">
         <sql>
             INSERT INTO ludo_user (
-                id, first_name, last_name, email, pfp_src, time_zone
+                id, first_name, last_name, email, pfp_src, avatar_index, avatar_version, time_zone
             ) VALUES (
                          '598ccbea-4957-4569-81cb-ea901b62c329',
                          'Demo',
                          'User',
                          'demo@ludocode.app',
                          NULL,
+                         1,
+                         'v1',
                          'UTC'
                      )
             ON CONFLICT (id) DO NOTHING;
