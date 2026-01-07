@@ -27,11 +27,6 @@ object PathConstants {
     const val LESSONS_FROM_IDS : String = "$LESSONS/ids"
     const val LESSON_EXERCISES : String = "$LESSONS/{lessonId}/exercises"
 
-    // == SNAPSHOT == //
-    const val GET_COURSE_SNAPSHOT : String = "/course/{courseId}"
-    const val SUBMIT_COURSE_SNAPSHOT : String = "/submit"
-    const val CREATE_COURSE : String = "/course/create"
-
     // == AI == //
     const val AI_SEND_PROMPT : String = "/prompt/send"
 

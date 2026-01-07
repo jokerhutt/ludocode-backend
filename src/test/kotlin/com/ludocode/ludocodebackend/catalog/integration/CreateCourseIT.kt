@@ -2,8 +2,7 @@ package com.ludocode.ludocodebackend.catalog.integration
 
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.CREATE_COURSE
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.SNAPSHOT
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import org.assertj.core.api.Assertions.assertThat
@@ -34,7 +33,7 @@ class CreateCourseIT : AbstractIntegrationTest() {
     private fun submitPostCreateCourse(req: CreateCourseRequest): List<CourseResponse> =
         TestRestClient
             .postOk(
-                "$SNAPSHOT$CREATE_COURSE",
+                ApiPaths.SNAPSHOTS.COURSE,
                 user1.id!!,
                 req,
                 Array<CourseResponse>::class.java

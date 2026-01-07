@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.commons.constants
 
+import com.google.protobuf.Api
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.AI
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.AUTH
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.CATALOG
@@ -20,17 +21,16 @@ object PublicEndpointConstants {
     @JvmField
     val PUBLIC_ENDPOINTS = arrayOf(
         "/actuator/**",
-        AUTH + DEMO_LOGIN,
-        AUTH + FIREBASE_LOGIN,
+        ApiPaths.AUTH.DEMO,
+        ApiPaths.AUTH.FIREBASE,
         FEATURES,
         CATALOG + MODULES_FROM_IDS,
         CATALOG + COURSES,
         CATALOG + LESSON_EXERCISES,
         CATALOG + COURSE_TREE,
         USERS + USERS_FROM_IDS,
-        AUTH + GOOGLE_LOGIN,
         "$AI/**",
-        "$SNAPSHOT/**"
+        "${ApiPaths.SNAPSHOTS}/**"
 
     )
 

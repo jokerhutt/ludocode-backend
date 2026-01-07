@@ -1,5 +1,7 @@
 package com.ludocode.ludocodebackend.commons.constants
 
+import java.util.UUID
+
 object ApiPaths {
 
     const val API_PREFIX = "/api/v1"
@@ -70,7 +72,11 @@ object ApiPaths {
 
     object SNAPSHOTS {
         const val BASE = "$API_PREFIX/snapshots"
+        const val COURSE = "/course"
         const val BY_COURSE = "/{courseId}"
+
+        fun byCourse(courseId: UUID): String = "$BASE/$courseId"
+
     }
 
     object USERS {
