@@ -14,6 +14,7 @@ class FirebaseConfig (
     private val serviceAccountPath: String
 ){
 
+
     @PostConstruct
     fun init() {
         val serviceAccount =

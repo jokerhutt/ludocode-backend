@@ -1,8 +1,7 @@
 package com.ludocode.ludocodebackend.auth.app.service
-
 import com.google.firebase.auth.FirebaseAuth
 import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
-import com.ludocode.ludocodebackend.auth.app.port.out.GoogleAuthOutboundPort
+import com.ludocode.ludocodebackend.auth.app.port.out.FirebaseAuthPort
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserCoinsPortForAuth
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStreakPortForAuth
@@ -12,7 +11,6 @@ import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
-import com.nimbusds.jwt.SignedJWT
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -24,11 +22,12 @@ class AuthService(
     private val authCookieService: AuthCookieService,
     private val userCoinsPortForAuth: UserCoinsPortForAuth,
     private val userStreakPortForAuth: UserStreakPortForAuth,
-    private val demoConfig: DemoConfig
+    private val demoConfig: DemoConfig,
+    private val firebaseAuthPort: FirebaseAuthPort
 ) {
 
     internal fun loginWithFirebase (response: HttpServletResponse, token: String) : UserLoginResponse {
-        val decoded = FirebaseAuth.getInstance().verifyIdToken(token)
+        val decoded = firebaseAuthPort.verifyIdToken(token)
 
         val request = FindOrCreateUserRequest(
             provider = AuthProvider.FIREBASE,
