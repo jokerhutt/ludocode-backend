@@ -6,6 +6,8 @@ import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserCoinsPortForAuth
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStreakPortForAuth
 import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
@@ -36,6 +38,8 @@ class AuthService(
         val firstName = claims.getStringClaim("given_name")
         val lastName = claims.getStringClaim("family_name")
         val avatar = claims.getStringClaim("picture")
+
+        if (email == null) throw ApiException(ErrorCode.BAD_REQ, "Unable to read email from subject")
 
         val focRequest =
             FindOrCreateUserRequest(
@@ -69,6 +73,10 @@ class AuthService(
         request: FindOrCreateUserRequest,
         response: HttpServletResponse
     ): UserLoginResponse {
+
+        val requestEmail = request.email
+        val requestProvider = request.provider
+        userPortForAuth.assertEmailAvailableForProvider(email = requestEmail, provider = requestProvider)
 
         val user = userPortForAuth.findOrCreate(request)
 
