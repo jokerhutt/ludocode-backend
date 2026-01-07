@@ -2,7 +2,7 @@ package com.ludocode.ludocodebackend.user.integration
 import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.AUTH
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.DELETE_USER
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.GOOGLE_LOGIN
+import com.ludocode.ludocodebackend.commons.constants.PathConstants.FIREBASE_LOGIN
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS_FROM_IDS
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
@@ -55,9 +55,9 @@ class DeleteUserIT : AbstractIntegrationTest() {
             val loginResponse =
                 given()
                     .contentType(ContentType.JSON)
-                    .body(mapOf("code" to "dummy-code"))
+                    .header("Authorization", "Bearer fake-firebase-token")
                     .`when`()
-                    .post("$AUTH$GOOGLE_LOGIN")
+                    .post("$AUTH$FIREBASE_LOGIN")
                     .then()
                     .statusCode(200)
                     .extract()
@@ -81,7 +81,7 @@ class DeleteUserIT : AbstractIntegrationTest() {
             val newExternalAccount =
                 externalAccountRepository.findByUserId(newUserId)!!
 
-            assertThat(newExternalAccount.provider).isEqualTo(AuthProvider.GOOGLE)
+            assertThat(newExternalAccount.provider).isEqualTo(AuthProvider.FIREBASE)
             assertThat(newExternalAccount.providerUserId).isEqualTo(originalGoogleSub)
 
 
