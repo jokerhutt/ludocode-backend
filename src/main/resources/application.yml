@@ -12,6 +12,10 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:prod}
 
+firebase:
+  service:
+    path: ${FIREBASE_SERVICE_ACCOUNT_PATH:firebase-service-account.json}
+
 ai:
   enabled: ${AI_ENABLED:true}
   api:

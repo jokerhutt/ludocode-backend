@@ -53,22 +53,6 @@ class UserService(
         existingUser.isDeleted = true
     }
 
-    override fun assertEmailAvailableForProvider(
-        email: String,
-        provider: AuthProvider
-    ) {
-        val existingUser = userRepository.findByEmail(email) ?: return
-
-        val userId = existingUser.id
-
-        val existingExternal =
-            externalAccountRepository.findByUserId(userId) ?: return
-
-        if (existingExternal.provider != provider) {
-            throw ApiException(ErrorCode.EMAIL_IN_USE, "Email already in use with provider ${existingExternal.provider}")
-        }
-    }
-
     @Transactional
     override fun findOrCreate(req: FindOrCreateUserRequest): UserResponse {
 

@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.auth.app.service
 
+import com.google.firebase.auth.FirebaseAuth
 import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.app.port.out.GoogleAuthOutboundPort
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
@@ -18,7 +19,6 @@ import java.util.UUID
 
 @Service
 class AuthService(
-    private val googleAuth: GoogleAuthOutboundPort,
     private val userPortForAuth: UserPortForAuth,
     private val jwtService: JwtService,
     private val authCookieService: AuthCookieService,
@@ -27,32 +27,20 @@ class AuthService(
     private val demoConfig: DemoConfig
 ) {
 
-    internal fun loginWithGoogle(code: String, response: HttpServletResponse): UserLoginResponse {
+    internal fun loginWithFirebase (response: HttpServletResponse, token: String) : UserLoginResponse {
+        val decoded = FirebaseAuth.getInstance().verifyIdToken(token)
 
-        val googleTokens = googleAuth.exchangeCodeForAccessToken(code)
-
-        val claims = SignedJWT.parse(googleTokens.idToken).jwtClaimsSet
-
-        val providerSub = claims.subject
-        val email = claims.getStringClaim("email")
-        val firstName = claims.getStringClaim("given_name")
-        val lastName = claims.getStringClaim("family_name")
-        val avatar = claims.getStringClaim("picture")
-
-        if (email == null) throw ApiException(ErrorCode.BAD_REQ, "Unable to read email from subject")
-
-        val focRequest =
-            FindOrCreateUserRequest(
-                provider = AuthProvider.GOOGLE,
-                providerUserId = providerSub,
-                email = email,
-                firstName = firstName,
-                lastName = lastName,
-                name = firstName + lastName,
-                avatarUrl = avatar
-            )
-
-        return buildLoginResponse(focRequest, response)
+        val request = FindOrCreateUserRequest(
+            provider = AuthProvider.FIREBASE,
+            providerUserId = decoded.uid,
+            email = decoded.email
+                ?: throw ApiException(ErrorCode.BAD_REQ, "Email missing from Firebase token"),
+            firstName = decoded.name,
+            lastName = null,
+            name = decoded.name,
+            avatarUrl = decoded.picture
+        )
+        return buildLoginResponse(request, response)
     }
 
     fun loginWithDemo(response: HttpServletResponse): UserLoginResponse {
@@ -65,7 +53,6 @@ class AuthService(
             name = "Demo User",
             avatarUrl = null
         )
-
         return buildLoginResponse(request, response)
     }
 
@@ -73,19 +60,11 @@ class AuthService(
         request: FindOrCreateUserRequest,
         response: HttpServletResponse
     ): UserLoginResponse {
-
-        val requestEmail = request.email
-        val requestProvider = request.provider
-        userPortForAuth.assertEmailAvailableForProvider(email = requestEmail, provider = requestProvider)
-
         val user = userPortForAuth.findOrCreate(request)
-
         val coins = userCoinsPortForAuth.findOrCreateCoins(user.id)
         val streak = userStreakPortForAuth.getStreak(user.id)
-
         val jwt = jwtService.createToken(user.id)
         authCookieService.setJwt(response, jwt)
-
         return UserLoginResponse(user, coins, streak)
     }
 
