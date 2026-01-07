@@ -15,6 +15,7 @@ import com.ludocode.ludocodebackend.user.configuration.AvatarConfig
 import com.ludocode.ludocodebackend.user.domain.entity.ExternalAccount
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.domain.entity.UserPreferences
+import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
 import com.ludocode.ludocodebackend.user.infra.repository.ExternalAccountRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserPreferencesRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
@@ -50,6 +51,22 @@ class UserService(
         val userExternalAccount = externalAccountRepository.findByUserId(userId) ?: throw ApiException(ErrorCode.USER_NOT_FOUND, "Could not find external account for user")
         externalAccountRepository.delete(userExternalAccount)
         existingUser.isDeleted = true
+    }
+
+    override fun assertEmailAvailableForProvider(
+        email: String,
+        provider: AuthProvider
+    ) {
+        val existingUser = userRepository.findByEmail(email) ?: return
+
+        val userId = existingUser.id
+
+        val existingExternal =
+            externalAccountRepository.findByUserId(userId) ?: return
+
+        if (existingExternal.provider != provider) {
+            throw ApiException(ErrorCode.EMAIL_IN_USE, "Email already in use with provider ${existingExternal.provider}")
+        }
     }
 
     @Transactional
