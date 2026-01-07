@@ -8,5 +8,4 @@ import java.util.UUID
 interface UserPortForAuth {
     fun findOrCreate(req: FindOrCreateUserRequest): UserResponse
     fun getById(id: UUID): UserResponse
-    fun assertEmailAvailableForProvider(email: String, provider: AuthProvider)
 }

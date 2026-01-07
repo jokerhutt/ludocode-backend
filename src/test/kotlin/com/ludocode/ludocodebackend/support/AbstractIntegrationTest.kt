@@ -21,7 +21,7 @@ import com.ludocode.ludocodebackend.catalog.infra.repository.*
 import com.ludocode.ludocodebackend.config.time.TestClockConfig
 import com.ludocode.ludocodebackend.config.GcpTestConfig
 import com.ludocode.ludocodebackend.config.GeminiTestConfig
-import com.ludocode.ludocodebackend.config.GoogleOAuthTestConfig
+import com.ludocode.ludocodebackend.config.FirebaseAuthTestConfig
 import com.ludocode.ludocodebackend.config.MockOauthConstants
 import com.ludocode.ludocodebackend.config.security.TestSecurityConfig
 import com.ludocode.ludocodebackend.config.time.MutableClock
@@ -61,7 +61,7 @@ import java.util.UUID
 @ActiveProfiles("test")
 @Import(
     TestSecurityConfig::class, TestClockConfig::class, GcpTestConfig::class, GeminiTestConfig::class,
-    GoogleOAuthTestConfig::class, GcpTestConfig::class)
+    FirebaseAuthTestConfig::class, GcpTestConfig::class)
 abstract class AbstractIntegrationTest {
 
 
@@ -307,7 +307,7 @@ abstract class AbstractIntegrationTest {
 
         externalAccountRepository.save(ExternalAccount(
             userId = user1.id!!,
-            provider = AuthProvider.GOOGLE,
+            provider = AuthProvider.FIREBASE,
             providerUserId = MockOauthConstants.USER_1_GOOGLE_SUB,
             createdAt = Instant.from(OffsetDateTime.now(clock))
         ))
