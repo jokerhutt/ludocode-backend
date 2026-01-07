@@ -4,6 +4,7 @@ import com.ludocode.ludocodebackend.auth.api.dto.TokenDto
 import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.app.service.AuthService
 import com.ludocode.ludocodebackend.auth.configuration.AuthCookieConfig
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.FIREBASE_LOGIN
 import com.ludocode.ludocodebackend.commons.exception.ApiException
@@ -22,10 +23,10 @@ import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
 @RestController
-@RequestMapping(PathConstants.AUTH)
+@RequestMapping(ApiPaths.AUTH.BASE)
 class AuthController(private val authService: AuthService, private val cookieConfig: AuthCookieConfig) {
 
-    @PostMapping(FIREBASE_LOGIN)
+    @PostMapping(ApiPaths.AUTH.FIREBASE)
     fun loginWithFirebase(
         @RequestHeader("Authorization") authHeader: String,
         response: HttpServletResponse
@@ -40,14 +41,14 @@ class AuthController(private val authService: AuthService, private val cookieCon
 
     }
 
-    @GetMapping(PathConstants.AUTH_ME)
+    @GetMapping(ApiPaths.AUTH.ME)
     fun getCurrentUser(
         @AuthenticationPrincipal(expression = "userId") userId: UUID
     ) : ResponseEntity<UserResponse> {
         return ResponseEntity.ok(authService.getAuthenticatedUser(userId))
     }
 
-    @PostMapping(PathConstants.LOGOUT)
+    @PostMapping(ApiPaths.AUTH.LOGOUT)
     fun logout(response: HttpServletResponse): ResponseEntity<Unit> {
         val c = cookieConfig
         val cookie = ResponseCookie.from(c.name, "")

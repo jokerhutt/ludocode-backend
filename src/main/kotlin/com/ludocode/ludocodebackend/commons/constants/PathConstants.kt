@@ -54,8 +54,6 @@ object PathConstants {
     const val DEMO_LOGIN : String = "/login/demo"
     const val FIREBASE_LOGIN : String = "/firebase"
     const val GOOGLE_LOGIN : String = "/login/google"
-    const val LOGOUT : String = "/logout"
-    const val AUTH_ME : String = "/me"
 
     // == USER == //
     const val USERS : String = "$API_V1/users"

@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.auth.api.controller
 import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.app.service.AuthService
 import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseEntity
@@ -12,13 +13,13 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping(PathConstants.AUTH)
+@RequestMapping(ApiPaths.AUTH.DEMO)
 class DemoAuthController(
     private val demoConfig: DemoConfig,
     private val authService: AuthService
 ) {
 
-    @GetMapping(PathConstants.DEMO_LOGIN)
+    @GetMapping(ApiPaths.AUTH.DEMO)
     fun loginDemo(
         @RequestParam token: String,
         response: HttpServletResponse

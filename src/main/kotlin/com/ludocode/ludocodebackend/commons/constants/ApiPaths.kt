@@ -11,9 +11,10 @@ object ApiPaths {
 
     object AUTH {
         const val BASE = "$API_PREFIX/auth"
-        const val LOGIN_DEMO = "/login/demo"
-        const val LOGIN_GOOGLE = "/login/google"
+        const val FIREBASE = "/firebase"
         const val ME = "/me"
+        const val DEMO = "/demo"
+        const val LOGOUT = "/logout"
     }
 
     object CATALOG {
