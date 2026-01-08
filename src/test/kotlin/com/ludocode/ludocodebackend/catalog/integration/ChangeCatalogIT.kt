@@ -5,8 +5,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotBuilderService
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.SNAPSHOT
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.SUBMIT_COURSE_SNAPSHOT
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import org.assertj.core.api.Assertions.assertThat
@@ -100,6 +99,6 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
     }
 
     private fun submitPostUpdateCatalog(req: CourseSnap): CourseSnap =
-        TestRestClient.postOk("$SNAPSHOT$SUBMIT_COURSE_SNAPSHOT", user1.id!!, req, CourseSnap::class.java)
+        TestRestClient.putOk(ApiPaths.SNAPSHOTS.byCourse(req.courseId), user1.id!!, req, CourseSnap::class.java)
 
 }

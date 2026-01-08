@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.ai.api.controller
 
 import com.ludocode.ludocodebackend.ai.app.service.AICreditService
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -12,10 +12,10 @@ import java.util.UUID
 
 @ConditionalOnProperty(prefix = "ai", name = ["enabled"], havingValue = "true")
 @RestController
-@RequestMapping(PathConstants.CREDITS)
+@RequestMapping(ApiPaths.CREDITS.BASE)
 class AICreditsController(private val aICreditService: AICreditService) {
 
-    @GetMapping(PathConstants.GET_CREDITS)
+    @GetMapping
     fun getAiCredits(@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<Int> {
         return ResponseEntity.ok(aICreditService.initializeOrGetCredits(userId).credits)
     }

@@ -1,7 +1,6 @@
 package com.ludocode.ludocodebackend.user.integration
 
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROGRESS_COURSE
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.UPDATE_COURSE
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
@@ -75,7 +74,7 @@ class UpdateCourseIT : AbstractIntegrationTest() {
 
 
     private fun submitPostUpdateCurrentCourse(userId: UUID, newCourseId: UUID): CourseProgressResponseWithEnrolled =
-        TestRestClient.postOk("$PROGRESS_COURSE$UPDATE_COURSE", userId, ChangeCourseRequest(newCourseId), CourseProgressResponseWithEnrolled::class.java)
+        TestRestClient.putOk("${ApiPaths.PROGRESS.COURSES.BASE}${ApiPaths.PROGRESS.COURSES.CURRENT}", userId, ChangeCourseRequest(newCourseId), CourseProgressResponseWithEnrolled::class.java)
 
 
 

@@ -1,6 +1,5 @@
 package com.ludocode.ludocodebackend.progress.integration
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.SUBMIT_ONBOARDING
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
@@ -35,5 +34,5 @@ class OnboardingIT : AbstractIntegrationTest() {
     }
 
     private fun submitPostForOnboarding(userId: UUID, submission: OnboardingSubmission): OnboardingResponse =
-        TestRestClient.postOk("$USERS$SUBMIT_ONBOARDING", userId, submission, OnboardingResponse::class.java)
+        TestRestClient.putOk("${ApiPaths.USERS.BASE}${ApiPaths.USERS.ONBOARDING}", userId, submission, OnboardingResponse::class.java)
 }

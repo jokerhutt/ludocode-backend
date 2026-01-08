@@ -2,7 +2,7 @@ package com.ludocode.ludocodebackend.catalog.integration
 
 import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import org.assertj.core.api.Assertions.assertThat
@@ -49,7 +49,7 @@ class ExercisesIT : AbstractIntegrationTest() {
         lessonId: UUID
     ): List<ExerciseResponse> =
         TestRestClient
-            .getOk("${PathConstants.CATALOG}/lessons/$lessonId/exercises",
+            .getOk(ApiPaths.CATALOG.lessonExercises(lessonId),
                 user1.id!!,
                 Array<ExerciseResponse>::class.java)
             .toList()}

@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.progress.api.controller
 
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.progress.app.service.LessonCompletionService
 import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionRequest
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionPacket
@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
 @RestController
-@RequestMapping(PathConstants.PROGRESS_COMPLETION)
+@RequestMapping(ApiPaths.PROGRESS.COMPLETION.BASE)
 class LessonCompletionController(private val lessonCompletionService: LessonCompletionService) {
 
-    @PostMapping(PathConstants.SUBMIT_COMPLETION)
+    @PostMapping
     fun submitLessonCompletion(@RequestBody request: LessonSubmissionRequest, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<LessonCompletionPacket> {
         return ResponseEntity.ok(lessonCompletionService.submitLessonCompletion(request, userId))
     }

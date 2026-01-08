@@ -2,7 +2,7 @@ package com.ludocode.ludocodebackend.features.api
 import org.springframework.core.env.Environment
 import com.ludocode.ludocodebackend.ai.configuration.AIFeatureConfig
 import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.features.api.dto.response.ActiveFeaturesResponse
 import com.ludocode.ludocodebackend.playground.config.GcsFeatureConfig
 import com.ludocode.ludocodebackend.playground.config.PistonFeatureConfig
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping(PathConstants.FEATURES)
+@RequestMapping(ApiPaths.FEATURES.BASE)
 class FeaturesController(
     private val aiConfig: AIFeatureConfig,
     private val gcsConfig: GcsFeatureConfig,

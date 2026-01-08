@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.auth.api.filters
 
 import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -19,7 +19,7 @@ class DemoFeatureToggleFilter(
         chain: FilterChain
     ) {
 
-        if (!request.requestURI.startsWith("${PathConstants.AUTH}${ PathConstants.DEMO_LOGIN }")) {
+        if (!request.requestURI.startsWith(ApiPaths.AUTH.DEMO)) {
             chain.doFilter(request, response)
             return
         }

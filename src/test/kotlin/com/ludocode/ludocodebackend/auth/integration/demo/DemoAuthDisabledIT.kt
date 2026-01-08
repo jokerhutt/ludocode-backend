@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.auth.integration.demo
 
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured.given
 import org.junit.jupiter.api.Disabled
@@ -19,7 +19,7 @@ class DemoAuthDisabledIT : AbstractIntegrationTest() {
         given()
             .queryParam("token", "anything")
             .`when`()
-            .get("${PathConstants.AUTH}${PathConstants.DEMO_LOGIN}")
+            .get("${ApiPaths.AUTH.BASE}${ApiPaths.AUTH.DEMO}")
             .then()
             .statusCode(403)
     }

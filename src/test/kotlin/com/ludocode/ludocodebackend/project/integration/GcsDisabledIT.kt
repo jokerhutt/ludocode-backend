@@ -1,13 +1,11 @@
 package com.ludocode.ludocodebackend.project.integration
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.CREATE_PROJECT
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROJECT
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.springframework.test.context.junit.jupiter.DisabledIf
-import org.springframework.test.context.junit.jupiter.EnabledIf
 import java.util.UUID
 import kotlin.test.Test
 
@@ -27,7 +25,7 @@ class GcsDisabledIT : AbstractIntegrationTest() {
             .header("X-Test-User-Id", uid.toString())
             .contentType(ContentType.JSON)
             .body(newProjectRequest)
-            .`when`().post("$PROJECT$CREATE_PROJECT")
+            .`when`().post(ApiPaths.PROJECTS.BASE)
             .then()
             .statusCode(403)
 
@@ -40,7 +38,7 @@ class GcsDisabledIT : AbstractIntegrationTest() {
         given()
             .header("X-Test-User-Id", user1.id.toString())
             .contentType(ContentType.JSON)
-            .`when`().get("$PROJECT/$dummyRequestId/save")
+            .`when`().get("${ApiPaths.PROJECTS.BASE}/$dummyRequestId")
             .then()
             .statusCode(403)
 

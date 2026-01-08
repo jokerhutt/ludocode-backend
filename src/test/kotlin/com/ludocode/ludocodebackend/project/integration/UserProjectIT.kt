@@ -2,8 +2,7 @@ package com.ludocode.ludocodebackend.project.integration
 
 import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.BucketInfo
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.CREATE_PROJECT
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROJECT
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.util.sha256
 import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequest
@@ -119,7 +118,7 @@ class UserProjectIT : AbstractIntegrationTest() {
     fun deleteProject_deletesOnlyProject_returnsEmptyList() {
 
         val projectId = existingProject.id
-        val res = submitPostDeleteProject(projectId, user1.id!!)
+        val res = submitDeleteProject(projectId, user1.id!!)
         assertThat(res.projects).isEmpty()
 
     }
@@ -130,7 +129,7 @@ class UserProjectIT : AbstractIntegrationTest() {
         val projectId = existingProject.id
         val newName = "Test Project Name"
         val request = RenameRequest(targetId = projectId, newName = newName)
-        val res = submitPostRenameProject(request, user1.id!!)
+        val res = submitPatchRenameProject(request, user1.id!!)
         assertThat(res).isNotNull()
         assertThat(res.projects.size).isEqualTo(1)
         assertThat(res.projects[0].projectId).isEqualTo(projectId)
@@ -149,7 +148,7 @@ class UserProjectIT : AbstractIntegrationTest() {
         val newProjectName = "Second Project Updated"
 
         val request = RenameRequest(targetId = newProjectToModify!!.projectId, newProjectName)
-        val res = submitPostRenameProject(request, user1.id!!)
+        val res = submitPatchRenameProject(request, user1.id!!)
         println(res.projects.joinToString("\n") { p ->
             "projectId=${p.projectId}, name=${p.projectName}"
         })
@@ -178,7 +177,7 @@ class UserProjectIT : AbstractIntegrationTest() {
         assertThat(newProject.files[0].path).isEqualTo("script.py")
 
         val existingProjectId = existingProject.id
-        val deleteResponse = submitPostDeleteProject(existingProjectId, user1.id!!)
+        val deleteResponse = submitDeleteProject(existingProjectId, user1.id!!)
         assertThat(deleteResponse).isNotNull()
         assertThat(deleteResponse.projects.size).isEqualTo(1)
         assertThat(deleteResponse.projects[0].projectId).isEqualTo(newProject.projectId)
@@ -201,7 +200,7 @@ class UserProjectIT : AbstractIntegrationTest() {
 
         val snapshotCopy = snapshot.copy(files = modifiedFiles)
 
-        val res = submitPostSaveProjectSnapshot(user1.id!!, snapshotCopy)
+        val res = submitPutSaveProject(user1.id!!, snapshotCopy)
         assertThat(res).isNotNull()
         assertThat(res.projectId).isEqualTo(projectId)
 
@@ -225,7 +224,7 @@ class UserProjectIT : AbstractIntegrationTest() {
 
         val snapshotCopy = snapshot.copy(files = modifiedFiles)
 
-        val res = submitPostSaveProjectSnapshot(user1.id!!, snapshotCopy)
+        val res = submitPutSaveProject(user1.id!!, snapshotCopy)
 
         assertThat(res).isNotNull()
         assertThat(res.files.size).isEqualTo(2)
@@ -289,25 +288,25 @@ class UserProjectIT : AbstractIntegrationTest() {
     }
 
     private fun submitGetProjectSnapshot (pid: UUID, userId: UUID): ProjectSnapshot =
-        TestRestClient.getOk("$PROJECT/$pid/get", userId, ProjectSnapshot::class.java)
+        TestRestClient.getOk(ApiPaths.PROJECTS.byId(pid), userId, ProjectSnapshot::class.java)
 
-    private fun submitPostSaveProjectSnapshot (userId: UUID, snapshot: ProjectSnapshot): ProjectSnapshot =
-        TestRestClient.postOk("$PROJECT/save", userId, snapshot, ProjectSnapshot::class.java)
+    private fun submitPutSaveProject (userId: UUID, snapshot: ProjectSnapshot): ProjectSnapshot =
+        TestRestClient.putOk(ApiPaths.PROJECTS.byId(snapshot.projectId), userId, snapshot, ProjectSnapshot::class.java)
 
-    private fun submitPostDeleteProject (pid: UUID, userId: UUID) : ProjectListResponse =
-        TestRestClient.postOk("$PROJECT/$pid/delete", userId, null, ProjectListResponse::class.java)
+    private fun submitDeleteProject (pid: UUID, userId: UUID) : ProjectListResponse =
+        TestRestClient.deleteOk(ApiPaths.PROJECTS.byId(pid), userId, ProjectListResponse::class.java)
 
-    private fun submitPostRenameProject (request: RenameRequest, userId: UUID) : ProjectListResponse =
-        TestRestClient.postOk("$PROJECT/rename", userId, request, ProjectListResponse::class.java)
-
-    private fun submitPostCreateProject (request: CreateProjectRequest, userId: UUID) : ProjectListResponse =
-        TestRestClient.postOk("$PROJECT$CREATE_PROJECT", userId, request, ProjectListResponse::class.java)
+    private fun submitPatchRenameProject (request: RenameRequest, userId: UUID) : ProjectListResponse =
+        TestRestClient.patchOk(ApiPaths.PROJECTS.name(request.targetId), userId, request, ProjectListResponse::class.java)
 
     private fun assertErrorOnGet (pid: UUID, userId: UUID, errorCode: ErrorCode): ValidatableResponse? =
-        TestRestClient.assertError("GET", "$PROJECT/$pid/get", userId, null, errorCode)
+        TestRestClient.assertError("GET", ApiPaths.PROJECTS.byId(pid), userId, null, errorCode)
+
+    private fun submitPostCreateProject (request: CreateProjectRequest, userId: UUID) : ProjectListResponse =
+        TestRestClient.postOk(ApiPaths.PROJECTS.BASE, userId, request, ProjectListResponse::class.java)
 
     private fun assertErrorOnSave (userId: UUID, snapshot: ProjectSnapshot, errorCode: ErrorCode): ValidatableResponse? =
-        TestRestClient.assertError("POST", "$PROJECT/save", userId, snapshot, errorCode)
+        TestRestClient.assertError("PUT", ApiPaths.PROJECTS.byId(snapshot.projectId), userId, snapshot, errorCode)
 
 
 
