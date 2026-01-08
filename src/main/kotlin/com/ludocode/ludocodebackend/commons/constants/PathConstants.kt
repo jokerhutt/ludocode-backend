@@ -10,10 +10,6 @@ object PathConstants {
     const val PROGRESS : String = "$API_V1/progress"
     const val RUNNER : String = "$API_V1/runner"
 
-    // == CATALOG == //
-    const val FEATURES : String = "$API_V1/features"
-
-
     // == PROJECT == //
     const val GET_PROJECT : String = "/{pid}/get"
     const val GET_MY_PROJECTS : String = "/my"
@@ -27,7 +23,6 @@ object PathConstants {
     const val RUN_PROJECT : String = "/run"
 
     // == AUTH == //
-    const val DEMO_LOGIN : String = "/login/demo"
     const val FIREBASE_LOGIN : String = "/firebase"
 
     // == USER == //

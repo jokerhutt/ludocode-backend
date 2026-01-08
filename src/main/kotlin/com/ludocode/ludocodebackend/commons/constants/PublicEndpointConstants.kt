@@ -10,7 +10,7 @@ object PublicEndpointConstants {
         "/actuator/**",
         ApiPaths.AUTH.DEMO,
         ApiPaths.AUTH.FIREBASE,
-        FEATURES,
+        ApiPaths.FEATURES.BASE,
         ApiPaths.CATALOG.MODULES,
         ApiPaths.CATALOG.COURSES,
         ApiPaths.CATALOG.LESSON_EXERCISES,

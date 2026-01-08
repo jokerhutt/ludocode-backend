@@ -1,8 +1,8 @@
 package com.ludocode.ludocodebackend.user.integration
 import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.AUTH
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.DELETE_USER
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.FIREBASE_LOGIN
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS_FROM_IDS
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
@@ -57,7 +57,7 @@ class DeleteUserIT : AbstractIntegrationTest() {
                     .contentType(ContentType.JSON)
                     .header("Authorization", "Bearer fake-firebase-token")
                     .`when`()
-                    .post("$AUTH$FIREBASE_LOGIN")
+                    .post(ApiPaths.AUTH.FIREBASE)
                     .then()
                     .statusCode(200)
                     .extract()
