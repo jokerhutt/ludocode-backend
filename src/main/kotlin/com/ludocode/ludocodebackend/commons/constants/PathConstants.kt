@@ -55,9 +55,6 @@ object PathConstants {
     const val PROGRESS_COMPLETION : String = "$PROGRESS/completion"
     const val SUBMIT_COMPLETION : String = "/submit"
 
-    const val PROGRESS_COINS : String = "$PROGRESS/coins"
-    const val COINS_FROM_USER_IDS : String = "/ids"
-
     const val PROGRESS_STREAK : String = "$PROGRESS/streak"
     const val GET_STREAK : String = "/get"
     const val GET_STREAK_WEEK : String = "/get/week"

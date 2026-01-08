@@ -44,21 +44,21 @@ object ApiPaths {
         const val BASE = "$API_PREFIX/progress"
 
         object COINS {
-            const val BASE = "/coins"
+            const val BASE = "${PROGRESS.BASE}/coins"
         }
 
         object COMPLETION {
-            const val BASE = "/completion"
+            const val BASE = "${PROGRESS.BASE}/completion"
         }
 
         object COURSES {
-            const val BASE = "/courses"
+            const val BASE = "${PROGRESS.BASE}/courses"
             const val BY_ID = "/{courseId}"
             const val CURRENT = "/current"
         }
 
         object STREAK {
-            const val BASE = "/streak"
+            const val BASE = "${PROGRESS.BASE}/streak"
         }
 
     }
