@@ -16,7 +16,7 @@ import java.util.UUID
 @RequestMapping(ApiPaths.CREDITS.BASE)
 class AICreditsController(private val aICreditService: AICreditService) {
 
-    @GetMapping()
+    @GetMapping
     fun getAiCredits(@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<Int> {
         return ResponseEntity.ok(aICreditService.initializeOrGetCredits(userId).credits)
     }
