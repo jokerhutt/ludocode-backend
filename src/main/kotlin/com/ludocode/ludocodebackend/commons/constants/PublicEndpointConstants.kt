@@ -1,8 +1,4 @@
 package com.ludocode.ludocodebackend.commons.constants
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.FEATURES
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS_FROM_IDS
-
 object PublicEndpointConstants {
 
     @JvmField
@@ -15,7 +11,6 @@ object PublicEndpointConstants {
         ApiPaths.CATALOG.COURSES,
         ApiPaths.CATALOG.LESSON_EXERCISES,
         ApiPaths.CATALOG.COURSE_TREE,
-        USERS + USERS_FROM_IDS,
         "${ApiPaths.AI.BASE}/**",
         "${ApiPaths.SNAPSHOTS}/**"
 

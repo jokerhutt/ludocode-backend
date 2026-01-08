@@ -1,7 +1,6 @@
 package com.ludocode.ludocodebackend.progress.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.progress.app.service.CourseProgressService
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
@@ -38,7 +37,7 @@ class CourseProgressController(private val courseProgressService: CourseProgress
         return ResponseEntity.ok(courseProgressService.getEnrolledCourseIds(userId))
     }
 
-    @PostMapping(ApiPaths.PROGRESS.COURSES.BY_ID)
+    @PostMapping(ApiPaths.PROGRESS.COURSES.RESET)
     fun resetUserCourseProgress (@PathVariable courseId: UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<CourseProgressResponse> {
         return ResponseEntity.ok(courseProgressService.resetUserCourseProgress(userId, courseId))
     }

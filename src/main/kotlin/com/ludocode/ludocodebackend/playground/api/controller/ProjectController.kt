@@ -1,7 +1,6 @@
 package com.ludocode.ludocodebackend.playground.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectListResponse
@@ -21,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
 @RestController
-@RequestMapping(PathConstants.PROJECT)
+@RequestMapping(ApiPaths.PROJECTS.BASE)
 class ProjectController(private val projectService: ProjectService) {
 
     @PutMapping(ApiPaths.PROJECTS.BY_ID)

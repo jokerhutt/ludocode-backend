@@ -27,8 +27,8 @@ object ApiPaths {
         const val LESSONS = "/lessons"
         const val LESSON_EXERCISES = "/lessons/{lessonId}/exercises"
 
-        fun courseTree(courseId: UUID) : String = "$BASE/$courseId/tree"
-        fun lessonExercises(lessonId: UUID) : String = "$BASE/$LESSONS/$lessonId/exercises"
+        fun courseTree(courseId: UUID) : String = "$BASE$COURSES/$courseId/tree"
+        fun lessonExercises(lessonId: UUID) : String = "$BASE$LESSONS/$lessonId/exercises"
 
     }
 
@@ -53,11 +53,9 @@ object ApiPaths {
 
         object COURSES {
             const val BASE = "${PROGRESS.BASE}/courses"
-            const val BY_ID = "/{courseId}"
             const val ENROLLED = "/enrolled"
             const val CURRENT = "/current"
-            const val RESET = "$BY_ID/reset"
-            fun byId(courseId: UUID) : String = "$BASE/$courseId"
+            const val RESET = "/{courseId}/reset"
             fun reset(courseId: UUID) : String = "$BASE/$courseId/reset"
         }
 
@@ -96,6 +94,11 @@ object ApiPaths {
         const val PREFERENCES = "/me/preferences"
         const val AVATAR = "/me/avatar"
         const val ONBOARDING = "/me/onboarding"
+        fun fromIds(ids: List<UUID>): String =
+            BASE + ids.joinToString(
+                prefix = "?userIds=",
+                separator = "&userIds="
+            ) { it.toString() }
     }
 
 

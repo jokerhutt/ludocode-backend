@@ -33,7 +33,7 @@ class CreateCourseIT : AbstractIntegrationTest() {
     private fun submitPostCreateCourse(req: CreateCourseRequest): List<CourseResponse> =
         TestRestClient
             .postOk(
-                ApiPaths.SNAPSHOTS.COURSE,
+                "${ApiPaths.SNAPSHOTS.BASE}${ApiPaths.SNAPSHOTS.COURSE}",
                 user1.id!!,
                 req,
                 Array<CourseResponse>::class.java

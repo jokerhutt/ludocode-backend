@@ -2,7 +2,6 @@ package com.ludocode.ludocodebackend.ai.api.filters
 
 import com.ludocode.ludocodebackend.ai.configuration.AIFeatureConfig
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

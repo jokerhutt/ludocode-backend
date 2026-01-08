@@ -74,7 +74,7 @@ class UpdateCourseIT : AbstractIntegrationTest() {
 
 
     private fun submitPostUpdateCurrentCourse(userId: UUID, newCourseId: UUID): CourseProgressResponseWithEnrolled =
-        TestRestClient.putOk(ApiPaths.PROGRESS.COURSES.CURRENT, userId, ChangeCourseRequest(newCourseId), CourseProgressResponseWithEnrolled::class.java)
+        TestRestClient.putOk("${ApiPaths.PROGRESS.COURSES.BASE}${ApiPaths.PROGRESS.COURSES.CURRENT}", userId, ChangeCourseRequest(newCourseId), CourseProgressResponseWithEnrolled::class.java)
 
 
 

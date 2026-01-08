@@ -3,7 +3,6 @@ package com.ludocode.ludocodebackend.auth.integration.demo
 import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured
 import org.assertj.core.api.Assertions
@@ -38,7 +37,7 @@ class DemoAuthIT : AbstractIntegrationTest() {
         return RestAssured.given()
             .queryParam("token", token)
             .`when`()
-            .get(ApiPaths.AUTH.DEMO)
+            .get("${ApiPaths.AUTH.BASE}${ApiPaths.AUTH.DEMO}")
             .then()
             .statusCode(200)
             .extract()

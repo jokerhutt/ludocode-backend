@@ -1,7 +1,6 @@
 package com.ludocode.ludocodebackend.progress.integration
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.progress.domain.entity.UserCoins
 import com.ludocode.ludocodebackend.progress.domain.entity.UserDailyGoal
 import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak

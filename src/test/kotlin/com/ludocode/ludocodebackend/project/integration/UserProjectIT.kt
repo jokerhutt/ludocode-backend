@@ -299,14 +299,14 @@ class UserProjectIT : AbstractIntegrationTest() {
     private fun submitPatchRenameProject (request: RenameRequest, userId: UUID) : ProjectListResponse =
         TestRestClient.patchOk(ApiPaths.PROJECTS.name(request.targetId), userId, request, ProjectListResponse::class.java)
 
-    private fun submitPostCreateProject (request: CreateProjectRequest, userId: UUID) : ProjectListResponse =
-        TestRestClient.postOk(ApiPaths.PROJECTS.BASE, userId, request, ProjectListResponse::class.java)
-
     private fun assertErrorOnGet (pid: UUID, userId: UUID, errorCode: ErrorCode): ValidatableResponse? =
         TestRestClient.assertError("GET", ApiPaths.PROJECTS.byId(pid), userId, null, errorCode)
 
+    private fun submitPostCreateProject (request: CreateProjectRequest, userId: UUID) : ProjectListResponse =
+        TestRestClient.postOk(ApiPaths.PROJECTS.BASE, userId, request, ProjectListResponse::class.java)
+
     private fun assertErrorOnSave (userId: UUID, snapshot: ProjectSnapshot, errorCode: ErrorCode): ValidatableResponse? =
-        TestRestClient.assertError("POST", ApiPaths.PROJECTS.BASE, userId, snapshot, errorCode)
+        TestRestClient.assertError("PUT", ApiPaths.PROJECTS.byId(snapshot.projectId), userId, snapshot, errorCode)
 
 
 
