@@ -28,6 +28,7 @@ object ApiPaths {
         const val LESSON_EXERCISES = "/lessons/{lessonId}/exercises"
 
         fun courseTree(courseId: UUID) : String = "$BASE/$courseId/tree"
+        fun lessonExercises(lessonId: UUID) : String = "$BASE/$LESSONS/$lessonId/exercises"
 
     }
 
