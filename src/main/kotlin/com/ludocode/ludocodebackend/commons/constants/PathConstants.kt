@@ -19,8 +19,6 @@ object PathConstants {
     // == AI == //
     const val AI_SEND_PROMPT : String = "/prompt/send"
 
-    // == AI CREDITS == //
-    const val GET_CREDITS : String = "/get"
 
     // == PROJECT == //
     const val GET_PROJECT : String = "/{pid}/get"
@@ -37,7 +35,6 @@ object PathConstants {
     // == AUTH == //
     const val DEMO_LOGIN : String = "/login/demo"
     const val FIREBASE_LOGIN : String = "/firebase"
-    const val GOOGLE_LOGIN : String = "/login/google"
 
     // == USER == //
     const val USERS : String = "$API_V1/users"
