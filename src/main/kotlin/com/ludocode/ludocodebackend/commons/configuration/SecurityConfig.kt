@@ -26,6 +26,12 @@ class SecurityConfig(
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
             .authorizeHttpRequests {
+                it.requestMatchers(
+                    "/v3/api-docs/**",
+                    "/v3/api-docs.yaml",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html"
+                ).permitAll()
                 it.requestMatchers(*PublicEndpointConstants.PUBLIC_ENDPOINTS).permitAll()
                 it.requestMatchers("${ApiPaths.USERS.BASE}/**").authenticated()
                 it.requestMatchers("/media/**").permitAll()

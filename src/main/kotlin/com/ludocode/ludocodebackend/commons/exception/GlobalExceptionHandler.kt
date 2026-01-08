@@ -73,6 +73,13 @@ class GlobalExceptionHandler {
         val log = LoggerFactory.getLogger(this::class.java)
         log.error("Unhandled exception in request ${req.requestURI}", ex)
 
+        if (
+            req.requestURI.startsWith("/v3/api-docs") ||
+            req.requestURI.startsWith("/swagger-ui")
+        ) {
+            throw ex
+        }
+
         val pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR).apply {
             title = "INTERNAL_ERROR"
             detail = "Unexpected error"
