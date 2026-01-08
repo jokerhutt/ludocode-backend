@@ -54,7 +54,11 @@ object ApiPaths {
         object COURSES {
             const val BASE = "${PROGRESS.BASE}/courses"
             const val BY_ID = "/{courseId}"
+            const val ENROLLED = "/enrolled"
             const val CURRENT = "/current"
+            const val RESET = "$BY_ID/reset"
+            fun byId(courseId: UUID) : String = "$BASE/$courseId"
+            fun reset(courseId: UUID) : String = "$BASE/$courseId/reset"
         }
 
         object STREAK {

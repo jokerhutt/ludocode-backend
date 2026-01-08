@@ -44,14 +44,6 @@ object PathConstants {
     const val DELETE_USER : String = "/delete"
     const val CHANGE_AVATAR : String = "/avatar/change"
 
-    // == PROGRESS == //
-    const val PROGRESS_COURSE : String = "$PROGRESS/course"
-    const val CURRENT_COURSE : String = "/current"
-    const val ENROLLED_IDS : String = "/enrolled"
-    const val COURSE_PROGRESS_FROM_COURSE_IDS : String = "/ids"
-    const val RESET_PROGRESS : String = "/course/{courseId}/reset"
-    const val UPDATE_COURSE : String = "/course/change"
-
     const val PROGRESS_COMPLETION : String = "$PROGRESS/completion"
     const val SUBMIT_COMPLETION : String = "/submit"
 

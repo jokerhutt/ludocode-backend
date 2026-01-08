@@ -1,4 +1,6 @@
 package com.ludocode.ludocodebackend.progress.integration
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROGRESS_COURSE
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
@@ -99,7 +101,7 @@ class CourseProgressIT : AbstractIntegrationTest() {
     ): List<CourseProgressResponse> =
         TestRestClient
             .getOk(
-                "$PROGRESS_COURSE/ids",
+                ApiPaths.PROGRESS.COURSES.BASE,
                 userId,
                 Array<CourseProgressResponse>::class.java,
                 mapOf("courseIds" to courseIds)
@@ -108,7 +110,7 @@ class CourseProgressIT : AbstractIntegrationTest() {
 
 
     private fun submitResetCourseProgress(userId: UUID, courseId: UUID):CourseProgressResponse =
-        TestRestClient.postOk("$PROGRESS_COURSE/course/$courseId/reset", userId, null, CourseProgressResponse::class.java)
+        TestRestClient.postOk(ApiPaths.PROGRESS.COURSES.reset(courseId), userId, null, CourseProgressResponse::class.java)
 
 
 }

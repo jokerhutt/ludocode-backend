@@ -55,6 +55,18 @@ object TestRestClient {
             .`as`(responseType)
     }
 
+    fun deleteNoContent(
+        url: String,
+        userId: UUID,
+    ) {
+        given()
+            .header("X-Test-User-Id", userId.toString())
+            .`when`()
+            .delete(url)
+            .then()
+            .statusCode(204)
+    }
+
     fun postNoContent(
         url: String,
         userId: UUID,
