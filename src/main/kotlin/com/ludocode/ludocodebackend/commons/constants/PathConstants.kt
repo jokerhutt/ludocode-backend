@@ -12,20 +12,9 @@ object PathConstants {
     const val PROJECT : String = "$API_V1/projects"
     const val PROGRESS : String = "$API_V1/progress"
     const val RUNNER : String = "$API_V1/runner"
-    const val SNAPSHOT : String = "$API_V1/snapshot"
 
     // == CATALOG == //
-    const val COURSES : String = "/courses"
-    const val COURSE_TREE : String = "$COURSES/{courseId}/tree"
-
-    const val MODULES : String = "/modules"
-    const val MODULES_FROM_IDS : String = "$MODULES/ids"
-
     const val FEATURES : String = "$API_V1/features"
-
-    const val LESSONS : String = "/lessons"
-    const val LESSONS_FROM_IDS : String = "$LESSONS/ids"
-    const val LESSON_EXERCISES : String = "$LESSONS/{lessonId}/exercises"
 
     // == AI == //
     const val AI_SEND_PROMPT : String = "/prompt/send"

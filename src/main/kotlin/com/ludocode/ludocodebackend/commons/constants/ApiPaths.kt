@@ -22,10 +22,13 @@ object ApiPaths {
     object CATALOG {
         const val BASE = "$API_PREFIX/catalog"
         const val COURSES = "/courses"
-        const val COURSE_TREE = "/courses{courseId}/tree"
+        const val COURSE_TREE = "/courses/{courseId}/tree"
         const val MODULES = "/modules"
         const val LESSONS = "/lessons"
         const val LESSON_EXERCISES = "/lessons/{lessonId}/exercises"
+
+        fun courseTree(courseId: UUID) : String = "$BASE/$courseId/tree"
+
     }
 
     object CREDITS {
