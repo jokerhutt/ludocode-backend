@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.ai.api.filters
 
 import com.ludocode.ludocodebackend.ai.configuration.AIFeatureConfig
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -14,12 +15,12 @@ class AIFeatureToggleFilter(
 ) : OncePerRequestFilter() {
 
     override fun doFilterInternal(req: HttpServletRequest, res: HttpServletResponse, chain: FilterChain) {
-        if (!req.requestURI.startsWith("${PathConstants.AI}")) {
+        if (!req.requestURI.startsWith("${ApiPaths.AI.BASE}")) {
             chain.doFilter(req, res)
             return
         }
 
-        if (!req.requestURI.startsWith("${PathConstants.CREDITS}")) {
+        if (!req.requestURI.startsWith("${ApiPaths.CREDITS.BASE}")) {
             chain.doFilter(req, res)
             return
         }

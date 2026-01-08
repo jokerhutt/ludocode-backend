@@ -5,19 +5,13 @@ object PathConstants {
     const val API_V1 : String = "/api/v1";
 
     // == BASE == //
-    const val AI : String = "$API_V1/ai"
-    const val CREDITS : String = "$API_V1/credits"
     const val AUTH : String = "$API_V1/auth"
-    const val CATALOG : String = "$API_V1/catalog"
     const val PROJECT : String = "$API_V1/projects"
     const val PROGRESS : String = "$API_V1/progress"
     const val RUNNER : String = "$API_V1/runner"
 
     // == CATALOG == //
     const val FEATURES : String = "$API_V1/features"
-
-    // == AI == //
-    const val AI_SEND_PROMPT : String = "/prompt/send"
 
 
     // == PROJECT == //
