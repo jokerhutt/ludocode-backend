@@ -3,16 +3,98 @@ info:
   title: OpenAPI definition
   version: v0
 
+security:
+  - sessionAuth: []
+
 paths:
+  /api/v1/auth/logout:
+    post:
+      tags:
+        - auth
+      summary: Log out the current user
+      description: |
+        Logs out the currently authenticated user by expiring the session cookie.
+        After this request, the user is no longer authenticated.
+      operationId: logout
+      responses:
+        "200":
+          description: Successfully logged out
+          content: {}
+  /api/v1/auth/firebase:
+    post:
+      security: []
+      tags:
+        - auth
+      summary: Authenticate user using Firebase
+      description: |
+        Authenticate a user using a Firebase ID token.
+        If the user does not exist, a new account is created.
+        On success, a session cookie is set and the authenticated user is returned.
+      operationId: loginWithFirebase
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Firebase ID token in the form `Bearer <token>`
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully autenticated
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserLoginResponse"
+  /api/v1/auth/me:
+    get:
+      tags:
+        - auth
+      summary: Get current authenticated user
+      description: |
+        Returns the currently authenticated user associated with the active session.
+        Requires a valid session cookie to be present.
+      operationId: getCurrentUser
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+  /api/v1/auth/demo:
+    get:
+      security: []
+      tags:
+        - auth
+      summary: Authenticate user using demo account token
+      description: |
+        Authenticates a user using a demo access token.
+        If the demo user does not exist, a new demo account is created.
+        On success, a session cookie is set and the authenticated user is returned.
+      operationId: loginDemo
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserLoginResponse"
+
   /api/v1/users/me/onboarding:
     put:
       tags:
-      - user-controller
-      summary: Submit onboarding form
+      - user
+      summary: Complete user onboarding
       description: |
         Completes the onboarding flow for the currently authenticated user.
-        This endpoint stores the user's chosen learning path and initial preferences,
-        and initializes course progress.
+        Stores the user's selected learning path + preferences and initializes their course progress.
+        Returns the updated user profile and onboarding state.
       operationId: submitOnboarding
       requestBody:
         content:
@@ -30,10 +112,12 @@ paths:
   /api/v1/users/me/avatar:
     put:
       tags:
-      - user-controller
-      summary: Update the user's avatar
+      - user
+      summary: Update user avatar
       description: |
-        Updates the user's avatar version and avatar index.
+        Updates the avatar configuration for the currently authenticated user.
+        Stores the selected avatar version and index.
+        Returns the updated user profile.
       operationId: changeUserAvatar
       requestBody:
         content:
@@ -50,9 +134,14 @@ paths:
                 $ref: "#/components/schemas/UserResponse"
   /api/v1/snapshots/{courseId}:
     get:
+      security: []
       tags:
-      - catalog-admin-controller
-      summary: Get a course snapshot for the current course id
+      - catalog-snapshot
+      summary: Get course snapshot for the selected course id
+      description: |
+        Returns a snapshot of the course structure for the specified course.
+        Includes modules, lessons, exercises, and exercise options in a nested object.
+        Intended for catalog modification & admin use.
       operationId: getSnapshotsByCourseId
       parameters:
       - name: courseId
@@ -70,7 +159,13 @@ paths:
                 $ref: "#/components/schemas/CourseSnap"
     put:
       tags:
-      - catalog-admin-controller
+      - catalog-snapshot
+      summary: Submit course snapshot for the selected course id
+      description: |
+        Applies a course snapshot to the specified course.
+        This operation replaces the existing course structure with the provided snapshot, including modules, lessons, exercises, and ordering.
+        Intended for catalog modification & admin use.
+        Returns the persisted course snapshot after the update.
       operationId: applyCourseSnapshot
       parameters:
       - name: courseId
@@ -95,7 +190,12 @@ paths:
   /api/v1/projects/{projectId}:
     get:
       tags:
-      - project-controller
+      - project
+      summary: Get project for the selected project id
+      description: |
+        Returns the project associated with the specified project id.
+        The project includes its metadata and all associated files.
+        Requires an authenticated user session and ownership of the project.
       operationId: getProject
       parameters:
       - name: projectId
@@ -113,7 +213,13 @@ paths:
                 $ref: "#/components/schemas/ProjectSnapshot"
     put:
       tags:
-      - project-controller
+      - project
+      summary: Save project for the selected project id
+      description: |
+        Applies a project snapshot to the specified project.
+        This operation replaces the existing files & contents of the project with the provided snapshot.
+        Returns the persisted project snapshot after the update.
+        Requires an authenticated user session and ownership of the project.
       operationId: saveProject
       requestBody:
         content:
@@ -130,7 +236,12 @@ paths:
                 $ref: "#/components/schemas/ProjectSnapshot"
     delete:
       tags:
-      - project-controller
+      - project
+      summary: Delete project for the selected project id
+      description: |
+        Deletes metadata and associated content for the specified project.
+        Returns a list of the user's remaining projects after the delete operation.
+        Requires an authenticated user session and ownership of the project
       operationId: deleteProject
       parameters:
       - name: projectId
@@ -149,7 +260,11 @@ paths:
   /api/v1/progress/courses/current:
     get:
       tags:
-      - course-progress-controller
+      - course-progress
+      summary: Get current active course
+      description: |
+        Returns the course id of the currently active course for the authenticated user.
+        Requires a valid session cookie to be present.
       operationId: getCurrentCourseId
       responses:
         "200":
@@ -161,7 +276,12 @@ paths:
                 format: uuid
     put:
       tags:
-      - course-progress-controller
+      - course-progress
+      summary: Change active course
+      description: |
+        Updates the active course for the authenticated user.
+        Returns the course progress for the newly selected course.
+        Requires a valid session cookie to be present.
       operationId: updateCurrentCourse
       requestBody:
         content:
@@ -178,8 +298,14 @@ paths:
                 $ref: "#/components/schemas/CourseProgressResponseWithEnrolled"
   /api/v1/snapshots/course:
     post:
+      security: []
       tags:
-      - catalog-admin-controller
+      - catalog-snapshot
+      summary: Create course
+      description: |
+        Creates a new course with the provided title.
+        Initializes the course with a default module, lesson, and exercise.
+        Returns metadata for the newly created course.
       operationId: createCourse
       requestBody:
         content:
@@ -199,7 +325,12 @@ paths:
   /api/v1/runner/executions:
     post:
       tags:
-      - code-runner-controller
+      - runner
+      summary: Execute project code
+      description: |
+        Executes the code contained in the provided project snapshot.
+        Runs the project in an isolated execution environment.
+        Returns the program's standard output, standard error, and exit code.
       operationId: runProject
       requestBody:
         content:
@@ -217,7 +348,11 @@ paths:
   /api/v1/projects:
     get:
       tags:
-      - project-controller
+      - project
+      summary: Get user's projects
+      description: |
+        Returns all projects owned by the currently authenticated user.
+        Requires a valid session cookie to be present.
       operationId: getUserProjects
       responses:
         "200":
@@ -228,7 +363,12 @@ paths:
                 $ref: "#/components/schemas/ProjectListResponse"
     post:
       tags:
-      - project-controller
+      - project
+      summary: Create new project
+      description: |
+        Creates a new project for the currently authenticated user.
+        Returns the updated list of the user's projects including the newly created project.
+        Requires a valid session cookie to be present.
       operationId: createProject
       requestBody:
         content:
@@ -246,7 +386,13 @@ paths:
   /api/v1/progress/courses/{courseId}/reset:
     post:
       tags:
-      - course-progress-controller
+      - course-progress
+      summary: Reset course progress
+      description: |
+        Resets the course progress for the specified course
+        for the currently authenticated user.
+        Returns the reset course progress state.
+        Requires a valid session cookie to be present.
       operationId: resetUserCourseProgress
       parameters:
       - name: courseId
@@ -265,7 +411,14 @@ paths:
   /api/v1/progress/completion:
     post:
       tags:
-      - lesson-completion-controller
+      - lesson-completion
+      summary: Submit lesson completion
+      description: |
+        Submits the completion result for a lesson for the currently authenticated user.
+        Evaluates the submitted exercise attempts, updates lesson and course progress,
+        and applies rewards such as coins and streak updates.
+        Returns the lesson completion result and updated progress state.
+        Requires a valid session cookie to be present.
       operationId: submitLessonCompletion
       requestBody:
         content:
@@ -280,37 +433,16 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/LessonCompletionPacket"
-  /api/v1/auth/logout:
-    post:
-      tags:
-      - auth-controller
-      operationId: logout
-      responses:
-        "200":
-          description: OK
-          content: {}
-  /api/v1/auth/firebase:
-    post:
-      tags:
-      - auth-controller
-      operationId: loginWithFirebase
-      parameters:
-      - name: Authorization
-        in: header
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/UserLoginResponse"
+
   /api/v1/ai/completions:
     post:
+      security: []
       tags:
-      - ai-controller
+      - ai
+      summary: Generate AI completion
+      description: |
+        Processes a chat-style request and generates an AI completion.
+        Accepts a sequence of messages representing the conversation context and returns the generated response output.
       operationId: handleChat
       requestBody:
         content:
@@ -330,7 +462,13 @@ paths:
   /api/v1/projects/{projectId}/name:
     patch:
       tags:
-      - project-controller
+      - project
+      summary: Rename project
+      description: |
+        Updates the name of an existing project owned by the currently authenticated user.
+        Only the project name is modified; all other project data remains unchanged.
+        Returns the updated list of the user's projects.
+        Requires a valid session cookie to be present.
       operationId: renameProject
       parameters:
       - name: projectId
@@ -355,7 +493,10 @@ paths:
   /api/v1/users:
     get:
       tags:
-      - user-controller
+      - user
+      summary: Get users by ID list
+      description: |
+        Returns user profiles for the provided list of user IDs.
       operationId: getUsersByIds
       parameters:
       - name: userIds
@@ -378,7 +519,11 @@ paths:
   /api/v1/users/me/preferences:
     get:
       tags:
-      - user-controller
+      - user
+      summary: Get current user's preferences
+      description: |
+        Returns the preference settings for the currently authenticated user.
+        Requires a valid session cookie.
       operationId: getUserPreferences
       responses:
         "200":
@@ -390,12 +535,18 @@ paths:
   /api/v1/progress/streak:
     get:
       tags:
-      - streak-controller
+      - streak
+      summary: Get user's streak information
+      description: |
+        Returns streak information for the currently authenticated user.
+        An optional mode parameter can be used to control the streak calculation
+        (for example: daily or weekly).
       operationId: getUserStreak
       parameters:
       - name: mode
         in: query
         required: false
+        description: Optional streak calculation mode (e.g. weekly)
         schema:
           type: string
       responses:
@@ -408,7 +559,11 @@ paths:
   /api/v1/progress/courses:
     get:
       tags:
-      - course-progress-controller
+      - course-progress
+      summary: Get course progress by course IDs
+      description: |
+        Returns course progress entries for the specified course IDs for the currently authenticated user.
+        Requires a valid session cookie.
       operationId: getProgressByCourseIds
       parameters:
       - name: courseIds
@@ -431,7 +586,11 @@ paths:
   /api/v1/progress/courses/enrolled:
     get:
       tags:
-      - course-progress-controller
+      - course-progress
+      summary: Get enrolled course IDs
+      description: |
+        Returns the list of course IDs the currently authenticated user is enrolled in.
+        Requires a valid session cookie.
       operationId: getEnrolledCourseIds
       responses:
         "200":
@@ -446,7 +605,9 @@ paths:
   /api/v1/progress/coins:
     get:
       tags:
-      - user-coins-controller
+      - user-coins
+      description: |
+        Returns coin balances for the specified user IDs.
       operationId: getStatsListByUserIds
       parameters:
       - name: userIds
@@ -468,8 +629,12 @@ paths:
                   $ref: "#/components/schemas/UserCoinsResponse"
   /api/v1/features:
     get:
+      security: []
+      summary: Get feature toggle status
+      description: |
+        Returns the enabled or disabled status of all runtime feature flags.
       tags:
-      - features-controller
+      - features
       operationId: getActiveFeatures
       responses:
         "200":
@@ -481,7 +646,11 @@ paths:
   /api/v1/credits:
     get:
       tags:
-      - ai-credits-controller
+      - ai-credits
+      summary: Get AI credit balance
+      description: |
+        Returns the remaining AI credit balance for the currently authenticated user.
+        Requires a valid session cookie.
       operationId: getAiCredits
       responses:
         "200":
@@ -493,8 +662,12 @@ paths:
                 format: int32
   /api/v1/catalog/modules:
     get:
+      security: []
       tags:
-      - catalog-controller
+      - catalog
+      summary: Get modules by ID list
+      description: |
+        Returns module metadata for the provided list of module IDs.
       operationId: getModulesByIdList
       parameters:
       - name: moduleIds
@@ -517,7 +690,10 @@ paths:
   /api/v1/catalog/lessons:
     get:
       tags:
-      - catalog-controller
+      - catalog
+      summary: Get lessons by ID list
+      description: |
+        Returns lesson metadata for the provided list of lesson IDs.
       operationId: getLessonsByIdList
       parameters:
       - name: lessonIds
@@ -539,8 +715,13 @@ paths:
                   $ref: "#/components/schemas/LessonResponse"
   /api/v1/catalog/lessons/{lessonId}/exercises:
     get:
+      security: []
       tags:
-      - catalog-controller
+      - catalog
+      summary: Get exercises for lesson
+      description: |
+        Returns all exercises associated with the provided lesson id.
+        Includes exercise metadata, options, and ordering.
       operationId: getExercisesByLessonId
       parameters:
       - name: lessonId
@@ -560,8 +741,13 @@ paths:
                   $ref: "#/components/schemas/ExerciseResponse"
   /api/v1/catalog/courses:
     get:
+      security: []
       tags:
-      - catalog-controller
+      - catalog
+      summary: Get all available courses
+      description: |
+        Returns a list of all available courses in the catalog.
+        Includes basic course metadata such as ID and title.
       operationId: getAllCourses
       responses:
         "200":
@@ -574,8 +760,13 @@ paths:
                   $ref: "#/components/schemas/CourseResponse"
   /api/v1/catalog/courses/{courseId}/tree:
     get:
+      security: []
       tags:
-      - catalog-controller
+      - catalog
+      summary: Get course tree
+      description: |
+        Returns the full course structure for the specified course.
+        Includes modules and lessons in a flattened tree format suitable for rendering.
       operationId: getCourseTree
       parameters:
       - name: courseId
@@ -591,45 +782,26 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/FlatCourseTreeResponse"
-  /api/v1/auth/me:
-    get:
-      tags:
-      - auth-controller
-      operationId: getCurrentUser
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/UserResponse"
-  /api/v1/auth/demo:
-    get:
-      tags:
-      - demo-auth-controller
-      operationId: loginDemo
-      parameters:
-      - name: token
-        in: query
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/UserLoginResponse"
+
   /api/v1/users/me:
     delete:
       tags:
-      - user-controller
+      - user
+      summary: Delete current user account
+      description: |
+        Deletes the currently authenticated user's account.
+        This operation removes the user from the system and invalidates the active session.
+        Requires a valid session cookie to be present.
       operationId: deleteUser
       responses:
         "200":
           description: OK
 components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: JWT
   schemas:
     OnboardingSubmission:
       type: object
