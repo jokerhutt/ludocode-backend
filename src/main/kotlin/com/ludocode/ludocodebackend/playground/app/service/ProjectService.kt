@@ -171,7 +171,7 @@ class ProjectService(
     }
 
     @Transactional
-    internal fun renameProject (renameRequest: RenameRequest, userId: UUID) : ProjectListResponse {
+    internal fun renameProject (projectId: UUID, renameRequest: RenameRequest, userId: UUID) : ProjectListResponse {
 
         val projectId = renameRequest.targetId
         val newName = renameRequest.newName
