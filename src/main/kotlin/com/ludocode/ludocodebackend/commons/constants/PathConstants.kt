@@ -17,11 +17,4 @@ object PathConstants {
     const val DELETE_USER : String = "/delete"
     const val CHANGE_AVATAR : String = "/avatar/change"
 
-    const val PROGRESS_STREAK : String = "$PROGRESS/streak"
-    const val GET_STREAK : String = "/get"
-    const val GET_STREAK_WEEK : String = "/get/week"
-
-
-
-
 }

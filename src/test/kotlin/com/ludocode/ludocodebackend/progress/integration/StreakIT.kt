@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.progress.integration
 
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.progress.domain.entity.UserCoins
 import com.ludocode.ludocodebackend.progress.domain.entity.UserDailyGoal
@@ -126,11 +127,11 @@ class StreakIT : AbstractIntegrationTest() {
     }
 
     private fun submitGetStreak (userId: UUID): UserStreakResponse =
-        TestRestClient.getOk("${PathConstants.PROGRESS_STREAK}/get", userId, UserStreakResponse::class.java)
+        TestRestClient.getOk(ApiPaths.PROGRESS.STREAK.BASE, userId, UserStreakResponse::class.java)
 
     private fun submitGetPastStreakWeek (userId: UUID) : List<DailyGoalResponse> =
         TestRestClient
-            .getOk("${PathConstants.PROGRESS_STREAK}${PathConstants.GET_STREAK_WEEK}",
+            .getOk(ApiPaths.PROGRESS.STREAK.weekly(),
                 user1.id!!,
                 Array<DailyGoalResponse>::class.java)
             .toList()

@@ -3,8 +3,6 @@ package com.ludocode.ludocodebackend.progress.integration
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotBuilderService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROGRESS_COMPLETION
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.SUBMIT_COMPLETION
 import com.ludocode.ludocodebackend.progress.api.dto.request.AttemptToken
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseAttemptRequest
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseSubmissionRequest

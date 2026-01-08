@@ -63,6 +63,7 @@ object ApiPaths {
 
         object STREAK {
             const val BASE = "${PROGRESS.BASE}/streak"
+            fun weekly() = "$BASE?mode=weekly"
         }
 
     }
