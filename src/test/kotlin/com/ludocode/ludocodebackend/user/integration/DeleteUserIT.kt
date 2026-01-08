@@ -1,7 +1,6 @@
 package com.ludocode.ludocodebackend.user.integration
 import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.AUTH
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.DELETE_USER
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS
 import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS_FROM_IDS

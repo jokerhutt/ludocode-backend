@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.project.integration
 
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
@@ -28,7 +29,7 @@ class RunnerDisabledIT : AbstractIntegrationTest() {
             .header("X-Test-User-Id", user1.id.toString())
             .contentType(ContentType.JSON)
             .body(testRequest)
-            .`when`().post("${PathConstants.RUNNER}${PathConstants.RUN_PROJECT}")
+            .`when`().post("${ApiPaths.RUNNER.EXECUTE}")
             .then()
             .statusCode(403)
 

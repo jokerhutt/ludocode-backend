@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.playground.api.controller
 
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.constants.PathConstants
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.response.RunnerResult
@@ -15,11 +16,11 @@ import java.util.UUID
 
 @ConditionalOnProperty(prefix = "piston", name = ["enabled"], havingValue = "true")
 @RestController
-@RequestMapping(PathConstants.RUNNER)
+@RequestMapping(ApiPaths.RUNNER.BASE)
 class CodeRunnerController(private val codeRunnerService: CodeRunnerService) {
 
 
-    @PostMapping(PathConstants.RUN_PROJECT)
+    @PostMapping(ApiPaths.RUNNER.EXECUTE)
     fun runProject (@RequestBody request: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<RunnerResult> {
         return ResponseEntity.ok(codeRunnerService.runCode(request))
     }
