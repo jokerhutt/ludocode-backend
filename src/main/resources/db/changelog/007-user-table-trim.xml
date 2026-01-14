@@ -9,9 +9,10 @@
     <changeSet id="007-01-profile-nullability-cleanup" author="dave" dbms="postgresql">
         <sql>
             ALTER TABLE ludo_user
-                ALTER COLUMN first_name DROP NOT NULL,
-                ALTER COLUMN last_name DROP NOT NULL,
-                DROP COLUMN pfp_src;
+                DROP COLUMN first_name,
+                DROP COLUMN last_name,
+                DROP COLUMN pfp_src,
+                ADD COLUMN display_name VARCHAR(100);
         </sql>
     </changeSet>
 
