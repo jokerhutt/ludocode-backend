@@ -2,7 +2,7 @@ package com.ludocode.ludocodebackend.catalog.integration
 
 import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTreeResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatModule
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.user.domain.entity.User
@@ -30,7 +30,7 @@ class CourseTreeIT : AbstractIntegrationTest() {
     }
 
     private fun submitGetCourseTree (courseId: UUID, userId: UUID): FlatCourseTreeResponse =
-        TestRestClient.getOk("${PathConstants.CATALOG}/courses/$courseId/tree", userId, FlatCourseTreeResponse::class.java)
+        TestRestClient.getOk(ApiPaths.CATALOG.courseTree(courseId), userId, FlatCourseTreeResponse::class.java)
 
 
 }

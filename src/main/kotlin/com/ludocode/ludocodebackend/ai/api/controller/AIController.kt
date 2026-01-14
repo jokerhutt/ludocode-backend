@@ -2,7 +2,7 @@ package com.ludocode.ludocodebackend.ai.api.controller
 
 import com.ludocode.ludocodebackend.ai.api.dto.request.ChatRequestBody
 import com.ludocode.ludocodebackend.ai.app.service.AIService
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.MediaType
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -15,11 +15,11 @@ import java.util.UUID
 
 @ConditionalOnProperty(prefix = "ai", name = ["enabled"], havingValue = "true")
 @RestController
-@RequestMapping(PathConstants.AI)
+@RequestMapping(ApiPaths.AI.BASE)
 class AIController(private val aIService: AIService) {
 
     @PostMapping(
-        value = [PathConstants.AI_SEND_PROMPT],
+        value = [ApiPaths.AI.COMPLETIONS],
         produces = [MediaType.TEXT_PLAIN_VALUE]
     )
     fun handleChat(

@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus
 enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
 
     BAD_REQ(HttpStatus.BAD_REQUEST, "Bad Request"),
+    EMAIL_IN_USE(HttpStatus.CONFLICT, "Email is already in use"),
 
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found"),
     TREE_NOT_FOUND(HttpStatus.NOT_FOUND, "Tree not found"),

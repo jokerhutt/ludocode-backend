@@ -64,9 +64,7 @@ class UserService(
         var newUser = userRepository.save(
             User(
                 email = req.email ?: "",
-                firstName = req.firstName ?: "",
-                lastName = req.lastName ?: "",
-                pfpSrc = "",
+                displayName = req.displayName,
                 avatarIndex = assignedAvatar.index,
                 avatarVersion = assignedAvatar.version,
                 createdAt = OffsetDateTime.now(clock)

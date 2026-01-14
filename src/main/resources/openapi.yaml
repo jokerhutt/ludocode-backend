@@ -1,0 +1,1518 @@
+openapi: 3.1.0
+info:
+  title: OpenAPI definition
+  version: v0
+
+security:
+  - sessionAuth: []
+
+paths:
+  /api/v1/auth/logout:
+    post:
+      tags:
+        - auth
+      summary: Log out the current user
+      description: |
+        Logs out the currently authenticated user by expiring the session cookie.
+        After this request, the user is no longer authenticated.
+      operationId: logout
+      responses:
+        "200":
+          description: Successfully logged out
+          content: {}
+  /api/v1/auth/firebase:
+    post:
+      security: []
+      tags:
+        - auth
+      summary: Authenticate user using Firebase
+      description: |
+        Authenticate a user using a Firebase ID token.
+        If the user does not exist, a new account is created.
+        On success, a session cookie is set and the authenticated user is returned.
+      operationId: loginWithFirebase
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Firebase ID token in the form `Bearer <token>`
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully autenticated
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserLoginResponse"
+  /api/v1/auth/me:
+    get:
+      tags:
+        - auth
+      summary: Get current authenticated user
+      description: |
+        Returns the currently authenticated user associated with the active session.
+        Requires a valid session cookie to be present.
+      operationId: getCurrentUser
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+  /api/v1/auth/demo:
+    get:
+      security: []
+      tags:
+        - auth
+      summary: Authenticate user using demo account token
+      description: |
+        Authenticates a user using a demo access token.
+        If the demo user does not exist, a new demo account is created.
+        On success, a session cookie is set and the authenticated user is returned.
+      operationId: loginDemo
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserLoginResponse"
+
+  /api/v1/users/me/onboarding:
+    put:
+      tags:
+      - user
+      summary: Complete user onboarding
+      description: |
+        Completes the onboarding flow for the currently authenticated user.
+        Stores the user's selected learning path + preferences and initializes their course progress.
+        Returns the updated user profile and onboarding state.
+      operationId: submitOnboarding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OnboardingSubmission"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OnboardingResponse"
+  /api/v1/users/me/avatar:
+    put:
+      tags:
+      - user
+      summary: Update user avatar
+      description: |
+        Updates the avatar configuration for the currently authenticated user.
+        Stores the selected avatar version and index.
+        Returns the updated user profile.
+      operationId: changeUserAvatar
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AvatarInfo"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+  /api/v1/snapshots/{courseId}:
+    get:
+      security: []
+      tags:
+      - catalog-snapshot
+      summary: Get course snapshot for the selected course id
+      description: |
+        Returns a snapshot of the course structure for the specified course.
+        Includes modules, lessons, exercises, and exercise options in a nested object.
+        Intended for catalog modification & admin use.
+      operationId: getSnapshotsByCourseId
+      parameters:
+      - name: courseId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CourseSnap"
+    put:
+      tags:
+      - catalog-snapshot
+      summary: Submit course snapshot for the selected course id
+      description: |
+        Applies a course snapshot to the specified course.
+        This operation replaces the existing course structure with the provided snapshot, including modules, lessons, exercises, and ordering.
+        Intended for catalog modification & admin use.
+        Returns the persisted course snapshot after the update.
+      operationId: applyCourseSnapshot
+      parameters:
+      - name: courseId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseSnap"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CourseSnap"
+  /api/v1/projects/{projectId}:
+    get:
+      tags:
+      - project
+      summary: Get project for the selected project id
+      description: |
+        Returns the project associated with the specified project id.
+        The project includes its metadata and all associated files.
+        Requires an authenticated user session and ownership of the project.
+      operationId: getProject
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectSnapshot"
+    put:
+      tags:
+      - project
+      summary: Save project for the selected project id
+      description: |
+        Applies a project snapshot to the specified project.
+        This operation replaces the existing files & contents of the project with the provided snapshot.
+        Returns the persisted project snapshot after the update.
+        Requires an authenticated user session and ownership of the project.
+      operationId: saveProject
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectSnapshot"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectSnapshot"
+    delete:
+      tags:
+      - project
+      summary: Delete project for the selected project id
+      description: |
+        Deletes metadata and associated content for the specified project.
+        Returns a list of the user's remaining projects after the delete operation.
+        Requires an authenticated user session and ownership of the project
+      operationId: deleteProject
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectListResponse"
+  /api/v1/progress/courses/current:
+    get:
+      tags:
+      - course-progress
+      summary: Get current active course
+      description: |
+        Returns the course id of the currently active course for the authenticated user.
+        Requires a valid session cookie to be present.
+      operationId: getCurrentCourseId
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: uuid
+    put:
+      tags:
+      - course-progress
+      summary: Change active course
+      description: |
+        Updates the active course for the authenticated user.
+        Returns the course progress for the newly selected course.
+        Requires a valid session cookie to be present.
+      operationId: updateCurrentCourse
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangeCourseRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CourseProgressResponseWithEnrolled"
+  /api/v1/snapshots/course:
+    post:
+      security: []
+      tags:
+      - catalog-snapshot
+      summary: Create course
+      description: |
+        Creates a new course with the provided title.
+        Initializes the course with a default module, lesson, and exercise.
+        Returns metadata for the newly created course.
+      operationId: createCourse
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCourseRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CourseResponse"
+  /api/v1/runner/executions:
+    post:
+      tags:
+      - runner
+      summary: Execute project code
+      description: |
+        Executes the code contained in the provided project snapshot.
+        Runs the project in an isolated execution environment.
+        Returns the program's standard output, standard error, and exit code.
+      operationId: runProject
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectSnapshot"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RunnerResult"
+  /api/v1/projects:
+    get:
+      tags:
+      - project
+      summary: Get user's projects
+      description: |
+        Returns all projects owned by the currently authenticated user.
+        Requires a valid session cookie to be present.
+      operationId: getUserProjects
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectListResponse"
+    post:
+      tags:
+      - project
+      summary: Create new project
+      description: |
+        Creates a new project for the currently authenticated user.
+        Returns the updated list of the user's projects including the newly created project.
+        Requires a valid session cookie to be present.
+      operationId: createProject
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProjectRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectListResponse"
+  /api/v1/progress/courses/{courseId}/reset:
+    post:
+      tags:
+      - course-progress
+      summary: Reset course progress
+      description: |
+        Resets the course progress for the specified course
+        for the currently authenticated user.
+        Returns the reset course progress state.
+        Requires a valid session cookie to be present.
+      operationId: resetUserCourseProgress
+      parameters:
+      - name: courseId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CourseProgressResponse"
+  /api/v1/progress/completion:
+    post:
+      tags:
+      - lesson-completion
+      summary: Submit lesson completion
+      description: |
+        Submits the completion result for a lesson for the currently authenticated user.
+        Evaluates the submitted exercise attempts, updates lesson and course progress,
+        and applies rewards such as coins and streak updates.
+        Returns the lesson completion result and updated progress state.
+        Requires a valid session cookie to be present.
+      operationId: submitLessonCompletion
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LessonSubmissionRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/LessonCompletionPacket"
+
+  /api/v1/ai/completions:
+    post:
+      security: []
+      tags:
+      - ai
+      summary: Generate AI completion
+      description: |
+        Processes a chat-style request and generates an AI completion.
+        Accepts a sequence of messages representing the conversation context and returns the generated response output.
+      operationId: handleChat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequestBody"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/v1/projects/{projectId}/name:
+    patch:
+      tags:
+      - project
+      summary: Rename project
+      description: |
+        Updates the name of an existing project owned by the currently authenticated user.
+        Only the project name is modified; all other project data remains unchanged.
+        Returns the updated list of the user's projects.
+        Requires a valid session cookie to be present.
+      operationId: renameProject
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RenameRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProjectListResponse"
+  /api/v1/users:
+    get:
+      tags:
+      - user
+      summary: Get users by ID list
+      description: |
+        Returns user profiles for the provided list of user IDs.
+      operationId: getUsersByIds
+      parameters:
+      - name: userIds
+        in: query
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserResponse"
+  /api/v1/users/me/preferences:
+    get:
+      tags:
+      - user
+      summary: Get current user's preferences
+      description: |
+        Returns the preference settings for the currently authenticated user.
+        Requires a valid session cookie.
+      operationId: getUserPreferences
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserPreferences"
+  /api/v1/progress/streak:
+    get:
+      tags:
+      - streak
+      summary: Get user's streak information
+      description: |
+        Returns streak information for the currently authenticated user.
+        An optional mode parameter can be used to control the streak calculation
+        (for example: daily or weekly).
+      operationId: getUserStreak
+      parameters:
+      - name: mode
+        in: query
+        required: false
+        description: Optional streak calculation mode (e.g. weekly)
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/v1/progress/courses:
+    get:
+      tags:
+      - course-progress
+      summary: Get course progress by course IDs
+      description: |
+        Returns course progress entries for the specified course IDs for the currently authenticated user.
+        Requires a valid session cookie.
+      operationId: getProgressByCourseIds
+      parameters:
+      - name: courseIds
+        in: query
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CourseProgressResponse"
+  /api/v1/progress/courses/enrolled:
+    get:
+      tags:
+      - course-progress
+      summary: Get enrolled course IDs
+      description: |
+        Returns the list of course IDs the currently authenticated user is enrolled in.
+        Requires a valid session cookie.
+      operationId: getEnrolledCourseIds
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: uuid
+  /api/v1/progress/coins:
+    get:
+      tags:
+      - user-coins
+      description: |
+        Returns coin balances for the specified user IDs.
+      operationId: getStatsListByUserIds
+      parameters:
+      - name: userIds
+        in: query
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserCoinsResponse"
+  /api/v1/features:
+    get:
+      security: []
+      summary: Get feature toggle status
+      description: |
+        Returns the enabled or disabled status of all runtime feature flags.
+      tags:
+      - features
+      operationId: getActiveFeatures
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ActiveFeaturesResponse"
+  /api/v1/credits:
+    get:
+      tags:
+      - ai-credits
+      summary: Get AI credit balance
+      description: |
+        Returns the remaining AI credit balance for the currently authenticated user.
+        Requires a valid session cookie.
+      operationId: getAiCredits
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int32
+  /api/v1/catalog/modules:
+    get:
+      security: []
+      tags:
+      - catalog
+      summary: Get modules by ID list
+      description: |
+        Returns module metadata for the provided list of module IDs.
+      operationId: getModulesByIdList
+      parameters:
+      - name: moduleIds
+        in: query
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ModuleResponse"
+  /api/v1/catalog/lessons:
+    get:
+      tags:
+      - catalog
+      summary: Get lessons by ID list
+      description: |
+        Returns lesson metadata for the provided list of lesson IDs.
+      operationId: getLessonsByIdList
+      parameters:
+      - name: lessonIds
+        in: query
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LessonResponse"
+  /api/v1/catalog/lessons/{lessonId}/exercises:
+    get:
+      security: []
+      tags:
+      - catalog
+      summary: Get exercises for lesson
+      description: |
+        Returns all exercises associated with the provided lesson id.
+        Includes exercise metadata, options, and ordering.
+      operationId: getExercisesByLessonId
+      parameters:
+      - name: lessonId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ExerciseResponse"
+  /api/v1/catalog/courses:
+    get:
+      security: []
+      tags:
+      - catalog
+      summary: Get all available courses
+      description: |
+        Returns a list of all available courses in the catalog.
+        Includes basic course metadata such as ID and title.
+      operationId: getAllCourses
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CourseResponse"
+  /api/v1/catalog/courses/{courseId}/tree:
+    get:
+      security: []
+      tags:
+      - catalog
+      summary: Get course tree
+      description: |
+        Returns the full course structure for the specified course.
+        Includes modules and lessons in a flattened tree format suitable for rendering.
+      operationId: getCourseTree
+      parameters:
+      - name: courseId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/FlatCourseTreeResponse"
+
+  /api/v1/users/me:
+    delete:
+      tags:
+      - user
+      summary: Delete current user account
+      description: |
+        Deletes the currently authenticated user's account.
+        This operation removes the user from the system and invalidates the active session.
+        Requires a valid session cookie to be present.
+      operationId: deleteUser
+      responses:
+        "200":
+          description: OK
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: JWT
+  schemas:
+    OnboardingSubmission:
+      type: object
+      properties:
+        chosenPath:
+          type: string
+          enum:
+          - DATA
+          - IOS
+        chosenCourse:
+          type: string
+          format: uuid
+        hasProgrammingExperience:
+          type: boolean
+      required:
+      - chosenCourse
+      - chosenPath
+      - hasProgrammingExperience
+    CourseProgressResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        courseId:
+          type: string
+          format: uuid
+        currentLessonId:
+          type: string
+          format: uuid
+        moduleId:
+          type: string
+          format: uuid
+        id:
+          type: string
+          format: uuid
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+      - courseId
+      - currentLessonId
+      - id
+      - moduleId
+      - updatedAt
+      - userId
+    CourseProgressResponseWithEnrolled:
+      type: object
+      properties:
+        courseProgress:
+          $ref: "#/components/schemas/CourseProgressResponse"
+        enrolled:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - courseProgress
+      - enrolled
+    OnboardingResponse:
+      type: object
+      properties:
+        refreshedUser:
+          $ref: "#/components/schemas/UserResponse"
+        preferences:
+          $ref: "#/components/schemas/UserPreferences"
+        courseProgressResponse:
+          $ref: "#/components/schemas/CourseProgressResponseWithEnrolled"
+      required:
+      - courseProgressResponse
+      - preferences
+      - refreshedUser
+    UserPreferences:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        hasExperience:
+          type: boolean
+        chosenPath:
+          type: string
+          enum:
+          - DATA
+          - IOS
+      required:
+      - chosenPath
+      - hasExperience
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        avatarVersion:
+          type: string
+        avatarIndex:
+          type: integer
+          format: int32
+        email:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        hasOnboarded:
+          type: boolean
+      required:
+      - avatarIndex
+      - avatarVersion
+      - createdAt
+      - email
+      - firstName
+      - hasOnboarded
+      - id
+      - lastName
+    AvatarInfo:
+      type: object
+      properties:
+        version:
+          type: string
+        index:
+          type: integer
+          format: int32
+      required:
+      - index
+      - version
+    CourseSnap:
+      type: object
+      properties:
+        courseId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        modules:
+          type: array
+          items:
+            $ref: "#/components/schemas/ModuleSnap"
+      required:
+      - courseId
+      - modules
+      - title
+    ExerciseSnap:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        subtitle:
+          type: string
+        prompt:
+          type: string
+        media:
+          type: string
+        exerciseType:
+          type: string
+          enum:
+          - CLOZE
+          - ANALYZE
+          - TRIVIA
+          - INFO
+        correctOptions:
+          type: array
+          items:
+            $ref: "#/components/schemas/OptionSnap"
+        distractors:
+          type: array
+          items:
+            $ref: "#/components/schemas/OptionSnap"
+      required:
+      - correctOptions
+      - distractors
+      - exerciseType
+      - id
+      - title
+    LessonSnap:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        orderIndex:
+          type: integer
+          format: int32
+        exercises:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExerciseSnap"
+      required:
+      - exercises
+      - id
+      - orderIndex
+      - title
+    ModuleSnap:
+      type: object
+      properties:
+        moduleId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        lessons:
+          type: array
+          items:
+            $ref: "#/components/schemas/LessonSnap"
+      required:
+      - lessons
+      - moduleId
+      - title
+    OptionSnap:
+      type: object
+      properties:
+        content:
+          type: string
+        answerOrder:
+          type: integer
+          format: int32
+        exerciseOptionId:
+          type: string
+          format: uuid
+      required:
+      - content
+      - exerciseOptionId
+    ProjectFileSnapshot:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        path:
+          type: string
+        language:
+          type: string
+          enum:
+          - python
+          - javascript
+          - lua
+        content:
+          type: string
+      required:
+      - content
+      - language
+      - path
+    ProjectSnapshot:
+      type: object
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        projectName:
+          type: string
+        projectLanguage:
+          type: string
+          enum:
+          - python
+          - javascript
+          - lua
+        updatedAt:
+          type: string
+          format: date-time
+        files:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProjectFileSnapshot"
+      required:
+      - files
+      - projectId
+      - projectLanguage
+      - projectName
+    ChangeCourseRequest:
+      type: object
+      properties:
+        newCourseId:
+          type: string
+          format: uuid
+      required:
+      - newCourseId
+    CreateCourseRequest:
+      type: object
+      properties:
+        courseTitle:
+          type: string
+        requestHash:
+          type: string
+          format: uuid
+      required:
+      - courseTitle
+      - requestHash
+    CourseResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+      required:
+      - id
+      - title
+    RunnerResult:
+      type: object
+      properties:
+        stdout:
+          type: string
+        stderr:
+          type: string
+        exitCode:
+          type: integer
+          format: int32
+      required:
+      - exitCode
+      - stderr
+      - stdout
+    CreateProjectRequest:
+      type: object
+      properties:
+        projectName:
+          type: string
+        projectLanguage:
+          type: string
+          enum:
+          - python
+          - javascript
+          - lua
+        requestHash:
+          type: string
+          format: uuid
+      required:
+      - projectLanguage
+      - projectName
+      - requestHash
+    ProjectListResponse:
+      type: object
+      properties:
+        projects:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProjectSnapshot"
+      required:
+      - projects
+    AttemptToken:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        value:
+          type: string
+      required:
+      - id
+      - value
+    ExerciseAttemptRequest:
+      type: object
+      properties:
+        exerciseId:
+          type: string
+          format: uuid
+        isCorrect:
+          type: boolean
+        answer:
+          type: array
+          items:
+            $ref: "#/components/schemas/AttemptToken"
+      required:
+      - answer
+      - exerciseId
+      - isCorrect
+    ExerciseSubmissionRequest:
+      type: object
+      properties:
+        exerciseId:
+          type: string
+          format: uuid
+        attempts:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExerciseAttemptRequest"
+        version:
+          type: integer
+          format: int32
+      required:
+      - attempts
+      - exerciseId
+      - version
+    LessonSubmissionRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        lessonId:
+          type: string
+          format: uuid
+        submissions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExerciseSubmissionRequest"
+      required:
+      - id
+      - lessonId
+      - submissions
+    LessonCompletionPacket:
+      type: object
+      properties:
+        content:
+          $ref: "#/components/schemas/LessonCompletionResponse"
+        status:
+          type: string
+          enum:
+          - OK
+          - COURSE_COMPLETE
+          - DUPLICATE
+      required:
+      - status
+    LessonCompletionResponse:
+      type: object
+      properties:
+        newCoins:
+          $ref: "#/components/schemas/UserCoinsResponse"
+        newStreak:
+          $ref: "#/components/schemas/UserStreakResponse"
+        newCourseProgress:
+          $ref: "#/components/schemas/CourseProgressResponse"
+        updatedCompletedLesson:
+          $ref: "#/components/schemas/LessonResponse"
+        accuracy:
+          type: number
+      required:
+      - accuracy
+      - newCoins
+      - newCourseProgress
+      - newStreak
+      - updatedCompletedLesson
+    LessonResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        orderIndex:
+          type: integer
+          format: int32
+        isCompleted:
+          type: boolean
+        completed:
+          type: boolean
+          writeOnly: true
+      required:
+      - id
+      - isCompleted
+      - orderIndex
+      - title
+    UserCoinsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        coins:
+          type: integer
+          format: int32
+      required:
+      - coins
+      - id
+    UserStreakResponse:
+      type: object
+      properties:
+        current:
+          type: integer
+          format: int32
+        best:
+          type: integer
+          format: int32
+        lastMet:
+          type: string
+          format: date
+      required:
+      - best
+      - current
+    UserLoginResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/UserResponse"
+        userStats:
+          $ref: "#/components/schemas/UserCoinsResponse"
+        userStreak:
+          $ref: "#/components/schemas/UserStreakResponse"
+      required:
+      - user
+      - userStats
+      - userStreak
+    ChatRequestBody:
+      type: object
+      properties:
+        id:
+          type: string
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/UIMessageRequest"
+      required:
+      - id
+      - messages
+    UIMessagePart:
+      type: object
+      properties:
+        type:
+          type: string
+        text:
+          type: string
+      required:
+      - type
+    UIMessageRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        role:
+          type: string
+          enum:
+          - system
+          - user
+          - assistant
+        parts:
+          type: array
+          items:
+            $ref: "#/components/schemas/UIMessagePart"
+        metadata:
+          $ref: "#/components/schemas/UIMessageRequestMetadata"
+      required:
+      - id
+      - parts
+      - role
+    UIMessageRequestMetadata:
+      type: object
+      properties:
+        chatType:
+          type: string
+          enum:
+          - LESSON
+          - PROJECT
+          - DEFAULT
+        targetId:
+          type: string
+          format: uuid
+      required:
+      - chatType
+    RenameRequest:
+      type: object
+      properties:
+        targetId:
+          type: string
+          format: uuid
+        newName:
+          type: string
+      required:
+      - newName
+      - targetId
+    ActiveFeaturesResponse:
+      type: object
+      properties:
+        isAIEnabled:
+          type: boolean
+        isGcsEnabled:
+          type: boolean
+        isPistonEnabled:
+          type: boolean
+        isDemoEnabled:
+          type: boolean
+        isAdminEnabled:
+          type: boolean
+      required:
+      - isAIEnabled
+      - isAdminEnabled
+      - isDemoEnabled
+      - isGcsEnabled
+      - isPistonEnabled
+    ModuleResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        courseId:
+          type: string
+          format: uuid
+        orderIndex:
+          type: integer
+          format: int32
+      required:
+      - courseId
+      - id
+      - orderIndex
+      - title
+    ExerciseOptionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        content:
+          type: string
+        answerOrder:
+          type: integer
+          format: int32
+        exerciseVersion:
+          type: integer
+          format: int32
+      required:
+      - content
+      - exerciseVersion
+      - id
+    ExerciseResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        subtitle:
+          type: string
+        prompt:
+          type: string
+        exerciseType:
+          type: string
+          enum:
+          - CLOZE
+          - ANALYZE
+          - TRIVIA
+          - INFO
+        exerciseMedia:
+          type: string
+        lessonId:
+          type: string
+          format: uuid
+        correctOptions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExerciseOptionResponse"
+        distractors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExerciseOptionResponse"
+        version:
+          type: integer
+          format: int32
+        orderIndex:
+          type: integer
+          format: int32
+      required:
+      - correctOptions
+      - distractors
+      - exerciseType
+      - id
+      - lessonId
+      - orderIndex
+      - title
+      - version
+    FlatCourseTreeResponse:
+      type: object
+      properties:
+        courseId:
+          type: string
+          format: uuid
+        modules:
+          type: array
+          items:
+            $ref: "#/components/schemas/FlatModule"
+      required:
+      - courseId
+      - modules
+    FlatLesson:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        orderIndex:
+          type: integer
+          format: int32
+      required:
+      - id
+      - orderIndex
+    FlatModule:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        orderIndex:
+          type: integer
+          format: int32
+        lessons:
+          type: array
+          items:
+            $ref: "#/components/schemas/FlatLesson"
+      required:
+      - id
+      - lessons
+      - orderIndex

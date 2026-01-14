@@ -25,14 +25,8 @@ class User (
     @Column(name = "id", nullable = false, updatable = false)
     var id: UUID = UUID.randomUUID(),
 
-    @Column(name = "first_name", nullable = false)
-    var firstName: String,
-
-    @Column(name = "last_name", nullable = false)
-    var lastName: String,
-
-    @Column(name = "pfp_src")
-    var pfpSrc: String? = null,
+    @Column(name = "display_name")
+    var displayName: String? = null,
 
     @Column(name = "avatar_version")
     var avatarVersion: String = "v1",

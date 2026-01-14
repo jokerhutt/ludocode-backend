@@ -2,7 +2,7 @@ package com.ludocode.ludocodebackend.auth.integration.demo
 
 import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured
 import org.assertj.core.api.Assertions
@@ -29,15 +29,14 @@ class DemoAuthIT : AbstractIntegrationTest() {
         val res = submitGetDemoUser(demoToken)
         Assertions.assertThat(res).isNotNull()
         Assertions.assertThat(res.user.id).isEqualTo(id)
-        Assertions.assertThat(res.user.firstName).isEqualTo(demoUser1.firstName)
-        Assertions.assertThat(res.user.lastName).isEqualTo(demoUser1.lastName)
+        Assertions.assertThat(res.user.displayName).isEqualTo(demoUser1.displayName)
     }
 
     private fun submitGetDemoUser(token: String): UserLoginResponse {
         return RestAssured.given()
             .queryParam("token", token)
             .`when`()
-            .get("${PathConstants.AUTH}${PathConstants.DEMO_LOGIN}")
+            .get("${ApiPaths.AUTH.BASE}${ApiPaths.AUTH.DEMO}")
             .then()
             .statusCode(200)
             .extract()

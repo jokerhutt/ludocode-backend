@@ -2,8 +2,7 @@ package com.ludocode.ludocodebackend.progress.integration
 
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotBuilderService
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.PROGRESS_COMPLETION
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.SUBMIT_COMPLETION
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.progress.api.dto.request.AttemptToken
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseAttemptRequest
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseSubmissionRequest
@@ -300,7 +299,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
     }
 
     private fun submitPostForLessonSubmission(userId: UUID, submission: LessonSubmissionRequest): LessonCompletionPacket =
-        TestRestClient.postOk("$PROGRESS_COMPLETION$SUBMIT_COMPLETION", userId, submission, LessonCompletionPacket::class.java)
+        TestRestClient.postOk(ApiPaths.PROGRESS.COMPLETION.BASE, userId, submission, LessonCompletionPacket::class.java)
 
 }
 

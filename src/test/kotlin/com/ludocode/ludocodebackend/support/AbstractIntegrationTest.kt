@@ -21,7 +21,7 @@ import com.ludocode.ludocodebackend.catalog.infra.repository.*
 import com.ludocode.ludocodebackend.config.time.TestClockConfig
 import com.ludocode.ludocodebackend.config.GcpTestConfig
 import com.ludocode.ludocodebackend.config.GeminiTestConfig
-import com.ludocode.ludocodebackend.config.GoogleOAuthTestConfig
+import com.ludocode.ludocodebackend.config.FirebaseAuthTestConfig
 import com.ludocode.ludocodebackend.config.MockOauthConstants
 import com.ludocode.ludocodebackend.config.security.TestSecurityConfig
 import com.ludocode.ludocodebackend.config.time.MutableClock
@@ -61,7 +61,7 @@ import java.util.UUID
 @ActiveProfiles("test")
 @Import(
     TestSecurityConfig::class, TestClockConfig::class, GcpTestConfig::class, GeminiTestConfig::class,
-    GoogleOAuthTestConfig::class, GcpTestConfig::class)
+    FirebaseAuthTestConfig::class, GcpTestConfig::class)
 abstract class AbstractIntegrationTest {
 
 
@@ -208,7 +208,7 @@ abstract class AbstractIntegrationTest {
 
         // 2) Upsert courses, modules, lessons, exercises
         snaps.forEach { cs ->
-            courseRepository.save(Course(id = cs.courseId, title = cs.title /* or from elsewhere */))
+            courseRepository.save(Course(id = cs.courseId, title = cs.title))
 
             cs.modules.forEachIndexed { mIdx, ms ->
                 moduleRepository.save(
@@ -244,7 +244,7 @@ abstract class AbstractIntegrationTest {
                                 title = ex.title,
                                 subtitle = ex.subtitle,
                                 prompt = ex.prompt,
-                                exerciseMedia = ex.media,             // if your entity supports it
+                                exerciseMedia = ex.media,
                                 exerciseType = ex.exerciseType,
                                 isDeleted = false
                             )
@@ -297,17 +297,17 @@ abstract class AbstractIntegrationTest {
 
     protected fun initializeUsers () {
         user1 = userRepository.save(
-            User(firstName = "John", lastName = "Doe", pfpSrc = "Test", createdAt = OffsetDateTime.now(clock), email = "email@google.com"))
+            User(displayName = "John Doe", createdAt = OffsetDateTime.now(clock), email = "email@google.com"))
         user2 = userRepository.save(
-            User(firstName = "Micheal", lastName = "Scott", pfpSrc = "Test", createdAt = OffsetDateTime.now(clock), email = "mscott@google.com"))
+            User(displayName = "Micheal Scott", createdAt = OffsetDateTime.now(clock), email = "mscott@google.com"))
 
         demoUser1 = userRepository.save(
-            User(id= UUID.fromString("47ad6daf-2433-4e76-b9c1-305614c5c033"), firstName = "Demo", lastName = "User", pfpSrc = "Test", email = "demoUser", createdAt = OffsetDateTime.now(clock))
+            User(id= UUID.fromString("47ad6daf-2433-4e76-b9c1-305614c5c033"), displayName = "Demo User", email = "demoUser", createdAt = OffsetDateTime.now(clock))
         )
 
         externalAccountRepository.save(ExternalAccount(
             userId = user1.id!!,
-            provider = AuthProvider.GOOGLE,
+            provider = AuthProvider.FIREBASE,
             providerUserId = MockOauthConstants.USER_1_GOOGLE_SUB,
             createdAt = Instant.from(OffsetDateTime.now(clock))
         ))
@@ -324,10 +324,7 @@ abstract class AbstractIntegrationTest {
 
     @Transactional
     fun initializeCatalog() {
-        // ---- IDs
 
-
-        // ---- Exercises (default version handled inside importSnapshots)
         val ex1 = ExerciseSnap(
             id = UUID.randomUUID(),
             title = "Complete the expression",

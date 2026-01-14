@@ -1,10 +1,6 @@
 package com.ludocode.ludocodebackend.user.integration
 import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.AUTH
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.DELETE_USER
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.GOOGLE_LOGIN
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS
-import com.ludocode.ludocodebackend.commons.constants.PathConstants.USERS_FROM_IDS
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
@@ -36,14 +32,13 @@ class DeleteUserIT : AbstractIntegrationTest() {
 
             val originalGoogleSub = originalExternalAccount.providerUserId
 
-            TestRestClient.postNoContent(
-                "$USERS$DELETE_USER",
+            TestRestClient.deleteNoContent(
+                "${ApiPaths.USERS.BASE}${ApiPaths.USERS.ME}",
                 originalUserId,
-                null
             )
 
             val users = TestRestClient.getOk(
-                "$USERS$USERS_FROM_IDS?userIds=${originalUserId}",
+                ApiPaths.USERS.fromIds(listOf(originalUserId)),
                 originalUserId,
                 Array<UserResponse>::class.java
             )
@@ -55,9 +50,9 @@ class DeleteUserIT : AbstractIntegrationTest() {
             val loginResponse =
                 given()
                     .contentType(ContentType.JSON)
-                    .body(mapOf("code" to "dummy-code"))
+                    .header("Authorization", "Bearer fake-firebase-token")
                     .`when`()
-                    .post("$AUTH$GOOGLE_LOGIN")
+                    .post("${ApiPaths.AUTH.BASE}${ApiPaths.AUTH.FIREBASE}")
                     .then()
                     .statusCode(200)
                     .extract()
@@ -71,7 +66,7 @@ class DeleteUserIT : AbstractIntegrationTest() {
             assert(!newUser.isDeleted)
 
             val newUsers = TestRestClient.getOk(
-                "$USERS$USERS_FROM_IDS?userIds=${newUserId}",
+                ApiPaths.USERS.fromIds(listOf(newUserId)),
                 newUserId,
                 Array<UserResponse>::class.java
             )
@@ -81,7 +76,7 @@ class DeleteUserIT : AbstractIntegrationTest() {
             val newExternalAccount =
                 externalAccountRepository.findByUserId(newUserId)!!
 
-            assertThat(newExternalAccount.provider).isEqualTo(AuthProvider.GOOGLE)
+            assertThat(newExternalAccount.provider).isEqualTo(AuthProvider.FIREBASE)
             assertThat(newExternalAccount.providerUserId).isEqualTo(originalGoogleSub)
 
 
@@ -94,7 +89,7 @@ class DeleteUserIT : AbstractIntegrationTest() {
         submitPostDeleteUser(userToDelete.id!!)
 
         val users = TestRestClient.getOk(
-            "$USERS$USERS_FROM_IDS?userIds=${userToDelete.id}",
+            ApiPaths.USERS.fromIds(listOf(userToDelete.id)),
             userToDelete.id!!,
             Array<UserResponse>::class.java
         )
@@ -104,7 +99,7 @@ class DeleteUserIT : AbstractIntegrationTest() {
     }
 
     private fun submitPostDeleteUser(userId: UUID) =
-        TestRestClient.postNoContent("$USERS$DELETE_USER", userId, null)
+        TestRestClient.deleteNoContent("${ApiPaths.USERS.BASE}${ApiPaths.USERS.ME}", userId)
 
 
 }

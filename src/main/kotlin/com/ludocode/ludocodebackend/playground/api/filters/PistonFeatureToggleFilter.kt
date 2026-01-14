@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.playground.api.filters
 
-import com.ludocode.ludocodebackend.commons.constants.PathConstants
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.playground.config.PistonFeatureConfig
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -14,7 +14,7 @@ class PistonFeatureToggleFilter(
 ) : OncePerRequestFilter() {
 
     override fun doFilterInternal(req: HttpServletRequest, res: HttpServletResponse, chain: FilterChain) {
-        if (!req.requestURI.startsWith("${PathConstants.RUNNER}")) {
+        if (!req.requestURI.startsWith(ApiPaths.RUNNER.BASE)) {
             chain.doFilter(req, res)
             return
         }

@@ -32,6 +32,81 @@ object TestRestClient {
             .`as`(responseType)
     }
 
+    fun <T : Any?> patchOk(
+        url: String,
+        userId: UUID,
+        body: Any?,
+        responseType: Class<T>,
+    ): T {
+
+        val req = given()
+            .header("X-Test-User-Id", userId.toString())
+            .contentType(ContentType.JSON)
+
+        if (body != null) {
+            req.body(body)
+        }
+
+        return req.`when`()
+            .patch(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .`as`(responseType)
+    }
+
+    fun <T : Any?> deleteOk(
+        url: String,
+        userId: UUID,
+        responseType: Class<T>,
+    ): T {
+
+        return given()
+            .header("X-Test-User-Id", userId.toString())
+            .contentType(ContentType.JSON)
+            .`when`()
+            .delete(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .`as`(responseType)
+    }
+
+    fun <T : Any?> putOk(
+        url: String,
+        userId: UUID,
+        body: Any?,
+        responseType: Class<T>,
+    ): T {
+
+        val req = given()
+            .header("X-Test-User-Id", userId.toString())
+            .contentType(ContentType.JSON)
+
+        if (body != null) {
+            req.body(body)
+        }
+
+        return req.`when`()
+            .put(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .`as`(responseType)
+    }
+
+    fun deleteNoContent(
+        url: String,
+        userId: UUID,
+    ) {
+        given()
+            .header("X-Test-User-Id", userId.toString())
+            .`when`()
+            .delete(url)
+            .then()
+            .statusCode(204)
+    }
+
     fun postNoContent(
         url: String,
         userId: UUID,
