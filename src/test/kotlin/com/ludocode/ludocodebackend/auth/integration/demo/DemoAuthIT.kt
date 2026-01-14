@@ -29,8 +29,7 @@ class DemoAuthIT : AbstractIntegrationTest() {
         val res = submitGetDemoUser(demoToken)
         Assertions.assertThat(res).isNotNull()
         Assertions.assertThat(res.user.id).isEqualTo(id)
-        Assertions.assertThat(res.user.firstName).isEqualTo(demoUser1.firstName)
-        Assertions.assertThat(res.user.lastName).isEqualTo(demoUser1.lastName)
+        Assertions.assertThat(res.user.displayName).isEqualTo(demoUser1.displayName)
     }
 
     private fun submitGetDemoUser(token: String): UserLoginResponse {

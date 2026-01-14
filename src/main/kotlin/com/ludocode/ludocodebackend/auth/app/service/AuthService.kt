@@ -1,5 +1,4 @@
 package com.ludocode.ludocodebackend.auth.app.service
-import com.google.firebase.auth.FirebaseAuth
 import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.app.port.out.FirebaseAuthPort
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
@@ -34,9 +33,7 @@ class AuthService(
             providerUserId = decoded.uid,
             email = decoded.email
                 ?: throw ApiException(ErrorCode.BAD_REQ, "Email missing from Firebase token"),
-            firstName = decoded.name,
-            lastName = null,
-            name = decoded.name,
+            displayName = decoded.name,
             avatarUrl = decoded.picture
         )
         return buildLoginResponse(request, response)
@@ -47,9 +44,7 @@ class AuthService(
             provider = AuthProvider.DEMO,
             providerUserId = demoConfig.userId.toString(),
             email = "demo@ludocode.app",
-            firstName = "Demo",
-            lastName = "User",
-            name = "Demo User",
+            displayName = "Demo User",
             avatarUrl = null
         )
         return buildLoginResponse(request, response)

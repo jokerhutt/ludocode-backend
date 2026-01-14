@@ -15,7 +15,6 @@ import com.ludocode.ludocodebackend.user.configuration.AvatarConfig
 import com.ludocode.ludocodebackend.user.domain.entity.ExternalAccount
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.domain.entity.UserPreferences
-import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
 import com.ludocode.ludocodebackend.user.infra.repository.ExternalAccountRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserPreferencesRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
@@ -65,9 +64,7 @@ class UserService(
         var newUser = userRepository.save(
             User(
                 email = req.email ?: "",
-                firstName = req.firstName ?: "",
-                lastName = req.lastName ?: "",
-                pfpSrc = "",
+                displayName = req.displayName,
                 avatarIndex = assignedAvatar.index,
                 avatarVersion = assignedAvatar.version,
                 createdAt = OffsetDateTime.now(clock)
