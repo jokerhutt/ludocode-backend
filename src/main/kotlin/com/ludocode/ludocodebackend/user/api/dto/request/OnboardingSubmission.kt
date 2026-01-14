@@ -6,6 +6,7 @@ import java.util.UUID
 data class OnboardingSubmission(
     val chosenPath: DesiredPath,
     val chosenCourse: UUID,
-    val hasProgrammingExperience: Boolean
+    val hasProgrammingExperience: Boolean,
+    val selectedUsername: String,
 )
 
