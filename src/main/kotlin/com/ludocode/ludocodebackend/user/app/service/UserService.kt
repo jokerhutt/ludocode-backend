@@ -8,6 +8,7 @@ import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.mapper.UserMapper
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
+import com.ludocode.ludocodebackend.user.api.dto.request.EditProfileRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.AvatarInfo
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForProgress
@@ -88,9 +89,26 @@ class UserService(
     }
 
     @Transactional
-    internal fun changeUserAvatar(userId: UUID, avatarInfo: AvatarInfo): UserResponse{
-        val user = userRepository.findById(userId)
-            .orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
+    internal fun editUser(userId: UUID, request: EditProfileRequest) : UserResponse {
+        val user = userRepository.findById(userId).orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
+        if ((user.displayName != request.username) && request.username.isNotEmpty()) {
+            user.displayName = request.username
+        }
+        userRepository.save(user)
+        val res = changeUserAvatar(user, request.avatarInfo)
+        return res
+    }
+
+    @Transactional
+    internal fun changeUserAvatar(userId: UUID, avatarInfo: AvatarInfo): UserResponse {
+        val user = userRepository.findById(userId).orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
+        return changeUserAvatar(user, avatarInfo)
+    }
+
+
+    @Transactional
+    internal fun changeUserAvatar(user: User, avatarInfo: AvatarInfo): UserResponse{
+
         val selectedAvatarIndex = avatarInfo.index
         val selectedAvatarVersion = avatarInfo.version
         val hasUserOnboarded = hasOnboarded(user)
