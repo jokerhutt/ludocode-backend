@@ -8,6 +8,8 @@ import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
@@ -23,6 +25,13 @@ import java.util.UUID
 @RequestMapping(ApiPaths.AUTH.BASE)
 class AuthController(private val authService: AuthService, private val cookieConfig: AuthCookieConfig) {
 
+    @Operation(summary = "Authenticate user using Firebase",
+        description = """
+        Authenticate a user using a Firebase ID token.
+        If the user does not exist, a new account is created.
+        On success, a session cookie is set and the authenticated user is returned. 
+        """
+        )
     @PostMapping(ApiPaths.AUTH.FIREBASE)
     fun loginWithFirebase(
         @RequestHeader("Authorization") authHeader: String,
@@ -38,6 +47,13 @@ class AuthController(private val authService: AuthService, private val cookieCon
 
     }
 
+    @Operation(summary = "Get current authenticated user",
+        description = """
+        Returns the currently authenticated user associated with the active session.
+        Requires a valid session cookie to be present. 
+        """
+        )
+    @SecurityRequirement(name = "sessionAuth")
     @GetMapping(ApiPaths.AUTH.ME)
     fun getCurrentUser(
         @AuthenticationPrincipal(expression = "userId") userId: UUID
@@ -45,6 +61,13 @@ class AuthController(private val authService: AuthService, private val cookieCon
         return ResponseEntity.ok(authService.getAuthenticatedUser(userId))
     }
 
+    @Operation(summary = "Log out the current user",
+        description = """
+        Logs out the currently authenticated user by expiring the session cookie.
+        After this request, the user is no longer authenticated.   
+        """
+        )
+    @SecurityRequirement(name = "sessionAuth")
     @PostMapping(ApiPaths.AUTH.LOGOUT)
     fun logout(response: HttpServletResponse): ResponseEntity<Unit> {
         val c = cookieConfig

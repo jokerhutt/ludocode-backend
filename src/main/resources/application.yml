@@ -12,6 +12,14 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:prod}
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui
+    enabled: true
+
 firebase:
   service:
     path: ${FIREBASE_SERVICE_ACCOUNT_PATH:firebase-service-account.json}

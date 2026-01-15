@@ -4,6 +4,8 @@ import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.response.RunnerResult
 import com.ludocode.ludocodebackend.playground.app.service.CodeRunnerService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -19,6 +21,14 @@ import java.util.UUID
 class CodeRunnerController(private val codeRunnerService: CodeRunnerService) {
 
 
+    @Operation(summary = "Execute project code",
+        description = """
+        Executes the code contained in the provided project snapshot.
+        Runs the project in an isolated execution environment.
+        Returns the program's standard output, standard error, and exit code.
+        """
+        )
+    @SecurityRequirement(name = "sessionAuth")
     @PostMapping(ApiPaths.RUNNER.EXECUTE)
     fun runProject (@RequestBody request: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<RunnerResult> {
         return ResponseEntity.ok(codeRunnerService.runCode(request))

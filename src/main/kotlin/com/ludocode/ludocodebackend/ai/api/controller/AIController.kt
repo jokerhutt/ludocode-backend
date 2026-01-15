@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.ai.api.controller
 import com.ludocode.ludocodebackend.ai.api.dto.request.ChatRequestBody
 import com.ludocode.ludocodebackend.ai.app.service.AIService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import io.swagger.v3.oas.annotations.Operation
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.MediaType
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -18,6 +19,14 @@ import java.util.UUID
 @RequestMapping(ApiPaths.AI.BASE)
 class AIController(private val aIService: AIService) {
 
+
+    @Operation(
+        summary = "Generate AI completion",
+        description = """
+        Processes a chat-style request and generates an AI completion.
+        Accepts a sequence of messages representing the conversation context and returns the generated response output. 
+        """
+    )
     @PostMapping(
         value = [ApiPaths.AI.COMPLETIONS],
         produces = [MediaType.TEXT_PLAIN_VALUE]
