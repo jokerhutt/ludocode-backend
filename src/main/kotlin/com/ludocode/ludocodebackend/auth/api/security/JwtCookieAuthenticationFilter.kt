@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.auth.api.security
 
-import com.ludocode.ludocodebackend.auth.api.dto.AuthUser
+import com.ludocode.ludocodebackend.auth.api.security.principal.AuthUser
 import com.ludocode.ludocodebackend.auth.app.service.AuthCookieService
 import com.ludocode.ludocodebackend.auth.app.service.JwtService
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository

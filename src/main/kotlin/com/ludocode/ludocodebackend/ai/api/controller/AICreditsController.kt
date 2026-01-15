@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.ai.api.controller
 
 import com.ludocode.ludocodebackend.ai.app.service.AICreditService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import io.swagger.v3.oas.annotations.Operation
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -15,6 +16,12 @@ import java.util.UUID
 @RequestMapping(ApiPaths.CREDITS.BASE)
 class AICreditsController(private val aICreditService: AICreditService) {
 
+    @Operation(summary = "Get AI credit balance",
+        description = """
+        Returns the remaining AI credit balance for the currently authenticated user.
+        Requires a valid session cookie. 
+        """
+        )
     @GetMapping
     fun getAiCredits(@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<Int> {
         return ResponseEntity.ok(aICreditService.initializeOrGetCredits(userId).credits)

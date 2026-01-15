@@ -4,6 +4,7 @@ import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.app.service.AuthService
 import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import io.swagger.v3.oas.annotations.Operation
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -18,6 +19,13 @@ class DemoAuthController(
     private val authService: AuthService
 ) {
 
+    @Operation(summary = "Authenticate user using demo account token",
+        description = """
+        Authenticates a user using a demo access token.
+        If the demo user does not exist, a new demo account is created.
+        On success, a session cookie is set and the authenticated user is returned. 
+        """
+        )
     @GetMapping(ApiPaths.AUTH.DEMO)
     fun loginDemo(
         @RequestParam token: String,

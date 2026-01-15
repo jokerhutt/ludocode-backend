@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.auth.api.dto
+package com.ludocode.ludocodebackend.auth.infra.http.firebase
 
 data class FirebaseUser(
     val uid: String,
