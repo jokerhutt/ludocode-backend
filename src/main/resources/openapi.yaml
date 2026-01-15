@@ -806,6 +806,8 @@ components:
     OnboardingSubmission:
       type: object
       properties:
+        selectedUsername:
+          type: string
         chosenPath:
           type: string
           enum:
@@ -817,6 +819,7 @@ components:
         hasProgrammingExperience:
           type: boolean
       required:
+      - selectedUsername
       - chosenCourse
       - chosenPath
       - hasProgrammingExperience
@@ -896,9 +899,7 @@ components:
         id:
           type: string
           format: uuid
-        firstName:
-          type: string
-        lastName:
+        displayName:
           type: string
         avatarVersion:
           type: string

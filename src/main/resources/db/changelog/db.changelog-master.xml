@@ -5,12 +5,15 @@
     http://www.liquibase.org/xml/ns/dbchangelog
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
 
+    <!-- ===== SCHEMA ===== -->
     <include file="/db/changelog/001-extensions.xml"/>
     <include file="/db/changelog/002-enums.xml"/>
     <include file="/db/changelog/003-tables.xml"/>
     <include file="/db/changelog/004-indexes.xml"/>
-    <include file="/db/changelog/005-seed-data.xml"/>
     <include file="/db/changelog/006-ludo-account-provider.xml"/>
     <include file="/db/changelog/007-user-table-trim.xml"/>
+
+    <!-- ===== SEED DATA  ===== -->
+    <include file="/db/changelog/005-seed-data.xml"/>
 
 </databaseChangeLog>

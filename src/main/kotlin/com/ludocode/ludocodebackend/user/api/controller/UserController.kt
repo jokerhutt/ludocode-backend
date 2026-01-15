@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.user.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.user.api.dto.request.EditProfileRequest
 import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
 import com.ludocode.ludocodebackend.user.api.dto.response.AvatarInfo
 import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
@@ -36,6 +37,11 @@ class UserController(private val userService: UserService) {
     @PutMapping(ApiPaths.USERS.AVATAR)
     fun changeUserAvatar(@RequestBody req: AvatarInfo, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<UserResponse> {
         return ResponseEntity.ok(userService.changeUserAvatar(userId, req))
+    }
+
+    @PutMapping(ApiPaths.USERS.ME)
+    fun editUserProfile(@RequestBody req: EditProfileRequest, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<UserResponse> {
+        return ResponseEntity.ok(userService.editUser(userId, req))
     }
 
     @DeleteMapping(ApiPaths.USERS.ME)

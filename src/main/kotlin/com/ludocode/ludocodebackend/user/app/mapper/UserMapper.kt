@@ -15,7 +15,7 @@ class UserMapper (private val basicMapper: BasicMapper){
         basicMapper.one(user) {
             UserResponse(
                 id = it.id!!,
-                displayName = it.displayName!!,
+                displayName = it.displayName,
                 avatarVersion = it.avatarVersion,
                 avatarIndex = it.avatarIndex,
                 email = it.email!!,

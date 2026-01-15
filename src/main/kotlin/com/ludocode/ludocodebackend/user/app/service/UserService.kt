@@ -8,6 +8,7 @@ import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.mapper.UserMapper
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
+import com.ludocode.ludocodebackend.user.api.dto.request.EditProfileRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.AvatarInfo
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForProgress
@@ -78,7 +79,7 @@ class UserService(
                 providerUserId = req.providerUserId
             )
         )
-        return userMapper.toUserResponse(newUser, hasOnboarded(newUser.id))
+        return userMapper.toUserResponse(newUser, hasOnboarded(newUser))
     }
 
     private fun assignAvatar (): AvatarInfo{
@@ -88,12 +89,29 @@ class UserService(
     }
 
     @Transactional
-    internal fun changeUserAvatar(userId: UUID, avatarInfo: AvatarInfo): UserResponse{
-        val user = userRepository.findById(userId)
-            .orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
+    internal fun editUser(userId: UUID, request: EditProfileRequest) : UserResponse {
+        val user = userRepository.findById(userId).orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
+        if ((user.displayName != request.username) && request.username.isNotEmpty()) {
+            user.displayName = request.username
+        }
+        userRepository.save(user)
+        val res = changeUserAvatar(user, request.avatarInfo)
+        return res
+    }
+
+    @Transactional
+    internal fun changeUserAvatar(userId: UUID, avatarInfo: AvatarInfo): UserResponse {
+        val user = userRepository.findById(userId).orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
+        return changeUserAvatar(user, avatarInfo)
+    }
+
+
+    @Transactional
+    internal fun changeUserAvatar(user: User, avatarInfo: AvatarInfo): UserResponse{
+
         val selectedAvatarIndex = avatarInfo.index
         val selectedAvatarVersion = avatarInfo.version
-        val hasUserOnboarded = hasOnboarded(userId)
+        val hasUserOnboarded = hasOnboarded(user)
 
         val validIndexes = avatarConfig.count
         if (selectedAvatarIndex < 1 || selectedAvatarIndex > validIndexes) throw ApiException(ErrorCode.BAD_REQ, "This avatar does not exist")
@@ -109,15 +127,27 @@ class UserService(
 
     }
 
-    fun hasOnboarded (userId: UUID) : Boolean {
-        val preferencesExist = userPreferencesRepository.existsById(userId)
-        val currentCourseExists = courseProgressPortForUser.existsAnyByUserId(userId)
-        return preferencesExist && currentCourseExists
+
+    private fun hasOnboarded(userId: UUID): Boolean {
+        val user = userRepository.findById(userId).orElseThrow()
+        return hasOnboarded(user)
+    }
+
+    private fun hasOnboarded (user: User) : Boolean {
+        val displayNameExists = user.displayName != null
+        val preferencesExist = userPreferencesRepository.existsById(user.id)
+        val currentCourseExists = courseProgressPortForUser.existsAnyByUserId(user.id)
+        return preferencesExist && currentCourseExists && displayNameExists
     }
 
     @Transactional
     internal fun createPreferences (submission: OnboardingSubmission, userId: UUID) : OnboardingResponse {
         val toSubmit = UserPreferences(userId = userId, hasExperience = submission.hasProgrammingExperience, chosenPath = submission.chosenPath)
+
+        val selectedUser = userRepository.findById(userId).orElseThrow()
+        selectedUser.displayName = submission.selectedUsername
+        userRepository.save(selectedUser)
+
         val savedPreferences = userPreferencesRepository.save(toSubmit)
         val newCourseProgressWithEnrolled = courseProgressPortForUser.findOrCreate(userId, submission.chosenCourse)
         return OnboardingResponse(refreshedUser = getById(userId), savedPreferences, courseProgressResponse = newCourseProgressWithEnrolled)
@@ -130,7 +160,7 @@ class UserService(
 
     internal fun getUsersByIds(userIds: List<UUID>): List<UserResponse> {
         val users = userRepository.findAllByIdIn(userIds)
-        val onboardingMap = userIds.associateWith { hasOnboarded(it) }
+        val onboardingMap = users.associate { it.id to hasOnboarded(it) }
         return userMapper.toUserResponseList(users, onboardingMap)
     }
 
