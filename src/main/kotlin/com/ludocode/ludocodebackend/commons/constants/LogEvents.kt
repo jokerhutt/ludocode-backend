@@ -2,6 +2,15 @@ package com.ludocode.ludocodebackend.commons.constants
 
 object LogEvents {
 
+    const val AI_CREDITS_INITIALIZED = "ai_credits_initialized"
+    const val AI_CREDITS_OVERDRAW_ATTEMPT = "ai_credits_overflow_attempt"
+    const val AI_CREDITS_EXHAUSTED = "ai_credits_exhausted"
+    const val AI_CREDITS_ADJUSTED = "ai_credits_adjusted"
+    const val AI_STREAM_STARTED = "ai_stream_started"
+    const val AI_STREAM_COMPLETED = "ai_stream_completed"
+    const val AI_STREAM_FAILED = "ai_stream_failed"
+
+
     const val AUTH_FIREBASE_VERIFIED = "auth_firebase_verified"
     const val AUTH_FIREBASE_FAILED = "auth_firebase_failed"
     const val AUTH_LOGIN_SUCCESS = "auth_login_success"
@@ -35,5 +44,7 @@ object LogEvents {
     const val PROJECT_DELETE_REQUESTED = "project_delete_requested"
     const val PROJECT_CREATED = "project_created"
     const val PROJECT_SNAPSHOT_FORBIDDEN = "project_snapshot_forbidden"
+
+    const val USER_COINS_ADJUSTED = "user_coins_adjusted"
 
 }

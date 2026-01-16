@@ -11,11 +11,21 @@ object LogFields {
     const val NAME_LENGTH = "nameLength"
     const val EXIT_CODE = "exitCode"
 
+    const val CHAT_TYPE = "chatType"
+    const val AI_TARGET_ID = "aiTargetId"
+
+    const val CREDITS = "credits"
+    const val DELTA = "delta"
+    const val OLD_CREDITS = "oldCredits"
+    const val NEW_CREDITS = "newCredits"
+
     const val ERROR_CODE = "errorCode"
     const val RESPONSE_STATUS = "responseStatus"
     const val URI_PATH = "uriPath"
     const val FIELD_COUNT = "fieldCount"
 
+    const val HISTORY_COUNT = "historyCount"
+    const val USER_MESSAGE_LENGTH = "userMessageLength"
 
     const val FILE_COUNT = "fileCount"
     const val HITS = "hits"
@@ -24,6 +34,8 @@ object LogFields {
     const val UPDATE_COUNT = "updateCount"
     const val DELETE_COUNT = "deleteCount"
 
+    const val OLD_COINS = "oldCoins"
+    const val NEW_COINS = "newCoins"
 
     const val COURSE_ID = "courseId"
     const val MODULE_ID = "moduleId"
