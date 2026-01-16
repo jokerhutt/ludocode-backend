@@ -5,9 +5,11 @@ object LogFields {
     const val USER_ID = "userId"
     const val PROJECT_ID = "projectId"
     const val FILE_ID = "fileId"
+    const val FILE_NAMES = "fileNames"
     const val NAME_LENGTH = "nameLength"
+    const val EXIT_CODE = "exitCode"
 
-    const val COUNT = "count"
+    const val FILE_COUNT = "count"
     const val SIZE = "size"
     const val HITS = "hits"
     const val ADD_COUNT = "addCount"

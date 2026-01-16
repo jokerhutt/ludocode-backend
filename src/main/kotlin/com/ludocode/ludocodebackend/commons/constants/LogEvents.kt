@@ -6,6 +6,9 @@ object LogEvents {
     const val STORAGE_DELETE_FAILED = "storage_delete_failed"
     const val STORAGE_UPLOAD_FAILED = "storage_upload_failed"
 
+    const val RUNNER_EXECUTE_FAILED = "runner_execute_failed"
+    const val RUNNER_EXECUTE_NONZERO_EXIT = "runner_execute_nonzero_exit"
+
     const val PROJECT_SNAPSHOT_LOADED = "project_snapshot_loaded"
     const val PROJECT_RENAME_REQUESTED = "project_rename_requested"
     const val PROJECT_SNAPSHOT_DIFF = "project_snapshot_diff"

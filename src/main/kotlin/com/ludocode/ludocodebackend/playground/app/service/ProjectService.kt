@@ -34,7 +34,6 @@ import java.time.Clock
 import java.time.OffsetDateTime
 import java.util.UUID
 
-private val logger = LoggerFactory.getLogger(ProjectService::class.java)
 
 
 @Service
@@ -45,6 +44,8 @@ class ProjectService(
     private val clock: Clock,
     private val storagePortForServices: StoragePortForServices,
 ) : ProjectsPortForAI {
+
+    private val logger = LoggerFactory.getLogger(ProjectService::class.java)
 
     private fun getFirstFileContent(language: LanguageType) : String {
         return when (language) {
@@ -92,7 +93,7 @@ class ProjectService(
                 } catch (e: Exception) {
                     logger.error(
                         LogEvents.STORAGE_UPLOAD_FAILED + " {}",
-                        kv(LogFields.COUNT, 1),
+                        kv(LogFields.FILE_COUNT, 1),
                         e
                     )
                     throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
@@ -126,7 +127,7 @@ class ProjectService(
 
             logger.info(
                 "${LogEvents.PROJECT_SNAPSHOT_LIST_LOADED} {}",
-                kv(LogFields.COUNT, projectIds.size)
+                kv(LogFields.FILE_COUNT, projectIds.size)
             )
 
             val projectSnapshots = mutableListOf<ProjectSnapshot>()
@@ -174,7 +175,7 @@ class ProjectService(
 
             logger.info(
                 "${LogEvents.PROJECT_SNAPSHOT_LOADED} {} {}",
-                kv(LogFields.SIZE, projectFiles.size),
+                kv(LogFields.FILE_COUNT, projectFiles.size),
                 kv(LogFields.HITS, fileContentsMap.content.size),
             )
 
@@ -190,7 +191,7 @@ class ProjectService(
 
             logger.info(
                 LogEvents.PROJECT_DELETE_REQUESTED + " {}",
-                kv(LogFields.COUNT, existingFiles.size)
+                kv(LogFields.FILE_COUNT, existingFiles.size)
             )
 
             for (file in existingFiles) {
@@ -301,7 +302,7 @@ class ProjectService(
             logger.error(
                 LogEvents.STORAGE_DELETE_FAILED + " {}",
                 kv(LogFields.PROJECT_ID, projectId.toString()),
-                kv(LogFields.COUNT, toDeletePaths.size),
+                kv(LogFields.FILE_COUNT, toDeletePaths.size),
                 e
             )
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to delete files to GCS: ${e.message}")
@@ -336,7 +337,7 @@ class ProjectService(
             logger.error(
                 LogEvents.STORAGE_UPLOAD_FAILED + " {} {}",
                 kv(LogFields.PROJECT_ID, projectId.toString()),
-                kv(LogFields.COUNT, gcsRequests.size),
+                kv(LogFields.FILE_COUNT, gcsRequests.size),
                 e
             )
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
@@ -373,7 +374,7 @@ class ProjectService(
             logger.error(
                 LogEvents.STORAGE_UPLOAD_FAILED + " {} {}",
                 kv(LogFields.PROJECT_ID, projectId.toString()),
-                kv(LogFields.COUNT, gcsRequests.size),
+                kv(LogFields.FILE_COUNT, gcsRequests.size),
                 e
             )
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
