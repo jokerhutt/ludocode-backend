@@ -1,6 +1,8 @@
 package com.ludocode.ludocodebackend.playground.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.commons.constants.LogFields
+import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.response.RunnerResult
 import com.ludocode.ludocodebackend.playground.app.service.CodeRunnerService
@@ -31,7 +33,9 @@ class CodeRunnerController(private val codeRunnerService: CodeRunnerService) {
     @SecurityRequirement(name = "sessionAuth")
     @PostMapping(ApiPaths.RUNNER.EXECUTE)
     fun runProject (@RequestBody request: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<RunnerResult> {
-        return ResponseEntity.ok(codeRunnerService.runCode(request))
+        return withMdc(LogFields.USER_ID to userId.toString()) {
+            ResponseEntity.ok(codeRunnerService.runCode(request))
+        }
     }
 
 }

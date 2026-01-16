@@ -57,7 +57,6 @@ class ProjectService(
 
     @Transactional
     internal fun createProject(request: CreateProjectRequest, userId: UUID) : ProjectListResponse {
-        return withMdc(LogFields.USER_ID to userId.toString()) {
 
             val projectName = request.projectName
             val language = request.projectLanguage
@@ -105,10 +104,9 @@ class ProjectService(
                 )
 
             }
-            getUserProjects(userId)
+            return getUserProjects(userId)
 
 
-        }
     }
 
     private fun getFirstFileName (language : LanguageType): String {
@@ -122,7 +120,6 @@ class ProjectService(
     }
 
     internal fun getUserProjects(userId: UUID) : ProjectListResponse {
-        return withMdc(LogFields.USER_ID to userId.toString()) {
             val projectIds = userProjectRepository.findProjectIdsByUserId(userId)
 
             logger.info(
@@ -134,8 +131,7 @@ class ProjectService(
             for (projectId in projectIds) {
                 projectSnapshots.add(getProjectSnapshotForUserByProjectId(projectId, userId))
             }
-            ProjectListResponse(projectSnapshots)
-        }
+            return ProjectListResponse(projectSnapshots)
     }
 
     override fun getFileContentById(fileId: UUID): String {
@@ -152,15 +148,13 @@ class ProjectService(
     }
 
     internal fun getProjectSnapshotForUserByProjectId (projectId: UUID, userId: UUID) : ProjectSnapshot {
-        return withMdc(LogFields.USER_ID to userId.toString(), LogFields.PROJECT_ID to projectId.toString()) {
             val project = userProjectRepository.findById(projectId).orElseThrow()
             val isOwnProject = project.userId == userId
             if (!isOwnProject) {
                 logger.warn(LogEvents.PROJECT_SNAPSHOT_FORBIDDEN)
                 throw ApiException(ErrorCode.NOT_ALLOWED)
             }
-            getProjectSnapshotByProjectId(projectId)
-        }
+            return getProjectSnapshotByProjectId(projectId)
     }
 
     private fun getProjectSnapshotByProjectId (projectId: UUID) : ProjectSnapshot {
@@ -185,7 +179,6 @@ class ProjectService(
 
     @Transactional
     internal fun deleteProjectForUser (projectId: UUID, userId: UUID) : ProjectListResponse {
-        return withMdc(LogFields.USER_ID to userId.toString(), LogFields.PROJECT_ID to projectId.toString()) {
             val existingProject = userProjectRepository.findById(projectId).orElseThrow()
             val existingFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
 
@@ -201,8 +194,7 @@ class ProjectService(
             userProjectRepository.deleteById(existingProject.id)
             deleteFiles(projectId, existingFiles)
 
-            getUserProjects(userId)
-        }
+            return getUserProjects(userId)
     }
 
     private fun refreshUpdatedAt(existing: UserProject): UserProject {
@@ -217,13 +209,10 @@ class ProjectService(
     }
 
     @Transactional
-    internal fun renameProject (projectId: UUID, renameRequest: RenameRequest, userId: UUID) : ProjectListResponse {
+    internal fun renameProject (renameRequest: RenameRequest, userId: UUID) : ProjectListResponse {
 
         val projectId = renameRequest.targetId
         val newName = renameRequest.newName
-
-        return withMdc(LogFields.USER_ID to userId.toString(), LogFields.PROJECT_ID to projectId.toString()) {
-
             logger.info(
                 LogEvents.PROJECT_RENAME_REQUESTED + " {}",
                 kv(LogFields.NAME_LENGTH, newName.length)
@@ -234,10 +223,7 @@ class ProjectService(
             existingProject = refreshUpdatedAt(existingProject)
             userProjectRepository.save(existingProject)
 
-            getUserProjects(userId)
-        }
-
-
+            return getUserProjects(userId)
 
     }
 

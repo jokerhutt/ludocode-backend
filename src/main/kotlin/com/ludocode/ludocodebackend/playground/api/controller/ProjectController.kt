@@ -1,6 +1,8 @@
 package com.ludocode.ludocodebackend.playground.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.commons.constants.LogFields
+import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectListResponse
@@ -37,7 +39,9 @@ class ProjectController(private val projectService: ProjectService) {
     )
     @PutMapping(ApiPaths.PROJECTS.BY_ID)
     fun saveProject (@RequestBody projectSnapshot: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectSnapshot> {
-         return ResponseEntity.ok(projectService.saveProjectSnapshot(projectSnapshot))
+        return withMdc(LogFields.USER_ID to userId.toString()) {
+            ResponseEntity.ok(projectService.saveProjectSnapshot(projectSnapshot))
+        }
     }
 
     @Operation(
@@ -50,7 +54,9 @@ class ProjectController(private val projectService: ProjectService) {
     )
     @DeleteMapping(ApiPaths.PROJECTS.BY_ID)
     fun deleteProject (@PathVariable projectId : UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectListResponse> {
-        return ResponseEntity.ok(projectService.deleteProjectForUser(projectId, userId))
+        return withMdc(LogFields.USER_ID to userId.toString(), LogFields.PROJECT_ID to projectId.toString()) {
+            ResponseEntity.ok(projectService.deleteProjectForUser(projectId, userId))
+        }
     }
 
     @Operation(
@@ -64,7 +70,9 @@ class ProjectController(private val projectService: ProjectService) {
     )
     @PatchMapping(ApiPaths.PROJECTS.NAME)
     fun renameProject (@PathVariable projectId: UUID, @RequestBody request: RenameRequest, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectListResponse> {
-        return ResponseEntity.ok(projectService.renameProject(projectId, request, userId))
+        return withMdc(LogFields.USER_ID to userId.toString(), LogFields.PROJECT_ID to projectId.toString()) {
+            ResponseEntity.ok(projectService.renameProject(request, userId))
+        }
     }
 
     @Operation(
@@ -77,7 +85,9 @@ class ProjectController(private val projectService: ProjectService) {
     )
     @PostMapping
     fun createProject (@RequestBody request: CreateProjectRequest, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectListResponse> {
-        return ResponseEntity.ok(projectService.createProject(request, userId))
+        return withMdc(LogFields.USER_ID to userId.toString()) {
+            ResponseEntity.ok(projectService.createProject(request, userId))
+        }
     }
 
     @Operation(
@@ -89,7 +99,9 @@ class ProjectController(private val projectService: ProjectService) {
     )
     @GetMapping
     fun getUserProjects (@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<ProjectListResponse> {
-        return ResponseEntity.ok(projectService.getUserProjects(userId))
+        return withMdc(LogFields.USER_ID to userId.toString()) {
+            ResponseEntity.ok(projectService.getUserProjects(userId))
+        }
     }
 
     @Operation(
@@ -102,7 +114,9 @@ class ProjectController(private val projectService: ProjectService) {
     )
     @GetMapping(ApiPaths.PROJECTS.BY_ID)
     fun getProject (@PathVariable projectId: UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectSnapshot> {
-        return ResponseEntity.ok(projectService.getProjectSnapshotForUserByProjectId(projectId, userId))
+        return withMdc(LogFields.USER_ID to userId.toString(), LogFields.PROJECT_ID to projectId.toString()) {
+            ResponseEntity.ok(projectService.getProjectSnapshotForUserByProjectId(projectId, userId))
+        }
     }
 
 
