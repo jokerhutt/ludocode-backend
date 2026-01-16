@@ -20,4 +20,6 @@ interface LessonCompletionRepository : JpaRepository<LessonCompletion, UUID> {
 
     fun existsByIdAndIsDeletedFalse(id: UUID): Boolean
 
+    fun existsByUserIdAndLessonIdAndIsDeletedFalse(userId: UUID, lessonId: UUID): Boolean
+
 }

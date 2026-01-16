@@ -23,6 +23,10 @@ object LogEvents {
     const val RUNNER_EXECUTE_FAILED = "runner_execute_failed"
     const val RUNNER_EXECUTE_NONZERO_EXIT = "runner_execute_nonzero_exit"
 
+    const val LESSON_COMPLETION_DUPLICATE = "lesson_completion_duplicate"
+    const val LESSON_COMPLETION_SUBMITTED = "lesson_completion_submitted"
+
+
     const val COURSE_CREATED = "course_created"
 
     const val API_EXCEPTION = "api_exception"

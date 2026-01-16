@@ -7,10 +7,14 @@ import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionPa
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.StreakResponsePacket
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForProgress
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.progress.app.support.component.LessonScoreService
 import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
 import jakarta.transaction.Transactional
+import net.logstash.logback.argument.StructuredArguments.kv
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.Clock
 import java.time.OffsetDateTime
@@ -28,7 +32,7 @@ class LessonCompletionService(
     private val streakService: StreakService
 ) {
 
-
+    private val logger = LoggerFactory.getLogger(LessonCompletionService::class.java)
 
     @Transactional
     fun submitLessonCompletion (request: LessonSubmissionRequest, userId: UUID) : LessonCompletionPacket {
@@ -39,7 +43,14 @@ class LessonCompletionService(
         val nextLessonId = currentLessonMD.nextLessonId
         val courseId = currentLessonMD.courseId
 
-        if (isSubmissionDuplicate(currentLessonId)) return LessonCompletionPacket(content = null, status = LessonCompletionStatus.DUPLICATE)
+        if (isSubmissionDuplicate(userId, currentLessonId)) {
+            logger.warn(
+                LogEvents.LESSON_COMPLETION_DUPLICATE + " {} {}",
+                kv(LogFields.LESSON_ID, currentLessonId.toString()),
+                kv(LogFields.COURSE_ID, courseId.toString()),
+            )
+            return LessonCompletionPacket(content = null, status = LessonCompletionStatus.DUPLICATE)
+        }
 
         val lessonCompletion = lessonScoreService.addPointsAndCommitSubmission(request, userId, courseId)
         val scoreForLesson = lessonCompletion.score!!
@@ -47,7 +58,6 @@ class LessonCompletionService(
         val submittedLesson = catalogPortForProgress.findLessonResponseById(currentLessonId, userId)
         val isCompleted = submittedLesson.isCompleted
 
-        println("IsCompleted = $isCompleted")
         if (!submittedLesson.isCompleted) submittedLesson.isCompleted = true
 
 
@@ -61,13 +71,35 @@ class LessonCompletionService(
         val newStats = userCoinsService.apply(PointsDelta(userId = userId, pointsDelta = scoreForLesson))
         val responseContent = LessonCompletionResponse(newStats, newStreak.response, newCourseProgress, submittedLesson, accuracy = lessonCompletion.accuracy)
 
-        if (isFirstCompletion) return LessonCompletionPacket(content = responseContent, status = LessonCompletionStatus.COURSE_COMPLETE)
+
+        if (isFirstCompletion) {
+            logger.info(
+                LogEvents.LESSON_COMPLETION_SUBMITTED + " {} {} {} {} {} {}",
+                kv(LogFields.LESSON_ID, currentLessonId.toString()),
+                kv(LogFields.NEXT_LESSON_ID, nextLessonId?.toString() ?: "null"),
+                kv(LogFields.COURSE_ID, courseId.toString()),
+                kv(LogFields.SCORE, scoreForLesson),
+                kv(LogFields.LESSON_ACCURACY, lessonCompletion.accuracy),
+                kv(LogFields.LESSON_STATUS, "COURSE_COMPLETE"),
+            )
+            return LessonCompletionPacket(content = responseContent, status = LessonCompletionStatus.COURSE_COMPLETE)
+        }
+
+        logger.info(
+            LogEvents.LESSON_COMPLETION_SUBMITTED + " {} {} {} {} {} {}",
+            kv(LogFields.LESSON_ID, currentLessonId.toString()),
+            kv(LogFields.NEXT_LESSON_ID, nextLessonId?.toString() ?: "null"),
+            kv(LogFields.COURSE_ID, courseId.toString()),
+            kv(LogFields.SCORE, scoreForLesson),
+            kv(LogFields.LESSON_ACCURACY, lessonCompletion.accuracy),
+            kv(LogFields.LESSON_STATUS, "OK"),
+        )
 
         return LessonCompletionPacket(content = responseContent, status = LessonCompletionStatus.OK)
 
     }
 
-    private fun isSubmissionDuplicate (submissionId: UUID): Boolean = lessonCompletionRepository.existsByIdAndIsDeletedFalse(submissionId)
+    private fun isSubmissionDuplicate (userId: UUID, currentLessonId: UUID): Boolean = lessonCompletionRepository.existsByUserIdAndLessonIdAndIsDeletedFalse(userId, currentLessonId)
 
 
 

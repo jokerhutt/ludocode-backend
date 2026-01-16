@@ -24,6 +24,11 @@ object LogFields {
     const val URI_PATH = "uriPath"
     const val FIELD_COUNT = "fieldCount"
 
+    const val NEXT_LESSON_ID = "nextLessonId"
+    const val SCORE = "lessonScore"
+    const val LESSON_ACCURACY = "lessonAccuracy"
+    const val LESSON_STATUS = "lessonStatus"
+
     const val HISTORY_COUNT = "historyCount"
     const val USER_MESSAGE_LENGTH = "userMessageLength"
 
