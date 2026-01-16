@@ -37,6 +37,14 @@ object LogEvents {
     const val LESSON_EXERCISES_LOADED = "lesson_exercises_loaded"
     const val COURSE_TREE_LOADED = "course_tree_loaded"
 
+    const val STREAK_GOAL_ALREADY_MET = "streak_goal_already_met"
+    const val STREAK_GOAL_MET_RECORDED = "streak_goal_met_recorded"
+    const val STREAK_INITIALIZED = "streak_initialized"
+    const val STREAK_RESET_MISSED_DAY = "streak_reset_missed_day"
+    const val STREAK_UPDATED = "streak_updated"
+
+
+
     const val PROJECT_SNAPSHOT_LOADED = "project_snapshot_loaded"
     const val PROJECT_RENAME_REQUESTED = "project_rename_requested"
     const val PROJECT_SNAPSHOT_DIFF = "project_snapshot_diff"

@@ -34,6 +34,14 @@ object LogFields {
     const val UPDATE_COUNT = "updateCount"
     const val DELETE_COUNT = "deleteCount"
 
+    const val OLD_STREAK_DAYS = "oldStreakDays"
+    const val NEW_STREAK_DAYS = "newStreakDays"
+    const val OLD_BEST_STREAK_DAYS = "oldBestStreakDays"
+    const val NEW_BEST_STREAK_DAYS = "newBestStreakDays"
+
+    const val LOCAL_DATE = "localData"
+    const val TIMEZONE = "timezone"
+
     const val OLD_COINS = "oldCoins"
     const val NEW_COINS = "newCoins"
 
