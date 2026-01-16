@@ -1,7 +1,10 @@
 package com.ludocode.ludocodebackend.playground.app.service
 
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.commons.util.sha256
 import com.ludocode.ludocodebackend.storage.app.dto.request.StorageGetRequest
 import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequest
@@ -24,10 +27,15 @@ import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepos
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
 import com.ludocode.ludocodebackend.storage.app.dto.request.StorageDeleteRequest
 import jakarta.transaction.Transactional
+import net.logstash.logback.argument.StructuredArguments.kv
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.Clock
 import java.time.OffsetDateTime
 import java.util.UUID
+
+private val logger = LoggerFactory.getLogger(ProjectService::class.java)
+
 
 @Service
 class ProjectService(
@@ -48,42 +56,58 @@ class ProjectService(
 
     @Transactional
     internal fun createProject(request: CreateProjectRequest, userId: UUID) : ProjectListResponse {
+        return withMdc(LogFields.USER_ID to userId.toString()) {
 
-        val projectName = request.projectName
-        val language = request.projectLanguage
-        val requestHash = request.requestHash
+            val projectName = request.projectName
+            val language = request.projectLanguage
+            val requestHash = request.requestHash
 
-        val newProject = userProjectRepository.save(UserProject(
-            id = UUID.randomUUID(),
-            name = projectName,
-            userId = userId,
-            requestHash = requestHash,
-            projectLanguage = language,
-            createdAt = OffsetDateTime.now(clock),
-            updatedAt = OffsetDateTime.now(clock)
-        ))
+            val newProject = userProjectRepository.save(UserProject(
+                id = UUID.randomUUID(),
+                name = projectName,
+                userId = userId,
+                requestHash = requestHash,
+                projectLanguage = language,
+                createdAt = OffsetDateTime.now(clock),
+                updatedAt = OffsetDateTime.now(clock)
+            ))
 
-        val firstFileName = getFirstFileName(language)
-        val firstFileId = UUID.randomUUID()
-        val firstFileContentUrl = "${newProject.id}/$firstFileId"
-        val firstFileContent = getFirstFileContent(language)
-        projectFileRepository.save(ProjectFile(
-            id = firstFileId,
-            projectId = newProject.id,
-            contentUrl = firstFileContentUrl,
-            filePath = firstFileName,
-            fileLanguage = language,
-            contentHash = sha256(firstFileContent)
-        ))
+            withMdc(LogFields.PROJECT_ID to newProject.id.toString()) {
 
-        try {
-            storagePortForServices.uploadList(StoragePutRequestList(requests = listOf(StoragePutRequest(path = firstFileContentUrl, content = firstFileContent))))
-        } catch (e: Exception) {
-            throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
+                val firstFileName = getFirstFileName(language)
+                val firstFileId = UUID.randomUUID()
+                val firstFileContentUrl = "${newProject.id}/$firstFileId"
+                val firstFileContent = getFirstFileContent(language)
+                projectFileRepository.save(ProjectFile(
+                    id = firstFileId,
+                    projectId = newProject.id,
+                    contentUrl = firstFileContentUrl,
+                    filePath = firstFileName,
+                    fileLanguage = language,
+                    contentHash = sha256(firstFileContent)
+                ))
+
+                try {
+                    storagePortForServices.uploadList(StoragePutRequestList(requests = listOf(StoragePutRequest(path = firstFileContentUrl, content = firstFileContent))))
+                } catch (e: Exception) {
+                    logger.error(
+                        LogEvents.STORAGE_UPLOAD_FAILED + " {}",
+                        kv(LogFields.COUNT, 1),
+                        e
+                    )
+                    throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
+                }
+
+                logger.info(
+                    LogEvents.PROJECT_CREATED + " {}",
+                    kv(LogFields.LANGUAGE, language.name)
+                )
+
+            }
+            getUserProjects(userId)
+
+
         }
-
-        return getUserProjects(userId)
-
     }
 
     private fun getFirstFileName (language : LanguageType): String {
@@ -97,67 +121,87 @@ class ProjectService(
     }
 
     internal fun getUserProjects(userId: UUID) : ProjectListResponse {
-        val projectIds = userProjectRepository.findProjectIdsByUserId(userId)
-        val projectSnapshots = mutableListOf<ProjectSnapshot>()
-        for (projectId in projectIds) {
-            projectSnapshots.add(getProjectSnapshotForUserByProjectId(projectId, userId))
-        }
-        println(
-            projectSnapshots.joinToString("\n") {
-                "projectId=${it.projectId}, name=${it.projectName}"
+        return withMdc(LogFields.USER_ID to userId.toString()) {
+            val projectIds = userProjectRepository.findProjectIdsByUserId(userId)
+
+            logger.info(
+                "${LogEvents.PROJECT_SNAPSHOT_LIST_LOADED} {}",
+                kv(LogFields.COUNT, projectIds.size)
+            )
+
+            val projectSnapshots = mutableListOf<ProjectSnapshot>()
+            for (projectId in projectIds) {
+                projectSnapshots.add(getProjectSnapshotForUserByProjectId(projectId, userId))
             }
-        )
-        return ProjectListResponse(projectSnapshots)
+            ProjectListResponse(projectSnapshots)
+        }
     }
 
     override fun getFileContentById(fileId: UUID): String {
-        val file = projectFileRepository.findById(fileId)
-            .orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
-        println("FOUND FILE")
-
-        try {
-            return storagePortForServices.get(file.contentUrl)
-        } catch (e: Exception) {
-            throw ApiException(ErrorCode.GCS_GET_FAILED, "Failed to get files from GCS: ${e.message}")
+        return withMdc(LogFields.FILE_ID to fileId.toString()) {
+            val file = projectFileRepository.findById(fileId)
+                .orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
+            try {
+                storagePortForServices.get(file.contentUrl)
+            } catch (e: Exception) {
+                logger.error(LogEvents.GCS_GET_FAILED, e)
+                throw ApiException(ErrorCode.GCS_GET_FAILED, "Failed to get files from GCS: ${e.message}")
+            }
         }
-
     }
 
     internal fun getProjectSnapshotForUserByProjectId (projectId: UUID, userId: UUID) : ProjectSnapshot {
-        val project = userProjectRepository.findById(projectId).orElseThrow()
-        val isOwnProject = project.userId == userId
-        if (!isOwnProject) throw ApiException(ErrorCode.NOT_ALLOWED)
-        return getProjectSnapshotByProjectId(projectId)
+        return withMdc(LogFields.USER_ID to userId.toString(), LogFields.PROJECT_ID to projectId.toString()) {
+            val project = userProjectRepository.findById(projectId).orElseThrow()
+            val isOwnProject = project.userId == userId
+            if (!isOwnProject) {
+                logger.warn(LogEvents.PROJECT_SNAPSHOT_FORBIDDEN)
+                throw ApiException(ErrorCode.NOT_ALLOWED)
+            }
+            getProjectSnapshotByProjectId(projectId)
+        }
     }
 
     private fun getProjectSnapshotByProjectId (projectId: UUID) : ProjectSnapshot {
+        return withMdc(LogFields.PROJECT_ID to projectId.toString()) {
+            val project = userProjectRepository.findById(projectId).orElseThrow()
+            val lastUpdated = project.updatedAt
+            val projectName = project.name
+            val projectLanguage = project.projectLanguage
+            val projectFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
+            val fileContentUrls = StorageGetRequest(projectFiles.map { it -> it.contentUrl })
+            val fileContentsMap = storagePortForServices.getList(fileContentUrls)
 
-        val project = userProjectRepository.findById(projectId).orElseThrow()
-        val lastUpdated = project.updatedAt
-        val projectName = project.name
-        val projectLanguage = project.projectLanguage
-        val projectFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
-        val fileContentUrls = StorageGetRequest(projectFiles.map { it -> it.contentUrl })
-        val fileContentsMap = storagePortForServices.getList(fileContentUrls)
+            logger.info(
+                "${LogEvents.PROJECT_SNAPSHOT_LOADED} {} {}",
+                kv(LogFields.SIZE, projectFiles.size),
+                kv(LogFields.HITS, fileContentsMap.content.size),
+            )
 
-        return projectMapper.toProjectSnapshot(projectId, projectName, projectLanguage, lastUpdated, projectFiles, fileContentsMap.content)
+            projectMapper.toProjectSnapshot(projectId, projectName, projectLanguage, lastUpdated, projectFiles, fileContentsMap.content)
+        }
     }
 
     @Transactional
     internal fun deleteProjectForUser (projectId: UUID, userId: UUID) : ProjectListResponse {
+        return withMdc(LogFields.USER_ID to userId.toString(), LogFields.PROJECT_ID to projectId.toString()) {
+            val existingProject = userProjectRepository.findById(projectId).orElseThrow()
+            val existingFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
 
-        val existingProject = userProjectRepository.findById(projectId).orElseThrow()
-        val existingFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
+            logger.info(
+                LogEvents.PROJECT_DELETE_REQUESTED + " {}",
+                kv(LogFields.COUNT, existingFiles.size)
+            )
 
-        for (file in existingFiles) {
-            projectFileRepository.deleteById(file.id)
+            for (file in existingFiles) {
+                projectFileRepository.deleteById(file.id)
+            }
+
+            userProjectRepository.deleteById(existingProject.id)
+            deleteFiles(projectId, existingFiles)
+
+            getUserProjects(userId)
         }
-        userProjectRepository.deleteById(existingProject.id)
-
-        deleteFiles(projectId, existingFiles)
-
-        return getUserProjects(userId)
-
     }
 
     private fun refreshUpdatedAt(existing: UserProject): UserProject {
@@ -177,39 +221,58 @@ class ProjectService(
         val projectId = renameRequest.targetId
         val newName = renameRequest.newName
 
-        var existingProject = userProjectRepository.findById(projectId).orElseThrow()
-        existingProject.name = newName
-        existingProject = refreshUpdatedAt(existingProject)
-        userProjectRepository.save(existingProject)
+        return withMdc(LogFields.USER_ID to userId.toString(), LogFields.PROJECT_ID to projectId.toString()) {
 
-        return getUserProjects(userId)
+            logger.info(
+                LogEvents.PROJECT_RENAME_REQUESTED + " {}",
+                kv(LogFields.NAME_LENGTH, newName.length)
+            )
+
+            var existingProject = userProjectRepository.findById(projectId).orElseThrow()
+            existingProject.name = newName
+            existingProject = refreshUpdatedAt(existingProject)
+            userProjectRepository.save(existingProject)
+
+            getUserProjects(userId)
+        }
+
+
 
     }
 
     @Transactional
     internal fun saveProjectSnapshot (projectSnapshot: ProjectSnapshot): ProjectSnapshot {
-
-        if (!userProjectRepository.existsById(projectSnapshot.projectId)) throw ApiException(ErrorCode.PROJECT_NOT_FOUND, "This project doesnt exist")
-
-        val submittedFiles = projectSnapshot.files
-
-        ProjectSnapshotValidator.validateSnapshotRequest(submittedFiles)
-
-        val existingFiles : List<ProjectFile> = projectFileRepository.findAllProjectFilesByProjectId(projectSnapshot.projectId)
-
-        val snapshotDiff = ProjectSnapshotDiffer.computeSnapshotDiff(submittedFiles, existingFiles)
-
         val projectId = projectSnapshot.projectId
 
-        if (hasProjectChanged(snapshotDiff)) {
-            refreshUpdatedAt(projectId)
+        return withMdc(LogFields.PROJECT_ID to projectId.toString()) {
+            if (!userProjectRepository.existsById(projectId)) throw ApiException(ErrorCode.PROJECT_NOT_FOUND, "This project doesnt exist")
+
+            val submittedFiles = projectSnapshot.files
+
+            ProjectSnapshotValidator.validateSnapshotRequest(submittedFiles)
+
+            val existingFiles : List<ProjectFile> = projectFileRepository.findAllProjectFilesByProjectId(projectId)
+
+            val snapshotDiff = ProjectSnapshotDiffer.computeSnapshotDiff(submittedFiles, existingFiles)
+
+            logger.info(
+                LogEvents.PROJECT_SNAPSHOT_DIFF + " {} {} {}",
+                kv(LogFields.ADD_COUNT, snapshotDiff.toAdd.size),
+                kv(LogFields.UPDATE_COUNT, snapshotDiff.toUpdate.size),
+                kv(LogFields.DELETE_COUNT, snapshotDiff.toDeleteFiles.size)
+            )
+
+            if (hasProjectChanged(snapshotDiff)) {
+                refreshUpdatedAt(projectId)
+            }
+
+            deleteFiles(projectId, snapshotDiff.toDeleteFiles)
+            updateChangedFiles(projectId, snapshotDiff.toUpdate)
+            saveNewFiles(projectId, snapshotDiff.toAdd)
+
+            getProjectSnapshotByProjectId(projectId)
         }
 
-        deleteFiles(projectId, snapshotDiff.toDeleteFiles)
-        updateChangedFiles(projectId, snapshotDiff.toUpdate)
-        saveNewFiles(projectId, snapshotDiff.toAdd)
-
-        return getProjectSnapshotByProjectId(projectId)
 
     }
 
@@ -235,6 +298,12 @@ class ProjectService(
         try {
             storagePortForServices.deleteList(gcsDeleteRequest)
         } catch (e: Exception) {
+            logger.error(
+                LogEvents.STORAGE_DELETE_FAILED + " {}",
+                kv(LogFields.PROJECT_ID, projectId.toString()),
+                kv(LogFields.COUNT, toDeletePaths.size),
+                e
+            )
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to delete files to GCS: ${e.message}")
         }
 
@@ -264,7 +333,12 @@ class ProjectService(
         try {
             storagePortForServices.uploadList(StoragePutRequestList(requests = gcsRequests))
         } catch (e: Exception) {
-            println("Failed")
+            logger.error(
+                LogEvents.STORAGE_UPLOAD_FAILED + " {} {}",
+                kv(LogFields.PROJECT_ID, projectId.toString()),
+                kv(LogFields.COUNT, gcsRequests.size),
+                e
+            )
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
         }
 
@@ -277,10 +351,12 @@ class ProjectService(
         for (file in files) {
             if (file.id == null) throw ApiException(ErrorCode.PROJECT_FILE_ID_NULL, "The Project file id is null for an existing file")
 
+
             val contentUrl = "$projectId/${file.id}"
             gcsRequests.add(StoragePutRequest(contentUrl, file.content))
 
-            val existingFile = projectFileRepository.findById(file.id).orElseThrow()
+            val existingFile = projectFileRepository.findById(file.id)
+                .orElseThrow { ApiException(ErrorCode.PROJECT_FILE_NOT_FOUND) }
 
             val newHash = sha256(file.content)
             val newPath = file.path
@@ -294,6 +370,12 @@ class ProjectService(
         try {
             storagePortForServices.uploadList(StoragePutRequestList(requests = gcsRequests))
         } catch (e: Exception) {
+            logger.error(
+                LogEvents.STORAGE_UPLOAD_FAILED + " {} {}",
+                kv(LogFields.PROJECT_ID, projectId.toString()),
+                kv(LogFields.COUNT, gcsRequests.size),
+                e
+            )
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
         }
 

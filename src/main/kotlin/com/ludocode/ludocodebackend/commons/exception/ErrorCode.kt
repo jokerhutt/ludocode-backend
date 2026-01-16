@@ -25,6 +25,7 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     GCS_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload project files to cloud storage"),
 
     PROJECT_FILE_ID_NULL(HttpStatus.BAD_REQUEST, "The Project File Id is null"),
+    PROJECT_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "Could not find the given project file"),
 
     FILE_TOO_LARGE(HttpStatus.BAD_REQUEST, "The file you sent exceeds the limit"),
     DUPLICATE_FILE_NAME(HttpStatus.BAD_REQUEST, "Request contains duplicate file names"),
