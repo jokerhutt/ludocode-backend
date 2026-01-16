@@ -3,7 +3,7 @@ package com.ludocode.ludocodebackend.playground.app.service
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.util.sha256
-import com.ludocode.ludocodebackend.storage.app.dto.request.StorageDeleteRequest
+import com.ludocode.ludocodebackend.storage.app.dto.request.StorageGetRequest
 import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequest
 import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequestList
 import com.ludocode.ludocodebackend.storage.app.port.`in`.StoragePortForServices
@@ -22,6 +22,7 @@ import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
+import com.ludocode.ludocodebackend.storage.app.dto.request.StorageDeleteRequest
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.Clock
@@ -76,7 +77,7 @@ class ProjectService(
         ))
 
         try {
-            storagePortForServices.uploadDataList(StoragePutRequestList(requests = listOf(StoragePutRequest(path = firstFileContentUrl, content = firstFileContent))))
+            storagePortForServices.uploadList(StoragePutRequestList(requests = listOf(StoragePutRequest(path = firstFileContentUrl, content = firstFileContent))))
         } catch (e: Exception) {
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
         }
@@ -115,7 +116,7 @@ class ProjectService(
         println("FOUND FILE")
 
         try {
-            return storagePortForServices.getContentFromPath(file.contentUrl)
+            return storagePortForServices.get(file.contentUrl)
         } catch (e: Exception) {
             throw ApiException(ErrorCode.GCS_GET_FAILED, "Failed to get files from GCS: ${e.message}")
         }
@@ -136,10 +137,10 @@ class ProjectService(
         val projectName = project.name
         val projectLanguage = project.projectLanguage
         val projectFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
-        val fileContentUrls = projectFiles.map { it -> it.contentUrl }
-        val fileContentsMap = storagePortForServices.getContentFromUrls(fileContentUrls)
+        val fileContentUrls = StorageGetRequest(projectFiles.map { it -> it.contentUrl })
+        val fileContentsMap = storagePortForServices.getList(fileContentUrls)
 
-        return projectMapper.toProjectSnapshot(projectId, projectName, projectLanguage, lastUpdated, projectFiles, fileContentsMap)
+        return projectMapper.toProjectSnapshot(projectId, projectName, projectLanguage, lastUpdated, projectFiles, fileContentsMap.content)
     }
 
     @Transactional
@@ -232,7 +233,7 @@ class ProjectService(
         val gcsDeleteRequest = StorageDeleteRequest(toDeletePaths)
 
         try {
-            storagePortForServices.deleteDataList(gcsDeleteRequest)
+            storagePortForServices.deleteList(gcsDeleteRequest)
         } catch (e: Exception) {
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to delete files to GCS: ${e.message}")
         }
@@ -261,7 +262,7 @@ class ProjectService(
         }
 
         try {
-            storagePortForServices.uploadDataList(StoragePutRequestList(requests = gcsRequests))
+            storagePortForServices.uploadList(StoragePutRequestList(requests = gcsRequests))
         } catch (e: Exception) {
             println("Failed")
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
@@ -291,7 +292,7 @@ class ProjectService(
         }
 
         try {
-            storagePortForServices.uploadDataList(StoragePutRequestList(requests = gcsRequests))
+            storagePortForServices.uploadList(StoragePutRequestList(requests = gcsRequests))
         } catch (e: Exception) {
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
         }

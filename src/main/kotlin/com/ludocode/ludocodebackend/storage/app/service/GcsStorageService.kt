@@ -3,13 +3,14 @@ package com.ludocode.ludocodebackend.storage.app.service
 import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.Storage
-import com.ludocode.ludocodebackend.storage.app.dto.request.StorageDeleteRequest
+import com.ludocode.ludocodebackend.storage.app.dto.request.StorageGetRequest
 import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequest
 import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequestList
 import com.ludocode.ludocodebackend.storage.app.dto.response.UploadedPaths
 import com.ludocode.ludocodebackend.storage.app.port.`in`.StoragePortForServices
 import com.ludocode.ludocodebackend.playground.config.GcsFeatureConfig
-import com.ludocode.ludocodebackend.storage.app.dto.request.MediaPutRequest
+import com.ludocode.ludocodebackend.storage.app.dto.request.StorageDeleteRequest
+import com.ludocode.ludocodebackend.storage.app.dto.response.StorageContentMap
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 
 @ConditionalOnProperty(
@@ -19,8 +20,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 )
 class GcsStorageService(private val storage: Storage, private val gcsConfig: GcsFeatureConfig) : StoragePortForServices {
 
-    override fun uploadDataList (reqs: StoragePutRequestList): UploadedPaths {
-        val requests = reqs.requests
+    override fun uploadList (req: StoragePutRequestList): UploadedPaths {
+        val requests = req.requests
         val bucket = gcsConfig.bucket
         val uploadedNames = mutableListOf<String>()
 
@@ -38,35 +39,7 @@ class GcsStorageService(private val storage: Storage, private val gcsConfig: Gcs
 
     }
 
-    override fun uploadMedia(req: MediaPutRequest): String {
-        val bucket = gcsConfig.bucket
-        val blobId = BlobId.of(bucket, req.path)
-
-        val contentType = guessMimeType(req.path)
-
-        val blobInfo = BlobInfo.newBuilder(blobId)
-            .setContentType(contentType)
-            .build()
-
-        storage.create(blobInfo, req.bytes)
-        return req.path
-    }
-
-    override fun getMedia(path: String): ByteArray {
-        val bucket = gcsConfig.bucket
-        val blob = storage.get(bucket, path) ?: return ByteArray(0)
-        return blob.getContent()
-    }
-
-    private fun guessMimeType(path: String): String =
-        when {
-            path.endsWith(".png") -> "image/png"
-            path.endsWith(".jpg") || path.endsWith(".jpeg") -> "image/jpeg"
-            path.endsWith(".gif") -> "image/gif"
-            else -> "application/octet-stream"
-        }
-
-    override fun getContentFromPath(path: String): String {
+    override fun get(path: String): String {
         val bucket = gcsConfig.bucket
 
         val blob = storage.get(bucket, path)
@@ -77,7 +50,8 @@ class GcsStorageService(private val storage: Storage, private val gcsConfig: Gcs
         return String(blob.getContent(), Charsets.UTF_8)
     }
 
-    override fun getContentFromUrls(paths: List<String>): Map<String, String> {
+    override fun getList(req: StorageGetRequest): StorageContentMap {
+        val paths = req.paths
 
         val bucket = gcsConfig.bucket
         val result = mutableMapOf<String, String>()
@@ -97,10 +71,10 @@ class GcsStorageService(private val storage: Storage, private val gcsConfig: Gcs
             }
         }
 
-        return result
+        return StorageContentMap(content = result)
     }
 
-    override fun deleteDataList(req: StorageDeleteRequest): UploadedPaths {
+    override fun deleteList(req: StorageDeleteRequest): UploadedPaths {
        val requests = req.paths
         val bucket = gcsConfig.bucket
 
@@ -140,12 +114,5 @@ class GcsStorageService(private val storage: Storage, private val gcsConfig: Gcs
     private fun rollbackAdditions (bucket: String, uploaded: List<String>) {
         uploaded.forEach { path -> storage.delete(bucket, path) }
     }
-
-
-
-
-
-
-
 
 }
