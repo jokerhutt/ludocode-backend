@@ -2,6 +2,8 @@ package com.ludocode.ludocodebackend.commons.constants
 
 object LogFields {
     const val REQUEST_ID = "requestId"
+    const val PROVIDER = "provider"
+    const val PROVIDER_USER_ID = "providerUserId"
     const val USER_ID = "userId"
     const val PROJECT_ID = "projectId"
     const val FILE_ID = "fileId"

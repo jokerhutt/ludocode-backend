@@ -2,6 +2,11 @@ package com.ludocode.ludocodebackend.commons.constants
 
 object LogEvents {
 
+    const val AUTH_FIREBASE_VERIFIED = "auth_firebase_verified"
+    const val AUTH_FIREBASE_FAILED = "auth_firebase_failed"
+    const val AUTH_LOGIN_SUCCESS = "auth_login_success"
+    const val AUTH_DEMO_LOGIN_REQUESTED = "auth_demo_login_requested"
+
     const val GCS_GET_FAILED = "gcs_get_failed"
     const val STORAGE_DELETE_FAILED = "storage_delete_failed"
     const val STORAGE_UPLOAD_FAILED = "storage_upload_failed"

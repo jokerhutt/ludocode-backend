@@ -5,12 +5,17 @@ import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserCoinsPortForAuth
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStreakPortForAuth
 import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
 import jakarta.servlet.http.HttpServletResponse
+import net.logstash.logback.argument.StructuredArguments.kv
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -25,21 +30,37 @@ class AuthService(
     private val firebaseAuthPort: FirebaseAuthPort
 ) {
 
-    internal fun loginWithFirebase (response: HttpServletResponse, token: String) : UserLoginResponse {
-        val decoded = firebaseAuthPort.verifyIdToken(token)
+    private val logger = LoggerFactory.getLogger(AuthService::class.java)
 
-        val request = FindOrCreateUserRequest(
-            provider = AuthProvider.FIREBASE,
-            providerUserId = decoded.uid,
-            email = decoded.email
-                ?: throw ApiException(ErrorCode.BAD_REQ, "Email missing from Firebase token"),
-            displayName = decoded.name,
-            avatarUrl = decoded.picture
-        )
-        return buildLoginResponse(request, response)
+    internal fun loginWithFirebase (response: HttpServletResponse, token: String) : UserLoginResponse {
+
+        return try {
+            val decoded = firebaseAuthPort.verifyIdToken(token)
+
+            logger.info(
+                LogEvents.AUTH_FIREBASE_VERIFIED + " {}",
+                kv(LogFields.PROVIDER_USER_ID, decoded.uid)
+            )
+
+            val request = FindOrCreateUserRequest(
+                provider = AuthProvider.FIREBASE,
+                providerUserId = decoded.uid,
+                email = decoded.email
+                    ?: throw ApiException(ErrorCode.BAD_REQ, "Email missing from Firebase token"),
+                displayName = decoded.name,
+                avatarUrl = decoded.picture
+            )
+            buildLoginResponse(request, response)
+        } catch (e: Exception) {
+            logger.warn(LogEvents.AUTH_FIREBASE_FAILED, e)
+            throw e
+        }
+
+
     }
 
     fun loginWithDemo(response: HttpServletResponse): UserLoginResponse {
+        logger.info(LogEvents.AUTH_DEMO_LOGIN_REQUESTED)
         val request = FindOrCreateUserRequest(
             provider = AuthProvider.DEMO,
             providerUserId = demoConfig.userId.toString(),
@@ -55,11 +76,16 @@ class AuthService(
         response: HttpServletResponse
     ): UserLoginResponse {
         val user = userPortForAuth.findOrCreate(request)
-        val coins = userCoinsPortForAuth.findOrCreateCoins(user.id)
-        val streak = userStreakPortForAuth.getStreak(user.id)
-        val jwt = jwtService.createToken(user.id)
-        authCookieService.setJwt(response, jwt)
-        return UserLoginResponse(user, coins, streak)
+
+        return withMdc(LogFields.USER_ID to user.id.toString(), LogFields.PROVIDER to request.provider.toString()) {
+            logger.info(LogEvents.AUTH_LOGIN_SUCCESS)
+            val coins = userCoinsPortForAuth.findOrCreateCoins(user.id)
+            val streak = userStreakPortForAuth.getStreak(user.id)
+            val jwt = jwtService.createToken(user.id)
+            authCookieService.setJwt(response, jwt)
+            UserLoginResponse(user, coins, streak)
+        }
+
     }
 
     internal fun getAuthenticatedUser (id: UUID) : UserResponse {
