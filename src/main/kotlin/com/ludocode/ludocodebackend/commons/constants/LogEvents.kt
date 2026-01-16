@@ -17,6 +17,12 @@ object LogEvents {
     const val UNAUTHORIZED = "unauthorized"
     const val VALIDATION_FAILED = "validation_failed"
 
+    const val COURSE_SNAPSHOT_APPLY = "course_snapshot_applied"
+    const val COURSE_SNAPSHOT_BUILT = "course_snapshot_built"
+
+    const val LESSON_EXERCISES_LOADED = "lesson_exercises_loaded"
+    const val COURSE_TREE_LOADED = "course_tree_loaded"
+
     const val PROJECT_SNAPSHOT_LOADED = "project_snapshot_loaded"
     const val PROJECT_RENAME_REQUESTED = "project_rename_requested"
     const val PROJECT_SNAPSHOT_DIFF = "project_snapshot_diff"

@@ -7,6 +7,8 @@ import com.ludocode.ludocodebackend.catalog.api.dto.response.ModuleResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTreeResponse
 import com.ludocode.ludocodebackend.catalog.app.service.CatalogService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.commons.constants.LogFields
+import com.ludocode.ludocodebackend.commons.logging.withMdc
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springframework.http.ResponseEntity
@@ -41,7 +43,9 @@ class CatalogController(private val catalogService: CatalogService) {
         )
     @GetMapping(ApiPaths.CATALOG.COURSE_TREE)
     fun getCourseTree(@PathVariable courseId: UUID): ResponseEntity<FlatCourseTreeResponse> {
-        return ResponseEntity.ok(catalogService.getFlatCourseTree(courseId))
+        return withMdc(LogFields.COURSE_ID to courseId.toString()) {
+            ResponseEntity.ok(catalogService.getFlatCourseTree(courseId))
+        }
     }
 
     @Operation(summary = "Get exercises for lesson",
@@ -52,7 +56,9 @@ class CatalogController(private val catalogService: CatalogService) {
         )
     @GetMapping(ApiPaths.CATALOG.LESSON_EXERCISES)
     fun getExercisesByLessonId(@PathVariable lessonId: UUID) : ResponseEntity<List<ExerciseResponse>> {
-        return ResponseEntity.ok(catalogService.getExercisesByLessonId(lessonId));
+        return withMdc(LogFields.LESSON_ID to lessonId.toString()) {
+            ResponseEntity.ok(catalogService.getExercisesByLessonId(lessonId));
+        }
     }
 
     @Operation(summary = "Get modules by ID list", description = "Returns module metadata for the provided list of module IDs.")
@@ -65,7 +71,9 @@ class CatalogController(private val catalogService: CatalogService) {
     @SecurityRequirement(name = "sessionAuth")
     @GetMapping(ApiPaths.CATALOG.LESSONS)
     fun getLessonsByIdList(@RequestParam lessonIds: List<UUID>, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<List<LessonResponse>> {
-        return ResponseEntity.ok(catalogService.getLessonsByIds(lessonIds, userId))
+        return withMdc(LogFields.USER_ID to userId.toString()) {
+            ResponseEntity.ok(catalogService.getLessonsByIds(lessonIds, userId))
+        }
     }
 
 }

@@ -14,6 +14,7 @@ object LogFields {
     const val URI_PATH = "uriPath"
     const val FIELD_COUNT = "fieldCount"
 
+
     const val FILE_COUNT = "fileCount"
     const val HITS = "hits"
     const val ADD_COUNT = "addCount"
@@ -21,7 +22,10 @@ object LogFields {
     const val UPDATE_COUNT = "updateCount"
     const val DELETE_COUNT = "deleteCount"
 
+
     const val COURSE_ID = "courseId"
+    const val MODULE_ID = "moduleId"
+    const val LESSON_ID = "lessonId"
     const val COURSE_COUNT = "courseCount"
     const val MODULE_COUNT = "moduleCount"
     const val LESSON_COUNT = "lessonCount"

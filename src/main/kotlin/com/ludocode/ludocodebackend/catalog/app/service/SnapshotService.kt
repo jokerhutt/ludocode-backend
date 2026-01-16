@@ -25,8 +25,12 @@ import com.ludocode.ludocodebackend.catalog.infra.repository.LessonRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.OptionContentRepository
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
+import net.logstash.logback.argument.StructuredArguments.kv
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -45,6 +49,8 @@ class SnapshotService(
     private val courseMapper: CourseMapper,
     private val courseRepository: CourseRepository
 ) {
+
+    private val logger = LoggerFactory.getLogger(SnapshotService::class.java)
 
     @Transactional
     fun applyNewSnapshot (reqSnapshot: CourseSnap): CourseSnap? {
@@ -116,6 +122,14 @@ class SnapshotService(
         )
 
         lessonExercisesRepository.save(newLessonExercise)
+
+        logger.info(
+            LogEvents.COURSE_CREATED + " {} {} {} {}",
+            kv(LogFields.COURSE_ID, newCourseId.toString()),
+            kv(LogFields.MODULE_COUNT, 1),
+            kv(LogFields.LESSON_COUNT, 1),
+            kv(LogFields.EXERCISE_COUNT, 1)
+        )
 
         return courseMapper.toCourseResponseList(courseRepository.findAll())
 
@@ -249,6 +263,13 @@ class SnapshotService(
 
         val submittedModuleDiffsIds = submittedModuleDiffs.map { it.moduleId }
         val modulesToDelete : List<UUID> = getIdsToDelete(submittedModuleDiffsIds, activeModuleIds)
+
+        logger.info(
+            LogEvents.COURSE_SNAPSHOT_APPLY + " {} {} {}",
+            kv(LogFields.COURSE_ID, courseId.toString()),
+            kv(LogFields.MODULE_COUNT, submittedModuleDiffs.size),
+            kv(LogFields.DELETE_COUNT, modulesToDelete.size),
+        )
 
         for (moduleId in modulesToDelete) {
             moduleRepository.softDeleteModulesByModuleId(moduleId)

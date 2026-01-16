@@ -94,9 +94,7 @@ class GlobalExceptionHandler {
             kv(LogFields.URI_PATH, req.requestURI),
             ex
         )
-        val log = LoggerFactory.getLogger(this::class.java)
-        log.error("Unhandled exception in request ${req.requestURI}", ex)
-
+        
         if (
             req.requestURI.startsWith("/v3/api-docs") ||
             req.requestURI.startsWith("/swagger-ui")

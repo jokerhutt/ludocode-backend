@@ -18,10 +18,16 @@ import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.LessonExercisesRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.LessonRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.playground.app.service.ProjectService
+import net.logstash.logback.argument.StructuredArguments.kv
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.UUID
+import kotlin.math.log
 
 @Service
 class CatalogService(
@@ -35,6 +41,9 @@ class CatalogService(
     private val flatCourseTreeMapper: FlatCourseTreeMapper,
     private val lessonExercisesRepository: LessonExercisesRepository,
 ) : CatalogPortForProgress {
+
+    private val logger = LoggerFactory.getLogger(CatalogService::class.java)
+
 
     override fun findFirstLessonIdInCourse(courseId: UUID): UUID {
        return lessonRepository.findFirstLessonIdInCourse(courseId) ?: throw ApiException(ErrorCode.LESSON_NOT_FOUND)
@@ -68,11 +77,19 @@ class CatalogService(
 
     internal fun getFlatCourseTree(courseId: UUID): FlatCourseTreeResponse {
         val rows = moduleRepository.findFlatCourseTree(courseId)
+        logger.info(
+            LogEvents.COURSE_TREE_LOADED,
+            kv(LogFields.MODULE_COUNT, rows.size)
+        )
         return flatCourseTreeMapper.toFlatTree(courseId, rows)
     }
 
     internal fun getExercisesByLessonId (lessonId: UUID): List<ExerciseResponse> {
        val exercisesWithOptionsFlat: List<ExerciseFlatProjection> = lessonExercisesRepository.getFlatExercisesWithOptions(lessonId)
+        logger.info(
+            LogEvents.LESSON_EXERCISES_LOADED + " {}",
+            kv(LogFields.EXERCISE_COUNT, exercisesWithOptionsFlat.size)
+        )
        return exerciseMapper.toLessonExercises(exercisesWithOptionsFlat)
     }
 
