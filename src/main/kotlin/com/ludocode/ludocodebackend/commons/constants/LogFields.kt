@@ -14,10 +14,20 @@ object LogFields {
     const val CHAT_TYPE = "chatType"
     const val AI_TARGET_ID = "aiTargetId"
 
+    const val CHOSEN_PATH = "chosenPath"
+
     const val CREDITS = "credits"
     const val DELTA = "delta"
     const val OLD_CREDITS = "oldCredits"
     const val NEW_CREDITS = "newCredits"
+
+    const val OLD_USERNAME = "oldUsername"
+    const val NEW_USERNAME = "newUsername"
+
+    const val OLD_AVATAR_INDEX = "oldAvatarIndex"
+    const val NEW_AVATAR_INDEX = "newAvatarIndex"
+    const val OLD_AVATAR_VERSION = "oldAvatarVersion"
+    const val NEW_AVATAR_VERSION = "newAvatarVersion"
 
     const val ERROR_CODE = "errorCode"
     const val RESPONSE_STATUS = "responseStatus"

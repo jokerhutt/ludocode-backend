@@ -3,10 +3,13 @@ package com.ludocode.ludocodebackend.playground.infra.http
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ludocode.ludocodebackend.commons.constants.ExternalPathContstants.PISTON_EXECUTE
 import com.ludocode.ludocodebackend.commons.constants.ExternalPathContstants.PISTON_RUNTIMES
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonRequest
 import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonResponse
 import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonRun
 import com.ludocode.ludocodebackend.playground.app.port.out.PistonOutboundPort
+import com.ludocode.ludocodebackend.playground.app.service.ProjectService
+import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -18,6 +21,8 @@ class PistonClient (
     private val pistonBase: String
 ) : PistonOutboundPort {
 
+    private val logger = LoggerFactory.getLogger(PistonClient::class.java)
+
     private val rest = RestTemplate()
     private val mapper = jacksonObjectMapper()
 
@@ -26,20 +31,32 @@ class PistonClient (
 
     override fun execute(request: PistonRequest): PistonResponse {
 
-        println("EXECUTE PATH: $executePath")
-        println("REQUEST JSON:\n${mapper.writeValueAsString(request)}")
         val headers = HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON }
         val entity = HttpEntity(request, headers)
 
-        return rest.postForObject(executePath, entity, PistonResponse::class.java)
-            ?: PistonResponse(PistonRun(stderr = "Empty response"))
+        try {
+            val resp = rest.postForObject(executePath, entity, PistonResponse::class.java)
+                ?: run {
+                    logger.warn(LogEvents.PISTON_EMPTY_RESPONSE)
+                    return PistonResponse(PistonRun(stderr = "Empty response"))
+                }
+
+            return resp
+        } catch (e: Exception) {
+            logger.error(LogEvents.PISTON_EXECUTE_FAILED, e)
+            throw e
+        }
     }
 
     override fun listRuntimes(): List<Map<String, Any>> {
-        println("RUNTIME PATH: $runtimesPath")
-        val result = rest.getForObject(runtimesPath, List::class.java)
-        @Suppress("UNCHECKED_CAST")
-        return result as? List<Map<String, Any>> ?: emptyList()
+        return try {
+            val result = rest.getForObject(runtimesPath, List::class.java)
+            @Suppress("UNCHECKED_CAST")
+            result as? List<Map<String, Any>> ?: emptyList()
+        } catch (e: Exception) {
+            logger.error(LogEvents.PISTON_RUNTIMES_FAILED, e)
+            emptyList()
+        }
     }
 
 

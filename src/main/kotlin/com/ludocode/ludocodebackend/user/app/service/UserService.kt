@@ -1,5 +1,7 @@
 package com.ludocode.ludocodebackend.user.app.service
 
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
@@ -20,6 +22,8 @@ import com.ludocode.ludocodebackend.user.infra.repository.ExternalAccountReposit
 import com.ludocode.ludocodebackend.user.infra.repository.UserPreferencesRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import jakarta.transaction.Transactional
+import net.logstash.logback.argument.StructuredArguments.kv
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
 import java.time.Clock
@@ -37,6 +41,8 @@ class UserService(
     private val courseProgressPortForUser: CourseProgressPortForUser,
 ) : UserPortForProgress, UserPortForAuth {
 
+    private val logger = LoggerFactory.getLogger(UserService::class.java)
+
     override fun getById(id: UUID): UserResponse {
         return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(), hasOnboarded(id))
     }
@@ -50,6 +56,7 @@ class UserService(
         var existingUser = userRepository.findById(userId).orElseThrow()
         val userExternalAccount = externalAccountRepository.findByUserId(userId) ?: throw ApiException(ErrorCode.USER_NOT_FOUND, "Could not find external account for user")
         externalAccountRepository.delete(userExternalAccount)
+        logger.warn(LogEvents.USER_DELETED)
         existingUser.isDeleted = true
     }
 
@@ -58,7 +65,10 @@ class UserService(
 
         val existingUser : ExternalAccount? = externalAccountRepository.findByProviderAndProviderUserId(req.provider, req.providerUserId)
 
-        if (existingUser != null) return getById(existingUser.userId)
+        if (existingUser != null)  {
+            logger.info(LogEvents.USER_LOGIN_EXISTING + " {}", kv(LogFields.PROVIDER, req.provider.name))
+            return getById(existingUser.userId)
+        }
 
         val assignedAvatar = assignAvatar()
 
@@ -79,6 +89,13 @@ class UserService(
                 providerUserId = req.providerUserId
             )
         )
+
+        logger.info(
+            LogEvents.USER_CREATED + " {} {}",
+            kv(LogFields.PROVIDER, req.provider.name),
+            kv(LogFields.PROVIDER_USER_ID, req.providerUserId)
+        )
+
         return userMapper.toUserResponse(newUser, hasOnboarded(newUser))
     }
 
@@ -92,9 +109,16 @@ class UserService(
     internal fun editUser(userId: UUID, request: EditProfileRequest) : UserResponse {
         val user = userRepository.findById(userId).orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
         if ((user.displayName != request.username) && request.username.isNotEmpty()) {
+            val oldName = user.displayName
             user.displayName = request.username
+            logger.info(
+                LogEvents.USERNAME_CHANGED + " {} {}",
+                kv(LogFields.OLD_USERNAME, oldName ?: "null"),
+                kv(LogFields.NEW_USERNAME, request.username)
+            )
         }
         userRepository.save(user)
+
         val res = changeUserAvatar(user, request.avatarInfo)
         return res
     }
@@ -109,20 +133,33 @@ class UserService(
     @Transactional
     internal fun changeUserAvatar(user: User, avatarInfo: AvatarInfo): UserResponse{
 
-        val selectedAvatarIndex = avatarInfo.index
-        val selectedAvatarVersion = avatarInfo.version
+        val newIndex = avatarInfo.index
+        val newVersion = avatarInfo.version
+
+        val oldIndex = user.avatarIndex
+        val oldVersion = user.avatarVersion
+
         val hasUserOnboarded = hasOnboarded(user)
 
         val validIndexes = avatarConfig.count
-        if (selectedAvatarIndex < 1 || selectedAvatarIndex > validIndexes) throw ApiException(ErrorCode.BAD_REQ, "This avatar does not exist")
+        if (newIndex < 1 || newIndex > validIndexes) throw ApiException(ErrorCode.BAD_REQ, "This avatar does not exist")
 
-        if (user.avatarIndex == selectedAvatarIndex && user.avatarVersion == selectedAvatarVersion) {
+        if (user.avatarIndex == newIndex && user.avatarVersion == newVersion) {
             return userMapper.toUserResponse(user, hasUserOnboarded)
         }
 
-        user.avatarVersion = selectedAvatarVersion
-        user.avatarIndex = selectedAvatarIndex
+        user.avatarVersion = newVersion
+        user.avatarIndex = newIndex
         userRepository.save(user)
+
+        logger.info(
+            LogEvents.USER_AVATAR_CHANGED + " {} {} {} {}",
+            kv(LogFields.OLD_AVATAR_INDEX, oldIndex),
+            kv(LogFields.NEW_AVATAR_INDEX, newIndex),
+            kv(LogFields.OLD_AVATAR_VERSION, oldVersion),
+            kv(LogFields.NEW_AVATAR_VERSION, newVersion),
+        )
+
         return userMapper.toUserResponse(user, hasUserOnboarded)
 
     }
@@ -150,6 +187,13 @@ class UserService(
 
         val savedPreferences = userPreferencesRepository.save(toSubmit)
         val newCourseProgressWithEnrolled = courseProgressPortForUser.findOrCreate(userId, submission.chosenCourse)
+
+        logger.info(
+            LogEvents.USER_ONBOARDED + " {} {}",
+            kv(LogFields.CHOSEN_PATH, submission.chosenPath.name),
+            kv(LogFields.COURSE_ID, submission.chosenCourse.toString())
+        )
+
         return OnboardingResponse(refreshedUser = getById(userId), savedPreferences, courseProgressResponse = newCourseProgressWithEnrolled)
     }
 

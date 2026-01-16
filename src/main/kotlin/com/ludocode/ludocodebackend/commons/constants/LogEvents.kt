@@ -22,6 +22,9 @@ object LogEvents {
 
     const val RUNNER_EXECUTE_FAILED = "runner_execute_failed"
     const val RUNNER_EXECUTE_NONZERO_EXIT = "runner_execute_nonzero_exit"
+    const val PISTON_EMPTY_RESPONSE = "piston_empty_response"
+    const val PISTON_EXECUTE_FAILED = "piston_execute_failed"
+    const val PISTON_RUNTIMES_FAILED = "piston_runtimes_failed"
 
     const val LESSON_COMPLETION_DUPLICATE = "lesson_completion_duplicate"
     const val LESSON_COMPLETION_SUBMITTED = "lesson_completion_submitted"
@@ -41,6 +44,9 @@ object LogEvents {
     const val LESSON_EXERCISES_LOADED = "lesson_exercises_loaded"
     const val COURSE_TREE_LOADED = "course_tree_loaded"
 
+    const val USER_ONBOARDED = "userOnboarded"
+    const val USER_DELETED = "userDeleted"
+
     const val STREAK_GOAL_ALREADY_MET = "streak_goal_already_met"
     const val STREAK_GOAL_MET_RECORDED = "streak_goal_met_recorded"
     const val STREAK_INITIALIZED = "streak_initialized"
@@ -58,5 +64,11 @@ object LogEvents {
     const val PROJECT_SNAPSHOT_FORBIDDEN = "project_snapshot_forbidden"
 
     const val USER_COINS_ADJUSTED = "user_coins_adjusted"
+    const val USERNAME_CHANGED = "username_changed"
+
+    const val USER_LOGIN_EXISTING = "user_login_existing"
+    const val USER_CREATED = "user_created"
+    const val USER_AVATAR_CHANGED = "user_avatar_changed"
+
 
 }
