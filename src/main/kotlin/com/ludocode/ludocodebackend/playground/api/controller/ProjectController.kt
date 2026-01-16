@@ -39,9 +39,7 @@ class ProjectController(private val projectService: ProjectService) {
     )
     @PutMapping(ApiPaths.PROJECTS.BY_ID)
     fun saveProject (@RequestBody projectSnapshot: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectSnapshot> {
-        return withMdc(LogFields.USER_ID to userId.toString()) {
-            ResponseEntity.ok(projectService.saveProjectSnapshot(projectSnapshot))
-        }
+        return ResponseEntity.ok(projectService.saveProjectSnapshot(projectSnapshot))
     }
 
     @Operation(
@@ -54,7 +52,7 @@ class ProjectController(private val projectService: ProjectService) {
     )
     @DeleteMapping(ApiPaths.PROJECTS.BY_ID)
     fun deleteProject (@PathVariable projectId : UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectListResponse> {
-        return withMdc(LogFields.USER_ID to userId.toString(), LogFields.PROJECT_ID to projectId.toString()) {
+        return withMdc( LogFields.PROJECT_ID to projectId.toString()) {
             ResponseEntity.ok(projectService.deleteProjectForUser(projectId, userId))
         }
     }
@@ -70,7 +68,7 @@ class ProjectController(private val projectService: ProjectService) {
     )
     @PatchMapping(ApiPaths.PROJECTS.NAME)
     fun renameProject (@PathVariable projectId: UUID, @RequestBody request: RenameRequest, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectListResponse> {
-        return withMdc(LogFields.USER_ID to userId.toString(), LogFields.PROJECT_ID to projectId.toString()) {
+        return withMdc(LogFields.PROJECT_ID to projectId.toString()) {
             ResponseEntity.ok(projectService.renameProject(request, userId))
         }
     }
@@ -85,9 +83,7 @@ class ProjectController(private val projectService: ProjectService) {
     )
     @PostMapping
     fun createProject (@RequestBody request: CreateProjectRequest, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectListResponse> {
-        return withMdc(LogFields.USER_ID to userId.toString()) {
-            ResponseEntity.ok(projectService.createProject(request, userId))
-        }
+            return ResponseEntity.ok(projectService.createProject(request, userId))
     }
 
     @Operation(
@@ -99,9 +95,7 @@ class ProjectController(private val projectService: ProjectService) {
     )
     @GetMapping
     fun getUserProjects (@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<ProjectListResponse> {
-        return withMdc(LogFields.USER_ID to userId.toString()) {
-            ResponseEntity.ok(projectService.getUserProjects(userId))
-        }
+        return ResponseEntity.ok(projectService.getUserProjects(userId))
     }
 
     @Operation(
@@ -114,7 +108,7 @@ class ProjectController(private val projectService: ProjectService) {
     )
     @GetMapping(ApiPaths.PROJECTS.BY_ID)
     fun getProject (@PathVariable projectId: UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectSnapshot> {
-        return withMdc(LogFields.USER_ID to userId.toString(), LogFields.PROJECT_ID to projectId.toString()) {
+        return withMdc(LogFields.PROJECT_ID to projectId.toString()) {
             ResponseEntity.ok(projectService.getProjectSnapshotForUserByProjectId(projectId, userId))
         }
     }

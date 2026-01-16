@@ -71,9 +71,7 @@ class CatalogController(private val catalogService: CatalogService) {
     @SecurityRequirement(name = "sessionAuth")
     @GetMapping(ApiPaths.CATALOG.LESSONS)
     fun getLessonsByIdList(@RequestParam lessonIds: List<UUID>, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<List<LessonResponse>> {
-        return withMdc(LogFields.USER_ID to userId.toString()) {
-            ResponseEntity.ok(catalogService.getLessonsByIds(lessonIds, userId))
-        }
+        return ResponseEntity.ok(catalogService.getLessonsByIds(lessonIds, userId))
     }
 
 }

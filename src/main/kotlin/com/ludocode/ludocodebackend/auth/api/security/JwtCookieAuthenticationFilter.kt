@@ -3,11 +3,13 @@ package com.ludocode.ludocodebackend.auth.api.security
 import com.ludocode.ludocodebackend.auth.api.security.principal.AuthUser
 import com.ludocode.ludocodebackend.auth.app.service.AuthCookieService
 import com.ludocode.ludocodebackend.auth.app.service.JwtService
+import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.slf4j.MDC
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
@@ -53,6 +55,8 @@ class JwtCookieAuthenticationFilter(
                     return
                 }
 
+                MDC.put(LogFields.USER_ID, userId.toString())
+
                 val principal = AuthUser(userId)
                 val auth = UsernamePasswordAuthenticationToken(principal, null, emptyList<GrantedAuthority>())
                 auth.details = WebAuthenticationDetailsSource().buildDetails(req)
@@ -61,6 +65,10 @@ class JwtCookieAuthenticationFilter(
             println("JWT invalid: ${e.message}")
         }
         }
-        chain.doFilter(req, res)
+        try {
+            chain.doFilter(req, res)
+        } finally {
+            MDC.remove(LogFields.USER_ID)
+        }
     }
 }

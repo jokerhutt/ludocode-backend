@@ -33,9 +33,7 @@ class CodeRunnerController(private val codeRunnerService: CodeRunnerService) {
     @SecurityRequirement(name = "sessionAuth")
     @PostMapping(ApiPaths.RUNNER.EXECUTE)
     fun runProject (@RequestBody request: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<RunnerResult> {
-        return withMdc(LogFields.USER_ID to userId.toString()) {
-            ResponseEntity.ok(codeRunnerService.runCode(request))
-        }
+        return ResponseEntity.ok(codeRunnerService.runCode(request))
     }
 
 }
