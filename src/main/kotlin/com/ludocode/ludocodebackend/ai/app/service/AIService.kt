@@ -7,9 +7,14 @@ import com.ludocode.ludocodebackend.ai.app.port.out.AIPort
 import com.ludocode.ludocodebackend.ai.domain.enums.ChatType
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForAI
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.playground.app.port.`in`.ProjectsPortForAI
+import net.logstash.logback.argument.StructuredArguments.kv
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
@@ -27,28 +32,48 @@ class AIService(
     private val catalogPortForAI: CatalogPortForAI,
 ) {
 
+    private val logger = LoggerFactory.getLogger(AIService::class.java)
+
+
     fun streamTokens(messageHistory: List<UIMessageRequest>, chatType: ChatType?, targetId: UUID?, userId: UUID): Flux<AIMessagePart> {
 
-        val credits = aICreditService.initializeOrGetCredits(userId)
-        if (credits.credits <= 0) throw ApiException(ErrorCode.NOT_ENOUGH_CREDITS)
-        aICreditService.deductCredits(userId)
+        val resolvedType = chatType ?: ChatType.DEFAULT
 
-        val chatTuple = getHistoryAndLast(messageHistory)
-        val userMessage = chatTuple.last
-        val chatHistory = chatTuple.history
-
-        val prompt = getPrompt(userMessage, chatHistory, targetId, chatType ?: ChatType.DEFAULT)
-
-        val geminiRequest = geminiMapper.mapToGemini(prompt)
-
-        return aIPort.stream(geminiRequest)
-            .map { token ->
-                println("Token: $token")
-                AIMessagePart(
-                    type = "text",
-                    text = token
-                )
+        return withMdc(LogFields.USER_ID to userId.toString(), LogFields.CHAT_TYPE to resolvedType.toString(), LogFields.AI_TARGET_ID to targetId.toString()) {
+            val credits = aICreditService.initializeOrGetCredits(userId)
+            if (credits.credits <= 0) {
+                logger.warn(LogEvents.AI_CREDITS_EXHAUSTED)
+                throw ApiException(ErrorCode.NOT_ENOUGH_CREDITS)
             }
+            aICreditService.deductCredits(userId)
+
+            val chatTuple = getHistoryAndLast(messageHistory)
+            val userMessage = chatTuple.last
+            val chatHistory = chatTuple.history
+
+            val prompt = getPrompt(userMessage, chatHistory, targetId, resolvedType)
+
+            val geminiRequest = geminiMapper.mapToGemini(prompt)
+
+            logger.info(
+                LogEvents.AI_STREAM_STARTED + " {} {}",
+                kv(LogFields.HISTORY_COUNT, chatHistory.size),
+                kv(LogFields.USER_MESSAGE_LENGTH, userMessage.length),
+            )
+
+            aIPort.stream(geminiRequest)
+                .map { token ->
+                    AIMessagePart(type = "text", text = token)
+                }
+                .doOnComplete {
+                    logger.info(LogEvents.AI_STREAM_COMPLETED)
+                }
+                .doOnError { e ->
+                    logger.error(LogEvents.AI_STREAM_FAILED, e)
+                }
+        }
+
+
     }
 
     private fun getHistoryAndLast(messages: List<UIMessageRequest>): ChatPartsTuple {

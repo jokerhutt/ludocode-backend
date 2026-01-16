@@ -2,9 +2,13 @@ package com.ludocode.ludocodebackend.ai.app.service
 
 import com.ludocode.ludocodebackend.ai.domain.entity.UserAICredits
 import com.ludocode.ludocodebackend.ai.infra.repository.UserAICreditsRepository
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import jakarta.transaction.Transactional
+import net.logstash.logback.argument.StructuredArguments.kv
+import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -12,6 +16,8 @@ import java.util.UUID
 @ConditionalOnProperty(prefix = "ai", name = ["enabled"], havingValue = "true")
 @Service
 class AICreditService(private val userAICreditsRepository: UserAICreditsRepository) {
+
+    private val logger = LoggerFactory.getLogger(AICreditService::class.java)
 
     private val INITIAL_USER_CREDITS: Int = 10
 
@@ -40,18 +46,50 @@ class AICreditService(private val userAICreditsRepository: UserAICreditsReposito
         var userCreditsEntity = initializeOrGetCredits(userId)
         val currentCredits = userCreditsEntity.credits
         val newCredits = currentCredits + amount
+
+        if (amount < 0) {
+            if (newCredits == 0) {
+                logger.warn(
+                    LogEvents.AI_CREDITS_EXHAUSTED + " {} {}",
+                    kv(LogFields.USER_ID, userId.toString()),
+                    kv(LogFields.OLD_CREDITS, currentCredits)
+                )
+            }
+
+            if (newCredits < 0) {
+                logger.warn(
+                    LogEvents.AI_CREDITS_OVERDRAW_ATTEMPT + " {} {} {}",
+                    kv(LogFields.USER_ID, userId.toString()),
+                    kv(LogFields.OLD_CREDITS, currentCredits),
+                    kv(LogFields.DELTA, amount)
+                )
+            }
+        }
+
         if (newCredits < 0) {
             userCreditsEntity.credits = 0
         } else {
             userCreditsEntity.credits = newCredits
         }
         userAICreditsRepository.save(userCreditsEntity)
+        logger.info(
+            LogEvents.AI_CREDITS_ADJUSTED + " {} {} {} {}",
+            kv(LogFields.USER_ID, userId.toString()),
+            kv(LogFields.DELTA, amount),
+            kv(LogFields.OLD_CREDITS, currentCredits),
+            kv(LogFields.NEW_CREDITS, userCreditsEntity.credits)
+        )
         return userCreditsEntity.credits
     }
 
 
     @Transactional
     internal fun initializeOrGetCredits (userId: UUID) : UserAICredits {
+        logger.info(
+            LogEvents.AI_CREDITS_INITIALIZED + " {} {}",
+            kv(LogFields.USER_ID, userId.toString()),
+            kv(LogFields.CREDITS, INITIAL_USER_CREDITS)
+        )
         return userAICreditsRepository.findById(userId).orElseGet { userAICreditsRepository.save(
             UserAICredits(userId, INITIAL_USER_CREDITS)
         ) }

@@ -1,5 +1,7 @@
 package com.ludocode.ludocodebackend.storage.app.service
 
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.storage.app.dto.request.StorageDeleteRequest
 import com.ludocode.ludocodebackend.storage.app.dto.request.StorageGetRequest
 import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequest
@@ -30,7 +32,6 @@ class LocalStorageService(
 
     override fun uploadList(req: StoragePutRequestList): UploadedPaths {
         val uploaded = mutableListOf<String>()
-
         try {
             req.requests.forEach { req ->
                 uploadData(req)
@@ -46,38 +47,38 @@ class LocalStorageService(
 
     override fun get(path: String): String {
         val file = bucket.resolve(path)
-        return if (Files.exists(file)) {
-            Files.readString(file, StandardCharsets.UTF_8)
-        } else ""
+        if (!Files.exists(file)) {
+            throw ApiException(ErrorCode.STORAGE_OBJECT_NOT_FOUND, "Missing local object: $path")
+        }
+        return Files.readString(file, StandardCharsets.UTF_8)
     }
 
     override fun getList(req: StorageGetRequest): StorageContentMap {
-        val paths = req.paths
-        return StorageContentMap (paths.associateWith { path ->
-            try {
-                val file = bucket.resolve(path)
-                if (Files.exists(file)) Files.readString(
-                    file,
-                    StandardCharsets.UTF_8
-                ) else ""
-            } catch (_: Exception) {
-                ""
+        val result = mutableMapOf<String, String>()
+
+        req.paths.forEach { path ->
+            val file = bucket.resolve(path)
+            if (!Files.exists(file)) {
+                throw ApiException(ErrorCode.STORAGE_OBJECT_NOT_FOUND, "Missing local object: $path")
             }
-        }.filterValues { it.isNotEmpty() })
+            result[path] = Files.readString(file, StandardCharsets.UTF_8)
+        }
+
+        return StorageContentMap(result)
     }
 
     override fun deleteList(req: StorageDeleteRequest): UploadedPaths {
-        req.paths.forEach { path ->
+        val requests = req.paths
+        requests.forEach { path ->
             Files.deleteIfExists(bucket.resolve(path))
         }
         return UploadedPaths(req.paths)
     }
 
-    private fun uploadData(req: StoragePutRequest): String {
+    private fun uploadData(req: StoragePutRequest) {
         val file = bucket.resolve(req.path)
         Files.createDirectories(file.parent)
         Files.write(file, req.content.toByteArray(StandardCharsets.UTF_8))
-        return "File saved to local storage"
     }
 
     private fun rollbackAdditions(uploaded: List<String>) {

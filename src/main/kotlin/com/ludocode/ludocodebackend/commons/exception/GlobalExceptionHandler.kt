@@ -1,6 +1,9 @@
 package com.ludocode.ludocodebackend.commons.exception
 
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
 import jakarta.servlet.http.HttpServletRequest
+import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.http.HttpStatus
@@ -15,10 +18,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 @RestControllerAdvice
 class GlobalExceptionHandler {
 
+    private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
+
 
 
     @ExceptionHandler(ApiException::class)
     fun handleApi(ex: ApiException, req: HttpServletRequest): ResponseEntity<ProblemDetail> {
+        logger.warn(
+            "${LogEvents.API_EXCEPTION} {} {} {}",
+            kv(LogFields.ERROR_CODE, ex.code.name),
+            kv(LogFields.RESPONSE_STATUS, ex.code.status.value()),
+            kv(LogFields.URI_PATH, req.requestURI),
+            ex
+        )
         val pd = ProblemDetail.forStatus(ex.code.status).apply {
             title = ex.code.name
             detail = ex.message
@@ -31,6 +43,11 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidation(ex: MethodArgumentNotValidException, req: HttpServletRequest): ResponseEntity<ProblemDetail> {
+        logger.warn(
+            "${LogEvents.VALIDATION_FAILED} {} {}",
+            kv(LogFields.URI_PATH, req.requestURI),
+            kv(LogFields.FIELD_COUNT, ex.bindingResult.fieldErrorCount)
+        )
         val pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST).apply {
             title = "VALIDATION_ERROR"
             detail = "Validation failed"
@@ -46,6 +63,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationException::class)
     fun handleAuth(ex: AuthenticationException, req: HttpServletRequest): ResponseEntity<ProblemDetail> {
+        logger.warn("${LogEvents.UNAUTHORIZED}")
         val pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED).apply {
             title = "UNAUTHORIZED"
             detail = "Authentication required"
@@ -58,6 +76,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException::class)
     fun handleDenied(ex: AccessDeniedException, req: HttpServletRequest): ResponseEntity<ProblemDetail> {
+        logger.warn("${LogEvents.ACCESS_DENIED} {}", kv(LogFields.URI_PATH, req.requestURI))
         val pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN).apply {
             title = "FORBIDDEN"
             detail = "Not allowed"
@@ -70,9 +89,12 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun handleAny(ex: Exception, req: HttpServletRequest): ResponseEntity<ProblemDetail> {
-        val log = LoggerFactory.getLogger(this::class.java)
-        log.error("Unhandled exception in request ${req.requestURI}", ex)
-
+        logger.error(
+            "${LogEvents.UNHANDLED_EXCEPTION} {}",
+            kv(LogFields.URI_PATH, req.requestURI),
+            ex
+        )
+        
         if (
             req.requestURI.startsWith("/v3/api-docs") ||
             req.requestURI.startsWith("/swagger-ui")

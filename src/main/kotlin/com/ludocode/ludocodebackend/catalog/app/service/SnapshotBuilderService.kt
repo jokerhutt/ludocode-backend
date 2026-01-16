@@ -10,6 +10,10 @@ import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForAI
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
+import net.logstash.logback.argument.StructuredArguments.kv
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -20,6 +24,7 @@ class SnapshotBuilderService(
     private val catalogService: CatalogService,
 ) : CatalogPortForAI {
 
+    private val logger = LoggerFactory.getLogger(SnapshotBuilderService::class.java)
 
     override fun findExerciseSnapshotById(exerciseId: UUID): ExerciseSnap {
         val exerciseResponse = catalogService.getExerciseByExerciseId(exerciseId)
@@ -30,6 +35,12 @@ class SnapshotBuilderService(
 
         val moduleIds = moduleRepository.findActiveIdsByCourse(courseId)
         val modules = moduleRepository.findAllByIdIn(moduleIds)
+
+        logger.info(
+            LogEvents.COURSE_SNAPSHOT_BUILT + " {} {}",
+            kv(LogFields.COURSE_ID, courseId.toString()),
+            kv(LogFields.MODULE_COUNT, modules.size),
+        )
 
         val moduleSnapshots = modules.map { module ->
             buildModuleSnapshot(module)

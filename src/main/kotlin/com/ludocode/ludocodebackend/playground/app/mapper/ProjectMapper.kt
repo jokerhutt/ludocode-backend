@@ -16,8 +16,6 @@ import java.util.UUID
 class ProjectMapper (private val basicMapper: BasicMapper) {
 
     fun toProjectFileSnapshot(projectFile: ProjectFile, fileContent: String?): ProjectFileSnapshot  {
-        println("ID: " + projectFile.id)
-        println(("Content: +" + fileContent) ?: "")
         return basicMapper.one(projectFile) {
             ProjectFileSnapshot(
                 id = it.id,
@@ -29,12 +27,10 @@ class ProjectMapper (private val basicMapper: BasicMapper) {
 
     fun toProjectFileSnapshotList(projectFiles: List<ProjectFile>, fileContentMap: Map<String, String>): List<ProjectFileSnapshot> =
         basicMapper.list(projectFiles) { file ->
-            println("FileName: " + file.filePath + "FileUrl: " + file.contentUrl)
             toProjectFileSnapshot(file, fileContentMap[file.contentUrl])
         }
 
     fun toProjectSnapshot(projectId: UUID, projectName: String, projectLanguage: LanguageType, updatedAt: OffsetDateTime?, projectFiles: List<ProjectFile>, fileContentMap: Map<String, String>) : ProjectSnapshot {
-        println("updatedAt in DTO = ${updatedAt}")
         return ProjectSnapshot(projectId, projectName, projectLanguage, updatedAt, toProjectFileSnapshotList(projectFiles, fileContentMap))
     }
 

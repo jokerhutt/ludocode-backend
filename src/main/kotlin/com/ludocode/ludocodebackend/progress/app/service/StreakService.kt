@@ -1,4 +1,6 @@
 package com.ludocode.ludocodebackend.progress.app.service
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.progress.api.dto.response.DailyGoalResponse
@@ -13,6 +15,8 @@ import com.ludocode.ludocodebackend.progress.infra.repository.UserDailyGoalRepos
 import com.ludocode.ludocodebackend.progress.infra.repository.UserStreakRepository
 import java.time.Clock
 import jakarta.transaction.Transactional
+import net.logstash.logback.argument.StructuredArguments.kv
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -31,6 +35,8 @@ class StreakService(
     private val clock: Clock,
 ) : UserStreakPortForAuth {
 
+    private val logger = LoggerFactory.getLogger(StreakService::class.java)
+
 
     @Transactional
     override fun getStreak(userId: UUID): UserStreakResponse {
@@ -44,10 +50,23 @@ class StreakService(
         val today = nowUtc.atZoneSameInstant(userZone).toLocalDate()
         initializeIfAbsentReturning(userId)
         val inserted = userDailyGoalRepository.insertOnce(userId, today)
-        if (inserted == 0) return StreakResponsePacket(action = StreakAction.NONE, response = getStreak(userId))
+        if (inserted == 0) {
+            logger.info(
+                LogEvents.STREAK_GOAL_ALREADY_MET + " {} {}",
+                kv(LogFields.LOCAL_DATE, today.toString()),
+                kv(LogFields.TIMEZONE, userZone.id)
+            )
+            return StreakResponsePacket(action = StreakAction.NONE, response = getStreak(userId))
+        }
+
+        logger.info(
+            LogEvents.STREAK_GOAL_MET_RECORDED + " {} {}",
+            kv(LogFields.LOCAL_DATE, today.toString()),
+            kv(LogFields.TIMEZONE, userZone.id)
+        )
+
         return StreakResponsePacket(action = StreakAction.INCREMENT, response = updateStreak(userId, nowUtc, userZone))
     }
-
 
     internal fun getPastWeekMondayToSunday(
         userId: UUID,
@@ -69,11 +88,19 @@ class StreakService(
     private fun initializeIfAbsentReturning(userId: UUID): UserStreak {
         val streak = userStreakRepository.findByUserId(userId)
         if (streak == null) {
+            logger.info(LogEvents.STREAK_INITIALIZED)
             return userStreakRepository.save(createNewStreak(userId))
         }
+        val oldDays = streak.currentStreakDays ?: 0
         if (shouldResetStreak(userId, streak.lastMetLocalDate)) {
            streak.currentStreakDays = 0
            userStreakRepository.save(streak)
+
+            logger.warn(
+                LogEvents.STREAK_RESET_MISSED_DAY + " {}",
+                kv(LogFields.OLD_STREAK_DAYS, oldDays)
+            )
+
         }
         return streak
     }
@@ -112,6 +139,14 @@ class StreakService(
             best = newBest,
             lastLocal = today,
             lastUtc = nowUtc
+        )
+
+        logger.info(
+            LogEvents.STREAK_UPDATED + " {} {} {} {}",
+            kv(LogFields.OLD_STREAK_DAYS, currentDays),
+            kv(LogFields.NEW_STREAK_DAYS, newCurrent),
+            kv(LogFields.OLD_BEST_STREAK_DAYS, bestDays),
+            kv(LogFields.NEW_BEST_STREAK_DAYS, newBest),
         )
 
         return getStreak(userId)
