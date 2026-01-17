@@ -6,24 +6,22 @@ import com.google.firebase.FirebaseOptions
 import jakarta.annotation.PostConstruct
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
+import java.io.ByteArrayInputStream
 import java.io.FileInputStream
 
 @Configuration
-class FirebaseConfig (
-    @Value("\${firebase.service.path}")
-    private val serviceAccountPath: String
-){
-
+class FirebaseConfig(
+    @Value("\${firebase.service.json}")
+    private val serviceAccountJson: String
+) {
 
     @PostConstruct
     fun init() {
-        val serviceAccount =
-            this::class.java.classLoader
-                .getResourceAsStream(serviceAccountPath)
-                ?: throw IllegalStateException("firebase-service-account.json not found on classpath")
+        val serviceAccountStream =
+            ByteArrayInputStream(serviceAccountJson.toByteArray(Charsets.UTF_8))
 
         val options = FirebaseOptions.builder()
-            .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+            .setCredentials(GoogleCredentials.fromStream(serviceAccountStream))
             .build()
 
         if (FirebaseApp.getApps().isEmpty()) {

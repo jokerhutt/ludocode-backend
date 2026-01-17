@@ -22,6 +22,7 @@ springdoc:
 
 firebase:
   service:
+    json: ${FIREBASE_SERVICE_ACCOUNT_JSON}
     path: ${FIREBASE_SERVICE_ACCOUNT_PATH:firebase-service-account.json}
 
 ai:
@@ -48,12 +49,19 @@ avatar:
 app:
   gcs-host:
 
+# mode: local, s3, gcs
 storage:
+  mode: ${STORAGE_MODE:local}
+
   gcs:
-    enabled: ${GCS_ENABLED:false}
     bucket: ${GCS_BUCKET_NAME}
     project:
       id: ${GCS_PROJECT_ID}
+    credentials-json: ${GCS_CREDENTIALS_JSON:}
+  s3:
+    region: ${AWS_REGION:eu-central-1}
+    bucket: ${S3_BUCKET_NAME}
+    endpoint: ${S3_ENDPOINT}
   local:
     bucket-name: ${LOCAL_BUCKET_NAME:/data/local-bucket}
 

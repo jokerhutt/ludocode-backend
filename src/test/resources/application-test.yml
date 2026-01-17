@@ -10,8 +10,8 @@ piston:
   base: ${PISTON_BASE}
 
 storage:
+  mode: local
   gcs:
-    enabled: ${GCS_ENABLED:true}
     bucket: ${GCS_BUCKET_NAME}
     project:
       id: ${GCS_PROJECT_ID}
