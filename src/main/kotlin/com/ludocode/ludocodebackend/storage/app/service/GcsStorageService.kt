@@ -10,29 +10,21 @@ import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequest
 import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequestList
 import com.ludocode.ludocodebackend.storage.app.dto.response.UploadedPaths
 import com.ludocode.ludocodebackend.storage.app.port.`in`.StoragePortForServices
-import com.ludocode.ludocodebackend.playground.config.GcsFeatureConfig
 import com.ludocode.ludocodebackend.storage.app.dto.request.StorageDeleteRequest
 import com.ludocode.ludocodebackend.storage.app.dto.response.StorageContentMap
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 
-@ConditionalOnProperty(
-    prefix = "storage.gcs",
-    name = ["enabled"],
-    havingValue = "true"
-)
-class GcsStorageService(private val storage: Storage, private val gcsConfig: GcsFeatureConfig) : StoragePortForServices {
 
-    private val bucket = gcsConfig.bucket
+class GcsStorageService(private val storage: Storage, private val bucketName: String) : StoragePortForServices {
 
     override fun uploadList(req: StoragePutRequestList): UploadedPaths {
         val uploaded = mutableListOf<String>()
         try {
             req.requests.forEach { req ->
-                uploadData(bucket, req)
+                uploadData(bucketName, req)
                 uploaded.add(req.path)
             }
         } catch (ex: Exception) {
-            rollbackAdditions(bucket, uploaded)
+            rollbackAdditions(bucketName, uploaded)
             throw ex
         }
 
@@ -40,7 +32,7 @@ class GcsStorageService(private val storage: Storage, private val gcsConfig: Gcs
     }
 
     override fun get(path: String): String {
-        val blob = storage.get(bucket, path)
+        val blob = storage.get(bucketName, path)
             ?: throw ApiException(ErrorCode.STORAGE_OBJECT_NOT_FOUND, "Missing GCS object: $path")
 
         return String(blob.getContent(), Charsets.UTF_8)
@@ -51,7 +43,7 @@ class GcsStorageService(private val storage: Storage, private val gcsConfig: Gcs
         val result = mutableMapOf<String, String>()
 
         paths.forEach { path ->
-            val blob = storage.get(bucket, path)
+            val blob = storage.get(bucketName, path)
             val text = String(blob.getContent(), Charsets.UTF_8)
             result[path] = text
         }
@@ -62,7 +54,7 @@ class GcsStorageService(private val storage: Storage, private val gcsConfig: Gcs
     override fun deleteList(req: StorageDeleteRequest): UploadedPaths {
        val requests = req.paths
         requests.forEach { path ->
-            deleteData(bucket, path)
+            deleteData(bucketName, path)
         }
         return UploadedPaths(requests)
     }

@@ -18,13 +18,14 @@ import com.ludocode.ludocodebackend.support.TestRestClient
 import io.restassured.response.ValidatableResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.springframework.test.context.junit.jupiter.EnabledIf
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
 
 @EnabledIf(
-    expression = "\${storage.gcs.enabled}",
+    expression = "#{environment.getProperty('storage.mode') == 'gcs'}",
     loadContext = true
 )
 class UserProjectIT : AbstractIntegrationTest() {

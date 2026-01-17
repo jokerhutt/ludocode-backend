@@ -13,6 +13,9 @@ target/
 .springBeans
 .sts4-cache
 
+## AUTH ##
+src/main/resources/gcs-storage-authentication.json
+
 src/main/resources/firebase-service-account.json
 
 local-storage/*

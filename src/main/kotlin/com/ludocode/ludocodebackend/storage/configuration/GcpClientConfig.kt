@@ -4,21 +4,22 @@ import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.NoCredentials
 import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
-import com.ludocode.ludocodebackend.playground.config.GcsFeatureConfig
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 
 @Configuration
-@ConditionalOnProperty(prefix = "storage.gcs", name = ["enabled"], havingValue = "true")
+@ConditionalOnProperty(prefix = "storage", name = ["mode"], havingValue = "gcs")
 @Profile("!test")
 class GcpClientConfig(
-    private val gcs: GcsFeatureConfig
+    private val props: StorageProperties
 ) {
 
     @Bean
     fun storage(): Storage {
+        val gcs = props.gcs
+
         val builder = StorageOptions.newBuilder()
             .setProjectId(gcs.projectId)
 

@@ -5,12 +5,13 @@ import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty
 import org.springframework.test.context.junit.jupiter.DisabledIf
 import java.util.UUID
 import kotlin.test.Test
 
 @DisabledIf(
-    expression = "\${storage.gcs.enabled}",
+    expression = "#{environment.getProperty('storage.mode') == 'gcs'}",
     loadContext = true
 )
 class GcsDisabledIT : AbstractIntegrationTest() {
