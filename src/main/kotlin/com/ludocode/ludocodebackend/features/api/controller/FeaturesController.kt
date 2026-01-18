@@ -5,6 +5,8 @@ import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.features.api.dto.response.ActiveFeaturesResponse
 import com.ludocode.ludocodebackend.playground.config.PistonFeatureConfig
+import com.ludocode.ludocodebackend.storage.configuration.StorageConfig
+import com.ludocode.ludocodebackend.storage.configuration.StorageProperties
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.core.env.Environment
 import org.springframework.http.ResponseEntity
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping(ApiPaths.FEATURES.BASE)
 class FeaturesController(
+    private val storageProps: StorageProperties,
     private val aiConfig: AIFeatureConfig,
     private val pistonConfig: PistonFeatureConfig,
     private val demoConfig: DemoConfig,
@@ -29,6 +32,7 @@ class FeaturesController(
     fun getActiveFeatures(): ResponseEntity<ActiveFeaturesResponse> {
         return ResponseEntity.ok(
             ActiveFeaturesResponse(
+                storageMode = storageProps.mode,
                 isAIEnabled = aiConfig.enabled,
                 isPistonEnabled = pistonConfig.enabled,
                 isDemoEnabled = demoConfig.enabled,

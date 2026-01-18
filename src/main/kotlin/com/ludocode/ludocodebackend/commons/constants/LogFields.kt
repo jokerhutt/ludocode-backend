@@ -64,6 +64,7 @@ object LogFields {
     const val MODULE_ID = "moduleId"
     const val LESSON_ID = "lessonId"
     const val COURSE_COUNT = "courseCount"
+    const val SUBMISSION_ID = "uniqueSubmissionId"
     const val MODULE_COUNT = "moduleCount"
     const val LESSON_COUNT = "lessonCount"
     const val EXERCISE_COUNT = "exerciseCount"
