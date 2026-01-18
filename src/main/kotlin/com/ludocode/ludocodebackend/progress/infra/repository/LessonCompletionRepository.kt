@@ -18,8 +18,6 @@ interface LessonCompletionRepository : JpaRepository<LessonCompletion, UUID> {
     """, nativeQuery = true)
     fun deleteLessonCompletionsForUserAndCourse(userId: UUID, courseId: UUID)
 
-    fun existsByIdAndIsDeletedFalse(id: UUID): Boolean
-
-    fun existsByUserIdAndLessonIdAndIsDeletedFalse(userId: UUID, lessonId: UUID): Boolean
+    fun existsBySubmissionIdAndIsDeletedFalse(submissionId: UUID): Boolean
 
 }

@@ -30,6 +30,144 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
     private lateinit var snapshotBuilderService: SnapshotBuilderService
 
     @Test
+    fun submitLesson_success_resubmitSameLessonLater_success() {
+
+        val userCoins = userCoinsRepository.save(UserCoins(user1.id!!, 0))
+        userStreakRepository.save(UserStreak(userId = user1.id!!))
+
+        val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
+
+        assertThat(pythonSnap).isNotNull()
+
+        val currentCourse = pythonId
+        val currentLesson = py1L4
+        val nextLesson = py2L1
+
+
+        val progressList = courseProgressRepository.saveAll(listOf(
+            CourseProgress(id = CourseProgressId(user1.id!!, currentCourse), currentLessonId = currentLesson, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
+            CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentLessonId = sw1L2, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
+        ))
+
+        val exercises : List<ExerciseSnap> = pythonSnap.modules[0].lessons[3].exercises
+
+
+        val sub1 = ExerciseSubmissionRequest(
+            exerciseId = exercises[0].id,
+            version = 1,
+            attempts = listOf(
+                ExerciseAttemptRequest(
+                    exerciseId = exercises[0].id!!,
+                    isCorrect = true,
+                    answer = exercises[0].correctOptions.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
+                )
+            )
+        )
+
+        val sub2 = ExerciseSubmissionRequest(
+            exerciseId = exercises[1].id!!,
+            version = 1,
+            attempts = listOf(
+                ExerciseAttemptRequest(
+                    exerciseId = exercises[1].id!!,
+                    isCorrect = false,
+                    answer = exercises[1].distractors.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
+                ),
+                ExerciseAttemptRequest(
+                    exerciseId = exercises[1].id!!,
+                    isCorrect = true,
+                    answer = exercises[1].correctOptions.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
+                )
+            )
+        )
+
+        val submissions: List<ExerciseSubmissionRequest> = listOf(sub1, sub2)
+        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), currentLesson, submissions = submissions)
+
+        val res1 = submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
+
+        val secondLessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), currentLesson, submissions)
+        val res2 = submitPostForLessonSubmission(user1.id!!, secondLessonCompletionRequest)
+        val content : LessonCompletionResponse = res2.content!!
+
+        assertThat(res2.status).isEqualTo(LessonCompletionStatus.OK)
+        assertThat(content.newCoins.coins).isGreaterThan(0)
+        assertThat(content.newCourseProgress.currentLessonId).isEqualTo(nextLesson)
+        assertThat(content.newCourseProgress.courseId).isEqualTo(pythonId)
+        assertThat(content.newCourseProgress.moduleId).isEqualTo(pyMod2Id)
+        assertThat(content.newCourseProgress.userId).isEqualTo(user1.id)
+        assertThat(content.accuracy).isGreaterThan(BigDecimal(0))
+        assertThat(content.accuracy).isLessThan(BigDecimal(1))
+        assertThat(content.updatedCompletedLesson.id).isEqualTo(currentLesson)
+        assertThat(content.updatedCompletedLesson.isCompleted).isEqualTo(true)
+
+    }
+
+    @Test
+    fun submitLesson_duplicate_returnsDuplicateError() {
+
+        val userCoins = userCoinsRepository.save(UserCoins(user1.id!!, 0))
+        userStreakRepository.save(UserStreak(userId = user1.id!!))
+
+        val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
+
+        assertThat(pythonSnap).isNotNull()
+
+        val currentCourse = pythonId
+        val currentLesson = py1L4
+        val nextLesson = py2L1
+
+
+        val progressList = courseProgressRepository.saveAll(listOf(
+            CourseProgress(id = CourseProgressId(user1.id!!, currentCourse), currentLessonId = currentLesson, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
+            CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentLessonId = sw1L2, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
+        ))
+
+        val exercises : List<ExerciseSnap> = pythonSnap.modules[0].lessons[3].exercises
+
+
+        val sub1 = ExerciseSubmissionRequest(
+            exerciseId = exercises[0].id,
+            version = 1,
+            attempts = listOf(
+                ExerciseAttemptRequest(
+                    exerciseId = exercises[0].id!!,
+                    isCorrect = true,
+                    answer = exercises[0].correctOptions.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
+                )
+            )
+        )
+
+        val sub2 = ExerciseSubmissionRequest(
+            exerciseId = exercises[1].id!!,
+            version = 1,
+            attempts = listOf(
+                ExerciseAttemptRequest(
+                    exerciseId = exercises[1].id!!,
+                    isCorrect = false,
+                    answer = exercises[1].distractors.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
+                ),
+                ExerciseAttemptRequest(
+                    exerciseId = exercises[1].id!!,
+                    isCorrect = true,
+                    answer = exercises[1].correctOptions.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
+                )
+            )
+        )
+
+        val submissions: List<ExerciseSubmissionRequest> = listOf(sub1, sub2)
+        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), currentLesson, submissions = submissions)
+
+        val res1 = submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
+
+        val secondLessonCompletionRequest = LessonSubmissionRequest(lessonCompletionRequest.submissionId, currentLesson, submissions)
+        val res2 = submitPostForLessonSubmission(user1.id!!, secondLessonCompletionRequest)
+        assertThat(res2.status).isEqualTo(LessonCompletionStatus.DUPLICATE)
+        assertThat(res2.content).isNull()
+
+    }
+
+    @Test
     fun submitLesson_endOfModule_returnsFirstLessonOfNextModule() {
 
         val userCoins = userCoinsRepository.save(UserCoins(user1.id!!, 0))
@@ -202,7 +340,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         }
 
         val req = LessonSubmissionRequest(
-            id = UUID.randomUUID(),
+            submissionId = UUID.randomUUID(),
             lessonId = currentLesson,
             submissions = submissions
         )

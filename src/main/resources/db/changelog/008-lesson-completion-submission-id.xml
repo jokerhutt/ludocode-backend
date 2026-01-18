@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+      http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="008-01-lesson-completion-submission-id" author="dave" dbms="postgresql">
+        <sql>
+            -- 1) Add column
+            ALTER TABLE lesson_completion
+                ADD COLUMN submission_id UUID;
+
+            -- 2) Backfill existing rows
+            UPDATE lesson_completion
+            SET submission_id = gen_random_uuid()
+            WHERE submission_id IS NULL;
+
+            -- 3) Enforce NOT NULL
+            ALTER TABLE lesson_completion
+                ALTER COLUMN submission_id SET NOT NULL;
+
+            -- 4) Enforce idempotent per user
+            ALTER TABLE lesson_completion
+                ADD CONSTRAINT uniq_lesson_completion_user_submission
+                    UNIQUE (user_id, submission_id);
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

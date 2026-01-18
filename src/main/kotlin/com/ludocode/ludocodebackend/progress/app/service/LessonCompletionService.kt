@@ -14,6 +14,7 @@ import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
+import org.apache.juli.logging.Log
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.Clock
@@ -38,14 +39,15 @@ class LessonCompletionService(
     fun submitLessonCompletion (request: LessonSubmissionRequest, userId: UUID) : LessonCompletionPacket {
 
         val currentLessonMD : LessonTreeWithIdDTO = catalogPortForProgress.findLessonIdTree(request.lessonId)
-
+        val uniqueSubmissionID = request.submissionId
         val currentLessonId = currentLessonMD.lessonId
         val nextLessonId = currentLessonMD.nextLessonId
         val courseId = currentLessonMD.courseId
 
-        if (isSubmissionDuplicate(userId, currentLessonId)) {
+        if (isSubmissionDuplicate(uniqueSubmissionID)) {
             logger.warn(
-                LogEvents.LESSON_COMPLETION_DUPLICATE + " {} {}",
+                LogEvents.LESSON_COMPLETION_DUPLICATE + " {} {} {}",
+                kv(LogFields.SUBMISSION_ID, uniqueSubmissionID.toString()),
                 kv(LogFields.LESSON_ID, currentLessonId.toString()),
                 kv(LogFields.COURSE_ID, courseId.toString()),
             )
@@ -99,7 +101,7 @@ class LessonCompletionService(
 
     }
 
-    private fun isSubmissionDuplicate (userId: UUID, currentLessonId: UUID): Boolean = lessonCompletionRepository.existsByUserIdAndLessonIdAndIsDeletedFalse(userId, currentLessonId)
+    private fun isSubmissionDuplicate (submissionId: UUID): Boolean = lessonCompletionRepository.existsBySubmissionIdAndIsDeletedFalse(submissionId)
 
 
 

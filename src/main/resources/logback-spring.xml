@@ -4,25 +4,33 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
-    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
-        <http>
-            <url>${LOKI_URL}</url>
-        </http>
+    <springProfile name="!test">
+        <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+            <http>
+                <url>${LOKI_URL}</url>
+            </http>
 
-        <format>
-            <label>
-                <pattern>app=ludocode-backend,level=%level</pattern>
-            </label>
+            <format>
+                <label>
+                    <pattern>app=ludocode-backend,level=%level</pattern>
+                </label>
 
-            <message>
-                <pattern>%msg</pattern>
-            </message>
-        </format>
-    </appender>
+                <message>
+                    <pattern>%msg</pattern>
+                </message>
+            </format>
+        </appender>
 
-    <root level="INFO">
-        <appender-ref ref="STDOUT"/>
-        <appender-ref ref="LOKI"/>
-    </root>
+        <root level="INFO">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="LOKI"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="test">
+        <root level="INFO">
+            <appender-ref ref="STDOUT"/>
+        </root>
+    </springProfile>
 
 </configuration>

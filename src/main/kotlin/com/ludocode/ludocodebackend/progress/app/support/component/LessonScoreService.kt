@@ -90,7 +90,7 @@ class LessonScoreService(
         val accuracy = computeAccuracy(correct, total)
 
         val completion = LessonCompletion(
-            id = request.id,
+            submissionId = request.submissionId,
             userId = userId,
             score = scoreForLesson,
             completedAt = OffsetDateTime.now(clock),
