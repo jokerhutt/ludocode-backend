@@ -20,7 +20,7 @@ object ProjectSnapshotValidator {
     }
 
     private fun validateFilePathRegex (filePath: String) : Boolean {
-        val allowed = Regex("""^[\w.-]+\.(py|swift|js|css|html)$""")
+        val allowed = Regex("""^[\w.-]+\.(py|swift|js|css|html|lua)$""")
         return filePath.matches(allowed)
     }
 
