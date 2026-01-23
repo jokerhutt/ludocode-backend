@@ -4,7 +4,7 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
-    <springProfile name="!test">
+    <springProfile name="prod | admin">
         <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
             <http>
                 <url>${LOKI_URL}</url>
@@ -27,7 +27,7 @@
         </root>
     </springProfile>
 
-    <springProfile name="test">
+    <springProfile name="!prod &amp; !admin">
         <root level="INFO">
             <appender-ref ref="STDOUT"/>
         </root>
