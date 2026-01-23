@@ -13,13 +13,14 @@ import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortFor
 import com.ludocode.ludocodebackend.user.api.dto.request.EditProfileRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.AvatarInfo
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
+import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForOnboarding
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForProgress
 import com.ludocode.ludocodebackend.user.configuration.AvatarConfig
 import com.ludocode.ludocodebackend.user.domain.entity.ExternalAccount
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.domain.entity.UserPreferences
 import com.ludocode.ludocodebackend.user.infra.repository.ExternalAccountRepository
-import com.ludocode.ludocodebackend.user.infra.repository.UserPreferencesRepository
+import com.ludocode.ludocodebackend.onboarding.api.infra.repository.UserPreferencesRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
@@ -39,7 +40,7 @@ class UserService(
     private val avatarConfig: AvatarConfig,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val courseProgressPortForUser: CourseProgressPortForUser,
-) : UserPortForProgress, UserPortForAuth {
+) : UserPortForProgress, UserPortForAuth, UserPortForOnboarding {
 
     private val logger = LoggerFactory.getLogger(UserService::class.java)
 
@@ -58,6 +59,13 @@ class UserService(
         externalAccountRepository.delete(userExternalAccount)
         logger.warn(LogEvents.USER_DELETED)
         existingUser.isDeleted = true
+    }
+
+    @Transactional
+    override fun setDisplayName (userId: UUID, displayName: String) {
+        val user = userRepository.findById(userId).orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
+        user.displayName = displayName
+        userRepository.save(user)
     }
 
     @Transactional
@@ -175,31 +183,6 @@ class UserService(
         val preferencesExist = userPreferencesRepository.existsById(user.id)
         val currentCourseExists = courseProgressPortForUser.existsAnyByUserId(user.id)
         return preferencesExist && currentCourseExists && displayNameExists
-    }
-
-    @Transactional
-    internal fun createPreferences (submission: OnboardingSubmission, userId: UUID) : OnboardingResponse {
-        val toSubmit = UserPreferences(userId = userId, hasExperience = submission.hasProgrammingExperience, chosenPath = submission.chosenPath)
-
-        val selectedUser = userRepository.findById(userId).orElseThrow()
-        selectedUser.displayName = submission.selectedUsername
-        userRepository.save(selectedUser)
-
-        val savedPreferences = userPreferencesRepository.save(toSubmit)
-        val newCourseProgressWithEnrolled = courseProgressPortForUser.findOrCreate(userId, submission.chosenCourse)
-
-        logger.info(
-            LogEvents.USER_ONBOARDED + " {} {}",
-            kv(LogFields.CHOSEN_PATH, submission.chosenPath.name),
-            kv(LogFields.COURSE_ID, submission.chosenCourse.toString())
-        )
-
-        return OnboardingResponse(refreshedUser = getById(userId), savedPreferences, courseProgressResponse = newCourseProgressWithEnrolled)
-    }
-
-    internal fun getPreferences (userId: UUID) : UserPreferences {
-        val preferences = userPreferencesRepository.findById(userId).orElseThrow()
-        return preferences
     }
 
     internal fun getUsersByIds(userIds: List<UUID>): List<UserResponse> {

@@ -88,12 +88,14 @@ object ApiPaths {
 
     }
 
+    object PREFERENCES {
+        const val BASE = "$API_PREFIX/preferences"
+    }
+
     object USERS {
         const val BASE = "$API_PREFIX/users"
         const val ME = "/me"
-        const val PREFERENCES = "/me/preferences"
         const val AVATAR = "/me/avatar"
-        const val ONBOARDING = "/me/onboarding"
         fun fromIds(ids: List<UUID>): String =
             BASE + ids.joinToString(
                 prefix = "?userIds=",
