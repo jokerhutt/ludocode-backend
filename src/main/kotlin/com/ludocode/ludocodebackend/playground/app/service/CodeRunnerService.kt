@@ -2,10 +2,10 @@ package com.ludocode.ludocodebackend.playground.app.service
 
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
-import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonFile
-import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonRequest
-import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
-import com.ludocode.ludocodebackend.playground.app.dto.response.RunnerResult
+import com.ludocode.ludocodebackend.playground.api.dto.piston.PistonFile
+import com.ludocode.ludocodebackend.playground.api.dto.piston.PistonRequest
+import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
+import com.ludocode.ludocodebackend.playground.api.dto.response.RunnerResult
 import com.ludocode.ludocodebackend.playground.app.port.out.PistonOutboundPort
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory

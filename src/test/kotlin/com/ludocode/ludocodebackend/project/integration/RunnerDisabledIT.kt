@@ -1,14 +1,12 @@
 package com.ludocode.ludocodebackend.project.integration
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
+import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
-import com.ludocode.ludocodebackend.support.TestRestClient
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.springframework.test.context.junit.jupiter.DisabledIf
-import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test

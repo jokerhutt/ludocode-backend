@@ -1,11 +1,10 @@
 package com.ludocode.ludocodebackend.project.integration
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequest
+import com.ludocode.ludocodebackend.playground.api.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
-import org.junit.jupiter.api.condition.DisabledIfSystemProperty
 import org.springframework.test.context.junit.jupiter.DisabledIf
 import java.util.UUID
 import kotlin.test.Test

@@ -1,13 +1,10 @@
 package com.ludocode.ludocodebackend.playground.app.mapper
 
-import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
-import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.commons.mapper.BasicMapper
-import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
-import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
+import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectFileSnapshot
+import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
-import org.intellij.lang.annotations.Language
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 import java.util.UUID
