@@ -4,11 +4,10 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ludocode.ludocodebackend.commons.constants.ExternalPathContstants.PISTON_EXECUTE
 import com.ludocode.ludocodebackend.commons.constants.ExternalPathContstants.PISTON_RUNTIMES
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
-import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonRequest
-import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonResponse
-import com.ludocode.ludocodebackend.playground.app.dto.piston.PistonRun
+import com.ludocode.ludocodebackend.playground.api.dto.piston.PistonRequest
+import com.ludocode.ludocodebackend.playground.api.dto.piston.PistonResponse
+import com.ludocode.ludocodebackend.playground.api.dto.piston.PistonRun
 import com.ludocode.ludocodebackend.playground.app.port.out.PistonOutboundPort
-import com.ludocode.ludocodebackend.playground.app.service.ProjectService
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpEntity

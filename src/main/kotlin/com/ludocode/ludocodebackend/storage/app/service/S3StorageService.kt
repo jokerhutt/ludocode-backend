@@ -53,7 +53,7 @@ class S3StorageService (private val s3Client: S3Client, private val bucketName: 
         val result = mutableMapOf<String, String>()
 
         req.paths.forEach { path ->
-            result[path] = get(path) // reuse single-get logic
+            result[path] = get(path)
         }
 
         return StorageContentMap(content = result)

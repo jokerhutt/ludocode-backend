@@ -3,10 +3,10 @@ package com.ludocode.ludocodebackend.playground.api.controller
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.logging.withMdc
-import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequest
-import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
-import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectListResponse
-import com.ludocode.ludocodebackend.playground.app.dto.request.RenameRequest
+import com.ludocode.ludocodebackend.playground.api.dto.request.CreateProjectRequest
+import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
+import com.ludocode.ludocodebackend.playground.api.dto.response.ProjectListResponse
+import com.ludocode.ludocodebackend.playground.api.dto.request.RenameRequest
 import com.ludocode.ludocodebackend.playground.app.service.ProjectService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement

@@ -5,11 +5,11 @@ import com.google.cloud.storage.BucketInfo
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.util.sha256
-import com.ludocode.ludocodebackend.playground.app.dto.request.CreateProjectRequest
-import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
-import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectSnapshot
-import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectListResponse
-import com.ludocode.ludocodebackend.playground.app.dto.request.RenameRequest
+import com.ludocode.ludocodebackend.playground.api.dto.request.CreateProjectRequest
+import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectFileSnapshot
+import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
+import com.ludocode.ludocodebackend.playground.api.dto.response.ProjectListResponse
+import com.ludocode.ludocodebackend.playground.api.dto.request.RenameRequest
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
@@ -18,7 +18,6 @@ import com.ludocode.ludocodebackend.support.TestRestClient
 import io.restassured.response.ValidatableResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.springframework.test.context.junit.jupiter.EnabledIf
 import java.time.OffsetDateTime
 import java.util.UUID

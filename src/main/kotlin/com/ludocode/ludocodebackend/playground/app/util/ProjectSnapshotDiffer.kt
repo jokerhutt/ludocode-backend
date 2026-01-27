@@ -1,10 +1,9 @@
 package com.ludocode.ludocodebackend.playground.app.util
 
 import com.ludocode.ludocodebackend.commons.util.sha256
-import com.ludocode.ludocodebackend.playground.app.dto.response.ProjectSnapshotDiff
-import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
+import com.ludocode.ludocodebackend.playground.api.dto.response.ProjectSnapshotDiff
+import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
-import java.util.UUID
 import kotlin.collections.contains
 
 object ProjectSnapshotDiffer {

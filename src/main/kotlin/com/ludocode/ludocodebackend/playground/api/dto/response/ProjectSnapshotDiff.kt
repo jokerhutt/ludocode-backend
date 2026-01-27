@@ -1,8 +1,7 @@
-package com.ludocode.ludocodebackend.playground.app.dto.response
+package com.ludocode.ludocodebackend.playground.api.dto.response
 
-import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
+import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
-import java.util.UUID
 
 data class ProjectSnapshotDiff(
     val toAdd: List<ProjectFileSnapshot>,

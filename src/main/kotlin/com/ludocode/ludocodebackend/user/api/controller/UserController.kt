@@ -33,20 +33,6 @@ class UserController(private val userService: UserService) {
     }
 
     @Operation(
-        summary = "Complete user onboarding",
-        description = """
-        Completes the onboarding flow for the currently authenticated user.
-        Stores the user's selected learning path + preferences and initializes their course progress.
-        Returns the updated user profile and onboarding state.
-        """
-    )
-    @SecurityRequirement(name = "sessionAuth")
-    @PutMapping(ApiPaths.USERS.ONBOARDING)
-    fun submitOnboarding(@RequestBody req: OnboardingSubmission, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<OnboardingResponse> {
-        return ResponseEntity.ok(userService.createPreferences(req,userId))
-    }
-
-    @Operation(
         summary = "Update user avatar",
         description = """
         Updates the avatar configuration for the currently authenticated user.
@@ -88,17 +74,5 @@ class UserController(private val userService: UserService) {
         return ResponseEntity.noContent().build()
     }
 
-    @Operation(
-        summary="Get current user's preferences",
-        description="""
-        Returns the preference settings for the currently authenticated user.
-        Requires a valid session cookie. 
-        """
-    )
-    @SecurityRequirement(name = "sessionAuth")
-    @GetMapping(ApiPaths.USERS.PREFERENCES)
-    fun getUserPreferences(@AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<UserPreferences> {
-        return ResponseEntity.ok(userService.getPreferences(userId))
-    }
 
 }
