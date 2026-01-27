@@ -3,6 +3,7 @@ import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForProgress
 import com.ludocode.ludocodebackend.progress.api.dto.internal.CourseProgressWithCompletion
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
+import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressStats
 import com.ludocode.ludocodebackend.progress.app.mapper.CourseProgressMapper
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
@@ -66,6 +67,22 @@ class CourseProgressService(
             }
         }
         return CourseProgressWithCompletion(findCourseProgress(userId, courseId), isFirstCompletion)
+    }
+
+    internal fun getCourseProgressStats(
+        userId: UUID,
+        courseIds: List<UUID>
+    ): List<CourseProgressStats> {
+
+        return courseProgressRepository
+            .findCourseLessonStats(userId, courseIds)
+            .map { row ->
+                CourseProgressStats(
+                    courseId = row.courseId,
+                    totalLessons = row.totalLessons.toInt(),
+                    completedLessons = row.completedLessons.toInt()
+                )
+            }
     }
 
     internal fun getEnrolledCourseIds(userId: UUID) : List<UUID> {

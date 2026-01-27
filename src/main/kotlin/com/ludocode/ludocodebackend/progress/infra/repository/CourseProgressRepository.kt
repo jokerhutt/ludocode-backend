@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.progress.infra.repository
 
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
+import com.ludocode.ludocodebackend.progress.infra.projection.CourseLessonStatsProjection
 import com.ludocode.ludocodebackend.progress.infra.projection.CourseProgressWithModuleProjection
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
@@ -102,6 +103,31 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
         @Param("userId") userId: UUID,
         @Param("courseIds") courseIds: List<UUID>
     ): List<CourseProgressWithModuleProjection>
+
+
+    @Query(
+        value = """
+        SELECT
+            m.course_id                     AS courseId,
+            COUNT(DISTINCT ml.lesson_id)     AS totalLessons,
+            COUNT(DISTINCT lc.lesson_id)     AS completedLessons
+        FROM module m
+        JOIN module_lessons ml
+            ON ml.module_id = m.id
+        LEFT JOIN lesson_completion lc
+            ON lc.lesson_id = ml.lesson_id
+           AND lc.user_id = :userId
+           AND lc.is_deleted = false
+        WHERE m.course_id IN (:courseIds)
+          AND m.is_deleted = false
+        GROUP BY m.course_id
+    """,
+        nativeQuery = true
+    )
+    fun findCourseLessonStats(
+        @Param("userId") userId: UUID,
+        @Param("courseIds") courseIds: List<UUID>
+    ): List<CourseLessonStatsProjection>
 
     @Modifying
     @Query(
