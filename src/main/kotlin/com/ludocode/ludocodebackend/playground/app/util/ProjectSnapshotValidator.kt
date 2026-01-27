@@ -2,7 +2,7 @@ package com.ludocode.ludocodebackend.playground.app.util
 
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
-import com.ludocode.ludocodebackend.playground.app.dto.request.ProjectFileSnapshot
+import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectFileSnapshot
 import kotlin.collections.forEach
 
 object ProjectSnapshotValidator {

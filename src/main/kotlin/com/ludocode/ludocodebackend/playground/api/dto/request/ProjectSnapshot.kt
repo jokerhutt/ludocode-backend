@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.playground.app.dto.request
+package com.ludocode.ludocodebackend.playground.api.dto.request
 
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import java.time.OffsetDateTime
