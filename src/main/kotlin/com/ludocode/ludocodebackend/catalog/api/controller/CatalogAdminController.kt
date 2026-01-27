@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
-@Profile("admin", "test")
+@Profile("admin", "devadmin", "test")
 @RestController
 @RequestMapping(ApiPaths.SNAPSHOTS.BASE)
 class CatalogAdminController(

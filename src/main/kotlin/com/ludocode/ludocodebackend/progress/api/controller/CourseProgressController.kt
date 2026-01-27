@@ -4,6 +4,7 @@ import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.progress.app.service.CourseProgressService
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
+import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressStats
 import com.ludocode.ludocodebackend.user.api.dto.request.ChangeCourseRequest
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
@@ -35,6 +36,11 @@ class CourseProgressController(private val courseProgressService: CourseProgress
     @GetMapping
     fun getProgressByCourseIds(@RequestParam courseIds: List<UUID>, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<List<CourseProgressResponse>> {
         return ResponseEntity.ok(courseProgressService.findCourseProgressList(courseIds, userId))
+    }
+
+    @GetMapping(ApiPaths.PROGRESS.COURSES.STATS)
+    fun getProgressStatsByCourseIds(@RequestParam courseIds: List<UUID>, @AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<List<CourseProgressStats>> {
+        return ResponseEntity.ok(courseProgressService.getCourseProgressStats(userId, courseIds))
     }
 
     @Operation(

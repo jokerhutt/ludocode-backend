@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.progress.integration
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
+import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressStats
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
@@ -81,7 +82,6 @@ class CourseProgressIT : AbstractIntegrationTest() {
 
         assertThat(byCourse[course2Id]!!.currentLessonId).isEqualTo(course2CurrentLesson)
         assertThat(byCourse[course2Id]!!.moduleId).isEqualTo(course2CurrentModule)
-
     }
 
     @Test
@@ -106,6 +106,18 @@ class CourseProgressIT : AbstractIntegrationTest() {
             )
             .toList()
 
+    private fun submitGetCourseStatsList(
+        userId: UUID,
+        courseIds: List<UUID>
+    ): List<CourseProgressStats> =
+        TestRestClient
+            .getOk(
+                 "${ApiPaths.PROGRESS.COURSES.BASE}${ApiPaths.PROGRESS.COURSES.STATS}",
+                userId,
+                Array<CourseProgressStats>::class.java,
+                mapOf("courseIds" to courseIds)
+            )
+            .toList()
 
     private fun submitResetCourseProgress(userId: UUID, courseId: UUID):CourseProgressResponse =
         TestRestClient.postOk(ApiPaths.PROGRESS.COURSES.reset(courseId), userId, null, CourseProgressResponse::class.java)

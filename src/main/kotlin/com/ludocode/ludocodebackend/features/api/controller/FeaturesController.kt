@@ -25,7 +25,7 @@ class FeaturesController(
 ) {
 
     fun isAdminEnabled(): Boolean =
-        env.activeProfiles.contains("admin")
+        env.activeProfiles.contains("admin") || env.activeProfiles.contains("devadmin")
 
     @Operation(summary = "Get feature toggle status", description = "Returns the enabled or disabled status of all runtime feature flags.")
     @GetMapping
