@@ -55,6 +55,7 @@ object ApiPaths {
             const val BASE = "${PROGRESS.BASE}/courses"
             const val ENROLLED = "/enrolled"
             const val CURRENT = "/current"
+            const val STATS = "/stats"
             const val RESET = "/{courseId}/reset"
             fun reset(courseId: UUID) : String = "$BASE/$courseId/reset"
         }
