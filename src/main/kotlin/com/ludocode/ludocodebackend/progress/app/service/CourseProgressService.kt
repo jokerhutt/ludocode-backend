@@ -78,7 +78,7 @@ class CourseProgressService(
             .findCourseLessonStats(userId, courseIds)
             .map { row ->
                 CourseProgressStats(
-                    courseId = row.courseId,
+                    id = row.courseId,
                     totalLessons = row.totalLessons.toInt(),
                     completedLessons = row.completedLessons.toInt()
                 )
