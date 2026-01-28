@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionReq
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionPacket
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.PostMapping
@@ -14,6 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
+@Tag(
+    name = "Lesson Completions",
+    description = "Operations related to submissions for lessons"
+)
 @SecurityRequirement(name = "sessionAuth")
 @RestController
 @RequestMapping(ApiPaths.PROGRESS.COMPLETION.BASE)

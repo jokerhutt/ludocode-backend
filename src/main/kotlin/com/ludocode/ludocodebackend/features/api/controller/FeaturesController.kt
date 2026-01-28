@@ -8,12 +8,17 @@ import com.ludocode.ludocodebackend.playground.config.PistonFeatureConfig
 import com.ludocode.ludocodebackend.storage.configuration.StorageConfig
 import com.ludocode.ludocodebackend.storage.configuration.StorageProperties
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.core.env.Environment
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+@Tag(
+    name = "Features",
+    description = "Operations related to querying feature toggle states"
+)
 @RestController
 @RequestMapping(ApiPaths.FEATURES.BASE)
 class FeaturesController(

@@ -5,6 +5,7 @@ import com.ludocode.ludocodebackend.auth.app.service.AuthService
 import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -12,6 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
+@Tag(
+    name = "Demo Auth",
+    description = "Operations related to authenticating demo users"
+)
 @RestController
 @RequestMapping(ApiPaths.AUTH.BASE)
 class DemoAuthController(

@@ -8,6 +8,7 @@ import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressStat
 import com.ludocode.ludocodebackend.user.api.dto.request.ChangeCourseRequest
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -21,6 +22,10 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
+@Tag(
+    name = "Course Progress",
+    description = "Operations related to a users progress in a course"
+)
 @SecurityRequirement(name = "sessionAuth")
 @RestController
 @RequestMapping(ApiPaths.PROGRESS.COURSES.BASE)

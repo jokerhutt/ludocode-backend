@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.playground.api.dto.response.RunnerResult
 import com.ludocode.ludocodebackend.playground.app.service.CodeRunnerService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -15,6 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
+@Tag(
+    name = "Code Runner",
+    description = "Operations related to executing code on the code runner"
+)
 @ConditionalOnProperty(prefix = "piston", name = ["enabled"], havingValue = "true")
 @RestController
 @RequestMapping(ApiPaths.RUNNER.BASE)
