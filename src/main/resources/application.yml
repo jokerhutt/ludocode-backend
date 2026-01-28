@@ -8,6 +8,8 @@ spring:
     hikari:
       maximum-pool-size: 3
       minimum-idle: 1
+  cache:
+    type: redis
   data:
     redis:
       host: ${REDIS_HOST}
