@@ -8,6 +8,12 @@ spring:
     hikari:
       maximum-pool-size: 3
       minimum-idle: 1
+  cache:
+    type: redis
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.xml

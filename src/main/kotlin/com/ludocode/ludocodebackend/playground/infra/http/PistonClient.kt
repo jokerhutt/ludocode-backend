@@ -1,8 +1,8 @@
 package com.ludocode.ludocodebackend.playground.infra.http
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.ludocode.ludocodebackend.commons.constants.ExternalPathContstants.PISTON_EXECUTE
-import com.ludocode.ludocodebackend.commons.constants.ExternalPathContstants.PISTON_RUNTIMES
+import com.ludocode.ludocodebackend.commons.constants.ExternalPathConstants.PISTON_EXECUTE
+import com.ludocode.ludocodebackend.commons.constants.ExternalPathConstants.PISTON_RUNTIMES
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.playground.api.dto.piston.PistonRequest
 import com.ludocode.ludocodebackend.playground.api.dto.piston.PistonResponse

@@ -19,6 +19,9 @@ storage:
     bucket-name: ${LOCAL_BUCKET_NAME:/data/local-bucket}
 
 spring:
+  spring:
+    cache:
+      type: none
   jpa:
     hibernate:
       ddl-auto: none

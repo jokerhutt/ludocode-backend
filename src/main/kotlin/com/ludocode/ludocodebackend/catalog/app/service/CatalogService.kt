@@ -18,6 +18,7 @@ import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.LessonExercisesRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.LessonRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
+import com.ludocode.ludocodebackend.commons.constants.CacheNames
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
@@ -25,6 +26,7 @@ import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.playground.app.service.ProjectService
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import java.util.UUID
 import kotlin.math.log
@@ -45,22 +47,27 @@ class CatalogService(
     private val logger = LoggerFactory.getLogger(CatalogService::class.java)
 
 
+    @Cacheable(CacheNames.COURSE_FIRST_LESSON, key = "#courseId")
     override fun findFirstLessonIdInCourse(courseId: UUID): UUID {
        return lessonRepository.findFirstLessonIdInCourse(courseId) ?: throw ApiException(ErrorCode.LESSON_NOT_FOUND)
     }
 
+    @Cacheable(CacheNames.LESSON_MODULE, key = "#lessonId")
     override fun findModuleIdForLesson(lessonId: UUID): UUID {
        return lessonRepository.findModuleIdForLesson(lessonId) ?: throw ApiException(ErrorCode.MODULE_NOT_FOUND_FOR_LESSON)
     }
 
+    @Cacheable(CacheNames.LESSON_NEXT, key = "#currentLesson")
     override fun findNextLessonId(currentLesson: UUID): UUID? {
         return lessonRepository.findNextLessonId(currentLesson)
     }
 
+    @Cacheable(CacheNames.LESSON_COURSE, key = "#lessonId")
     override fun findCourseIdForLesson(lessonId: UUID): UUID {
        return lessonRepository.findCourseIdByLesson(lessonId) ?: throw ApiException(ErrorCode.COURSE_NOT_FOUND)
     }
 
+    @Cacheable(CacheNames.LESSON_TREE, key = "#lessonId")
     override fun findLessonIdTree(lessonId: UUID) : LessonTreeWithIdDTO {
        val raw = lessonRepository.findLessonIdTree(lessonId) ?: throw ApiException(ErrorCode.TREE_NOT_FOUND)
         return LessonTreeWithIdDTO(raw.lessonId, raw.moduleId, raw.courseId, raw.nextLessonId)
@@ -71,10 +78,12 @@ class CatalogService(
             ErrorCode.LESSON_NOT_FOUND))
     }
 
+    @Cacheable(CacheNames.COURSE_LIST)
     internal fun getAllCourses (): List<CourseResponse> {
         return courseMapper.toCourseResponseList(courseRepository.findAll())
     }
 
+    @Cacheable(CacheNames.COURSE_TREE, key = "#courseId")
     internal fun getFlatCourseTree(courseId: UUID): FlatCourseTreeResponse {
         val rows = moduleRepository.findFlatCourseTree(courseId)
         logger.info(
@@ -84,6 +93,7 @@ class CatalogService(
         return flatCourseTreeMapper.toFlatTree(courseId, rows)
     }
 
+    @Cacheable(CacheNames.LESSON_EXERCISES, key = "#lessonId")
     internal fun getExercisesByLessonId (lessonId: UUID): List<ExerciseResponse> {
        val exercisesWithOptionsFlat: List<ExerciseFlatProjection> = lessonExercisesRepository.getFlatExercisesWithOptions(lessonId)
         logger.info(
@@ -93,6 +103,7 @@ class CatalogService(
        return exerciseMapper.toLessonExercises(exercisesWithOptionsFlat)
     }
 
+    @Cacheable(CacheNames.EXERCISE_SINGLE, key = "#exerciseId")
     internal fun getExerciseByExerciseId (exerciseId: UUID) : ExerciseResponse {
         val exerciseWithOptions = lessonExercisesRepository.getSingleExerciseNewestFlat(exerciseId)
         return exerciseMapper.toExerciseResponse(exerciseWithOptions)
