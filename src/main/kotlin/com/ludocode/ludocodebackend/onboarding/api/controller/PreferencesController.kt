@@ -7,6 +7,7 @@ import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
 import com.ludocode.ludocodebackend.user.domain.entity.UserPreferences
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
@@ -16,6 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
+@Tag(
+    name = "Preferences",
+    description = "Operations related to user's preference settings"
+)
 @RestController
 @RequestMapping(ApiPaths.PREFERENCES.BASE)
 class PreferencesController(private val preferencesService: PreferencesService) {

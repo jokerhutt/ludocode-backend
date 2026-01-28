@@ -4,6 +4,7 @@ import com.ludocode.ludocodebackend.ai.api.dto.request.ChatRequestBody
 import com.ludocode.ludocodebackend.ai.app.service.AIService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.MediaType
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -14,6 +15,10 @@ import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Flux
 import java.util.UUID
 
+@Tag(
+    name = "AI",
+    description = "Operations related to prompting the chatbot"
+)
 @ConditionalOnProperty(prefix = "ai", name = ["enabled"], havingValue = "true")
 @RestController
 @RequestMapping(ApiPaths.AI.BASE)

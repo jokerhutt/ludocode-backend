@@ -7,6 +7,7 @@ import com.ludocode.ludocodebackend.catalog.app.service.SnapshotService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.context.annotation.Profile
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -19,6 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
+@Tag(
+    name = "Admin Catalog",
+    description = "Admin Operations related to creating & modifying course structure"
+)
 @Profile("admin", "devadmin", "test")
 @RestController
 @RequestMapping(ApiPaths.SNAPSHOTS.BASE)

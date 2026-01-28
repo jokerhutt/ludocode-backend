@@ -10,6 +10,7 @@ import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
@@ -21,6 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
+@Tag(
+    name = "Auth",
+    description = "Operations related to authentication & account creation"
+)
 @RestController
 @RequestMapping(ApiPaths.AUTH.BASE)
 class AuthController(private val authService: AuthService, private val cookieConfig: AuthCookieConfig) {
