@@ -38,6 +38,13 @@ class CourseProgressController(private val courseProgressService: CourseProgress
         return ResponseEntity.ok(courseProgressService.findCourseProgressList(courseIds, userId))
     }
 
+    @Operation(
+        summary = "Get user's course stats by course IDs",
+        description = """
+        Returns the course stat entries (total completed lessons & total lessons) for the currently authenticated user.
+        Requires a valid session cookie to be present
+        """
+    )
     @GetMapping(ApiPaths.PROGRESS.COURSES.STATS)
     fun getProgressStatsByCourseIds(@RequestParam courseIds: List<UUID>, @AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<List<CourseProgressStats>> {
         return ResponseEntity.ok(courseProgressService.getCourseProgressStats(userId, courseIds))
