@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.commons.constants
 
-object ExternalPathContstants {
+object ExternalPathConstants {
 
     const val PISTON_EXECUTE : String = "/execute"
     const val PISTON_RUNTIMES : String = "/runtimes"
