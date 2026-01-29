@@ -23,6 +23,11 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:prod}
 
+logging:
+  level:
+    root: DEBUG
+    com.ludocode.ludocodebackend.commons.configuration.CorsLoggingFilter: DEBUG
+
 springdoc:
   api-docs:
     path: /v3/api-docs
