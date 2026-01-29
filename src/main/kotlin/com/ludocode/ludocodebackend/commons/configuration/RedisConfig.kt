@@ -1,5 +1,7 @@
 package com.ludocode.ludocodebackend.commons.configuration
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.lettuce.core.ClientOptions
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -9,6 +11,7 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
 import org.springframework.data.redis.serializer.StringRedisSerializer
 
 @Configuration
@@ -42,11 +45,19 @@ class RedisConfig {
 
     @Bean
     fun redisTemplate(connectionFactory: RedisConnectionFactory): RedisTemplate<String, Any> {
-        val template = RedisTemplate<String, Any>()
-        template.connectionFactory = connectionFactory
-        template.keySerializer = StringRedisSerializer()
-        template.valueSerializer = StringRedisSerializer()
-        return template
+        val mapper = ObjectMapper()
+            .registerModule(KotlinModule.Builder().build())
+
+        val serializer = GenericJackson2JsonRedisSerializer(mapper)
+
+        return RedisTemplate<String, Any>().apply {
+            this.connectionFactory = connectionFactory
+            this.keySerializer = StringRedisSerializer()
+            this.valueSerializer = serializer
+            this.hashKeySerializer = StringRedisSerializer()
+            this.hashValueSerializer = serializer
+            afterPropertiesSet()
+        }
     }
 }
 
