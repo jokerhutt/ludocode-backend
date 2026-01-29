@@ -37,6 +37,7 @@ class RedisConfig {
     fun objectMapper(): ObjectMapper {
         return ObjectMapper()
             .registerModule(KotlinModule.Builder().build())
+            .findAndRegisterModules()
     }
 
     @Bean
@@ -75,7 +76,7 @@ class RedisConfig {
         val serializer = GenericJackson2JsonRedisSerializer(objectMapper)
 
         val configuration = RedisCacheConfiguration.defaultCacheConfig()
-            .entryTtl(Duration.ofMinutes(60)) // Set default expiration time
+            .entryTtl(Duration.ofMinutes(60))
             .serializeKeysWith(
                 RedisSerializationContext.SerializationPair.fromSerializer(StringRedisSerializer())
             )
@@ -88,3 +89,4 @@ class RedisConfig {
             .build()
     }
 }
+
