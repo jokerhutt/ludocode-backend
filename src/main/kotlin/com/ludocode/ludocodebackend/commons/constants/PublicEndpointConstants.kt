@@ -12,7 +12,7 @@ object PublicEndpointConstants {
         "${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.LESSON_EXERCISES}",
         "${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.COURSE_TREE}",
         "${ApiPaths.AI.BASE}/**",
-        "${ApiPaths.SNAPSHOTS}/**"
+        "${ApiPaths.SNAPSHOTS.BASE}/**"
 
     )
 
