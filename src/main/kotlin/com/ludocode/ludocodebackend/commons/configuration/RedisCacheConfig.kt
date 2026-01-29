@@ -15,7 +15,11 @@ class RedisCacheConfig {
 
     @Bean
     fun redisCacheManager(connectionFactory: RedisConnectionFactory): RedisCacheManager {
-        val serializer = GenericJackson2JsonRedisSerializer()
+        val objectMapper = com.fasterxml.jackson.databind.ObjectMapper()
+            .registerModule(com.fasterxml.jackson.module.kotlin.KotlinModule.Builder().build())
+            .findAndRegisterModules()
+
+        val serializer = GenericJackson2JsonRedisSerializer(objectMapper)
 
         val config = RedisCacheConfiguration.defaultCacheConfig()
             .serializeValuesWith(
