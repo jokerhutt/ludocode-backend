@@ -62,83 +62,90 @@ class RedisConfig {
         return LettuceConnectionFactory(config, clientConfig)
     }
 
-    // ---------- CacheManager (TYPED serializers) ----------
     @Bean
     fun cacheManager(
         connectionFactory: RedisConnectionFactory,
         objectMapper: ObjectMapper
     ): CacheManager {
 
-        fun <T> typedCache(
-            clazz: Class<T>,
-            ttl: Duration
-        ): RedisCacheConfiguration =
-            RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(ttl)
-                .serializeKeysWith(
-                    RedisSerializationContext.SerializationPair.fromSerializer(
-                        StringRedisSerializer()
-                    )
-                )
-                .serializeValuesWith(
-                    RedisSerializationContext.SerializationPair.fromSerializer(
-                        Jackson2JsonRedisSerializer(objectMapper, clazz)
-                    )
-                )
-
         return RedisCacheManager.builder(connectionFactory)
             .withCacheConfiguration(
                 CacheNames.COURSE_TREE,
-                typedCache(FlatCourseTreeResponse::class.java, Duration.ofMinutes(30))
+                valueCache(objectMapper, FlatCourseTreeResponse::class.java, Duration.ofMinutes(30))
             )
             .withCacheConfiguration(
                 CacheNames.LESSON_TREE,
-                typedCache(LessonTreeWithIdDTO::class.java, Duration.ofMinutes(30))
+                valueCache(objectMapper, LessonTreeWithIdDTO::class.java, Duration.ofMinutes(30))
             )
             .withCacheConfiguration(
                 CacheNames.COURSE_LIST,
-                typedCache(
-                    objectMapper.typeFactory
-                        .constructCollectionType(
-                            List::class.java,
-                            CourseResponse::class.java
-                        )
-                        .rawClass,
-                    Duration.ofMinutes(10)
-                )
+                listCache(objectMapper, CourseResponse::class.java, Duration.ofMinutes(10))
             )
             .withCacheConfiguration(
                 CacheNames.LESSON_EXERCISES,
-                typedCache(
-                    objectMapper.typeFactory
-                        .constructCollectionType(
-                            List::class.java,
-                            ExerciseResponse::class.java
-                        )
-                        .rawClass,
-                    Duration.ofMinutes(10)
-                )
+                listCache(objectMapper, ExerciseResponse::class.java, Duration.ofMinutes(10))
             )
             .withCacheConfiguration(
                 CacheNames.COURSE_FIRST_LESSON,
-                typedCache(UUID::class.java, Duration.ofMinutes(60))
+                valueCache(objectMapper, UUID::class.java, Duration.ofMinutes(60))
             )
             .withCacheConfiguration(
                 CacheNames.LESSON_MODULE,
-                typedCache(UUID::class.java, Duration.ofMinutes(60))
+                valueCache(objectMapper, UUID::class.java, Duration.ofMinutes(60))
             )
             .withCacheConfiguration(
                 CacheNames.LESSON_NEXT,
-                typedCache(UUID::class.java, Duration.ofMinutes(60))
+                valueCache(objectMapper, UUID::class.java, Duration.ofMinutes(60))
             )
             .withCacheConfiguration(
                 CacheNames.LESSON_COURSE,
-                typedCache(UUID::class.java, Duration.ofMinutes(60))
+                valueCache(objectMapper, UUID::class.java, Duration.ofMinutes(60))
             )
             .withCacheConfiguration(
                 CacheNames.EXERCISE_SINGLE,
-                typedCache(ExerciseResponse::class.java, Duration.ofMinutes(30))
+                valueCache(objectMapper, ExerciseResponse::class.java, Duration.ofMinutes(30))
             )
             .build()
+    }
+
+    private fun <T> valueCache(
+        objectMapper: ObjectMapper,
+        clazz: Class<T>,
+        ttl: Duration
+    ): RedisCacheConfiguration =
+        RedisCacheConfiguration.defaultCacheConfig()
+            .entryTtl(ttl)
+            .serializeKeysWith(
+                RedisSerializationContext.SerializationPair.fromSerializer(
+                    StringRedisSerializer()
+                )
+            )
+            .serializeValuesWith(
+                RedisSerializationContext.SerializationPair.fromSerializer(
+                    Jackson2JsonRedisSerializer(objectMapper, clazz)
+                )
+            )
+
+    private fun <T> listCache(
+        objectMapper: ObjectMapper,
+        elementClass: Class<T>,
+        ttl: Duration
+    ): RedisCacheConfiguration {
+
+        val javaType = objectMapper.typeFactory
+            .constructCollectionType(List::class.java, elementClass)
+
+        val serializer = Jackson2JsonRedisSerializer<Any>(objectMapper, javaType)
+
+        return RedisCacheConfiguration.defaultCacheConfig()
+            .entryTtl(ttl)
+            .serializeKeysWith(
+                RedisSerializationContext.SerializationPair.fromSerializer(
+                    StringRedisSerializer()
+                )
+            )
+            .serializeValuesWith(
+                RedisSerializationContext.SerializationPair.fromSerializer(serializer)
+            )
     }
 }
