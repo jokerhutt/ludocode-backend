@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.lettuce.core.ClientOptions
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
@@ -34,35 +35,35 @@ class RedisConfig {
     @Value("\${spring.data.redis.password:}")
     private var redisPassword: String = ""
 
-    @Bean
-    fun objectMapper(): ObjectMapper =
+    @Bean("redisObjectMapper")
+    fun redisObjectMapper(): ObjectMapper =
         ObjectMapper()
             .registerModule(KotlinModule.Builder().build())
             .findAndRegisterModules()
             .activateDefaultTyping(
                 LaissezFaireSubTypeValidator.instance,
-                ObjectMapper.DefaultTyping.NON_FINAL
+                ObjectMapper.DefaultTyping.EVERYTHING
             )
 
     @Bean
     fun redisConnectionFactory(): RedisConnectionFactory {
-        val redisStandaloneConfiguration = RedisStandaloneConfiguration()
-        redisStandaloneConfiguration.hostName = redisHost
-        redisStandaloneConfiguration.port = redisPort
-
+        val config = RedisStandaloneConfiguration(redisHost, redisPort)
         if (redisPassword.isNotBlank()) {
-            redisStandaloneConfiguration.setPassword(redisPassword)
+            config.setPassword(redisPassword)
         }
 
         val clientConfig = LettuceClientConfiguration.builder()
             .clientOptions(ClientOptions.builder().build())
             .build()
 
-        return LettuceConnectionFactory(redisStandaloneConfiguration, clientConfig)
+        return LettuceConnectionFactory(config, clientConfig)
     }
 
     @Bean
-    fun redisTemplate(connectionFactory: RedisConnectionFactory, objectMapper: ObjectMapper): RedisTemplate<String, Any> {
+    fun redisTemplate(
+        connectionFactory: RedisConnectionFactory,
+        @Qualifier("redisObjectMapper") objectMapper: ObjectMapper
+    ): RedisTemplate<String, Any> {
         val serializer = GenericJackson2JsonRedisSerializer(objectMapper)
 
         return RedisTemplate<String, Any>().apply {
@@ -76,10 +77,13 @@ class RedisConfig {
     }
 
     @Bean
-    fun cacheManager(connectionFactory: RedisConnectionFactory, objectMapper: ObjectMapper): CacheManager {
+    fun cacheManager(
+        connectionFactory: RedisConnectionFactory,
+        @Qualifier("redisObjectMapper") objectMapper: ObjectMapper
+    ): CacheManager {
         val serializer = GenericJackson2JsonRedisSerializer(objectMapper)
 
-        val configuration = RedisCacheConfiguration.defaultCacheConfig()
+        val config = RedisCacheConfiguration.defaultCacheConfig()
             .entryTtl(Duration.ofMinutes(60))
             .serializeKeysWith(
                 RedisSerializationContext.SerializationPair.fromSerializer(StringRedisSerializer())
@@ -89,8 +93,7 @@ class RedisConfig {
             )
 
         return RedisCacheManager.builder(connectionFactory)
-            .cacheDefaults(configuration)
+            .cacheDefaults(config)
             .build()
     }
 }
-
