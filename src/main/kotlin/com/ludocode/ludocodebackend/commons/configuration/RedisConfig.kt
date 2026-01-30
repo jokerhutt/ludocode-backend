@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.commons.configuration
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.lettuce.core.ClientOptions
 import org.springframework.beans.factory.annotation.Value
@@ -34,11 +35,14 @@ class RedisConfig {
     private var redisPassword: String = ""
 
     @Bean
-    fun objectMapper(): ObjectMapper {
-        return ObjectMapper()
+    fun objectMapper(): ObjectMapper =
+        ObjectMapper()
             .registerModule(KotlinModule.Builder().build())
             .findAndRegisterModules()
-    }
+            .activateDefaultTyping(
+                LaissezFaireSubTypeValidator.instance,
+                ObjectMapper.DefaultTyping.NON_FINAL
+            )
 
     @Bean
     fun redisConnectionFactory(): RedisConnectionFactory {
