@@ -1,11 +1,13 @@
 package com.ludocode.ludocodebackend.commons.configuration
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.ludocode.ludocodebackend.catalog.api.dto.internal.LessonTreeWithIdDTO
+import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTreeResponse
+import com.ludocode.ludocodebackend.commons.constants.CacheNames
 import io.lettuce.core.ClientOptions
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
@@ -18,11 +20,11 @@ import org.springframework.data.redis.connection.RedisConnectionFactory
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
-import org.springframework.data.redis.core.RedisTemplate
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer
 import org.springframework.data.redis.serializer.RedisSerializationContext
 import org.springframework.data.redis.serializer.StringRedisSerializer
 import java.time.Duration
+import java.util.UUID
 
 @Configuration
 @EnableCaching
@@ -37,6 +39,7 @@ class RedisConfig {
     @Value("\${spring.data.redis.password:}")
     private var redisPassword: String = ""
 
+    // ---------- ObjectMapper (NORMAL, no typing) ----------
     @Bean
     @Primary
     fun objectMapper(): ObjectMapper =
@@ -44,17 +47,7 @@ class RedisConfig {
             .registerModule(KotlinModule.Builder().build())
             .findAndRegisterModules()
 
-    @Bean("redisObjectMapper")
-    fun redisObjectMapper(): ObjectMapper =
-        ObjectMapper()
-            .registerModule(KotlinModule.Builder().build())
-            .findAndRegisterModules()
-            .activateDefaultTyping(
-                LaissezFaireSubTypeValidator.instance,
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
-            )
-
+    // ---------- Redis connection ----------
     @Bean
     fun redisConnectionFactory(): RedisConnectionFactory {
         val config = RedisStandaloneConfiguration(redisHost, redisPort)
@@ -69,41 +62,83 @@ class RedisConfig {
         return LettuceConnectionFactory(config, clientConfig)
     }
 
-    @Bean
-    fun redisTemplate(
-        connectionFactory: RedisConnectionFactory,
-        @Qualifier("redisObjectMapper") objectMapper: ObjectMapper
-    ): RedisTemplate<String, Any> {
-        val serializer = GenericJackson2JsonRedisSerializer(objectMapper)
-
-        return RedisTemplate<String, Any>().apply {
-            this.connectionFactory = connectionFactory
-            this.keySerializer = StringRedisSerializer()
-            this.valueSerializer = serializer
-            this.hashKeySerializer = StringRedisSerializer()
-            this.hashValueSerializer = serializer
-            afterPropertiesSet()
-        }
-    }
-
+    // ---------- CacheManager (TYPED serializers) ----------
     @Bean
     fun cacheManager(
         connectionFactory: RedisConnectionFactory,
-        @Qualifier("redisObjectMapper") objectMapper: ObjectMapper
+        objectMapper: ObjectMapper
     ): CacheManager {
-        val serializer = GenericJackson2JsonRedisSerializer(objectMapper)
 
-        val config = RedisCacheConfiguration.defaultCacheConfig()
-            .entryTtl(Duration.ofMinutes(60))
-            .serializeKeysWith(
-                RedisSerializationContext.SerializationPair.fromSerializer(StringRedisSerializer())
-            )
-            .serializeValuesWith(
-                RedisSerializationContext.SerializationPair.fromSerializer(serializer)
-            )
+        fun <T> typedCache(
+            clazz: Class<T>,
+            ttl: Duration
+        ): RedisCacheConfiguration =
+            RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(ttl)
+                .serializeKeysWith(
+                    RedisSerializationContext.SerializationPair.fromSerializer(
+                        StringRedisSerializer()
+                    )
+                )
+                .serializeValuesWith(
+                    RedisSerializationContext.SerializationPair.fromSerializer(
+                        Jackson2JsonRedisSerializer(objectMapper, clazz)
+                    )
+                )
 
         return RedisCacheManager.builder(connectionFactory)
-            .cacheDefaults(config)
+            .withCacheConfiguration(
+                CacheNames.COURSE_TREE,
+                typedCache(FlatCourseTreeResponse::class.java, Duration.ofMinutes(30))
+            )
+            .withCacheConfiguration(
+                CacheNames.LESSON_TREE,
+                typedCache(LessonTreeWithIdDTO::class.java, Duration.ofMinutes(30))
+            )
+            .withCacheConfiguration(
+                CacheNames.COURSE_LIST,
+                typedCache(
+                    objectMapper.typeFactory
+                        .constructCollectionType(
+                            List::class.java,
+                            CourseResponse::class.java
+                        )
+                        .rawClass,
+                    Duration.ofMinutes(10)
+                )
+            )
+            .withCacheConfiguration(
+                CacheNames.LESSON_EXERCISES,
+                typedCache(
+                    objectMapper.typeFactory
+                        .constructCollectionType(
+                            List::class.java,
+                            ExerciseResponse::class.java
+                        )
+                        .rawClass,
+                    Duration.ofMinutes(10)
+                )
+            )
+            .withCacheConfiguration(
+                CacheNames.COURSE_FIRST_LESSON,
+                typedCache(UUID::class.java, Duration.ofMinutes(60))
+            )
+            .withCacheConfiguration(
+                CacheNames.LESSON_MODULE,
+                typedCache(UUID::class.java, Duration.ofMinutes(60))
+            )
+            .withCacheConfiguration(
+                CacheNames.LESSON_NEXT,
+                typedCache(UUID::class.java, Duration.ofMinutes(60))
+            )
+            .withCacheConfiguration(
+                CacheNames.LESSON_COURSE,
+                typedCache(UUID::class.java, Duration.ofMinutes(60))
+            )
+            .withCacheConfiguration(
+                CacheNames.EXERCISE_SINGLE,
+                typedCache(ExerciseResponse::class.java, Duration.ofMinutes(30))
+            )
             .build()
     }
 }
