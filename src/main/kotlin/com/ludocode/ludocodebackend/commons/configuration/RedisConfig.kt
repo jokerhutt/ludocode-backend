@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.commons.configuration
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -10,6 +11,7 @@ import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.data.redis.cache.RedisCacheConfiguration
 import org.springframework.data.redis.cache.RedisCacheManager
 import org.springframework.data.redis.connection.RedisConnectionFactory
@@ -35,6 +37,13 @@ class RedisConfig {
     @Value("\${spring.data.redis.password:}")
     private var redisPassword: String = ""
 
+    @Bean
+    @Primary
+    fun objectMapper(): ObjectMapper =
+        ObjectMapper()
+            .registerModule(KotlinModule.Builder().build())
+            .findAndRegisterModules()
+
     @Bean("redisObjectMapper")
     fun redisObjectMapper(): ObjectMapper =
         ObjectMapper()
@@ -42,7 +51,8 @@ class RedisConfig {
             .findAndRegisterModules()
             .activateDefaultTyping(
                 LaissezFaireSubTypeValidator.instance,
-                ObjectMapper.DefaultTyping.EVERYTHING
+                ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY
             )
 
     @Bean
