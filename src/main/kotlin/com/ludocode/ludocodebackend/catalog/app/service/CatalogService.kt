@@ -79,12 +79,12 @@ class CatalogService(
     }
 
     @Cacheable(CacheNames.COURSE_LIST)
-    internal fun getAllCourses (): List<CourseResponse> {
+    fun getAllCourses (): List<CourseResponse> {
         return courseMapper.toCourseResponseList(courseRepository.findAll())
     }
 
     @Cacheable(CacheNames.COURSE_TREE, key = "#courseId")
-    internal fun getFlatCourseTree(courseId: UUID): FlatCourseTreeResponse {
+    fun getFlatCourseTree(courseId: UUID): FlatCourseTreeResponse {
         val rows = moduleRepository.findFlatCourseTree(courseId)
         logger.info(
             LogEvents.COURSE_TREE_LOADED,
@@ -94,7 +94,7 @@ class CatalogService(
     }
 
     @Cacheable(CacheNames.LESSON_EXERCISES, key = "#lessonId")
-    internal fun getExercisesByLessonId (lessonId: UUID): List<ExerciseResponse> {
+    fun getExercisesByLessonId (lessonId: UUID): List<ExerciseResponse> {
        val exercisesWithOptionsFlat: List<ExerciseFlatProjection> = lessonExercisesRepository.getFlatExercisesWithOptions(lessonId)
         logger.info(
             LogEvents.LESSON_EXERCISES_LOADED + " {}",
@@ -104,7 +104,7 @@ class CatalogService(
     }
 
     @Cacheable(CacheNames.EXERCISE_SINGLE, key = "#exerciseId")
-    internal fun getExerciseByExerciseId (exerciseId: UUID) : ExerciseResponse {
+    fun getExerciseByExerciseId (exerciseId: UUID) : ExerciseResponse {
         val exerciseWithOptions = lessonExercisesRepository.getSingleExerciseNewestFlat(exerciseId)
         return exerciseMapper.toExerciseResponse(exerciseWithOptions)
     }

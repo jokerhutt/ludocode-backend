@@ -14,7 +14,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @Profile("!test")
 class SecurityConfig(
-    private val jwtFilter: JwtCookieAuthenticationFilter
+    private val jwtFilter: JwtCookieAuthenticationFilter,
+    private val corsLoggingFilter: CorsLoggingFilter
 ) {
 
     @Bean
@@ -42,6 +43,7 @@ class SecurityConfig(
             }
             .httpBasic { it.disable() }
             .formLogin { it.disable() }
+            .addFilterBefore(corsLoggingFilter, UsernamePasswordAuthenticationFilter::class.java)
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
