@@ -1,5 +1,4 @@
 package com.ludocode.ludocodebackend.commons.configuration
-
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.ludocode.ludocodebackend.catalog.api.dto.internal.LessonTreeWithIdDTO
@@ -8,7 +7,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTreeResponse
 import com.ludocode.ludocodebackend.commons.constants.CacheNames
 import io.lettuce.core.ClientOptions
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
@@ -28,18 +27,9 @@ import java.util.UUID
 
 @Configuration
 @EnableCaching
-class RedisConfig {
+@EnableConfigurationProperties(RedisProps::class)
+class RedisConfig (private val redisProps: RedisProps) {
 
-    @Value("\${spring.data.redis.host}")
-    private lateinit var redisHost: String
-
-    @Value("\${spring.data.redis.port}")
-    private var redisPort: Int = 6379
-
-    @Value("\${spring.data.redis.password:}")
-    private var redisPassword: String = ""
-
-    // ---------- ObjectMapper (NORMAL, no typing) ----------
     @Bean
     @Primary
     fun objectMapper(): ObjectMapper =
@@ -47,12 +37,11 @@ class RedisConfig {
             .registerModule(KotlinModule.Builder().build())
             .findAndRegisterModules()
 
-    // ---------- Redis connection ----------
     @Bean
     fun redisConnectionFactory(): RedisConnectionFactory {
-        val config = RedisStandaloneConfiguration(redisHost, redisPort)
-        if (redisPassword.isNotBlank()) {
-            config.setPassword(redisPassword)
+        val config = RedisStandaloneConfiguration(redisProps.host, redisProps.port)
+        if (redisProps.password.isNotBlank()) {
+            config.setPassword(redisProps.password)
         }
 
         val clientConfig = LettuceClientConfiguration.builder()
