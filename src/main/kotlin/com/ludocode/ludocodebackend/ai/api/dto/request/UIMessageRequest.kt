@@ -5,18 +5,19 @@ import com.ludocode.ludocodebackend.ai.domain.enums.ChatType
 import java.util.UUID
 
 
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class UIMessagePart(
     val type: String,
     val text: String?
 )
 
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class UIMessageRequestMetadata(
     val chatType: ChatType,
     val targetId: UUID?
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class UIMessageRequest(
     val id: String,
     val role: AiMessageRole,
