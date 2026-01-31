@@ -14,7 +14,6 @@ import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
@@ -30,7 +29,7 @@ class JwtCookieAuthenticationFilter(
     private val userRepository: UserRepository
 ) : OncePerRequestFilter() {
 
-    private val logger = LoggerFactory.getLogger(JwtCookieAuthenticationFilter::class.java)
+    private val log = LoggerFactory.getLogger(JwtCookieAuthenticationFilter::class.java)
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
 
@@ -81,7 +80,7 @@ class JwtCookieAuthenticationFilter(
                 SecurityContextHolder.getContext().authentication = auth
             } catch (e: Exception) {
                 SecurityContextHolder.clearContext()
-                logger.warn(
+                log.warn(
                     LogEvents.AUTH_JWT_INVALID + " {} {}",
                     kv(LogFields.URI_PATH, req.requestURI),
                     kv(LogFields.AUTH_FAILURE_REASON, e.javaClass.simpleName)
