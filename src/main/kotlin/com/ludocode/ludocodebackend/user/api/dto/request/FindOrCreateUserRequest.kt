@@ -8,5 +8,6 @@ data class FindOrCreateUserRequest(
     val providerUserId: String,
     val email: String,
     val displayName: String?,
-    val avatarUrl: String?
+    val avatarUrl: String?,
+    val role: String?
 )

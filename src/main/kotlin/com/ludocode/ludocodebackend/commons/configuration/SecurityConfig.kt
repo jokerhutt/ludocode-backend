@@ -1,7 +1,9 @@
 package com.ludocode.ludocodebackend.commons.configuration
 
+import com.google.protobuf.Api
 import com.ludocode.ludocodebackend.auth.api.security.JwtCookieAuthenticationFilter
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.commons.constants.AuthRoleEndpointConstants
 import com.ludocode.ludocodebackend.commons.constants.PublicEndpointConstants
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -35,6 +37,8 @@ class SecurityConfig(
                 ).permitAll()
                 it.requestMatchers(*PublicEndpointConstants.PUBLIC_ENDPOINTS).permitAll()
                 it.requestMatchers("${ApiPaths.USERS.BASE}/**").authenticated()
+                it.requestMatchers(*AuthRoleEndpointConstants.ADMIN_REQUIRED)
+                    .hasRole("ADMIN")
                 it.requestMatchers("/media/**").permitAll()
                 it.requestMatchers("/internal/**", "/internal/v1/**").permitAll()
                 it.requestMatchers("/actuator/**").permitAll()

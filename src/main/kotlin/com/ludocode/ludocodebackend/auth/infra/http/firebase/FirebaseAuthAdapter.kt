@@ -14,12 +14,13 @@ class FirebaseAuthAdapter(
 
     override fun verifyIdToken(token: String): FirebaseUser {
         val decoded = firebaseAuth.verifyIdToken(token)
-
+        val role = decoded.claims["role"] as? String
         return FirebaseUser(
             uid = decoded.uid,
             email = decoded.email,
             name = decoded.name,
-            picture = decoded.picture
+            picture = decoded.picture,
+            role = role
         )
     }
 }
