@@ -25,28 +25,28 @@ class JwtService(
     private fun getSigningKey(): Key =
         Keys.hmacShaKeyFor(jwtSecret.toByteArray(StandardCharsets.UTF_8))
 
-    internal fun createToken(userId: UUID): String =
+    internal fun createToken(userId: UUID, role: String?): String =
         Jwts.builder()
             .setSubject(userId.toString())
+            .claim("role", role)
             .setIssuedAt(Date())
             .setExpiration(Date(System.currentTimeMillis() + expirationMillis))
             .signWith(getSigningKey(), SignatureAlgorithm.HS256)
             .compact()
 
-    internal fun requireUserId(token: String): UUID {
+    internal fun parseClaims(token: String): Claims {
         if (token.isBlank())
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing token")
 
         return try {
-            val claims: Claims = Jwts.parserBuilder()
+            Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .body
-
-            UUID.fromString(claims.subject)
         } catch (e: JwtException) {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token")
         }
     }
+
 }

@@ -16,6 +16,8 @@ object LogFields {
 
     const val CHOSEN_PATH = "chosenPath"
 
+    const val AUTH_FAILURE_REASON = "authFailureReason"
+
     const val CREDITS = "credits"
     const val DELTA = "delta"
     const val OLD_CREDITS = "oldCredits"

@@ -48,7 +48,8 @@ class AuthService(
                 email = decoded.email
                     ?: throw ApiException(ErrorCode.BAD_REQ, "Email missing from Firebase token"),
                 displayName = decoded.name,
-                avatarUrl = decoded.picture
+                avatarUrl = decoded.picture,
+                role = decoded.role
             )
             buildLoginResponse(request, response)
         } catch (e: Exception) {
@@ -66,7 +67,8 @@ class AuthService(
             providerUserId = demoConfig.userId.toString(),
             email = "demo@ludocode.app",
             displayName = "Demo User",
-            avatarUrl = null
+            avatarUrl = null,
+            role = null
         )
         return buildLoginResponse(request, response)
     }
@@ -81,7 +83,7 @@ class AuthService(
             logger.info(LogEvents.AUTH_LOGIN_SUCCESS)
             val coins = userCoinsPortForAuth.findOrCreateCoins(user.id)
             val streak = userStreakPortForAuth.getStreak(user.id)
-            val jwt = jwtService.createToken(user.id)
+            val jwt = jwtService.createToken(user.id, role = request.role)
             authCookieService.setJwt(response, jwt)
             UserLoginResponse(user, coins, streak)
         }
