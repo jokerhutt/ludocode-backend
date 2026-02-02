@@ -25,6 +25,7 @@ import com.ludocode.ludocodebackend.config.FirebaseAuthTestConfig
 import com.ludocode.ludocodebackend.config.MockOauthConstants
 import com.ludocode.ludocodebackend.config.security.TestSecurityConfig
 import com.ludocode.ludocodebackend.config.time.MutableClock
+import com.ludocode.ludocodebackend.config.TestCacheConfig
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.AttemptOptionRepository
@@ -61,7 +62,7 @@ import java.util.UUID
 @ActiveProfiles("test")
 @Import(
     TestSecurityConfig::class, TestClockConfig::class, GcpTestConfig::class, GeminiTestConfig::class,
-    FirebaseAuthTestConfig::class, GcpTestConfig::class)
+    FirebaseAuthTestConfig::class, TestCacheConfig::class)
 abstract class AbstractIntegrationTest {
 
 

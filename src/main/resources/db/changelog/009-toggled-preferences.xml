@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+      http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="009-01-audio-enabled-toggle" author="dave" dbms="postgresql">
+        <sql>
+            ALTER TABLE user_preferences
+                ADD COLUMN audio_enabled BOOLEAN NOT NULL DEFAULT TRUE;
+        </sql>
+    </changeSet>
+
+    <changeSet id="009-02-ai-enabled-toggle" author="dave" dbms="postgresql">
+        <sql>
+            ALTER TABLE user_preferences
+                ADD COLUMN ai_enabled BOOLEAN NOT NULL DEFAULT TRUE;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

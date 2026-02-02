@@ -22,7 +22,13 @@ class UserPreferences (
 
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "chosen_path")
-    val chosenPath: DesiredPath
+    val chosenPath: DesiredPath,
+
+    @Column(name = "audio_enabled")
+    var audioEnabled: Boolean? = true,
+
+    @Column(name = "ai_enabled")
+    var aiEnabled: Boolean? = true
 
 )
 
