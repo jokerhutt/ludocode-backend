@@ -17,7 +17,8 @@ class FirebaseAuthTestConfig {
                     uid = MockOauthConstants.USER_1_GOOGLE_SUB,
                     email = "email@google.com",
                     name = "John Doe",
-                    picture = "https://example.com/avatar.png"
+                    picture = "https://example.com/avatar.png",
+                    role = null
                 )
             }
         }
