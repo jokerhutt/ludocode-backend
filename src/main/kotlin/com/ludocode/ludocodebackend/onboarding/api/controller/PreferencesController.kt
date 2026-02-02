@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.onboarding.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.onboarding.api.dto.TogglePreferencesRequest
 import com.ludocode.ludocodebackend.onboarding.app.service.PreferencesService
 import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
 import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
@@ -37,6 +38,20 @@ class PreferencesController(private val preferencesService: PreferencesService) 
     @PutMapping
     fun submitOnboarding(@RequestBody req: OnboardingSubmission, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<OnboardingResponse> {
         return ResponseEntity.ok(preferencesService.createPreferences(req,userId))
+    }
+
+    @Operation(
+        summary = "Update user toggle preferences",
+        description = """
+        Updates AI and Audio preferences for the currently authenticated user.
+        Returns updated preference state.
+        Requires a valid session cookie.
+        """
+    )
+    @SecurityRequirement(name = "sessionAuth")
+    @GetMapping
+    fun updateTogglePreferences(@RequestBody req: TogglePreferencesRequest, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<UserPreferences> {
+        return ResponseEntity.ok(preferencesService.updateTogglePreferences(userId, req))
     }
 
     @Operation(

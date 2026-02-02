@@ -25,10 +25,10 @@ class UserPreferences (
     val chosenPath: DesiredPath,
 
     @Column(name = "audio_enabled")
-    val audioEnabled: Boolean? = true,
+    var audioEnabled: Boolean? = true,
 
     @Column(name = "ai_enabled")
-    val aiEnabled: Boolean? = true
+    var aiEnabled: Boolean? = true
 
 )
 

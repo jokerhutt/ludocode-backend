@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.onboarding.app.service
 
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
+import com.ludocode.ludocodebackend.onboarding.api.dto.TogglePreferencesRequest
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
 import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
 import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
@@ -41,6 +42,16 @@ class PreferencesService(
         )
 
         return OnboardingResponse(refreshedUser = userPortForAuth.getById(userId), savedPreferences, courseProgressResponse = newCourseProgressWithEnrolled)
+    }
+
+    @Transactional
+    internal fun updateTogglePreferences (userId: UUID, req: TogglePreferencesRequest) : UserPreferences {
+        val currentPreferences = getPreferences(userId)
+
+        currentPreferences.audioEnabled = req.audioEnabled
+        currentPreferences.aiEnabled = req.aiEnabled
+
+        return currentPreferences
     }
 
     internal fun getPreferences (userId: UUID) : UserPreferences {
