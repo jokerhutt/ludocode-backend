@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -49,7 +50,7 @@ class PreferencesController(private val preferencesService: PreferencesService) 
         """
     )
     @SecurityRequirement(name = "sessionAuth")
-    @GetMapping
+    @PatchMapping
     fun updateTogglePreferences(@RequestBody req: TogglePreferencesRequest, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<UserPreferences> {
         return ResponseEntity.ok(preferencesService.updateTogglePreferences(userId, req))
     }
