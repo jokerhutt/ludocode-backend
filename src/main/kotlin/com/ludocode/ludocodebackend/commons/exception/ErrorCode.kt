@@ -19,6 +19,8 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
 
     LANGUAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "Language not found. Does it exist?"),
 
+    COURSE_EXISTS(HttpStatus.BAD_REQUEST, "This course slug or name already exists, did you already create it?"),
+
     NOT_ENOUGH_CREDITS(HttpStatus.UNAUTHORIZED, "Not enough credits to perform this action"),
 
     NOT_ALLOWED(HttpStatus.UNAUTHORIZED, "Not allowed to retrieve content"),

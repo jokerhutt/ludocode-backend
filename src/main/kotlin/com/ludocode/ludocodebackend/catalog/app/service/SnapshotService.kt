@@ -13,6 +13,7 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
 import com.ludocode.ludocodebackend.catalog.domain.entity.LessonExercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
+import com.ludocode.ludocodebackend.catalog.domain.entity.Subject
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.LessonExercisesId
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
@@ -25,8 +26,11 @@ import com.ludocode.ludocodebackend.catalog.infra.repository.LessonRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.OptionContentRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.SubjectRepository
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
@@ -47,7 +51,8 @@ class SnapshotService(
     private val snapshotBuilderService: SnapshotBuilderService,
     private val em: EntityManager,
     private val courseMapper: CourseMapper,
-    private val courseRepository: CourseRepository
+    private val courseRepository: CourseRepository,
+    private val subjectRepository: SubjectRepository
 ) {
 
     private val logger = LoggerFactory.getLogger(SnapshotService::class.java)
@@ -61,16 +66,24 @@ class SnapshotService(
     internal fun createCourse (request: CreateCourseRequest) : List<CourseResponse> {
         val newCourseName = request.courseTitle
         val newCourseHash = request.requestHash
+        val newCourseSubject = request.courseSubject
+        val newCourseType = request.courseType
 
         val newCourseId = UUID.randomUUID()
         val newModuleId = UUID.randomUUID()
         val newLessonId = UUID.randomUUID()
         val newExerciseId = UUID.randomUUID()
 
+        val subject = (subjectRepository.findBySlugAndName(newCourseSubject.slug, newCourseSubject.name))
+            ?: Subject(slug = newCourseSubject.slug, name = newCourseSubject.name, codeLanguage = newCourseSubject.codeLanguage)
+
         val newCourse = Course(
             id = newCourseId,
             title = newCourseName,
-            requestHash = newCourseHash
+            requestHash = newCourseHash,
+            courseType = newCourseType,
+            subject = subject,
+
         )
 
         courseRepository.save(newCourse)
