@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.playground.app.mapper
 
 import com.ludocode.ludocodebackend.commons.mapper.BasicMapper
+import com.ludocode.ludocodebackend.playground.api.dto.request.LanguageMetadata
 import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.domain.entity.CodeLanguages
@@ -18,7 +19,7 @@ class ProjectMapper (private val basicMapper: BasicMapper) {
             ProjectFileSnapshot(
                 id = it.id,
                 path = it.filePath,
-                language = it.codeLanguage,
+                language = toLanguageMetadata(it.codeLanguage),
                 content = fileContent ?: ""
             )
         }}
@@ -29,7 +30,17 @@ class ProjectMapper (private val basicMapper: BasicMapper) {
         }
 
     fun toProjectSnapshot(projectId: UUID, projectName: String, projectLanguage: CodeLanguages, updatedAt: OffsetDateTime?, projectFiles: List<ProjectFile>, fileContentMap: Map<String, String>) : ProjectSnapshot {
-        return ProjectSnapshot(projectId, projectName, projectLanguage, updatedAt, toProjectFileSnapshotList(projectFiles, fileContentMap))
+        return ProjectSnapshot(projectId, projectName, toLanguageMetadata(language = projectLanguage), updatedAt, toProjectFileSnapshotList(projectFiles, fileContentMap))
+    }
+
+    fun toLanguageMetadata(language: CodeLanguages) : LanguageMetadata {
+        return LanguageMetadata(
+            name = language.name,
+            languageId = language.id,
+            editorId = language.editorId,
+            initialScript = language.initialScript,
+            slug = language.slug
+        )
     }
 
 

@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.SubjectSnap
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
@@ -109,6 +110,9 @@ abstract class AbstractIntegrationTest {
     lateinit var luaLanguage: CodeLanguages
     lateinit var jsLanguage: CodeLanguages
 
+    lateinit var pythonSubject: Subject
+    lateinit var swiftSubject: Subject
+
 
     init {
         Containers.POSTGRES.isRunning
@@ -202,6 +206,7 @@ abstract class AbstractIntegrationTest {
         )
 
         initializeLanguages()
+        initializeSubjects()
         initializeCatalog()
         initializeUsers()
 
@@ -229,7 +234,10 @@ abstract class AbstractIntegrationTest {
 
         // 2) Upsert courses, modules, lessons, exercises
         snaps.forEach { cs ->
-            courseRepository.save(Course(id = cs.courseId, title = cs.title, courseType = cs.courseType, subject = cs.courseSubject))
+
+            val subject = subjectRepository.findBySlugAndName(cs.courseSubject.slug, cs.courseSubject.name)
+
+            courseRepository.save(Course(id = cs.courseId, title = cs.title, courseType = cs.courseType, subject = subject!!))
 
             cs.modules.forEachIndexed { mIdx, ms ->
                 moduleRepository.save(
@@ -370,6 +378,21 @@ abstract class AbstractIntegrationTest {
             initialScript = "console.log('Hello World!')"
         ))
 
+    }
+
+    @Transactional
+    fun initializeSubjects () {
+        pythonSubject = subjectRepository.save(Subject(
+            slug="py",
+            name="Python",
+            codeLanguage = pythonLanguage
+        ))
+
+        swiftSubject = subjectRepository.save(Subject(
+            slug = "swift",
+            name="swift",
+            codeLanguage = swiftLanguage
+        ))
     }
 
     @Transactional
@@ -561,25 +584,19 @@ abstract class AbstractIntegrationTest {
             ModuleSnap(moduleId = swMod1Id, title = "Variables", lessons = swMod1Lessons),
         )
 
-        val pythonSubject = Subject(
-            id=1L,
-            slug="py",
-            name="Python",
-            codeLanguage = pythonLanguage
+        val pythonSubjectSnap = SubjectSnap(
+            slug = pythonSubject.slug,
+            name = pythonSubject.name
         )
 
-        val swiftSubject = Subject(
-            id=2L,
-            slug = "swift",
-            name="swift",
-            codeLanguage = swiftLanguage
+        val swiftSubjectSnap = SubjectSnap(
+            slug = swiftSubject.slug,
+            name = swiftSubject.name
         )
-
-        subjectRepository.saveAll(listOf(pythonSubject, swiftSubject))
 
         val snaps = listOf(
-            CourseSnap(courseId = pythonId, title = "Python", courseSubject = pythonSubject, courseType = CourseType.COURSE,  modules = pythonModules),
-            CourseSnap(courseId = swiftId,  title = "Swift", courseSubject = swiftSubject, courseType = CourseType.COURSE,  modules = swiftModules)
+            CourseSnap(courseId = pythonId, title = "Python", courseSubject = pythonSubjectSnap, courseType = CourseType.COURSE,  modules = pythonModules),
+            CourseSnap(courseId = swiftId,  title = "Swift", courseSubject = swiftSubjectSnap, courseType = CourseType.COURSE,  modules = swiftModules)
         )
 
         importSnapshots(snaps, defaultVersion = 1)

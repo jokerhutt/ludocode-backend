@@ -14,7 +14,7 @@
     <include file="/db/changelog/007-user-table-trim.xml"/>
     <include file="/db/changelog/008-lesson-completion-submission-id.xml"/>
     <include file="/db/changelog/009-toggled-preferences.xml"/>
-
+    <include file="/db/changelog/010-subjects-languages.xml"/>
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>
 

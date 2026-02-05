@@ -49,14 +49,6 @@ class ProjectService(
 
     private val logger = LoggerFactory.getLogger(ProjectService::class.java)
 
-    private fun getFirstFileContent(language: LanguageType) : String {
-        return when (language) {
-            LanguageType.python -> "print('Hello World!')"
-            LanguageType.lua -> "print('Hello World!)"
-            LanguageType.javascript -> "console.log('Hello World!')"
-        }
-    }
-
     @Transactional
     internal fun createProject(request: CreateProjectRequest, userId: UUID) : ProjectListResponse {
 
@@ -307,13 +299,16 @@ class ProjectService(
 
             val contentUrl = "$projectId/${fileId}"
             gcsRequests.add(StoragePutRequest(contentUrl, file.content))
+
+            val language = codeLanguagesRepository.getReferenceById(file.language.languageId)
+
             projectFileRepository.save(ProjectFile(
                 id = fileId,
                 projectId = projectId,
                 contentUrl = contentUrl,
                 filePath = file.path,
                 contentHash = hash,
-                codeLanguage = file.language
+                codeLanguage = language
             ))
         }
 

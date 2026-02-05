@@ -22,7 +22,7 @@ class CreateCourseIT : AbstractIntegrationTest() {
         val subjectReq = CourseSubjectRequest(
             slug = "lua",
             name = "Lua",
-            codeLanguage = luaLanguage
+            codeLanguageId = luaLanguage.id
         )
 
         val req = CreateCourseRequest(newCourseName, requestHash, CourseType.COURSE,  subjectReq)

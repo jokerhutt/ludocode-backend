@@ -8,7 +8,15 @@ import java.util.UUID
 data class ProjectSnapshot(
    val projectId: UUID,
    val projectName: String,
-   val projectLanguage: CodeLanguages,
+   val projectLanguage: LanguageMetadata,
    val updatedAt: OffsetDateTime?,
    val files: List<ProjectFileSnapshot>,
+)
+
+data class LanguageMetadata(
+   val languageId: Long,
+   val slug: String,
+   val initialScript: String?,
+   val editorId: String,
+   val name: String
 )

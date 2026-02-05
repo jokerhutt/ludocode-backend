@@ -31,6 +31,7 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.playground.infra.repository.CodeLanguagesRepository
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
@@ -52,7 +53,8 @@ class SnapshotService(
     private val em: EntityManager,
     private val courseMapper: CourseMapper,
     private val courseRepository: CourseRepository,
-    private val subjectRepository: SubjectRepository
+    private val subjectRepository: SubjectRepository,
+    private val codeLanguagesRepository: CodeLanguagesRepository
 ) {
 
     private val logger = LoggerFactory.getLogger(SnapshotService::class.java)
@@ -74,8 +76,18 @@ class SnapshotService(
         val newLessonId = UUID.randomUUID()
         val newExerciseId = UUID.randomUUID()
 
-        val subject = (subjectRepository.findBySlugAndName(newCourseSubject.slug, newCourseSubject.name))
-            ?: Subject(slug = newCourseSubject.slug, name = newCourseSubject.name, codeLanguage = newCourseSubject.codeLanguage)
+        val codeLanguage = codeLanguagesRepository.findById(request.courseSubject.codeLanguageId)
+            .orElseThrow { ApiException(ErrorCode.LANGUAGE_NOT_FOUND) }
+
+        val subject =
+            subjectRepository.findBySlugAndName(newCourseSubject.slug, newCourseSubject.name)
+                ?: subjectRepository.save(
+                    Subject(
+                        slug = newCourseSubject.slug,
+                        name = newCourseSubject.name,
+                        codeLanguage = codeLanguage
+                    )
+                )
 
         val newCourse = Course(
             id = newCourseId,

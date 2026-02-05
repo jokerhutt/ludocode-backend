@@ -9,5 +9,5 @@ data class CreateCourseRequest(val courseTitle: String, val requestHash: UUID, v
 data class CourseSubjectRequest(
     val slug: String,
     val name: String,
-    val codeLanguage: CodeLanguages?
+    val codeLanguageId: Long
 )

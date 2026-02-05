@@ -8,6 +8,11 @@ data class CourseSnap(
     val courseId: UUID,
     val title: String = "",
     val courseType: CourseType,
-    val courseSubject: Subject,
+    val courseSubject: SubjectSnap,
     val modules: List<ModuleSnap>
+)
+
+data class SubjectSnap(
+    val slug: String,
+    val name: String
 )

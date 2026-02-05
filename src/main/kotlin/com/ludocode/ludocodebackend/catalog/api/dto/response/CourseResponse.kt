@@ -8,5 +8,11 @@ data class CourseResponse(
     val id: UUID,
     val title: String,
     val courseType: CourseType,
-    val subject: Subject
+    val subject: CourseSubjectResponse
+)
+
+data class CourseSubjectResponse(
+    val slug: String,
+    val name: String,
+    val codeLanguage: String?
 )
