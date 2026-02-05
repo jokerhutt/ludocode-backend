@@ -5,6 +5,12 @@ import java.util.UUID
 
 data class CreateProjectRequest(
     val projectName: String,
-    val projectLanguage: LanguageType,
+    val projectLanguageId: Long,
     val requestHash: UUID
+)
+
+data class CreateProjectLanguageRequest(
+    val slug: String,
+    val name: String,
+    val editorId: String
 )

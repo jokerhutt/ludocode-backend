@@ -27,6 +27,9 @@ class CodeLanguages(
     @Column(nullable = false)
     var name: String,
 
-    @Column(name = "editor_id", nullable = false)
+    @Column(name = "initial_script", nullable = true)
+    var initialScript: String = "",
+
+    @Column(name = "editor_id", nullable = false, unique = true)
     var editorId: String
 )

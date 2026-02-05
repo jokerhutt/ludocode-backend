@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.playground.app.mapper
 import com.ludocode.ludocodebackend.commons.mapper.BasicMapper
 import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
+import com.ludocode.ludocodebackend.playground.domain.entity.CodeLanguages
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import org.springframework.stereotype.Component
@@ -17,7 +18,7 @@ class ProjectMapper (private val basicMapper: BasicMapper) {
             ProjectFileSnapshot(
                 id = it.id,
                 path = it.filePath,
-                language = it.fileLanguage,
+                language = it.codeLanguage,
                 content = fileContent ?: ""
             )
         }}
@@ -27,7 +28,7 @@ class ProjectMapper (private val basicMapper: BasicMapper) {
             toProjectFileSnapshot(file, fileContentMap[file.contentUrl])
         }
 
-    fun toProjectSnapshot(projectId: UUID, projectName: String, projectLanguage: LanguageType, updatedAt: OffsetDateTime?, projectFiles: List<ProjectFile>, fileContentMap: Map<String, String>) : ProjectSnapshot {
+    fun toProjectSnapshot(projectId: UUID, projectName: String, projectLanguage: CodeLanguages, updatedAt: OffsetDateTime?, projectFiles: List<ProjectFile>, fileContentMap: Map<String, String>) : ProjectSnapshot {
         return ProjectSnapshot(projectId, projectName, projectLanguage, updatedAt, toProjectFileSnapshotList(projectFiles, fileContentMap))
     }
 
