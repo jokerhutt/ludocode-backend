@@ -1,10 +1,12 @@
 package com.ludocode.ludocodebackend.support
 import com.google.cloud.storage.Storage
+import com.ludocode.ludocodebackend.catalog.api.dto.request.CourseSubjectRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.SubjectSnap
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
@@ -13,9 +15,11 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.LessonExercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
 import com.ludocode.ludocodebackend.catalog.domain.entity.OptionContent
+import com.ludocode.ludocodebackend.catalog.domain.entity.Subject
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.LessonExercisesId
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
+import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.catalog.infra.repository.*
 import com.ludocode.ludocodebackend.config.time.TestClockConfig
@@ -26,6 +30,8 @@ import com.ludocode.ludocodebackend.config.MockOauthConstants
 import com.ludocode.ludocodebackend.config.security.TestSecurityConfig
 import com.ludocode.ludocodebackend.config.time.MutableClock
 import com.ludocode.ludocodebackend.config.TestCacheConfig
+import com.ludocode.ludocodebackend.playground.domain.entity.CodeLanguages
+import com.ludocode.ludocodebackend.playground.infra.repository.CodeLanguagesRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.AttemptOptionRepository
@@ -66,7 +72,12 @@ import java.util.UUID
 abstract class AbstractIntegrationTest {
 
 
-     var pythonId = UUID.randomUUID()
+    @Autowired
+    private lateinit var subjectRepository: SubjectRepository
+
+    @Autowired
+    private lateinit var codeLanguagesRepository: CodeLanguagesRepository
+    var pythonId = UUID.randomUUID()
      var swiftId  = UUID.randomUUID()
 
      var pyMod1Id = UUID.randomUUID()
@@ -87,10 +98,20 @@ abstract class AbstractIntegrationTest {
      var sw1L3 = UUID.randomUUID()
      var sw1L4 = UUID.randomUUID()
 
+
+
     lateinit var user1: User
     lateinit var user2: User
     lateinit var demoUser1: User
     val demoToken: String = "9d495788fdc9fe95627f04ab32cc839e"
+
+    lateinit var pythonLanguage: CodeLanguages
+    lateinit var swiftLanguage: CodeLanguages
+    lateinit var luaLanguage: CodeLanguages
+    lateinit var jsLanguage: CodeLanguages
+
+    lateinit var pythonSubject: Subject
+    lateinit var swiftSubject: Subject
 
 
     init {
@@ -177,11 +198,15 @@ abstract class AbstractIntegrationTest {
           lesson,
           exercise, 
           module, 
-          course
+          course,
+          subjects,
+          code_languages
         RESTART IDENTITY CASCADE
         """.trimIndent()
         )
 
+        initializeLanguages()
+        initializeSubjects()
         initializeCatalog()
         initializeUsers()
 
@@ -209,7 +234,10 @@ abstract class AbstractIntegrationTest {
 
         // 2) Upsert courses, modules, lessons, exercises
         snaps.forEach { cs ->
-            courseRepository.save(Course(id = cs.courseId, title = cs.title))
+
+            val subject = subjectRepository.findBySlugAndName(cs.courseSubject.slug, cs.courseSubject.name)
+
+            courseRepository.save(Course(id = cs.courseId, title = cs.title, courseType = cs.courseType, subject = subject!!))
 
             cs.modules.forEachIndexed { mIdx, ms ->
                 moduleRepository.save(
@@ -321,6 +349,50 @@ abstract class AbstractIntegrationTest {
         ))
 
 
+    }
+
+    @Transactional
+        fun initializeLanguages () {
+        pythonLanguage = codeLanguagesRepository.save(CodeLanguages(
+            slug = "py",
+            name = "python",
+            editorId = "python",
+            initialScript = "print('Hello World!')"
+        ))
+        swiftLanguage = codeLanguagesRepository.save(CodeLanguages(
+            slug = "swift",
+            name = "swift",
+            editorId = "swift",
+            initialScript = "print('Hello World!')"
+        ))
+        luaLanguage = codeLanguagesRepository.save(CodeLanguages(
+            slug = "lua",
+            name = "Lua",
+            editorId = "lua",
+            initialScript = "print('Hello World!')"
+        ))
+        jsLanguage = codeLanguagesRepository.save(CodeLanguages(
+            slug = "js",
+            name = "Javascript",
+            editorId = "js",
+            initialScript = "console.log('Hello World!')"
+        ))
+
+    }
+
+    @Transactional
+    fun initializeSubjects () {
+        pythonSubject = subjectRepository.save(Subject(
+            slug="py",
+            name="Python",
+            codeLanguage = pythonLanguage
+        ))
+
+        swiftSubject = subjectRepository.save(Subject(
+            slug = "swift",
+            name="swift",
+            codeLanguage = swiftLanguage
+        ))
     }
 
     @Transactional
@@ -512,9 +584,19 @@ abstract class AbstractIntegrationTest {
             ModuleSnap(moduleId = swMod1Id, title = "Variables", lessons = swMod1Lessons),
         )
 
+        val pythonSubjectSnap = SubjectSnap(
+            slug = pythonSubject.slug,
+            name = pythonSubject.name
+        )
+
+        val swiftSubjectSnap = SubjectSnap(
+            slug = swiftSubject.slug,
+            name = swiftSubject.name
+        )
+
         val snaps = listOf(
-            CourseSnap(courseId = pythonId, title = "Python", modules = pythonModules),
-            CourseSnap(courseId = swiftId,  title = "Swift",  modules = swiftModules)
+            CourseSnap(courseId = pythonId, title = "Python", courseSubject = pythonSubjectSnap, courseType = CourseType.COURSE,  modules = pythonModules),
+            CourseSnap(courseId = swiftId,  title = "Swift", courseSubject = swiftSubjectSnap, courseType = CourseType.COURSE,  modules = swiftModules)
         )
 
         importSnapshots(snaps, defaultVersion = 1)

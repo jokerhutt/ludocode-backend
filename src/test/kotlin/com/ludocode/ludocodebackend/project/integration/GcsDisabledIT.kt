@@ -19,7 +19,7 @@ class GcsDisabledIT : AbstractIntegrationTest() {
     fun createProject_returns403_whenFeatureDisabled() {
 
         val uid = user1.id!!
-        val newProjectRequest = CreateProjectRequest(projectName = "Test Project", projectLanguage = LanguageType.python, requestHash = UUID.randomUUID())
+        val newProjectRequest = CreateProjectRequest(projectName = "Test Project", projectLanguageId = pythonLanguage.id, requestHash = UUID.randomUUID())
 
         given()
             .header("X-Test-User-Id", uid.toString())

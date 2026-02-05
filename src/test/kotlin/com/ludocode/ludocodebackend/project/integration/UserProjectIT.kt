@@ -10,6 +10,7 @@ import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectFileSnapsh
 import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.api.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.playground.api.dto.request.RenameRequest
+import com.ludocode.ludocodebackend.playground.app.mapper.ProjectMapper
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
@@ -18,6 +19,7 @@ import com.ludocode.ludocodebackend.support.TestRestClient
 import io.restassured.response.ValidatableResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.junit.jupiter.EnabledIf
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -29,6 +31,8 @@ import kotlin.test.Test
 )
 class UserProjectIT : AbstractIntegrationTest() {
 
+    @Autowired
+    private lateinit var projectMapper: ProjectMapper
     lateinit var existingProject: UserProject
     lateinit var existingFiles : List<ProjectFile>
 
@@ -39,7 +43,7 @@ class UserProjectIT : AbstractIntegrationTest() {
             id = UUID.randomUUID(),
             name = "Untitled",
             userId = user1.id!!,
-            projectLanguage = LanguageType.python,
+            codeLanguage = pythonLanguage,
             createdAt = OffsetDateTime.now(clock).minusDays(2),
             updatedAt = OffsetDateTime.now(clock).minusDays(1),
             requestHash = UUID.randomUUID()
@@ -55,8 +59,8 @@ class UserProjectIT : AbstractIntegrationTest() {
         val f2Content = "print(bye world!)"
 
         existingFiles = projectFileRepository.saveAll(listOf(
-            ProjectFile(id = f1Id, projectId = existingProject.id, contentUrl = f1Url, contentHash = sha256(f1Content), filePath = "script.py", fileLanguage = LanguageType.python),
-            ProjectFile(id = f2Id, projectId = existingProject.id, contentUrl = f2Url, contentHash = sha256(f2Content), filePath = "script-1.py", fileLanguage = LanguageType.python)
+            ProjectFile(id = f1Id, projectId = existingProject.id, contentUrl = f1Url, contentHash = sha256(f1Content), filePath = "script.py", codeLanguage = pythonLanguage),
+            ProjectFile(id = f2Id, projectId = existingProject.id, contentUrl = f2Url, contentHash = sha256(f2Content), filePath = "script-1.py", codeLanguage = pythonLanguage)
         ))
 
         try {
@@ -81,7 +85,7 @@ class UserProjectIT : AbstractIntegrationTest() {
     @Test
     fun createPythonProject_createsNew_returnsNewProjectsList() {
 
-        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguage = LanguageType.python, requestHash = UUID.randomUUID())
+        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguageId = pythonLanguage.id, requestHash = UUID.randomUUID())
         val response = submitPostCreateProject(newProjectRequest, user1.id!!)
         assertThat(response).isNotNull()
         assertThat(response.projects.size).isEqualTo(2)
@@ -99,7 +103,7 @@ class UserProjectIT : AbstractIntegrationTest() {
     @Test
     fun createJsProject_createsNew_returnsNewProjectsList() {
 
-        val newProjectRequest = CreateProjectRequest(projectName = "Third Project", projectLanguage = LanguageType.javascript, requestHash = UUID.randomUUID())
+        val newProjectRequest = CreateProjectRequest(projectName = "Third Project", projectLanguageId = jsLanguage.id, requestHash = UUID.randomUUID())
         val response = submitPostCreateProject(newProjectRequest, user1.id!!)
         assertThat(response).isNotNull()
         assertThat(response.projects.size).isEqualTo(2)
@@ -140,7 +144,7 @@ class UserProjectIT : AbstractIntegrationTest() {
     @Test
     fun renameProject_renamesProject_returnsRenamedFirst () {
 
-        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguage = LanguageType.python, requestHash = UUID.randomUUID())
+        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguageId = pythonLanguage.id, requestHash = UUID.randomUUID())
         val response = submitPostCreateProject(newProjectRequest, user1.id!!)
 
         val newProjectToModify = response.projects.find { it.projectName == "Second Project" }
@@ -163,7 +167,7 @@ class UserProjectIT : AbstractIntegrationTest() {
     @Test
     fun createAndDelete_onlyCreatedRemains_returnsOnlyCreated() {
 
-        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguage = LanguageType.python, requestHash = UUID.randomUUID())
+        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguageId = pythonLanguage.id, requestHash = UUID.randomUUID())
         val response = submitPostCreateProject(newProjectRequest, user1.id!!)
         assertThat(response).isNotNull()
         assertThat(response.projects.size).isEqualTo(2)
@@ -188,6 +192,7 @@ class UserProjectIT : AbstractIntegrationTest() {
     fun saveProject_deleteAddAndRename_returnsSuccess() {
         val projectId = existingProject.id
         val snapshot = submitGetProjectSnapshot(projectId, user1.id!!)
+        val languageMetadata = projectMapper.toLanguageMetadata(pythonLanguage)
 
         println("Passed A")
 
@@ -195,7 +200,7 @@ class UserProjectIT : AbstractIntegrationTest() {
 
         val modifiedFiles = snapshot.files.toMutableList()
         modifiedFiles.removeAt(1)
-        modifiedFiles.add(ProjectFileSnapshot(null, "script-2.py", LanguageType.python, "print(2 + 2)"))
+        modifiedFiles.add(ProjectFileSnapshot(null, "script-2.py", languageMetadata, "print(2 + 2)"))
         modifiedFiles[0] = modifiedFiles[0].copy(content = "print('Awesome')")
 
         val snapshotCopy = snapshot.copy(files = modifiedFiles)

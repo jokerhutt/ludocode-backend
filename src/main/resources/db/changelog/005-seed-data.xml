@@ -37,16 +37,41 @@
         </sql>
     </changeSet>
 
+    <changeSet id="005-03-00-code-languages" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO code_languages (slug, name, editor_id, initial_script)
+            VALUES
+                ('python', 'Python', 'python', NULL)
+            ON CONFLICT (slug) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-03-01-subjects" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO subjects (slug, name, code_language_id)
+            SELECT
+                'python',
+                'Python',
+                cl.id
+            FROM code_languages cl
+            WHERE cl.slug = 'python'
+            ON CONFLICT (slug) DO NOTHING;
+        </sql>
+    </changeSet>
+
     <!-- ===================== COURSE STRUCTURE ===================== -->
     <changeSet id="005-03-course" author="dave" context="dev" dbms="postgresql">
         <sql>
-            INSERT INTO course (id, title, img_src, request_hash)
-            VALUES (
-                       '75975805-3f02-43c2-9106-c990d944dfd2',
-                       'Python',
-                       NULL,
-                       '6873b087-9f85-4f1d-8bc9-04a84e704a29'
-                   )
+            INSERT INTO course (id, title, img_src, request_hash, course_type, subject_id)
+            SELECT
+                '75975805-3f02-43c2-9106-c990d944dfd2',
+                'Python',
+                NULL,
+                '6873b087-9f85-4f1d-8bc9-04a84e704a29',
+                'COURSE',
+                s.id
+            FROM subjects s
+            WHERE s.slug = 'python'
             ON CONFLICT (id) DO NOTHING;
         </sql>
     </changeSet>

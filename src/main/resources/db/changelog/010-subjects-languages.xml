@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+      http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+
+    <changeSet id="010-01-add-code-language-table" author="dave" dbms="postgresql">
+        <sql>
+            CREATE TABLE code_languages (
+                id BIGSERIAL PRIMARY KEY,
+                slug TEXT NOT NULL,
+                name TEXT NOT NULL,
+                initial_script TEXT,
+                editor_id TEXT NOT NULL,
+
+                CONSTRAINT uk_code_languages_slug UNIQUE (slug),
+                CONSTRAINT uk_code_languages_editor_id UNIQUE (editor_id)
+            );
+        </sql>
+    </changeSet>
+
+    <changeSet id="010-02-add-subjects-table" author="dave" dbms="postgresql">
+        <sql>
+            CREATE TABLE subjects (
+              id BIGSERIAL PRIMARY KEY,
+              slug TEXT NOT NULL,
+              name TEXT NOT NULL,
+              code_language_id BIGINT,
+
+              CONSTRAINT uk_subjects_slug UNIQUE (slug),
+              CONSTRAINT fk_subjects_code_language
+                  FOREIGN KEY (code_language_id)
+                      REFERENCES code_languages(id)
+            );
+        </sql>
+    </changeSet>
+
+    <changeSet id="010-03-drop-old-language-columns" author="dave" dbms="postgresql">
+        <sql>
+            ALTER TABLE user_project
+                DROP COLUMN project_language;
+
+            ALTER TABLE project_file
+                DROP COLUMN file_language;
+        </sql>
+    </changeSet>
+
+    <changeSet id="010-04-add-course-type-enum" author="dave" dbms="postgresql">
+        <sql>
+            CREATE TYPE course_type AS ENUM ('COURSE', 'SKILL_PATH');
+        </sql>
+    </changeSet>
+
+    <changeSet id="010-05-add-course-subject-columns" author="dave" dbms="postgresql">
+        <sql>
+            ALTER TABLE course
+                ADD COLUMN course_type course_type NOT NULL DEFAULT 'COURSE',
+                ADD COLUMN subject_id BIGINT NOT NULL;
+
+            ALTER TABLE course
+                ADD CONSTRAINT fk_course_subject
+                    FOREIGN KEY (subject_id)
+                        REFERENCES subjects(id);
+        </sql>
+    </changeSet>
+
+    <changeSet id="010-06-add-project-file-language-columns" author="dave" dbms="postgresql">
+        <sql>
+            ALTER TABLE project_file
+                ADD COLUMN code_language_id BIGINT NOT NULL;
+
+            ALTER TABLE project_file
+                ADD CONSTRAINT fk_project_file_code_language
+                    FOREIGN KEY (code_language_id)
+                        REFERENCES code_languages(id);
+        </sql>
+    </changeSet>
+
+    <changeSet id="010-07-add-user-project-language-columns" author="dave" dbms="postgresql">
+        <sql>
+            ALTER TABLE user_project
+                ADD COLUMN code_language_id BIGINT NOT NULL;
+
+            ALTER TABLE user_project
+                ADD CONSTRAINT fk_user_project_code_language
+                    FOREIGN KEY (code_language_id)
+                        REFERENCES code_languages(id);
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

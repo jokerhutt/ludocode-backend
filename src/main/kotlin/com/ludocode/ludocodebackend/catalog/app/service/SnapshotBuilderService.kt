@@ -6,12 +6,17 @@ import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.SubjectSnap
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForAI
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
+import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -22,6 +27,7 @@ class SnapshotBuilderService(
     private val moduleRepository: ModuleRepository,
     private val moduleLessonsRepository: ModuleLessonsRepository,
     private val catalogService: CatalogService,
+    private val courseRepository: CourseRepository,
 ) : CatalogPortForAI {
 
     private val logger = LoggerFactory.getLogger(SnapshotBuilderService::class.java)
@@ -31,8 +37,10 @@ class SnapshotBuilderService(
         return buildExerciseSnapshot(exerciseResponse)
     }
 
+    @Transactional
     fun buildCourseSnapshot (courseId: UUID): CourseSnap {
 
+        val course = courseRepository.findById(courseId).orElseThrow{ ApiException(ErrorCode.COURSE_NOT_FOUND) }
         val moduleIds = moduleRepository.findActiveIdsByCourse(courseId)
         val modules = moduleRepository.findAllByIdIn(moduleIds)
 
@@ -46,7 +54,11 @@ class SnapshotBuilderService(
             buildModuleSnapshot(module)
         }
 
-        return CourseSnap(courseId, title = "", moduleSnapshots)
+        val subject = course.subject
+
+        val subjectSnap = SubjectSnap(slug = subject.slug, name = subject.name)
+
+        return CourseSnap(courseId, course.title, courseType = course.courseType, courseSubject = subjectSnap, moduleSnapshots)
 
 
     }

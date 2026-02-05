@@ -1,7 +1,9 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
+import com.ludocode.ludocodebackend.catalog.api.dto.request.CourseSubjectRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
+import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
@@ -14,10 +16,16 @@ class CreateCourseIT : AbstractIntegrationTest() {
     @Test
     fun createCourse_createsCourse_returnsNewCourses () {
 
-        val newCourseName = "C++"
+        val newCourseName = "Lua"
         val requestHash = UUID.randomUUID()
 
-        val req = CreateCourseRequest(newCourseName, requestHash)
+        val subjectReq = CourseSubjectRequest(
+            slug = "lua",
+            name = "Lua",
+            codeLanguageId = luaLanguage.id
+        )
+
+        val req = CreateCourseRequest(newCourseName, requestHash, CourseType.COURSE,  subjectReq)
 
         val res = submitPostCreateCourse(req)
 

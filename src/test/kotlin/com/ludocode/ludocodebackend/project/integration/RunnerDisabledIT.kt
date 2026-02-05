@@ -2,10 +2,12 @@ package com.ludocode.ludocodebackend.project.integration
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
+import com.ludocode.ludocodebackend.playground.app.mapper.ProjectMapper
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.junit.jupiter.DisabledIf
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -17,10 +19,14 @@ import kotlin.test.Test
 )
 class RunnerDisabledIT : AbstractIntegrationTest() {
 
+    @Autowired
+    private lateinit var projectMapper: ProjectMapper
+
     @Test
     fun runCode_returns403_whenFeatureDisabled() {
 
-        val testRequest = ProjectSnapshot(projectId = UUID.randomUUID(), projectName = "I Wont run", updatedAt = OffsetDateTime.now(clock), projectLanguage = LanguageType.python, files = listOf())
+        val languageMetadata = projectMapper.toLanguageMetadata(pythonLanguage)
+        val testRequest = ProjectSnapshot(projectId = UUID.randomUUID(), projectName = "I Wont run", updatedAt = OffsetDateTime.now(clock), projectLanguage = languageMetadata, files = listOf())
 
         given()
             .header("X-Test-User-Id", user1.id.toString())

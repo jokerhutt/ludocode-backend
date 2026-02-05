@@ -23,6 +23,7 @@ import com.ludocode.ludocodebackend.playground.app.util.ProjectSnapshotValidator
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
+import com.ludocode.ludocodebackend.playground.infra.repository.CodeLanguagesRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
 import com.ludocode.ludocodebackend.storage.app.dto.request.StorageDeleteRequest
@@ -43,47 +44,43 @@ class ProjectService(
     private val projectMapper: ProjectMapper,
     private val clock: Clock,
     private val storagePortForServices: StoragePortForServices,
+    private val codeLanguagesRepository: CodeLanguagesRepository,
 ) : ProjectsPortForAI {
 
     private val logger = LoggerFactory.getLogger(ProjectService::class.java)
-
-    private fun getFirstFileContent(language: LanguageType) : String {
-        return when (language) {
-            LanguageType.python -> "print('Hello World!')"
-            LanguageType.lua -> "print('Hello World!)"
-            LanguageType.javascript -> "console.log('Hello World!')"
-        }
-    }
 
     @Transactional
     internal fun createProject(request: CreateProjectRequest, userId: UUID) : ProjectListResponse {
 
             val projectName = request.projectName
-            val language = request.projectLanguage
             val requestHash = request.requestHash
+            val languageId = request.projectLanguageId
+
+            val codeLanguage = codeLanguagesRepository.findById(languageId)
+                .orElseThrow { ApiException(ErrorCode.LANGUAGE_NOT_FOUND) }
 
             val newProject = userProjectRepository.save(UserProject(
                 id = UUID.randomUUID(),
                 name = projectName,
                 userId = userId,
                 requestHash = requestHash,
-                projectLanguage = language,
+                codeLanguage = codeLanguage,
                 createdAt = OffsetDateTime.now(clock),
                 updatedAt = OffsetDateTime.now(clock)
             ))
 
             withMdc(LogFields.PROJECT_ID to newProject.id.toString()) {
 
-                val firstFileName = getFirstFileName(language)
+                val firstFileName = getFirstFileName(slug = codeLanguage.slug)
                 val firstFileId = UUID.randomUUID()
                 val firstFileContentUrl = "${newProject.id}/$firstFileId"
-                val firstFileContent = getFirstFileContent(language)
+                val firstFileContent = codeLanguage.initialScript
                 projectFileRepository.save(ProjectFile(
                     id = firstFileId,
                     projectId = newProject.id,
                     contentUrl = firstFileContentUrl,
                     filePath = firstFileName,
-                    fileLanguage = language,
+                    codeLanguage = codeLanguage,
                     contentHash = sha256(firstFileContent)
                 ))
 
@@ -100,7 +97,7 @@ class ProjectService(
 
                 logger.info(
                     LogEvents.PROJECT_CREATED + " {}",
-                    kv(LogFields.LANGUAGE, language.name)
+                    kv(LogFields.LANGUAGE, codeLanguage.name)
                 )
 
             }
@@ -109,14 +106,9 @@ class ProjectService(
 
     }
 
-    private fun getFirstFileName (language : LanguageType): String {
+    private fun getFirstFileName (slug: String): String {
         val base = "script."
-        val name = when (language) {
-            LanguageType.python -> "py"
-            LanguageType.javascript -> "js"
-            LanguageType.lua -> "lua"
-        }
-        return base + name
+        return base + slug
     }
 
     internal fun getUserProjects(userId: UUID) : ProjectListResponse {
@@ -162,7 +154,7 @@ class ProjectService(
             val project = userProjectRepository.findById(projectId).orElseThrow()
             val lastUpdated = project.updatedAt
             val projectName = project.name
-            val projectLanguage = project.projectLanguage
+            val projectLanguage = project.codeLanguage
             val projectFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
             val fileContentUrls = StorageGetRequest(projectFiles.map { it -> it.contentUrl })
             val fileContentsMap = storagePortForServices.getList(fileContentUrls)
@@ -307,13 +299,16 @@ class ProjectService(
 
             val contentUrl = "$projectId/${fileId}"
             gcsRequests.add(StoragePutRequest(contentUrl, file.content))
+
+            val language = codeLanguagesRepository.getReferenceById(file.language.languageId)
+
             projectFileRepository.save(ProjectFile(
                 id = fileId,
                 projectId = projectId,
                 contentUrl = contentUrl,
                 filePath = file.path,
                 contentHash = hash,
-                fileLanguage = file.language
+                codeLanguage = language
             ))
         }
 
