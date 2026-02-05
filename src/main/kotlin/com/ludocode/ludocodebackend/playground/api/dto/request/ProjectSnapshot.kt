@@ -15,8 +15,13 @@ data class ProjectSnapshot(
 
 data class LanguageMetadata(
    val languageId: Long,
+   val name: String,
    val slug: String,
-   val initialScript: String?,
    val editorId: String,
-   val name: String
+   val pistonId: String,
+   val extension: String,
+   val base: String,
+   val iconName: String,
+   val initialScript: String,
+
 )

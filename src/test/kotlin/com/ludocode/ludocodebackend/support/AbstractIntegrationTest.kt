@@ -357,25 +357,41 @@ abstract class AbstractIntegrationTest {
             slug = "py",
             name = "python",
             editorId = "python",
-            initialScript = "print('Hello World!')"
+            initialScript = "print('Hello World!')",
+            base = "script",
+            extension = ".py",
+            pistonId = "python",
+            iconName = "Python"
         ))
         swiftLanguage = codeLanguagesRepository.save(CodeLanguages(
             slug = "swift",
             name = "swift",
             editorId = "swift",
-            initialScript = "print('Hello World!')"
+            initialScript = "print('Hello World!')",
+            base = "script",
+            extension = ".swift",
+            pistonId = "swift",
+            iconName = "Swift"
         ))
         luaLanguage = codeLanguagesRepository.save(CodeLanguages(
             slug = "lua",
             name = "Lua",
             editorId = "lua",
-            initialScript = "print('Hello World!')"
+            initialScript = "print('Hello World!')",
+            base = "script",
+            extension = ".lua",
+            pistonId = "lua",
+            iconName = "Lua"
         ))
         jsLanguage = codeLanguagesRepository.save(CodeLanguages(
             slug = "js",
             name = "Javascript",
             editorId = "js",
-            initialScript = "console.log('Hello World!')"
+            initialScript = "console.log('Hello World!')",
+            base = "script",
+            extension = ".js",
+            pistonId = "js",
+            iconName = "Javascript"
         ))
 
     }
