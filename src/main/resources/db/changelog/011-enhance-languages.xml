@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+      http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="011-01-enhance-language-columns" author="dave" dbms="postgresql">
+        <sql>
+            ALTER TABLE code_languages
+                ADD COLUMN piston_id  VARCHAR(128),
+                ADD COLUMN base       VARCHAR(64),
+                ADD COLUMN icon_name  VARCHAR(64),
+                ADD COLUMN extension  VARCHAR(32);
+
+            UPDATE code_languages
+            SET
+                piston_id = 'python',
+                base      = 'script',
+                icon_name = 'Python',
+                extension = '.py'
+            WHERE piston_id IS NULL;
+
+            ALTER TABLE code_languages
+                ALTER COLUMN piston_id SET NOT NULL,
+                ALTER COLUMN base      SET NOT NULL,
+                ALTER COLUMN icon_name SET NOT NULL,
+                ALTER COLUMN extension SET NOT NULL;
+
+            ALTER TABLE code_languages
+                ADD CONSTRAINT uk_code_languages_piston_id UNIQUE (piston_id);
+        </sql>
+    </changeSet>
+
+
+</databaseChangeLog>

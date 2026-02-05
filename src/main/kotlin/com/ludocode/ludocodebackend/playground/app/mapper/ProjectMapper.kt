@@ -38,8 +38,12 @@ class ProjectMapper (private val basicMapper: BasicMapper) {
             name = language.name,
             languageId = language.id,
             editorId = language.editorId,
-            initialScript = language.initialScript,
-            slug = language.slug
+            initialScript = language.initialScript ?: "",
+            slug = language.slug,
+            pistonId = language.pistonId,
+            extension = language.extension,
+            base = language.base,
+            iconName = language.iconName
         )
     }
 

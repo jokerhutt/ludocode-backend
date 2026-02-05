@@ -31,5 +31,18 @@ class CodeLanguages(
     var initialScript: String = "",
 
     @Column(name = "editor_id", nullable = false, unique = true)
-    var editorId: String
+    var editorId: String,
+
+    @Column(name = "piston_id", nullable = false, unique = true)
+    var pistonId: String,
+
+    @Column(name = "base", nullable = false)
+    var base: String,
+
+    @Column(name = "icon_name", nullable = false)
+    var iconName: String,
+
+    @Column(name = "extension", nullable = false)
+    var extension: String
+
 )
