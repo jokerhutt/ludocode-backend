@@ -12,7 +12,9 @@ class CourseMapper (private val basicMapper: BasicMapper) {
         basicMapper.one(course) {
             CourseResponse(
                 id = it.id!!,
-                title = it.title!!
+                title = it.title!!,
+                courseType = it.courseType,
+                subject = it.subject
             )
         }
 
