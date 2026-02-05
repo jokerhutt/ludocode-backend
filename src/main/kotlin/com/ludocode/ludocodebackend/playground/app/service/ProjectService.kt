@@ -75,7 +75,7 @@ class ProjectService(
                 val firstFileName = getFirstFileName(slug = codeLanguage.slug)
                 val firstFileId = UUID.randomUUID()
                 val firstFileContentUrl = "${newProject.id}/$firstFileId"
-                val firstFileContent = codeLanguage.initialScript
+                val firstFileContent = codeLanguage.initialScript ?: ""
                 projectFileRepository.save(ProjectFile(
                     id = firstFileId,
                     projectId = newProject.id,
