@@ -20,7 +20,7 @@ class CodeRunnerService(private val pistonOutboundPort: PistonOutboundPort) {
 
     internal fun runCode (project: ProjectSnapshot) : RunnerResult {
 
-        val runtime = project.projectLanguage.name
+        val runtime = project.projectLanguage.editorId
         val fileNames = project.files.map { it.path }
 
         val req = PistonRequest(
