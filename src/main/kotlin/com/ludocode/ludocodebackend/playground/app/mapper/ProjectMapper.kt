@@ -43,5 +43,9 @@ class ProjectMapper (private val basicMapper: BasicMapper) {
         )
     }
 
+    fun toLanguageMetadataList(languages: List<CodeLanguages>) : List<LanguageMetadata> {
+        return basicMapper.list(languages) {language -> toLanguageMetadata(language)}
+    }
+
 
 }

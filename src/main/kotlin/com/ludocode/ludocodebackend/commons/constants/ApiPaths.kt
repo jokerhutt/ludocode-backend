@@ -70,6 +70,7 @@ object ApiPaths {
     object PROJECTS {
         const val BASE = "$API_PREFIX/projects"
         const val BY_ID = "/{projectId}"
+        const val LANGUAGES = "/languages"
         const val NAME = "/{projectId}/name"
         fun byId(projectId: UUID) : String = "$BASE/$projectId"
         fun name(projectId: UUID) : String = "$BASE/$projectId/name"

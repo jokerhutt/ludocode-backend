@@ -11,6 +11,7 @@ import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequest
 import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequestList
 import com.ludocode.ludocodebackend.storage.app.port.`in`.StoragePortForServices
 import com.ludocode.ludocodebackend.playground.api.dto.request.CreateProjectRequest
+import com.ludocode.ludocodebackend.playground.api.dto.request.LanguageMetadata
 import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.api.dto.response.ProjectListResponse
@@ -217,6 +218,11 @@ class ProjectService(
 
             return getUserProjects(userId)
 
+    }
+
+    internal fun getAllLanguages () : List<LanguageMetadata> {
+        val languages = codeLanguagesRepository.findAll()
+        return projectMapper.toLanguageMetadataList(languages)
     }
 
     @Transactional
