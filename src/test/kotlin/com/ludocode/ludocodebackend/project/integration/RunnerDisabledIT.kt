@@ -20,7 +20,7 @@ class RunnerDisabledIT : AbstractIntegrationTest() {
     @Test
     fun runCode_returns403_whenFeatureDisabled() {
 
-        val testRequest = ProjectSnapshot(projectId = UUID.randomUUID(), projectName = "I Wont run", updatedAt = OffsetDateTime.now(clock), projectLanguage = LanguageType.python, files = listOf())
+        val testRequest = ProjectSnapshot(projectId = UUID.randomUUID(), projectName = "I Wont run", updatedAt = OffsetDateTime.now(clock), projectLanguage = pythonLanguage, files = listOf())
 
         given()
             .header("X-Test-User-Id", user1.id.toString())

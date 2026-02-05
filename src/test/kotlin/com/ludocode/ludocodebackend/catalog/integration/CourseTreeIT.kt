@@ -23,6 +23,7 @@ class CourseTreeIT : AbstractIntegrationTest() {
         val user: User = user1
         val courseId: UUID = pythonId
         val response: FlatCourseTreeResponse = submitGetCourseTree(courseId, user.id!!)
+
         assertThat(response.modules).isNotEmpty()
         for (module: FlatModule in response.modules) {
             assertThat(module.lessons).isNotEmpty()

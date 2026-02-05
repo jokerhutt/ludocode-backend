@@ -39,7 +39,7 @@ class UserProjectIT : AbstractIntegrationTest() {
             id = UUID.randomUUID(),
             name = "Untitled",
             userId = user1.id!!,
-            projectLanguage = LanguageType.python,
+            codeLanguage = pythonLanguage,
             createdAt = OffsetDateTime.now(clock).minusDays(2),
             updatedAt = OffsetDateTime.now(clock).minusDays(1),
             requestHash = UUID.randomUUID()
@@ -55,8 +55,8 @@ class UserProjectIT : AbstractIntegrationTest() {
         val f2Content = "print(bye world!)"
 
         existingFiles = projectFileRepository.saveAll(listOf(
-            ProjectFile(id = f1Id, projectId = existingProject.id, contentUrl = f1Url, contentHash = sha256(f1Content), filePath = "script.py", fileLanguage = LanguageType.python),
-            ProjectFile(id = f2Id, projectId = existingProject.id, contentUrl = f2Url, contentHash = sha256(f2Content), filePath = "script-1.py", fileLanguage = LanguageType.python)
+            ProjectFile(id = f1Id, projectId = existingProject.id, contentUrl = f1Url, contentHash = sha256(f1Content), filePath = "script.py", codeLanguage = pythonLanguage),
+            ProjectFile(id = f2Id, projectId = existingProject.id, contentUrl = f2Url, contentHash = sha256(f2Content), filePath = "script-1.py", codeLanguage = pythonLanguage)
         ))
 
         try {
@@ -81,7 +81,7 @@ class UserProjectIT : AbstractIntegrationTest() {
     @Test
     fun createPythonProject_createsNew_returnsNewProjectsList() {
 
-        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguage = LanguageType.python, requestHash = UUID.randomUUID())
+        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguageId = pythonLanguage.id, requestHash = UUID.randomUUID())
         val response = submitPostCreateProject(newProjectRequest, user1.id!!)
         assertThat(response).isNotNull()
         assertThat(response.projects.size).isEqualTo(2)
@@ -99,7 +99,7 @@ class UserProjectIT : AbstractIntegrationTest() {
     @Test
     fun createJsProject_createsNew_returnsNewProjectsList() {
 
-        val newProjectRequest = CreateProjectRequest(projectName = "Third Project", projectLanguage = LanguageType.javascript, requestHash = UUID.randomUUID())
+        val newProjectRequest = CreateProjectRequest(projectName = "Third Project", projectLanguageId = jsLanguage.id, requestHash = UUID.randomUUID())
         val response = submitPostCreateProject(newProjectRequest, user1.id!!)
         assertThat(response).isNotNull()
         assertThat(response.projects.size).isEqualTo(2)
@@ -140,7 +140,7 @@ class UserProjectIT : AbstractIntegrationTest() {
     @Test
     fun renameProject_renamesProject_returnsRenamedFirst () {
 
-        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguage = LanguageType.python, requestHash = UUID.randomUUID())
+        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguageId = pythonLanguage.id, requestHash = UUID.randomUUID())
         val response = submitPostCreateProject(newProjectRequest, user1.id!!)
 
         val newProjectToModify = response.projects.find { it.projectName == "Second Project" }
@@ -163,7 +163,7 @@ class UserProjectIT : AbstractIntegrationTest() {
     @Test
     fun createAndDelete_onlyCreatedRemains_returnsOnlyCreated() {
 
-        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguage = LanguageType.python, requestHash = UUID.randomUUID())
+        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguageId = pythonLanguage.id, requestHash = UUID.randomUUID())
         val response = submitPostCreateProject(newProjectRequest, user1.id!!)
         assertThat(response).isNotNull()
         assertThat(response.projects.size).isEqualTo(2)
@@ -195,7 +195,7 @@ class UserProjectIT : AbstractIntegrationTest() {
 
         val modifiedFiles = snapshot.files.toMutableList()
         modifiedFiles.removeAt(1)
-        modifiedFiles.add(ProjectFileSnapshot(null, "script-2.py", LanguageType.python, "print(2 + 2)"))
+        modifiedFiles.add(ProjectFileSnapshot(null, "script-2.py", pythonLanguage, "print(2 + 2)"))
         modifiedFiles[0] = modifiedFiles[0].copy(content = "print('Awesome')")
 
         val snapshotCopy = snapshot.copy(files = modifiedFiles)
