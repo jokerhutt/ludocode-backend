@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.playground.domain.entity
+package com.ludocode.ludocodebackend.languages.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity

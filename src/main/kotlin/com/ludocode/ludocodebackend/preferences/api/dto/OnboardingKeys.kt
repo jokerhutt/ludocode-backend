@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.onboarding.api.dto
+package com.ludocode.ludocodebackend.preferences.api.dto
 
 object OnboardingKeys {
     const val CHOSEN_PATH = "chosenPath"

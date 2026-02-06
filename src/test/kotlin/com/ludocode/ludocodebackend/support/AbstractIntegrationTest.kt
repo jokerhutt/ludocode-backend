@@ -30,8 +30,8 @@ import com.ludocode.ludocodebackend.config.MockOauthConstants
 import com.ludocode.ludocodebackend.config.security.TestSecurityConfig
 import com.ludocode.ludocodebackend.config.time.MutableClock
 import com.ludocode.ludocodebackend.config.TestCacheConfig
-import com.ludocode.ludocodebackend.playground.domain.entity.CodeLanguages
-import com.ludocode.ludocodebackend.playground.infra.repository.CodeLanguagesRepository
+import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
+import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.AttemptOptionRepository

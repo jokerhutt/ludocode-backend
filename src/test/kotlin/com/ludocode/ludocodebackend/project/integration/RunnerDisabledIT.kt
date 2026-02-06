@@ -1,9 +1,8 @@
 package com.ludocode.ludocodebackend.project.integration
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
-import com.ludocode.ludocodebackend.playground.app.mapper.ProjectMapper
-import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
@@ -20,12 +19,12 @@ import kotlin.test.Test
 class RunnerDisabledIT : AbstractIntegrationTest() {
 
     @Autowired
-    private lateinit var projectMapper: ProjectMapper
+    private lateinit var languagesMapper: LanguagesMapper
 
     @Test
     fun runCode_returns403_whenFeatureDisabled() {
 
-        val languageMetadata = projectMapper.toLanguageMetadata(pythonLanguage)
+        val languageMetadata = languagesMapper.toLanguageMetadata(pythonLanguage)
         val testRequest = ProjectSnapshot(projectId = UUID.randomUUID(), projectName = "I Wont run", updatedAt = OffsetDateTime.now(clock), projectLanguage = languageMetadata, files = listOf())
 
         given()

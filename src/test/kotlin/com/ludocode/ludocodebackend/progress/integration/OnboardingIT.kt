@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.progress.integration
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.onboarding.api.dto.TogglePreferencesRequest
+import com.ludocode.ludocodebackend.preferences.api.dto.TogglePreferencesRequest
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission

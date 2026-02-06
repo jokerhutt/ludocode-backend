@@ -40,6 +40,12 @@ object ApiPaths {
         const val BASE = "$API_PREFIX/features"
     }
 
+    object LANGUAGES {
+        const val BASE = "$API_PREFIX/languages"
+        const val ID = "/{id}"
+        fun byId(id: Long) : String = "$BASE/$id"
+    }
+
     object PROGRESS {
         const val BASE = "$API_PREFIX/progress"
 

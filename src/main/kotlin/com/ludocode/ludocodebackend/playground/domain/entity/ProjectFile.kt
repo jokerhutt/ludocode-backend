@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.playground.domain.entity
 
+import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
