@@ -5,8 +5,6 @@ import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
-import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
-import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.mapper.UserMapper
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
@@ -18,9 +16,8 @@ import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForProgress
 import com.ludocode.ludocodebackend.user.configuration.AvatarConfig
 import com.ludocode.ludocodebackend.user.domain.entity.ExternalAccount
 import com.ludocode.ludocodebackend.user.domain.entity.User
-import com.ludocode.ludocodebackend.user.domain.entity.UserPreferences
 import com.ludocode.ludocodebackend.user.infra.repository.ExternalAccountRepository
-import com.ludocode.ludocodebackend.onboarding.api.infra.repository.UserPreferencesRepository
+import com.ludocode.ludocodebackend.preferences.api.infra.repository.UserPreferencesRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv

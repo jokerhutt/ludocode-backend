@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.onboarding.api.dto
+package com.ludocode.ludocodebackend.preferences.api.dto
 
 data class OnboardingFormResponse(
     val version: Int,

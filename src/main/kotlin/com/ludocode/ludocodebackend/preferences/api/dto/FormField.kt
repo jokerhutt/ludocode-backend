@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.onboarding.api.dto
+package com.ludocode.ludocodebackend.preferences.api.dto
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo

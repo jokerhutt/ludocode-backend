@@ -11,7 +11,6 @@ import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequest
 import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequestList
 import com.ludocode.ludocodebackend.storage.app.port.`in`.StoragePortForServices
 import com.ludocode.ludocodebackend.playground.api.dto.request.CreateProjectRequest
-import com.ludocode.ludocodebackend.playground.api.dto.request.LanguageMetadata
 import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.api.dto.response.ProjectListResponse
@@ -23,8 +22,7 @@ import com.ludocode.ludocodebackend.playground.app.util.ProjectSnapshotDiffer
 import com.ludocode.ludocodebackend.playground.app.util.ProjectSnapshotValidator
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
-import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
-import com.ludocode.ludocodebackend.playground.infra.repository.CodeLanguagesRepository
+import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
 import com.ludocode.ludocodebackend.storage.app.dto.request.StorageDeleteRequest
@@ -220,10 +218,7 @@ class ProjectService(
 
     }
 
-    internal fun getAllLanguages () : List<LanguageMetadata> {
-        val languages = codeLanguagesRepository.findAll()
-        return projectMapper.toLanguageMetadataList(languages)
-    }
+
 
     @Transactional
     internal fun saveProjectSnapshot (projectSnapshot: ProjectSnapshot): ProjectSnapshot {

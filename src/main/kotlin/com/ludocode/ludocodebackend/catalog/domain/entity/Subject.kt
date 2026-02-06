@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.domain.entity
 
-import com.ludocode.ludocodebackend.playground.domain.entity.CodeLanguages
+import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType

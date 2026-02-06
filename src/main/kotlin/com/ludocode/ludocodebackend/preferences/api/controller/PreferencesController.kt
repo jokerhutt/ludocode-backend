@@ -1,8 +1,8 @@
-package com.ludocode.ludocodebackend.onboarding.api.controller
+package com.ludocode.ludocodebackend.preferences.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.onboarding.api.dto.TogglePreferencesRequest
-import com.ludocode.ludocodebackend.onboarding.app.service.PreferencesService
+import com.ludocode.ludocodebackend.preferences.api.dto.TogglePreferencesRequest
+import com.ludocode.ludocodebackend.preferences.app.service.PreferencesService
 import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
 import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
 import com.ludocode.ludocodebackend.user.domain.entity.UserPreferences
@@ -28,11 +28,11 @@ import java.util.UUID
 class PreferencesController(private val preferencesService: PreferencesService) {
 
     @Operation(
-        summary = "Complete user onboarding",
+        summary = "Complete user preferences",
         description = """
-        Completes the onboarding flow for the currently authenticated user.
+        Completes the preferences flow for the currently authenticated user.
         Stores the user's selected learning path + preferences and initializes their course progress.
-        Returns the updated user profile and onboarding state.
+        Returns the updated user profile and preferences state.
         """
     )
     @SecurityRequirement(name = "sessionAuth")

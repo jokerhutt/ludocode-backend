@@ -4,7 +4,6 @@ import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.playground.api.dto.request.CreateProjectRequest
-import com.ludocode.ludocodebackend.playground.api.dto.request.LanguageMetadata
 import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.api.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.playground.api.dto.request.RenameRequest
@@ -46,17 +45,6 @@ class ProjectController(private val projectService: ProjectService) {
     @PutMapping(ApiPaths.PROJECTS.BY_ID)
     fun saveProject (@RequestBody projectSnapshot: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<ProjectSnapshot> {
         return ResponseEntity.ok(projectService.saveProjectSnapshot(projectSnapshot))
-    }
-
-    @Operation(
-        summary = "Get all available languages",
-        description = """
-            Returns all available languages for projects
-            """
-    )
-    @GetMapping(ApiPaths.PROJECTS.LANGUAGES)
-    fun getAllLanguages() : ResponseEntity<List<LanguageMetadata>> {
-        return ResponseEntity.ok(projectService.getAllLanguages())
     }
 
     @Operation(

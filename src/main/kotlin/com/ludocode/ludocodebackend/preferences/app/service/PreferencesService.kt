@@ -1,15 +1,15 @@
-package com.ludocode.ludocodebackend.onboarding.app.service
+package com.ludocode.ludocodebackend.preferences.app.service
 
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
-import com.ludocode.ludocodebackend.onboarding.api.dto.TogglePreferencesRequest
+import com.ludocode.ludocodebackend.preferences.api.dto.TogglePreferencesRequest
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
 import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
 import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForOnboarding
 import com.ludocode.ludocodebackend.user.domain.entity.UserPreferences
-import com.ludocode.ludocodebackend.onboarding.api.infra.repository.UserPreferencesRepository
+import com.ludocode.ludocodebackend.preferences.api.infra.repository.UserPreferencesRepository
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory

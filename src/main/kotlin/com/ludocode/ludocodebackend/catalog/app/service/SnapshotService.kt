@@ -31,7 +31,7 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
-import com.ludocode.ludocodebackend.playground.infra.repository.CodeLanguagesRepository
+import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
