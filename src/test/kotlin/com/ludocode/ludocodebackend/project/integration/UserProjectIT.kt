@@ -5,15 +5,14 @@ import com.google.cloud.storage.BucketInfo
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.util.sha256
+import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import com.ludocode.ludocodebackend.playground.api.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
 import com.ludocode.ludocodebackend.playground.api.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.playground.api.dto.request.RenameRequest
-import com.ludocode.ludocodebackend.playground.app.mapper.ProjectMapper
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
-import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import io.restassured.response.ValidatableResponse
@@ -32,7 +31,8 @@ import kotlin.test.Test
 class UserProjectIT : AbstractIntegrationTest() {
 
     @Autowired
-    private lateinit var projectMapper: ProjectMapper
+    private lateinit var languagesMapper: LanguagesMapper
+
     lateinit var existingProject: UserProject
     lateinit var existingFiles : List<ProjectFile>
 
@@ -192,7 +192,7 @@ class UserProjectIT : AbstractIntegrationTest() {
     fun saveProject_deleteAddAndRename_returnsSuccess() {
         val projectId = existingProject.id
         val snapshot = submitGetProjectSnapshot(projectId, user1.id!!)
-        val languageMetadata = projectMapper.toLanguageMetadata(pythonLanguage)
+        val languageMetadata = languagesMapper.toLanguageMetadata(pythonLanguage)
 
         println("Passed A")
 
