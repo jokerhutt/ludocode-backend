@@ -191,7 +191,7 @@ class LanguagesIT : AbstractIntegrationTest() {
         )
         val languageToChange = pythonLanguage
         val req = UpdateLanguageRequest(
-            name = pythonLanguage.name,
+            name = "The all new Python course",
             editorId = pythonLanguage.editorId,
             pistonId = pythonLanguage.pistonId,
             slug = pythonLanguage.slug,
@@ -209,7 +209,7 @@ class LanguagesIT : AbstractIntegrationTest() {
         assertThat(updated.iconName).isEqualTo(req.iconName)
         assertThat(updated.initialScript).isEqualTo(req.initialScript)
 
-        assertThat(updated.name).isEqualTo(pythonLanguage.name)
+        assertThat(updated.name).isEqualTo(req.name)
         assertThat(updated.slug).isEqualTo(pythonLanguage.slug)
         assertThat(updated.extension).isEqualTo(pythonLanguage.extension)
         assertThat(updated.editorId).isEqualTo(pythonLanguage.editorId)

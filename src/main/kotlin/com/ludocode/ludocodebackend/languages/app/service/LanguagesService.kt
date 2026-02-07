@@ -60,6 +60,7 @@ class LanguagesService(private val codeLanguagesRepository: CodeLanguagesReposit
         assertUniqueForUpdate(id, req)
         val language = codeLanguagesRepository.findById(id)
             .orElseThrow { ApiException(ErrorCode.LANGUAGE_NOT_FOUND) }
+        language.name = req.name
         language.slug = req.slug
         language.base = req.base
         language.iconName = req.iconName
