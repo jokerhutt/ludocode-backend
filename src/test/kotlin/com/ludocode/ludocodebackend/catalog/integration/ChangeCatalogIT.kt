@@ -99,6 +99,6 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
     }
 
     private fun submitPostUpdateCatalog(req: CourseSnap): CourseSnap =
-        TestRestClient.putOk(ApiPaths.SNAPSHOTS.byCourse(req.courseId), user1.id!!, req, CourseSnap::class.java)
+        TestRestClient.putOk(ApiPaths.SNAPSHOTS.byCourseAdmin(req.courseId), user1.id!!, req, CourseSnap::class.java)
 
 }

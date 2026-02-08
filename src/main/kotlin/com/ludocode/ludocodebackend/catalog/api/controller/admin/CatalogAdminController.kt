@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.catalog.api.controller
+package com.ludocode.ludocodebackend.catalog.api.controller.admin
 
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
@@ -26,7 +26,7 @@ import java.util.UUID
 )
 @Profile("admin", "devadmin", "test")
 @RestController
-@RequestMapping(ApiPaths.SNAPSHOTS.BASE)
+@RequestMapping(ApiPaths.SNAPSHOTS.ADMIN_BASE)
 class CatalogAdminController(
                              private val snapshotService: SnapshotService
 ) {
@@ -41,7 +41,7 @@ class CatalogAdminController(
         )
     @SecurityRequirement(name = "sessionAuth")
     @PutMapping(ApiPaths.SNAPSHOTS.BY_COURSE)
-    fun applyCourseSnapshot(@RequestBody s: CourseSnap, @PathVariable courseId: UUID, @AuthenticationPrincipal (expression = "userId") userId: UUID) : ResponseEntity<CourseSnap> {
+    fun applyCourseSnapshot(@RequestBody s: CourseSnap, @PathVariable courseId: UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<CourseSnap> {
         return ResponseEntity.ok(snapshotService.applyNewSnapshot(s))
     }
 

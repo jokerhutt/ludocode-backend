@@ -222,24 +222,24 @@ class LanguagesIT : AbstractIntegrationTest() {
         TestRestClient.getOk(ApiPaths.LANGUAGES.BASE, userId = user1.id, Array<LanguageMetadata>::class.java)
 
     private fun assertPutLanguageError (languageId: Long, req: UpdateLanguageRequest, statusCode: ErrorCode) : ValidatableResponse? {
-        return TestRestClient.assertError("PUT", ApiPaths.LANGUAGES.byId(languageId), user1.id, req, statusCode)
+        return TestRestClient.assertError("PUT", ApiPaths.LANGUAGES.byIdAdmin(languageId), user1.id, req, statusCode)
     }
 
     private fun assertPostLanguageError (req: CreateLanguageRequest, statusCode: ErrorCode) : ValidatableResponse? {
-        return TestRestClient.assertError("POST", ApiPaths.LANGUAGES.BASE, user1.id, req, statusCode)
+        return TestRestClient.assertError("POST", ApiPaths.LANGUAGES.ADMIN_BASE, user1.id, req, statusCode)
     }
 
     private fun assertDeleteLanguageError (languageId: Long, statusCode: ErrorCode) : ValidatableResponse? {
-        return TestRestClient.assertError("DELETE", ApiPaths.LANGUAGES.byId(languageId), user1.id, null, statusCode)
+        return TestRestClient.assertError("DELETE", ApiPaths.LANGUAGES.byIdAdmin(languageId), user1.id, null, statusCode)
     }
 
     private fun submitPutLanguage (languageId: Long, req: UpdateLanguageRequest): Array<LanguageMetadata> =
-        TestRestClient.putOk(ApiPaths.LANGUAGES.byId(languageId), user1.id, req, Array<LanguageMetadata>::class.java)
+        TestRestClient.putOk(ApiPaths.LANGUAGES.byIdAdmin(languageId), user1.id, req, Array<LanguageMetadata>::class.java)
 
     private fun submitPostLanguage (req: CreateLanguageRequest): Array<LanguageMetadata> =
-        TestRestClient.postOk(ApiPaths.LANGUAGES.BASE, user1.id, req, Array<LanguageMetadata>::class.java)
+        TestRestClient.postOk(ApiPaths.LANGUAGES.ADMIN_BASE, user1.id, req, Array<LanguageMetadata>::class.java)
 
     private fun submitDeleteLanguage (languageId: Long): Array<LanguageMetadata> =
-        TestRestClient.deleteOk(ApiPaths.LANGUAGES.byId(languageId), user1.id, Array<LanguageMetadata>::class.java)
+        TestRestClient.deleteOk(ApiPaths.LANGUAGES.byIdAdmin(languageId), user1.id, Array<LanguageMetadata>::class.java)
 
 }
