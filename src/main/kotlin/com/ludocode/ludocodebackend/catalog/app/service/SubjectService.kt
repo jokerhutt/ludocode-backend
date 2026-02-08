@@ -22,8 +22,6 @@ class SubjectService(
     private val courseRepository: CourseRepository
 ) {
 
-    private val logger = LoggerFactory.getLogger(SubjectService::class.java)
-
     @Transactional
     fun createSubject(req: SubjectRequest): List<CourseSubjectResponse> {
 

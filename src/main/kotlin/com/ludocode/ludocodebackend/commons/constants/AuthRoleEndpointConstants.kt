@@ -4,7 +4,8 @@ object AuthRoleEndpointConstants {
 
     @JvmField
     val ADMIN_REQUIRED = arrayOf(
-        "${ApiPaths.SNAPSHOTS.BASE}/**"
+        "${ApiPaths.SNAPSHOTS.BASE}/**",
+        "${ApiPaths.SUBJECTS.BASE}/**"
     )
 
 }
