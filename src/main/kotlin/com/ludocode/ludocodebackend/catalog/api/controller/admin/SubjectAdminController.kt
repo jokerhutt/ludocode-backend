@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.catalog.api.controller
+package com.ludocode.ludocodebackend.catalog.api.controller.admin
 
 import com.ludocode.ludocodebackend.catalog.api.dto.request.SubjectRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseSubjectResponse
@@ -14,15 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-
 @RestController
-@RequestMapping(ApiPaths.SUBJECTS.BASE)
+@RequestMapping(ApiPaths.SUBJECTS.ADMIN_BASE)
 class SubjectAdminController(private val subjectService: SubjectService) {
 
-    @GetMapping
-    fun getSubjects () : ResponseEntity<List<CourseSubjectResponse>> {
-        return ResponseEntity.ok(subjectService.getAllSubjects())
-    }
+
 
     @PostMapping
     fun createSubject (@RequestBody req: SubjectRequest): ResponseEntity<List<CourseSubjectResponse>> {

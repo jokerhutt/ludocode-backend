@@ -149,24 +149,24 @@ class SubjectsIT : AbstractIntegrationTest() {
         TestRestClient.getOk(ApiPaths.SUBJECTS.BASE, userId = user1.id, Array<CourseSubjectResponse>::class.java)
 
     private fun assertPutSubjectError (subjectId: Long, req: SubjectRequest, statusCode: ErrorCode) : ValidatableResponse? {
-        return TestRestClient.assertError("PUT", ApiPaths.SUBJECTS.bySubject(subjectId), user1.id, req, statusCode)
+        return TestRestClient.assertError("PUT", ApiPaths.SUBJECTS.bySubjectAdmin(subjectId), user1.id, req, statusCode)
     }
 
     private fun assertPostSubjecterror (req: SubjectRequest, statusCode: ErrorCode) : ValidatableResponse? {
-        return TestRestClient.assertError("POST", ApiPaths.SUBJECTS.BASE, user1.id, req, statusCode)
+        return TestRestClient.assertError("POST", ApiPaths.SUBJECTS.ADMIN_BASE, user1.id, req, statusCode)
     }
 
     private fun assertDeleteSubjectError (subjectId: Long, statusCode: ErrorCode) : ValidatableResponse? {
-        return TestRestClient.assertError("DELETE", ApiPaths.SUBJECTS.bySubject(subjectId), user1.id, null, statusCode)
+        return TestRestClient.assertError("DELETE", ApiPaths.SUBJECTS.bySubjectAdmin(subjectId), user1.id, null, statusCode)
     }
 
     private fun submitPutSubject (subjectId: Long, req: SubjectRequest): Array<CourseSubjectResponse> =
-        TestRestClient.putOk(ApiPaths.SUBJECTS.bySubject(subjectId), user1.id, req, Array<CourseSubjectResponse>::class.java)
+        TestRestClient.putOk(ApiPaths.SUBJECTS.bySubjectAdmin(subjectId), user1.id, req, Array<CourseSubjectResponse>::class.java)
 
     private fun submitPostSubject (req: SubjectRequest): Array<CourseSubjectResponse> =
-        TestRestClient.postOk(ApiPaths.SUBJECTS.BASE, user1.id, req, Array<CourseSubjectResponse>::class.java)
+        TestRestClient.postOk(ApiPaths.SUBJECTS.ADMIN_BASE, user1.id, req, Array<CourseSubjectResponse>::class.java)
 
     private fun submitDeleteSubject (subjectId: Long): Array<CourseSubjectResponse> =
-        TestRestClient.deleteOk(ApiPaths.SUBJECTS.bySubject(subjectId), user1.id, Array<CourseSubjectResponse>::class.java)
+        TestRestClient.deleteOk(ApiPaths.SUBJECTS.bySubjectAdmin(subjectId), user1.id, Array<CourseSubjectResponse>::class.java)
 
 }

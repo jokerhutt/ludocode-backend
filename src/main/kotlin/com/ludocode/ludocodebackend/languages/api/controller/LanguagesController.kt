@@ -39,47 +39,5 @@ class LanguagesController(private val languagesService: LanguagesService) {
         return ResponseEntity.ok(languagesService.getAllLanguages())
     }
 
-    @Operation(
-        summary = "Create language",
-        description = """
-        Creates a new programming language definition and makes it available
-        for project creation and editor configuration.
-        Returns the full list of available languages after creation.
-        Requires an authenticated user session.
-        """
-    )
-    @PostMapping
-    fun createLanguage (@RequestBody req: CreateLanguageRequest) : ResponseEntity<List<LanguageMetadata>> {
-        return ResponseEntity.ok(languagesService.createLanguage(req))
-    }
-
-    @Operation(
-        summary = "Delete language",
-        description = """
-        Deletes an existing programming language definition.
-        The language must not be referenced by existing projects or courses.
-        Returns the updated list of available languages after the delete operation.
-        Requires an authenticated user session.
-        """
-    )
-    @DeleteMapping(ApiPaths.LANGUAGES.ID)
-    fun deleteLanguage (@PathVariable id: Long) : ResponseEntity<List<LanguageMetadata>> {
-        return ResponseEntity.ok(languagesService.deleteLanguage(id))
-    }
-
-    @Operation(
-        summary = "Update language",
-        description = """
-        Updates metadata of an existing programming language definition.
-        This includes display and editor-related properties such as slug, file extension,
-        icon name, base language and initial script.
-        Returns the full list of available languages after the update.
-        Requires an authenticated user session.
-        """
-    )
-    @PutMapping(ApiPaths.LANGUAGES.ID)
-    fun updateLanguage (@PathVariable id: Long, @RequestBody req: UpdateLanguageRequest) : ResponseEntity<List<LanguageMetadata>> {
-        return ResponseEntity.ok(languagesService.updateLanguage(id, req))
-    }
 
 }

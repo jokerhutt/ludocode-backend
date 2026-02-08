@@ -5,6 +5,7 @@ import java.util.UUID
 object ApiPaths {
 
     const val API_PREFIX = "/api/v1"
+    const val ADMIN_PREFIX = "/admin"
 
     object AI {
         const val BASE = "$API_PREFIX/ai"
@@ -42,8 +43,10 @@ object ApiPaths {
 
     object LANGUAGES {
         const val BASE = "$API_PREFIX/languages"
+        const val ADMIN_BASE = "$API_PREFIX$ADMIN_PREFIX/languages"
         const val ID = "/{id}"
         fun byId(id: Long) : String = "$BASE/$id"
+        fun byIdAdmin(id: Long) : String = "$ADMIN_BASE/$id"
     }
 
     object PROGRESS {
@@ -89,16 +92,20 @@ object ApiPaths {
 
     object SNAPSHOTS {
         const val BASE = "$API_PREFIX/snapshots"
+        const val ADMIN_BASE = "$API_PREFIX$ADMIN_PREFIX/snapshots"
         const val COURSE = "/course"
         const val BY_COURSE = "/{courseId}"
 
         fun byCourse(courseId: UUID): String = "$BASE/$courseId"
+        fun byCourseAdmin(courseId: UUID): String = "$ADMIN_BASE/$courseId"
     }
 
     object SUBJECTS {
         const val BASE = "$API_PREFIX/subjects"
+        const val ADMIN_BASE = "$API_PREFIX$ADMIN_PREFIX$BASE"
         const val BY_SUBJECT = "/{subjectId}"
         fun bySubject(subjectId: Long): String = "$BASE/$subjectId"
+        fun bySubjectAdmin(subjectId: Long) : String = "$ADMIN_BASE/$subjectId"
     }
 
     object PREFERENCES {
