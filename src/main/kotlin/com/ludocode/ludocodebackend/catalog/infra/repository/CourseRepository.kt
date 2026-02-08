@@ -9,12 +9,12 @@ import java.util.UUID
 interface CourseRepository : JpaRepository<Course, UUID> {
 
     @Query("""
-        select distinct c
-        from Course c
-        join fetch c.subject s
-        left join fetch s.codeLanguage
-    """)
-    fun findAllWithSubject(): List<Course>
+    select distinct c
+    from Course c
+    join fetch c.subject s
+    left join fetch c.language l
+""")
+    fun findAllWithSubjectAndLanguage(): List<Course>
 
     fun existsBySubjectId(subjectId: Long): Boolean
 

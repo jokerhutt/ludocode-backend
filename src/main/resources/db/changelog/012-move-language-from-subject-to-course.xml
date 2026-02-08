@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+      http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="011-01-enhance-language-columns" author="dave" dbms="postgresql">
+        <sql>
+            -- 1. Add column to course
+            ALTER TABLE course
+                ADD COLUMN code_language_id BIGINT;
+
+            -- 2. Copy existing subject language to course
+            UPDATE course c
+            SET code_language_id = s.code_language_id
+            FROM subjects s
+            WHERE c.subject_id = s.id
+              AND s.code_language_id IS NOT NULL;
+
+            -- 3. Add FK from course to code_languages
+            ALTER TABLE course
+                ADD CONSTRAINT fk_course_code_language
+                    FOREIGN KEY (code_language_id)
+                        REFERENCES code_languages(id)
+                        ON DELETE SET NULL;
+
+            -- 4. Drop FK from subjects to code_languages
+            ALTER TABLE subjects
+                DROP CONSTRAINT fk_subjects_code_language;
+
+            -- 5. Drop column from subjects
+            ALTER TABLE subjects
+                DROP COLUMN code_language_id;
+        </sql>
+    </changeSet>
+
+
+</databaseChangeLog>

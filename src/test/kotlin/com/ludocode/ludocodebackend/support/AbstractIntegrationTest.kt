@@ -22,6 +22,8 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLesso
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.catalog.infra.repository.*
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.config.time.TestClockConfig
 import com.ludocode.ludocodebackend.config.GcpTestConfig
 import com.ludocode.ludocodebackend.config.GeminiTestConfig
@@ -30,6 +32,8 @@ import com.ludocode.ludocodebackend.config.MockOauthConstants
 import com.ludocode.ludocodebackend.config.security.TestSecurityConfig
 import com.ludocode.ludocodebackend.config.time.MutableClock
 import com.ludocode.ludocodebackend.config.TestCacheConfig
+import com.ludocode.ludocodebackend.languages.api.dto.LanguageMetadata
+import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
@@ -54,6 +58,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -71,6 +76,9 @@ import java.util.UUID
     FirebaseAuthTestConfig::class, TestCacheConfig::class)
 abstract class AbstractIntegrationTest {
 
+
+    @Autowired
+    private lateinit var languagesMapper: LanguagesMapper
 
     @Autowired
     private lateinit var subjectRepository: SubjectRepository
@@ -236,8 +244,13 @@ abstract class AbstractIntegrationTest {
         snaps.forEach { cs ->
 
             val subject = subjectRepository.findBySlugAndName(cs.courseSubject.slug, cs.courseSubject.name)
+            val language =
+                cs.language?.languageId?.let { id ->
+                    codeLanguagesRepository.findByIdOrNull(id)
+                        ?: throw ApiException(ErrorCode.LANGUAGE_NOT_FOUND)
+                }
 
-            courseRepository.save(Course(id = cs.courseId, title = cs.title, courseType = cs.courseType, subject = subject!!))
+            courseRepository.save(Course(id = cs.courseId, title = cs.title, courseType = cs.courseType, subject = subject!!, language = language))
 
             cs.modules.forEachIndexed { mIdx, ms ->
                 moduleRepository.save(
@@ -401,13 +414,11 @@ abstract class AbstractIntegrationTest {
         pythonSubject = subjectRepository.save(Subject(
             slug="py",
             name="Python",
-            codeLanguage = pythonLanguage
         ))
 
         swiftSubject = subjectRepository.save(Subject(
             slug = "swift",
             name="swift",
-            codeLanguage = swiftLanguage
         ))
     }
 
@@ -610,9 +621,12 @@ abstract class AbstractIntegrationTest {
             name = swiftSubject.name
         )
 
+        val pythonLanguageMetadata = languagesMapper.toLanguageMetadata(pythonLanguage)
+        val swiftLanguageMetadata = languagesMapper.toLanguageMetadata(swiftLanguage)
+
         val snaps = listOf(
-            CourseSnap(courseId = pythonId, title = "Python", courseSubject = pythonSubjectSnap, courseType = CourseType.COURSE,  modules = pythonModules),
-            CourseSnap(courseId = swiftId,  title = "Swift", courseSubject = swiftSubjectSnap, courseType = CourseType.COURSE,  modules = swiftModules)
+            CourseSnap(courseId = pythonId, title = "Python", courseSubject = pythonSubjectSnap, courseType = CourseType.COURSE,  modules = pythonModules, language = swiftLanguageMetadata),
+            CourseSnap(courseId = swiftId,  title = "Swift", courseSubject = swiftSubjectSnap, courseType = CourseType.COURSE,  modules = swiftModules, language = pythonLanguageMetadata)
         )
 
         importSnapshots(snaps, defaultVersion = 1)

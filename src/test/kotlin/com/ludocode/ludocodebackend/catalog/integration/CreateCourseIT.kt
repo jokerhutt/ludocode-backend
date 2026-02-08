@@ -22,10 +22,11 @@ class CreateCourseIT : AbstractIntegrationTest() {
         val subjectReq = CourseSubjectRequest(
             slug = "lua",
             name = "Lua",
-            codeLanguageId = luaLanguage.id
         )
 
-        val req = CreateCourseRequest(newCourseName, requestHash, CourseType.COURSE,  subjectReq)
+        val languageId = luaLanguage.id
+
+        val req = CreateCourseRequest(newCourseName, requestHash, CourseType.COURSE,  subjectReq, languageId)
 
         val res = submitPostCreateCourse(req)
 
@@ -36,6 +37,9 @@ class CreateCourseIT : AbstractIntegrationTest() {
 
         assertThat(created).isNotNull()
         assertThat(created.title).isEqualTo(newCourseName)
+        assertThat(created.subject.slug).isEqualTo(subjectReq.slug)
+        assertThat(created.language).isNotNull()
+        assertThat(created.language!!.languageId).isEqualTo(languageId)
     }
 
     private fun submitPostCreateCourse(req: CreateCourseRequest): List<CourseResponse> =

@@ -16,9 +16,12 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
+import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -28,6 +31,8 @@ class SnapshotBuilderService(
     private val moduleLessonsRepository: ModuleLessonsRepository,
     private val catalogService: CatalogService,
     private val courseRepository: CourseRepository,
+    private val codeLanguagesRepository: CodeLanguagesRepository,
+    private val languagesMapper: LanguagesMapper,
 ) : CatalogPortForAI {
 
     private val logger = LoggerFactory.getLogger(SnapshotBuilderService::class.java)
@@ -56,9 +61,12 @@ class SnapshotBuilderService(
 
         val subject = course.subject
 
+        val codeLanguage = course.language?.let { lang -> languagesMapper.toLanguageMetadata(lang) }
+
+
         val subjectSnap = SubjectSnap(slug = subject.slug, name = subject.name)
 
-        return CourseSnap(courseId, course.title, courseType = course.courseType, courseSubject = subjectSnap, moduleSnapshots)
+        return CourseSnap(courseId, course.title, courseType = course.courseType, courseSubject = subjectSnap, codeLanguage,moduleSnapshots)
 
 
     }

@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.domain.entity
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
+import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -29,6 +30,10 @@ class Course (
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subject_id", nullable = false)
     val subject: Subject,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "code_language_id", nullable = true)
+    val language: CodeLanguages?,
 
     @Column(name = "request_hash")
     val requestHash: UUID = UUID.randomUUID()

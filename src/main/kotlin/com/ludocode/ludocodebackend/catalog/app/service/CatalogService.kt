@@ -78,7 +78,7 @@ class CatalogService(
 
     @Cacheable(CacheNames.COURSE_LIST)
     fun getAllCourses (): List<CourseResponse> {
-        return courseMapper.toCourseResponseList(courseRepository.findAllWithSubject())
+        return courseMapper.toCourseResponseList(courseRepository.findAllWithSubjectAndLanguage())
     }
 
     @Cacheable(CacheNames.COURSE_TREE, key = "#courseId")
