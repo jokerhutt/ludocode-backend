@@ -38,7 +38,8 @@ class CreateCourseIT : AbstractIntegrationTest() {
         assertThat(created).isNotNull()
         assertThat(created.title).isEqualTo(newCourseName)
         assertThat(created.subject.slug).isEqualTo(subjectReq.slug)
-        assertThat(created.language).isEqualTo(languageId)
+        assertThat(created.language).isNotNull()
+        assertThat(created.language!!.languageId).isEqualTo(languageId)
     }
 
     private fun submitPostCreateCourse(req: CreateCourseRequest): List<CourseResponse> =

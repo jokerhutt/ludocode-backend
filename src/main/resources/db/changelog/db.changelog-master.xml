@@ -16,6 +16,7 @@
     <include file="/db/changelog/009-toggled-preferences.xml"/>
     <include file="/db/changelog/010-subjects-languages.xml"/>
     <include file="/db/changelog/011-enhance-languages.xml"/>
+    <include file="/db/changelog/012-move-language-from-subject-to-course.xml"/>
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>
 
