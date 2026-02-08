@@ -27,10 +27,15 @@ class CourseMapper (private val basicMapper: BasicMapper) {
 
     fun toCourseSubjectResponse (subject: Subject): CourseSubjectResponse {
         return CourseSubjectResponse(
+            subjectId = subject.id,
             slug = subject.slug,
             name = subject.name,
             codeLanguage = subject.codeLanguage?.name
         )
+    }
+
+    fun toCourseSubjectResponseList(courseSubjects: List<Subject>): List<CourseSubjectResponse> {
+        return basicMapper.list(courseSubjects) {subject -> toCourseSubjectResponse(subject)}
     }
 
 

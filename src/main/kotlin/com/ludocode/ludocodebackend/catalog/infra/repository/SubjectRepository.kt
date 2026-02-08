@@ -8,4 +8,7 @@ interface SubjectRepository : JpaRepository<Subject, Long> {
     fun existsBySlugOrName(slug: String, name: String): Boolean
     fun findBySlugAndName(slug: String, name: String): Subject?
 
+    fun existsBySlug(slug: String): Boolean
+    fun existsBySlugAndIdNot(slug: String, id: Long): Boolean
+
 }

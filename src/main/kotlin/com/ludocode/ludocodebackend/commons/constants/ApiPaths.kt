@@ -93,7 +93,12 @@ object ApiPaths {
         const val BY_COURSE = "/{courseId}"
 
         fun byCourse(courseId: UUID): String = "$BASE/$courseId"
+    }
 
+    object SUBJECTS {
+        const val BASE = "$API_PREFIX/subjects"
+        const val BY_SUBJECT = "/{subjectId}"
+        fun bySubject(subjectId: Long): String = "$BASE/$subjectId"
     }
 
     object PREFERENCES {

@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.catalog.infra.repository
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import java.util.UUID
 
 interface CourseRepository : JpaRepository<Course, UUID> {
@@ -14,5 +15,8 @@ interface CourseRepository : JpaRepository<Course, UUID> {
         left join fetch s.codeLanguage
     """)
     fun findAllWithSubject(): List<Course>
+
+    fun existsBySubjectId(subjectId: Long): Boolean
+
 
 }

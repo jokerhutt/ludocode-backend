@@ -5,6 +5,7 @@ import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.languages.api.dto.CreateLanguageRequest
 import com.ludocode.ludocodebackend.languages.api.dto.LanguageMetadata
 import com.ludocode.ludocodebackend.languages.api.dto.UpdateLanguageRequest
+import com.ludocode.ludocodebackend.languages.app.LanguagePort
 import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
@@ -14,7 +15,13 @@ import org.springframework.stereotype.Service
 @Service
 class LanguagesService(private val codeLanguagesRepository: CodeLanguagesRepository,
                        private val languagesMapper: LanguagesMapper
-) {
+) : LanguagePort {
+
+    override fun findById(languageId: Long): CodeLanguages {
+        return codeLanguagesRepository
+            .findById(languageId)
+            .orElseThrow { ApiException(ErrorCode.LANGUAGE_NOT_FOUND) }
+    }
 
     internal fun getAllLanguages () : List<LanguageMetadata> {
         val languages = codeLanguagesRepository.findAll()

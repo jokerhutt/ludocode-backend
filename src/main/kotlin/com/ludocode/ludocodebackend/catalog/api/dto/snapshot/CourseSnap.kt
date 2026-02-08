@@ -14,5 +14,5 @@ data class CourseSnap(
 
 data class SubjectSnap(
     val slug: String,
-    val name: String
+    val name: String,
 )
