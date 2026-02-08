@@ -6,6 +6,9 @@ import com.ludocode.ludocodebackend.languages.api.dto.LanguageMetadata
 import com.ludocode.ludocodebackend.languages.api.dto.UpdateLanguageRequest
 import com.ludocode.ludocodebackend.languages.app.service.LanguagesService
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.context.annotation.Profile
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -15,10 +18,16 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+@Tag(
+    name = "Admin Languages",
+    description = "Admin operations related to managing programming languages available on the platform"
+)
+@Profile("admin", "devadmin", "test")
 @RestController
 @RequestMapping(ApiPaths.LANGUAGES.ADMIN_BASE)
-class LanguagesAdminController(private val languagesService: LanguagesService) {
-
+class LanguagesAdminController(
+    private val languagesService: LanguagesService
+) {
 
     @Operation(
         summary = "Create language",
@@ -29,8 +38,11 @@ class LanguagesAdminController(private val languagesService: LanguagesService) {
         Requires an authenticated user session.
         """
     )
+    @SecurityRequirement(name = "sessionAuth")
     @PostMapping
-    fun createLanguage (@RequestBody req: CreateLanguageRequest) : ResponseEntity<List<LanguageMetadata>> {
+    fun createLanguage(
+        @RequestBody req: CreateLanguageRequest
+    ): ResponseEntity<List<LanguageMetadata>> {
         return ResponseEntity.ok(languagesService.createLanguage(req))
     }
 
@@ -43,8 +55,11 @@ class LanguagesAdminController(private val languagesService: LanguagesService) {
         Requires an authenticated user session.
         """
     )
+    @SecurityRequirement(name = "sessionAuth")
     @DeleteMapping(ApiPaths.LANGUAGES.ID)
-    fun deleteLanguage (@PathVariable id: Long) : ResponseEntity<List<LanguageMetadata>> {
+    fun deleteLanguage(
+        @PathVariable id: Long
+    ): ResponseEntity<List<LanguageMetadata>> {
         return ResponseEntity.ok(languagesService.deleteLanguage(id))
     }
 
@@ -58,10 +73,13 @@ class LanguagesAdminController(private val languagesService: LanguagesService) {
         Requires an authenticated user session.
         """
     )
+    @SecurityRequirement(name = "sessionAuth")
     @PutMapping(ApiPaths.LANGUAGES.ID)
-    fun updateLanguage (@PathVariable id: Long, @RequestBody req: UpdateLanguageRequest) : ResponseEntity<List<LanguageMetadata>> {
+    fun updateLanguage(
+        @PathVariable id: Long,
+        @RequestBody req: UpdateLanguageRequest
+    ): ResponseEntity<List<LanguageMetadata>> {
         return ResponseEntity.ok(languagesService.updateLanguage(id, req))
     }
-
 
 }
