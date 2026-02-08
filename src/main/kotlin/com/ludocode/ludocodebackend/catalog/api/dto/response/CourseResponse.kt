@@ -12,6 +12,7 @@ data class CourseResponse(
 )
 
 data class CourseSubjectResponse(
+    val subjectId: Long,
     val slug: String,
     val name: String,
     val codeLanguage: String?
