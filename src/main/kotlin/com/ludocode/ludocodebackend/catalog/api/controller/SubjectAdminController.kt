@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -24,12 +25,12 @@ class SubjectAdminController(private val subjectService: SubjectService) {
     }
 
     @PostMapping
-    fun createSubject (req: SubjectRequest): ResponseEntity<List<CourseSubjectResponse>> {
+    fun createSubject (@RequestBody req: SubjectRequest): ResponseEntity<List<CourseSubjectResponse>> {
         return ResponseEntity.ok(subjectService.createSubject(req))
     }
 
     @PutMapping(ApiPaths.SUBJECTS.BY_SUBJECT)
-    fun updateSubject (@PathVariable subjectId: Long, req: SubjectRequest) : ResponseEntity<List<CourseSubjectResponse>> {
+    fun updateSubject (@PathVariable subjectId: Long, @RequestBody req: SubjectRequest) : ResponseEntity<List<CourseSubjectResponse>> {
         return ResponseEntity.ok(subjectService.updateSubject(subjectId, req))
     }
 

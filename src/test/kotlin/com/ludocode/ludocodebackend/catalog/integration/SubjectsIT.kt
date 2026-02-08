@@ -151,7 +151,7 @@ class SubjectsIT : AbstractIntegrationTest() {
 
 
     private fun submitGetAllCourses (): Array<CourseResponse> =
-        TestRestClient.getOk("${ApiPaths.CATALOG.BASE}/${ApiPaths.CATALOG.COURSES}", user1.id, Array<CourseResponse>::class.java)
+        TestRestClient.getOk("${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.COURSES}", user1.id, Array<CourseResponse>::class.java)
 
     private fun submitGetAllSubjects (): Array<CourseSubjectResponse> =
         TestRestClient.getOk(ApiPaths.SUBJECTS.BASE, userId = user1.id, Array<CourseSubjectResponse>::class.java)
