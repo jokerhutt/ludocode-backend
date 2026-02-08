@@ -39,9 +39,9 @@
 
     <changeSet id="005-03-00-code-languages" author="dave" context="dev" dbms="postgresql">
         <sql>
-            INSERT INTO code_languages (slug, name, editor_id, initial_script)
+            INSERT INTO code_languages (slug, name, editor_id, piston_id, initial_script)
             VALUES
-                ('python', 'Python', 'python', NULL)
+                ('python', 'Python', 'python', 'python', 'print("Hello, world!")')
             ON CONFLICT (slug) DO NOTHING;
         </sql>
     </changeSet>
