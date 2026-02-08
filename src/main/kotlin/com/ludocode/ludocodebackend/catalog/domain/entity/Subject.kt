@@ -31,7 +31,4 @@ class Subject(
     @Column(nullable = false)
     var name: String,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "code_language_id")
-    var codeLanguage: CodeLanguages? = null
 )

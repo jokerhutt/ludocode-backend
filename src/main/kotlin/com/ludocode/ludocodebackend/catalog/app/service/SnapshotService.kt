@@ -36,6 +36,7 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -76,8 +77,11 @@ class SnapshotService(
         val newLessonId = UUID.randomUUID()
         val newExerciseId = UUID.randomUUID()
 
-        val codeLanguage = codeLanguagesRepository.findById(request.courseSubject.codeLanguageId)
-            .orElseThrow { ApiException(ErrorCode.LANGUAGE_NOT_FOUND) }
+        val codeLanguage =
+            request.languageId?.let { id ->
+                codeLanguagesRepository.findByIdOrNull(id)
+                    ?: throw ApiException(ErrorCode.LANGUAGE_NOT_FOUND)
+            }
 
         val subject =
             subjectRepository.findBySlugAndName(newCourseSubject.slug, newCourseSubject.name)
@@ -85,7 +89,6 @@ class SnapshotService(
                     Subject(
                         slug = newCourseSubject.slug,
                         name = newCourseSubject.name,
-                        codeLanguage = codeLanguage
                     )
                 )
 
@@ -95,6 +98,7 @@ class SnapshotService(
             requestHash = newCourseHash,
             courseType = newCourseType,
             subject = subject,
+            language = codeLanguage
 
         )
 

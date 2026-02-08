@@ -45,7 +45,6 @@ class SubjectsIT : AbstractIntegrationTest() {
         val req = SubjectRequest(
             name = "DSA",
             slug = "dsa",
-            codeLanguageId = null
         )
 
         val res = submitPutSubject(subjectToChange.id, req)
@@ -55,7 +54,6 @@ class SubjectsIT : AbstractIntegrationTest() {
 
         assertThat(updated.name).isEqualTo(req.name)
         assertThat(updated.slug).isEqualTo(req.slug)
-        assertThat(updated.codeLanguage).isEqualTo(req.codeLanguageId)
 
         val courses = submitGetAllCourses()
 
@@ -66,8 +64,6 @@ class SubjectsIT : AbstractIntegrationTest() {
             assertThat(it.subject.subjectId).isEqualTo(subjectToChange.id)
             assertThat(it.subject.name).isEqualTo(req.name)
             assertThat(it.subject.slug).isEqualTo(req.slug)
-            assertThat(it.subject.codeLanguage).isEqualTo(req.codeLanguageId)
-
         }
     }
 
@@ -81,7 +77,6 @@ class SubjectsIT : AbstractIntegrationTest() {
         val req = SubjectRequest(
             name = "Some new subject",
             slug = pythonSubject.slug,
-            codeLanguageId = null
         )
 
         assertPostSubjecterror(req, ErrorCode.SLUG_EXISTS)
@@ -100,7 +95,6 @@ class SubjectsIT : AbstractIntegrationTest() {
         val req = SubjectRequest(
             name = subjectToChange.name,
             slug = swiftSubject.slug,
-            codeLanguageId = subjectToChange.codeLanguage?.id
         )
 
         assertPutSubjectError(subjectToChange.id, req, ErrorCode.SLUG_EXISTS)
@@ -113,7 +107,6 @@ class SubjectsIT : AbstractIntegrationTest() {
         val newSubjectReq = SubjectRequest(
             name = "DSA",
             slug = "dsa",
-            codeLanguageId = pythonLanguage.id
         )
 
         val res = submitPostSubject(newSubjectReq)
@@ -128,7 +121,6 @@ class SubjectsIT : AbstractIntegrationTest() {
         val newSubjectReq = SubjectRequest(
             name = "DSA",
             slug = "dsa",
-            codeLanguageId = pythonLanguage.id
         )
 
         val existingSubjects = submitPostSubject(newSubjectReq)
