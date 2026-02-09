@@ -95,8 +95,10 @@ object ApiPaths {
         const val ADMIN_BASE = "$API_PREFIX$ADMIN_PREFIX/snapshots"
         const val COURSE = "/course"
         const val BY_COURSE = "/{courseId}"
-
+        const val CURRICULUM = "/curriculum"
+        const val BY_COURSE_CURRICULUM = "/curriculum/{courseId}"
         fun byCourse(courseId: UUID): String = "$BASE/$courseId"
+        fun byCourseCurriculum(courseId: UUID): String = "$BASE$CURRICULUM$BY_COURSE"
         fun byCourseAdmin(courseId: UUID): String = "$ADMIN_BASE/$courseId"
     }
 
