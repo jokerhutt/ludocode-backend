@@ -65,6 +65,12 @@ class CatalogAdminController(
         return ResponseEntity.ok(snapshotBuilderService.buildCurriculumSnapshot(courseId))
     }
 
+    @PutMapping(ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM)
+    fun applyCurriculumSnapshot(@RequestBody snapshot: CurriculumDraftSnapshot, @PathVariable courseId: UUID): ResponseEntity<CurriculumDraftSnapshot> {
+        return ResponseEntity.ok(snapshotService.applyCurriculumDiffs(courseId, snapshot))
+    }
+
+
     @Operation(summary = "Create course",
         description = """
         Creates a new course with the provided title.
