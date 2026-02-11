@@ -16,3 +16,7 @@ data class LessonDraftSnapshot(
     val id: UUID,
     var title: String,
 )
+
+data class LessonCurriculumDraftSnapshot(
+    var exercises: List<ExerciseSnap>
+)

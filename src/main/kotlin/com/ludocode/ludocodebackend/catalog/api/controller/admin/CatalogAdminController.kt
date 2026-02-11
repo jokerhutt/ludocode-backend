@@ -4,6 +4,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotBuilderService
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
@@ -63,6 +64,11 @@ class CatalogAdminController(
     @GetMapping(ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM)
     fun getCourseCurriculumByCourseId(@PathVariable courseId: UUID) : ResponseEntity<CurriculumDraftSnapshot> {
         return ResponseEntity.ok(snapshotBuilderService.buildCurriculumSnapshot(courseId))
+    }
+
+    @GetMapping(ApiPaths.SNAPSHOTS.BY_LESSON_CURRICULUM)
+    fun getLessonCurriculumByCourseId(@PathVariable lessonId: UUID) : ResponseEntity<LessonCurriculumDraftSnapshot> {
+        return ResponseEntity.ok(snapshotBuilderService.buildLessonCurriculumSnapshot(lessonId))
     }
 
     @PutMapping(ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM)
