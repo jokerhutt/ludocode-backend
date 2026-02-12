@@ -38,17 +38,15 @@ class LessonCompletionService(
     @Transactional
     fun submitLessonCompletion (request: LessonSubmissionRequest, userId: UUID) : LessonCompletionPacket {
 
-        val currentLessonMD : LessonTreeWithIdDTO = catalogPortForProgress.findLessonIdTree(request.lessonId)
+        val completedLessonId = request.lessonId
+        val courseId = request.courseId
         val uniqueSubmissionID = request.submissionId
-        val currentLessonId = currentLessonMD.lessonId
-        val nextLessonId = currentLessonMD.nextLessonId
-        val courseId = currentLessonMD.courseId
 
         if (isSubmissionDuplicate(uniqueSubmissionID)) {
             logger.warn(
                 LogEvents.LESSON_COMPLETION_DUPLICATE + " {} {} {}",
                 kv(LogFields.SUBMISSION_ID, uniqueSubmissionID.toString()),
-                kv(LogFields.LESSON_ID, currentLessonId.toString()),
+                kv(LogFields.LESSON_ID, completedLessonId.toString()),
                 kv(LogFields.COURSE_ID, courseId.toString()),
             )
             return LessonCompletionPacket(content = null, status = LessonCompletionStatus.DUPLICATE)
@@ -57,13 +55,11 @@ class LessonCompletionService(
         val lessonCompletion = lessonScoreService.addPointsAndCommitSubmission(request, userId, courseId)
         val scoreForLesson = lessonCompletion.score!!
 
-        val submittedLesson = catalogPortForProgress.findLessonResponseById(currentLessonId, userId)
-        val isCompleted = submittedLesson.isCompleted
+        val submittedLesson = catalogPortForProgress.findLessonResponseById(completedLessonId, userId)
 
         if (!submittedLesson.isCompleted) submittedLesson.isCompleted = true
 
-
-        val newCourseProgressWithCompletion = courseProgressService.updateLesson(userId, currentLessonId = currentLessonId, newLessonId = nextLessonId, isCompleted = isCompleted, courseId = courseId)
+        val newCourseProgressWithCompletion = courseProgressService.updateLesson(userId, courseId = courseId, completedLessonId)
 
         val newCourseProgress = newCourseProgressWithCompletion!!.courseProgressResponse
         val isFirstCompletion = newCourseProgressWithCompletion!!.isFirstCompletion
@@ -77,8 +73,7 @@ class LessonCompletionService(
         if (isFirstCompletion) {
             logger.info(
                 LogEvents.LESSON_COMPLETION_SUBMITTED + " {} {} {} {} {} {}",
-                kv(LogFields.LESSON_ID, currentLessonId.toString()),
-                kv(LogFields.NEXT_LESSON_ID, nextLessonId?.toString() ?: "null"),
+                kv(LogFields.LESSON_ID, completedLessonId.toString()),
                 kv(LogFields.COURSE_ID, courseId.toString()),
                 kv(LogFields.SCORE, scoreForLesson),
                 kv(LogFields.LESSON_ACCURACY, lessonCompletion.accuracy),
@@ -89,8 +84,7 @@ class LessonCompletionService(
 
         logger.info(
             LogEvents.LESSON_COMPLETION_SUBMITTED + " {} {} {} {} {} {}",
-            kv(LogFields.LESSON_ID, currentLessonId.toString()),
-            kv(LogFields.NEXT_LESSON_ID, nextLessonId?.toString() ?: "null"),
+            kv(LogFields.LESSON_ID, completedLessonId.toString()),
             kv(LogFields.COURSE_ID, courseId.toString()),
             kv(LogFields.SCORE, scoreForLesson),
             kv(LogFields.LESSON_ACCURACY, lessonCompletion.accuracy),

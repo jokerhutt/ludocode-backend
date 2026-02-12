@@ -17,6 +17,9 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     LESSON_NOT_FOUND_FOR_EXERCISE(HttpStatus.NOT_FOUND, "Lesson not found for given exercise"),
     COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Course not found"),
 
+    COURSE_STATS_NOT_FOUND(HttpStatus.NOT_FOUND, "Course stats for this user and course not found"),
+    COURSE_PROGRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "Course progress for this user and course not found"),
+
     LANGUAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "Language not found. Does it exist?"),
     SLUG_EXISTS(HttpStatus.BAD_REQUEST, "Slug already exists"),
     EDITOR_ID_EXISTS(HttpStatus.BAD_REQUEST, "Editor ID already exists"),

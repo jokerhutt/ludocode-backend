@@ -1,5 +1,7 @@
 package com.ludocode.ludocodebackend.progress.app.service
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForProgress
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.progress.api.dto.internal.CourseProgressWithCompletion
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
@@ -26,47 +28,45 @@ class CourseProgressService(
 
     @Transactional
      override fun findOrCreate(userId: UUID, courseId: UUID) : CourseProgressResponseWithEnrolled {
-        val firstLessonOfCourse = catalogPortForProgress.findFirstLessonIdInCourse(courseId)
-        courseProgressRepository.upsert(userId, courseId, firstLessonOfCourse!!, OffsetDateTime.now(clock))
-        val userCourseProgress = courseProgressRepository.findProgressWithModule(userId, courseId)
+        val firstModuleOfCourse = catalogPortForProgress.findFirstModuleIdInCourse(courseId)
+        courseProgressRepository.upsert(userId, courseId, firstModuleOfCourse, OffsetDateTime.now(clock))
+        val userCourseProgress = courseProgressRepository.findById(CourseProgressId(userId, courseId)).orElseThrow { ApiException(
+            ErrorCode.COURSE_PROGRESS_NOT_FOUND) }
         val enrolled = courseProgressRepository.findAllCourseIdsForUser(userId)
-        return courseProgressMapper.toCourseProgressResponseWithEnrolled(userCourseProgress!!, enrolled)
+        return courseProgressMapper.toCourseProgressResponseWithEnrolled(userCourseProgress, enrolled)
     }
-
 
     override fun existsAnyByUserId (userId: UUID) : Boolean {
         return courseProgressRepository.existsByUser(userId)
     }
 
-
     @Transactional
     internal fun resetUserCourseProgress(userId: UUID, courseId: UUID) : CourseProgressResponse {
         lessonCompletionRepository.deleteLessonCompletionsForUserAndCourse(userId, courseId)
-        val firstLessonIdInCourse = catalogPortForProgress.findFirstLessonIdInCourse(courseId)
-        courseProgressRepository.resetCourseProgressForUser(userId, courseId, firstLessonIdInCourse)
+        val firstModuleIdInCourse = catalogPortForProgress.findFirstModuleIdInCourse(courseId)
+        val courseProgress = courseProgressRepository.findById(CourseProgressId(userId, courseId)).orElseThrow { ApiException(ErrorCode.COURSE_PROGRESS_NOT_FOUND)  }
+        courseProgress.currentModuleId = firstModuleIdInCourse
+        courseProgress.isComplete = false
         return findCourseProgress(userId, courseId)
     }
 
+    internal fun updateLesson(userId: UUID, courseId: UUID, currentLessonId: UUID) : CourseProgressWithCompletion? {
 
-    internal fun updateLesson(userId: UUID, courseId: UUID, isCompleted: Boolean, newLessonId: UUID?, currentLessonId: UUID) : CourseProgressWithCompletion? {
-
+        val currentLessonModule = catalogPortForProgress.findModuleIdForLesson(currentLessonId)
         val courseProgress = courseProgressRepository.findById(CourseProgressId(userId, courseId)).orElseThrow()
-        val hasJustFinishedCurrentLesson = courseProgress.currentLessonId == currentLessonId
-        if (!hasJustFinishedCurrentLesson && isCompleted) return CourseProgressWithCompletion(findCourseProgress(userId, courseId), false)
+        courseProgress.currentModuleId = currentLessonModule
 
-        var isFirstCompletion = false
+        val courseProgressStats = courseProgressRepository.findSingleCourseStats(userId, courseId) ?: throw ApiException(
+            ErrorCode.COURSE_STATS_NOT_FOUND)
+        val isCourseComplete = courseProgressStats.completedLessons == courseProgressStats.totalLessons
+        var isCourseCompleteForFirstTime = false
 
-        if (newLessonId != null) {
-            courseProgress.currentLessonId = newLessonId
-            courseProgress.updatedAt = OffsetDateTime.now(clock)
-            courseProgressRepository.save(courseProgress)
-        } else {
-            if (!courseProgress.isComplete) {
-                courseProgressRepository.markCourseComplete(userId, courseId)
-                isFirstCompletion = true
-            }
+        if (!isCourseComplete) {
+            courseProgress.isComplete = true
+            isCourseCompleteForFirstTime = true
         }
-        return CourseProgressWithCompletion(findCourseProgress(userId, courseId), isFirstCompletion)
+
+        return CourseProgressWithCompletion(findCourseProgress(userId, courseId), isCourseCompleteForFirstTime)
     }
 
     internal fun getCourseProgressStats(
@@ -75,7 +75,7 @@ class CourseProgressService(
     ): List<CourseProgressStats> {
 
         return courseProgressRepository
-            .findCourseLessonStats(userId, courseIds)
+            .findCourseLessonStatsList(userId, courseIds)
             .map { row ->
                 CourseProgressStats(
                     id = row.courseId,
@@ -94,14 +94,12 @@ class CourseProgressService(
     }
 
     internal fun findCourseProgressList(courseIds: List<UUID>, userId: UUID) : List<CourseProgressResponse> {
-        return courseProgressMapper.toCourseProgressResponseList(courseProgressRepository.findAllProgressWithModulesByUserAndCourses(userId, courseIds))
+        return courseProgressMapper.toCourseProgressResponseList(courseProgressRepository.findByIdUserIdAndIdCourseIdIn(userId, courseIds))
     }
 
-
-
-
     private fun findCourseProgress(userId: UUID, courseId: UUID): CourseProgressResponse {
-        return courseProgressMapper.toCourseProgressResponse(courseProgressRepository.findProgressWithModule(userId, courseId) ?: throw IllegalStateException("progress not found"))
+        return courseProgressMapper.toCourseProgressResponse(courseProgressRepository.findById(CourseProgressId(userId, courseId)).orElseThrow { ApiException(
+            ErrorCode.COURSE_PROGRESS_NOT_FOUND) })
     }
 
 }

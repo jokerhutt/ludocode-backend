@@ -21,8 +21,8 @@ class CourseProgress (
     @Column(name = "updated_at", nullable = false)
     var updatedAt: OffsetDateTime,
 
-    @Column(name = "current_lesson_id")
-    var currentLessonId: UUID,
+    @Column(name = "current_module_id")
+    var currentModuleId: UUID,
 
     @Column(nullable = false, name = "is_complete")
     var isComplete: Boolean = false

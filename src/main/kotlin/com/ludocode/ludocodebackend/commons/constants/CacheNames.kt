@@ -5,6 +5,7 @@ object CacheNames {
     const val COURSE_LIST = "course:list"
     const val COURSE_TREE = "course:tree"
     const val COURSE_FIRST_LESSON = "course:firstLesson"
+    const val COURSE_FIRST_MODULE = "course:firstModule"
 
     // ===== LESSON LOOKUPS =====
     const val LESSON_COURSE = "lesson:course"

@@ -5,6 +5,6 @@ import java.time.OffsetDateTime
 import java.util.UUID
 
 data class CourseProgressResponse(
-    val userId: UUID, val courseId: UUID, val currentLessonId: UUID,
+    val userId: UUID, val courseId: UUID,
     val moduleId: UUID, val id: UUID, val updatedAt: Instant
 )

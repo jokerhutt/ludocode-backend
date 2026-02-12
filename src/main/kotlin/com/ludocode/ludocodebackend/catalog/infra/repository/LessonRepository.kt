@@ -102,6 +102,21 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
   """, nativeQuery = true)
     fun findFirstLessonIdInCourse(@Param("courseId") courseId: UUID): UUID?
 
+    @Query(
+        value = """
+    SELECT m.id
+    FROM module m
+    WHERE m.course_id = :courseId
+      AND m.is_deleted = false
+    ORDER BY m.order_index
+    LIMIT 1
+  """,
+        nativeQuery = true
+    )
+    fun findFirstModuleIdInCourse(
+        @Param("courseId") courseId: UUID
+    ): UUID?
+
     @Query(value = """
     WITH ordered AS (
       SELECT l.id AS lessonId, m.id AS moduleId, m.course_id AS courseId,
