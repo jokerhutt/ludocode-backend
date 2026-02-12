@@ -8,6 +8,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotBuilderService
+import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
@@ -259,6 +260,20 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             exercises = lessonToChange.exercises
         )
 
+        val exerciseToChange = lessonCurriculum.exercises[1]
+        exerciseToChange.title = "Changed title"
+        exerciseToChange.correctOptions = listOf(OptionSnap(
+            content = "mouse",
+            answerOrder = 1,
+            exerciseOptionId = UUID.randomUUID()
+        ))
+        exerciseToChange.distractors = listOf(OptionSnap(
+            content = "'mouse'",
+            answerOrder = null,
+            exerciseOptionId = UUID.randomUUID()
+        ))
+
+
         val exerciseToDelete = lessonCurriculum.exercises[0]
         val exerciseToAdd1 = ExerciseSnap(
             id = UUID.randomUUID(),
@@ -293,8 +308,6 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             .usingRecursiveComparison()
             .ignoringFieldsMatchingRegexes(".*exerciseOptionId")
             .isEqualTo(lessonCurriculum)
-
-
 
     }
 

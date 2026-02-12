@@ -553,7 +553,7 @@ abstract class AbstractIntegrationTest {
             exerciseType = ExerciseType.INFO,
             correctOptions = emptyList(),
             distractors = emptyList()
-        )
+    )
 
         val ex10INFO = ExerciseSnap(
             id = UUID.randomUUID(),
