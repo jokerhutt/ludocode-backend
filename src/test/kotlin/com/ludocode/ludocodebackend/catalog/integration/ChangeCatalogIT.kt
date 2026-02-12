@@ -170,6 +170,88 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
     }
 
+    @Test
+    fun submitCurriculumChangeWithDeletions_returnsChangedWithDeletions() {
+        val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
+
+        val pythonCurriculum = CurriculumDraftSnapshot(
+            modules = pythonSnap.modules.map { module ->
+                ModuleDraftSnapshot(
+                    id = module.moduleId,
+                    title = module.title,
+                    lessons = module.lessons.map { lesson ->
+                        LessonDraftSnapshot(
+                            id = lesson.id,
+                            title = lesson.title
+                        )
+                    }
+                )
+            }
+        )
+
+        val moduleIndex = 1
+
+        val lessonToChange =
+            pythonCurriculum.modules[moduleIndex].lessons[0]
+
+        lessonToChange.title = "First lesson title"
+
+        val firstLessonToAdd = LessonDraftSnapshot(
+            id = UUID.randomUUID(),
+            title = "New Lesson"
+        )
+
+        val secondLessonToAdd = LessonDraftSnapshot(
+            id = UUID.randomUUID(),
+            title = "New Lesson"
+        )
+
+        val lessonToDelete = pythonCurriculum.modules[0].lessons[0]
+        val moduleToDelete = pythonCurriculum.modules[1]
+
+        pythonCurriculum.modules[moduleIndex].lessons =
+            pythonCurriculum.modules[moduleIndex].lessons +
+                    listOf(firstLessonToAdd, secondLessonToAdd)
+
+        val moduleToAdd = ModuleDraftSnapshot(
+            id = UUID.randomUUID(),
+            title = "New Module",
+            lessons = listOf(
+                LessonDraftSnapshot(
+                    id = UUID.randomUUID(),
+                    title = "New Module Lesson"
+                ),
+                LessonDraftSnapshot(
+                    id = UUID.randomUUID(),
+                    title = "New Module Lesson Two"
+                )
+            )
+        )
+
+        pythonCurriculum.modules =
+            pythonCurriculum.modules + moduleToAdd
+
+        pythonCurriculum.modules[0].lessons =
+            pythonCurriculum.modules[0].lessons - lessonToDelete
+
+        pythonCurriculum.modules =
+            pythonCurriculum.modules - moduleToDelete
+
+        val result =
+            submitPostUpdateCurriculum(pythonCurriculum, pythonId)
+
+        assertThat(result).isNotNull()
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .isEqualTo(pythonCurriculum)
+
+    }
+
+
+
+
+
     private fun submitPostUpdateCurriculum(req: CurriculumDraftSnapshot, courseId: UUID) : CurriculumDraftSnapshot =
         TestRestClient.putOk(ApiPaths.SNAPSHOTS.byCourseCurriculumAdmin(courseId), user1.id, req,
             CurriculumDraftSnapshot::class.java)
