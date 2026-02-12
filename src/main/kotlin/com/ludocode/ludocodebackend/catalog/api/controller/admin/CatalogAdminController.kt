@@ -5,6 +5,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
+import com.ludocode.ludocodebackend.catalog.app.service.CurriculumEditorService
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotBuilderService
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
@@ -32,7 +33,8 @@ import java.util.UUID
 @RequestMapping(ApiPaths.SNAPSHOTS.ADMIN_BASE)
 class CatalogAdminController(
     private val snapshotService: SnapshotService,
-    private val snapshotBuilderService: SnapshotBuilderService
+    private val snapshotBuilderService: SnapshotBuilderService,
+    private val curriculumEditorService: CurriculumEditorService
 ) {
 
     @Operation(summary = "Submit course snapshot for the selected course id",
@@ -71,9 +73,14 @@ class CatalogAdminController(
         return ResponseEntity.ok(snapshotBuilderService.buildLessonCurriculumSnapshot(lessonId))
     }
 
+    @PutMapping(ApiPaths.SNAPSHOTS.BY_LESSON_CURRICULUM)
+    fun applyLessonCurriculumSnapshot(@RequestBody snapshot: LessonCurriculumDraftSnapshot, @PathVariable lessonId: UUID) : ResponseEntity<LessonCurriculumDraftSnapshot> {
+        return ResponseEntity.ok(curriculumEditorService.applyExerciseDiffs(lessonId, snapshot))
+    }
+
     @PutMapping(ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM)
     fun applyCurriculumSnapshot(@RequestBody snapshot: CurriculumDraftSnapshot, @PathVariable courseId: UUID): ResponseEntity<CurriculumDraftSnapshot> {
-        return ResponseEntity.ok(snapshotService.applyCurriculumDiffs(courseId, snapshot))
+        return ResponseEntity.ok(curriculumEditorService.applyCurriculumDiffs(courseId, snapshot))
     }
 
 
