@@ -1,5 +1,4 @@
 package com.ludocode.ludocodebackend.catalog.app.service
-import com.ludocode.ludocodebackend.catalog.api.dto.internal.LessonTreeWithIdDTO
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.LessonResponse
@@ -45,11 +44,6 @@ class CatalogService(
     private val logger = LoggerFactory.getLogger(CatalogService::class.java)
 
 
-    @Cacheable(CacheNames.COURSE_FIRST_LESSON, key = "#courseId")
-    override fun findFirstLessonIdInCourse(courseId: UUID): UUID {
-       return lessonRepository.findFirstLessonIdInCourse(courseId) ?: throw ApiException(ErrorCode.LESSON_NOT_FOUND)
-    }
-
     @Cacheable(CacheNames.COURSE_FIRST_MODULE, key = "#courseId")
     override fun findFirstModuleIdInCourse(courseId: UUID): UUID {
         return lessonRepository.findFirstModuleIdInCourse(courseId) ?: throw ApiException(ErrorCode.LESSON_NOT_FOUND)
@@ -58,22 +52,6 @@ class CatalogService(
     @Cacheable(CacheNames.LESSON_MODULE, key = "#lessonId")
     override fun findModuleIdForLesson(lessonId: UUID): UUID {
        return lessonRepository.findModuleIdForLesson(lessonId) ?: throw ApiException(ErrorCode.MODULE_NOT_FOUND_FOR_LESSON)
-    }
-
-    @Cacheable(CacheNames.LESSON_NEXT, key = "#currentLesson")
-    override fun findNextLessonId(currentLesson: UUID): UUID? {
-        return lessonRepository.findNextLessonId(currentLesson)
-    }
-
-    @Cacheable(CacheNames.LESSON_COURSE, key = "#lessonId")
-    override fun findCourseIdForLesson(lessonId: UUID): UUID {
-       return lessonRepository.findCourseIdByLesson(lessonId) ?: throw ApiException(ErrorCode.COURSE_NOT_FOUND)
-    }
-
-    @Cacheable(CacheNames.LESSON_TREE, key = "#lessonId")
-    override fun findLessonIdTree(lessonId: UUID) : LessonTreeWithIdDTO {
-       val raw = lessonRepository.findLessonIdTree(lessonId) ?: throw ApiException(ErrorCode.TREE_NOT_FOUND)
-        return LessonTreeWithIdDTO(raw.lessonId, raw.moduleId, raw.courseId, raw.nextLessonId)
     }
 
     override fun findLessonResponseById(lessonId: UUID, userId: UUID): LessonResponse {
