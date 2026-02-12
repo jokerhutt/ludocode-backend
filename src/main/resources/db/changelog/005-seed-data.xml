@@ -199,11 +199,11 @@
 
     <changeSet id="005-12-course-progress" author="dave" context="dev" dbms="postgresql">
         <sql>
-            INSERT INTO course_progress (user_id, course_id, current_lesson_id, is_complete)
+            INSERT INTO course_progress (user_id, course_id, current_module_id, is_complete)
             VALUES (
                        '598ccbea-4957-4569-81cb-ea901b62c329',
                        '75975805-3f02-43c2-9106-c990d944dfd2',
-                       '7eeaaddd-2d87-495e-bd40-24cfd9f06b4b',
+                       'a99d4abd-895f-4a4b-b4ea-570fac609f6f',
                        false
                    )
             ON CONFLICT (user_id, course_id) DO NOTHING;

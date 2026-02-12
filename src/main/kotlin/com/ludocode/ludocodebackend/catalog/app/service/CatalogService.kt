@@ -50,6 +50,11 @@ class CatalogService(
        return lessonRepository.findFirstLessonIdInCourse(courseId) ?: throw ApiException(ErrorCode.LESSON_NOT_FOUND)
     }
 
+    @Cacheable(CacheNames.COURSE_FIRST_MODULE, key = "#courseId")
+    override fun findFirstModuleIdInCourse(courseId: UUID): UUID {
+        return lessonRepository.findFirstModuleIdInCourse(courseId) ?: throw ApiException(ErrorCode.LESSON_NOT_FOUND)
+    }
+
     @Cacheable(CacheNames.LESSON_MODULE, key = "#lessonId")
     override fun findModuleIdForLesson(lessonId: UUID): UUID {
        return lessonRepository.findModuleIdForLesson(lessonId) ?: throw ApiException(ErrorCode.MODULE_NOT_FOUND_FOR_LESSON)

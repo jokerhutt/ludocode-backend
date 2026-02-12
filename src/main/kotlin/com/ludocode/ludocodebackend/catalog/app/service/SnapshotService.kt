@@ -28,6 +28,7 @@ import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsReposi
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.OptionContentRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.SubjectRepository
+import com.ludocode.ludocodebackend.commons.constants.CacheNames
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
@@ -37,6 +38,8 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Caching
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -169,6 +172,19 @@ class SnapshotService(
         return snapshotBuilderService.buildCourseSnapshot(courseId)
     }
 
+    @Caching(
+        evict = [
+            CacheEvict(cacheNames = [CacheNames.COURSE_TREE], key = "#courseId"),
+            CacheEvict(cacheNames = [CacheNames.COURSE_FIRST_LESSON], key = "#courseId"),
+            CacheEvict(cacheNames = [CacheNames.COURSE_FIRST_MODULE], key = "#courseId"),
+            CacheEvict(cacheNames = [CacheNames.COURSE_LIST], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.LESSON_TREE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.LESSON_NEXT], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.LESSON_MODULE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.LESSON_COURSE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.LESSON_EXERCISES], allEntries = true)
+        ]
+    )
     @Transactional
     fun applyCurriculumDiffs(courseId: UUID, snapshot: CurriculumDraftSnapshot): CurriculumDraftSnapshot {
         courseRepository.findById(courseId).orElseThrow()

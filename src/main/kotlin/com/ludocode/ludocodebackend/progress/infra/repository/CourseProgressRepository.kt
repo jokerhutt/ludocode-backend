@@ -3,7 +3,6 @@ package com.ludocode.ludocodebackend.progress.infra.repository
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.infra.projection.CourseLessonStatsProjection
-import com.ludocode.ludocodebackend.progress.infra.projection.CourseProgressWithModuleProjection
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -24,42 +23,6 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
         nativeQuery = true
     )
     fun existsByUser(@Param("userId") userId: UUID): Boolean
-
-    @Query(value = """
-  SELECT 
-    cp.course_id         AS courseId,
-    cp.user_id           AS userId,
-    cp.current_lesson_id AS currentLessonId,
-    cp.updated_at        AS updatedAt,
-    ml.module_id         AS moduleId
-  FROM course_progress cp
-  JOIN module_lessons ml
-    ON ml.lesson_id = cp.current_lesson_id
-  JOIN module m
-    ON m.id = ml.module_id
-   AND m.course_id = cp.course_id
-  WHERE cp.user_id = :userId
-    AND cp.course_id = :courseId
-""", nativeQuery = true)
-    fun findProgressWithModule(
-        @Param("userId") userId: UUID,
-        @Param("courseId") courseId: UUID
-    ): CourseProgressWithModuleProjection
-
-    @Modifying
-    @Query("""
-    UPDATE course_progress
-    SET current_lesson_id = :newLessonId,
-        is_complete = false
-    WHERE user_id = :userId
-      AND course_id = :courseId
-""", nativeQuery = true)
-    fun resetCourseProgressForUser(
-        @Param("userId") userId: UUID,
-        @Param("courseId") courseId: UUID,
-        @Param("newLessonId") newLessonId: UUID
-    )
-
 
     @Query(
         value = """
@@ -83,27 +46,10 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
     )
     fun findCurrentCourseIdForUser(@Param("userId") userId: UUID): UUID?
 
-    @Query(value = """
-  SELECT 
-    cp.course_id         AS courseId,
-    cp.user_id           AS userId,
-    cp.current_lesson_id AS currentLessonId,
-    ml.module_id         AS moduleId,
-    cp.updated_at        AS updatedAt
-  FROM course_progress cp
-  JOIN module_lessons ml
-    ON ml.lesson_id = cp.current_lesson_id
-  JOIN module m
-    ON m.id = ml.module_id
-   AND m.course_id = cp.course_id
-  WHERE cp.user_id = :userId
-    AND cp.course_id IN (:courseIds)
-""", nativeQuery = true)
-    fun findAllProgressWithModulesByUserAndCourses(
-        @Param("userId") userId: UUID,
-        @Param("courseIds") courseIds: List<UUID>
-    ): List<CourseProgressWithModuleProjection>
-
+    fun findByIdUserIdAndIdCourseIdIn(
+        userId: UUID,
+        courseIds: List<UUID>
+    ): List<CourseProgress>
 
     @Query(
         value = """
@@ -124,39 +70,58 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
     """,
         nativeQuery = true
     )
-    fun findCourseLessonStats(
+    fun findCourseLessonStatsList(
         @Param("userId") userId: UUID,
         @Param("courseIds") courseIds: List<UUID>
     ): List<CourseLessonStatsProjection>
 
-    @Modifying
     @Query(
-        """
-  INSERT INTO course_progress (
-    user_id, course_id, current_lesson_id, is_complete, created_at, updated_at
-  ) VALUES (:userId, :courseId, :firstLessonId, false, :now, :now)
-  ON CONFLICT (user_id, course_id) DO UPDATE
-  SET current_lesson_id = COALESCE(course_progress.current_lesson_id, EXCLUDED.current_lesson_id),
-      updated_at        = :now
-  """,
+        value = """
+        SELECT
+            m.course_id                  AS courseId,
+            COUNT(DISTINCT ml.lesson_id) AS totalLessons,
+            COUNT(DISTINCT lc.lesson_id) AS completedLessons
+        FROM module m
+        JOIN module_lessons ml
+            ON ml.module_id = m.id
+        LEFT JOIN lesson_completion lc
+            ON lc.lesson_id = ml.lesson_id
+           AND lc.user_id = :userId
+           AND lc.is_deleted = false
+        WHERE m.course_id = :courseId
+          AND m.is_deleted = false
+        GROUP BY m.course_id
+    """,
         nativeQuery = true
     )
-    fun upsert(userId: UUID, courseId: UUID, firstLessonId: UUID, @Param("now") now: OffsetDateTime): Int
+    fun findSingleCourseStats(
+        @Param("userId") userId: UUID,
+        @Param("courseId") courseId: UUID
+    ): CourseLessonStatsProjection?
 
-    //CAN STAY
+
+
     @Modifying
     @Query(
         """
-    update course_progress
-       set is_complete = true
-       where user_id = :userId
-       and course_id = :courseId
-    """, nativeQuery = true
+    INSERT INTO course_progress (
+      user_id, course_id, current_module_id, is_complete, created_at, updated_at
     )
-    fun markCourseComplete(userId: UUID, courseId: UUID): Int
-
-
-
-
+    VALUES (:userId, :courseId, :firstModuleId, false, :now, :now)
+    ON CONFLICT (user_id, course_id) DO UPDATE
+    SET current_module_id = COALESCE(
+          course_progress.current_module_id,
+          EXCLUDED.current_module_id
+        ),
+        updated_at = :now
+    """,
+        nativeQuery = true
+    )
+    fun upsert(
+        @Param("userId") userId: UUID,
+        @Param("courseId") courseId: UUID,
+        @Param("firstModuleId") firstModuleId: UUID,
+        @Param("now") now: OffsetDateTime
+    ): Int
 
 }

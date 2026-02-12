@@ -81,6 +81,10 @@ class RedisConfig (private val redisProps: RedisProps) {
                 valueCache(objectMapper, UUID::class.java, Duration.ofMinutes(60))
             )
             .withCacheConfiguration(
+                CacheNames.COURSE_FIRST_MODULE,
+                valueCache(objectMapper, UUID::class.java, Duration.ofMinutes(60))
+            )
+            .withCacheConfiguration(
                 CacheNames.LESSON_MODULE,
                 valueCache(objectMapper, UUID::class.java, Duration.ofMinutes(60))
             )
