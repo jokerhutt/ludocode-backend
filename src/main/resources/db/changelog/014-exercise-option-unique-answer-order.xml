@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="2026-02-13-drop-uq-exercise-option-triplet" author="dave">
+        <dropUniqueConstraint
+                tableName="exercise_option"
+                constraintName="uq_exercise_option_triplet"/>
+    </changeSet>
+
+    <changeSet id="2026-02-13-add-uq-exercise-option-answer-order" author="dave">
+        <sql>
+            CREATE UNIQUE INDEX uq_exercise_option_answer_order
+                ON exercise_option (exercise_id, exercise_version, answer_order)
+                WHERE answer_order IS NOT NULL;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

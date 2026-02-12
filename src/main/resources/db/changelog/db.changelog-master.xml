@@ -18,6 +18,7 @@
     <include file="/db/changelog/011-enhance-languages.xml"/>
     <include file="/db/changelog/012-move-language-from-subject-to-course.xml"/>
     <include file="/db/changelog/013-replace-current-lesson-with-module.xml"/>
+    <include file="/db/changelog/014-exercise-option-unique-answer-order.xml"/>
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>
 
