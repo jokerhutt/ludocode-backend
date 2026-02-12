@@ -30,7 +30,7 @@ class OnboardingIT : AbstractIntegrationTest() {
 
         assertThat(res.courseProgressResponse.courseProgress.courseId).isEqualTo(pythonId)
         assertThat(res.courseProgressResponse.enrolled.size).isEqualTo(1)
-        assertThat(res.courseProgressResponse.courseProgress.currentLessonId).isEqualTo(py1L1)
+        assertThat(res.courseProgressResponse.courseProgress.moduleId).isEqualTo(pyMod1Id)
         assertThat(res.refreshedUser.displayName).isEqualTo(submission.selectedUsername)
 
         assertThat(res.preferences.chosenPath).isEqualTo(DesiredPath.DATA)

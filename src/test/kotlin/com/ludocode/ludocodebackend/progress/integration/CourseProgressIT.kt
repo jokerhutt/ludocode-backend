@@ -26,14 +26,14 @@ class CourseProgressIT : AbstractIntegrationTest() {
         val user: User = user1
 
         val course1Id = pythonId
-        val course1CurrentLesson = py2L2
+        val course1CurrentModule = pyMod2Id
 
         val course2Id = swiftId
-        val course2CurrentLesson = sw1L3
+        val course2CurrentModule = swMod1Id
 
         courseProgressRepository.saveAll(listOf(
-            CourseProgress(id = CourseProgressId(user.id!!, course1Id), currentLessonId = course1CurrentLesson, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
-            CourseProgress(id = CourseProgressId(user.id!!, course2Id), currentLessonId = course2CurrentLesson, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
+            CourseProgress(id = CourseProgressId(user.id!!, course1Id), currentModuleId = course1CurrentModule, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
+            CourseProgress(id = CourseProgressId(user.id!!, course2Id), currentModuleId = course2CurrentModule, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
         ))
 
         val courseToReset = course1Id
@@ -43,7 +43,6 @@ class CourseProgressIT : AbstractIntegrationTest() {
         assertThat(response).isNotNull()
         assertThat(response.courseId).isEqualTo(courseToReset)
         assertThat(response.moduleId).isEqualTo(pyMod1Id)
-        assertThat(response.currentLessonId).isEqualTo(py1L1)
 
     }
 
@@ -54,15 +53,13 @@ class CourseProgressIT : AbstractIntegrationTest() {
 
         val course1Id = pythonId
         val course1CurrentModule = pyMod2Id
-        val course1CurrentLesson = py2L2
 
         val course2Id = swiftId
         val course2CurrentModule = swMod1Id
-        val course2CurrentLesson = sw1L3
 
         val progressList = courseProgressRepository.saveAll(listOf(
-            CourseProgress(id = CourseProgressId(user.id!!, course1Id), currentLessonId = course1CurrentLesson, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
-            CourseProgress(id = CourseProgressId(user.id!!, course2Id), currentLessonId = course2CurrentLesson, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
+            CourseProgress(id = CourseProgressId(user.id!!, course1Id), currentModuleId = course1CurrentModule, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
+            CourseProgress(id = CourseProgressId(user.id!!, course2Id), currentModuleId = course2CurrentModule, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
         ))
 
         val enrolledIds : List<UUID> = progressList.map { progress -> progress.id.courseId!! }
@@ -72,15 +69,13 @@ class CourseProgressIT : AbstractIntegrationTest() {
         assertThat(response.size).isEqualTo(2)
         for (res: CourseProgressResponse in response) {
             assertThat(res.userId).isEqualTo(user.id)
-            assertThat(res.currentLessonId).isNotNull()
+            assertThat(res.moduleId).isNotNull()
         }
 
         val byCourse = response.associateBy { it.courseId }
 
-        assertThat(byCourse[course1Id]!!.currentLessonId).isEqualTo(course1CurrentLesson)
         assertThat(byCourse[course1Id]!!.moduleId).isEqualTo(course1CurrentModule)
 
-        assertThat(byCourse[course2Id]!!.currentLessonId).isEqualTo(course2CurrentLesson)
         assertThat(byCourse[course2Id]!!.moduleId).isEqualTo(course2CurrentModule)
     }
 

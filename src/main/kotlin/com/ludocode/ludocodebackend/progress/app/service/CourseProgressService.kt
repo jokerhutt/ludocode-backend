@@ -11,6 +11,7 @@ import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortFor
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
+import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.Clock
@@ -58,10 +59,12 @@ class CourseProgressService(
 
         val courseProgressStats = courseProgressRepository.findSingleCourseStats(userId, courseId) ?: throw ApiException(
             ErrorCode.COURSE_STATS_NOT_FOUND)
+
+        println("TOTAL: " + courseProgressStats.totalLessons + " COMPLETED: " + courseProgressStats.completedLessons)
         val isCourseComplete = courseProgressStats.completedLessons == courseProgressStats.totalLessons
         var isCourseCompleteForFirstTime = false
 
-        if (!isCourseComplete) {
+        if (isCourseComplete && !courseProgress.isComplete) {
             courseProgress.isComplete = true
             isCourseCompleteForFirstTime = true
         }

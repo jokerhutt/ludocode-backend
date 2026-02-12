@@ -31,13 +31,13 @@ class UpdateCourseIT : AbstractIntegrationTest() {
             listOf(
                 CourseProgress(
                     id = CourseProgressId(user.id!!, pythonId),
-                    currentLessonId = py1L3,
+                    currentModuleId = pyMod1Id,
                     updatedAt = now.minusDays(1),
                     createdAt = now.minusDays(2),
                 ),
                 CourseProgress(
                     id = CourseProgressId(user.id!!, swiftId),
-                    currentLessonId = sw1L3,
+                    currentModuleId = swMod1Id,
                     updatedAt = now,
                     createdAt = now.minusDays(1)
                 )
@@ -52,7 +52,7 @@ class UpdateCourseIT : AbstractIntegrationTest() {
 
         assertThat(courseProgressResponse.courseId).isEqualTo(swiftId)
         assertThat(courseProgressResponse.userId).isEqualTo(user.id)
-        assertThat(courseProgressResponse.currentLessonId).isEqualTo(sw1L3)
+        assertThat(courseProgressResponse.moduleId).isEqualTo(swMod1Id)
 
     }
 
@@ -62,13 +62,13 @@ class UpdateCourseIT : AbstractIntegrationTest() {
         courseProgressRepository.deleteAll()
         val user = user1
         val newCourse = pythonId
-        val firstLessonOfCourse = py1L1
+        val firstModuleOfCourse = pyMod1Id
 
         val response = submitPostUpdateCurrentCourse(user.id!!, newCourse)
 
         assertThat(response).isNotNull()
         assertThat(response.courseProgress.courseId).isEqualTo(newCourse)
-        assertThat(response.courseProgress.currentLessonId).isEqualTo(firstLessonOfCourse)
+        assertThat(response.courseProgress.moduleId).isEqualTo(firstModuleOfCourse)
 
     }
 
