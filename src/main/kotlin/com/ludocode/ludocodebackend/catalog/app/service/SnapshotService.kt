@@ -193,13 +193,26 @@ class SnapshotService(
 
             moduleSnapshot.lessons.forEachIndexed { lessonIndex, lessonSnapshot ->
 
-                val lesson =
-                    lessonRepository.findActiveById(lessonSnapshot.id)
-                        ?: Lesson(
-                            id = lessonSnapshot.id,
-                            title = lessonSnapshot.title,
-                            isDeleted = false
-                        )
+                val existing = lessonRepository.findActiveById(lessonSnapshot.id)
+
+                val isNewLesson = existing == null
+
+                val lesson = existing ?: Lesson(
+                    id = lessonSnapshot.id,
+                    title = lessonSnapshot.title,
+                    isDeleted = false
+                )
+
+                if (isNewLesson) {
+                    val newExercise = exerciseRepository.save(Exercise(
+                        exerciseId = ExerciseId(UUID.randomUUID(), 1),
+                        title = "Placeholder Exercise",
+                        prompt = "Change me",
+                        exerciseType = ExerciseType.INFO,
+                        isDeleted = false
+                    ))
+                    lessonExercisesRepository.save(LessonExercise(LessonExercisesId(lesson.id, 1), newExercise.exerciseId.id, newExercise.exerciseId.versionNumber))
+                }
 
                 lesson.title = lessonSnapshot.title
                 lessonRepository.save(lesson)
