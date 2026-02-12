@@ -1,7 +1,10 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonDraftSnapshot
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotBuilderService
 import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
@@ -71,7 +74,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         val mutatedCourse =
             pythonSnap.copy(
                 modules = pythonSnap.modules
-                    .filter { it.moduleId != moduleToDelete.moduleId } // remove module entirely
+                    .filter { it.moduleId != moduleToDelete.moduleId }
                     .map { m -> if (m.moduleId == mutatedModule.moduleId) mutatedModule else m }
             )
 
@@ -97,6 +100,79 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         assertThat(changedModule.lessons.any { it.id == lessonToDelete.id }).isFalse
         assertThat(changedLessonNew.exercises.any { it.id == exerciseToDelete.id }).isFalse
     }
+
+    @Test
+    fun submitCurriculumChange_returnsChanged() {
+        val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
+
+        val pythonCurriculum = CurriculumDraftSnapshot(
+            modules = pythonSnap.modules.map { module ->
+                ModuleDraftSnapshot(
+                    id = module.moduleId,
+                    title = module.title,
+                    lessons = module.lessons.map { lesson ->
+                        LessonDraftSnapshot(
+                            id = lesson.id,
+                            title = lesson.title
+                        )
+                    }
+                )
+            }
+        )
+
+        val moduleIndex = 1
+
+        val lessonToChange =
+            pythonCurriculum.modules[moduleIndex].lessons[0]
+
+        lessonToChange.title = "First lesson title"
+
+        val firstLessonToAdd = LessonDraftSnapshot(
+            id = UUID.randomUUID(),
+            title = "New Lesson"
+        )
+
+        val secondLessonToAdd = LessonDraftSnapshot(
+            id = UUID.randomUUID(),
+            title = "New Lesson"
+        )
+
+        pythonCurriculum.modules[moduleIndex].lessons =
+            pythonCurriculum.modules[moduleIndex].lessons +
+                    listOf(firstLessonToAdd, secondLessonToAdd)
+
+        val moduleToAdd = ModuleDraftSnapshot(
+            id = UUID.randomUUID(),
+            title = "New Module",
+            lessons = listOf(
+                LessonDraftSnapshot(
+                    id = UUID.randomUUID(),
+                    title = "New Module Lesson"
+                ),
+                LessonDraftSnapshot(
+                    id = UUID.randomUUID(),
+                    title = "New Module Lesson Two"
+                )
+            )
+        )
+
+        pythonCurriculum.modules =
+            pythonCurriculum.modules + moduleToAdd
+
+        val result =
+            submitPostUpdateCurriculum(pythonCurriculum, pythonId)
+
+        assertThat(result).isNotNull()
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .isEqualTo(pythonCurriculum)
+
+    }
+
+    private fun submitPostUpdateCurriculum(req: CurriculumDraftSnapshot, courseId: UUID) : CurriculumDraftSnapshot =
+        TestRestClient.putOk(ApiPaths.SNAPSHOTS.byCourseCurriculumAdmin(courseId), user1.id, req,
+            CurriculumDraftSnapshot::class.java)
 
     private fun submitPostUpdateCatalog(req: CourseSnap): CourseSnap =
         TestRestClient.putOk(ApiPaths.SNAPSHOTS.byCourseAdmin(req.courseId), user1.id!!, req, CourseSnap::class.java)

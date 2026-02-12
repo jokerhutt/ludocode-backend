@@ -2,8 +2,12 @@ package com.ludocode.ludocodebackend.catalog.app.service
 
 import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.SubjectSnap
@@ -71,6 +75,35 @@ class SnapshotBuilderService(
 
     }
 
+
+    fun buildCurriculumSnapshot (courseId: UUID) : CurriculumDraftSnapshot {
+
+        val moduleIds = moduleRepository.findActiveIdsByCourse(courseId)
+        val modules = moduleRepository.findAllByIdIn(moduleIds)
+
+        val moduleDraftSnapshots = modules.map { module ->
+            buildModuleDraftSnapshot(module)
+        }
+
+        return CurriculumDraftSnapshot(modules = moduleDraftSnapshots)
+
+    }
+
+    private fun buildModuleDraftSnapshot (module: Module) : ModuleDraftSnapshot {
+
+        val moduleId = module.id
+        val lessons = moduleLessonsRepository.findActiveLessonsByModuleId(moduleId)
+
+        val lessonDraftSnapshots = lessons.map { lesson ->
+            LessonDraftSnapshot(
+                id = lesson.id,
+                title = lesson.title,
+            )
+        }
+
+        return ModuleDraftSnapshot(id=moduleId, title = module.title, lessons = lessonDraftSnapshots)
+    }
+
     private fun buildModuleSnapshot (module: Module) : ModuleSnap {
 
         val moduleId = module.id
@@ -100,6 +133,17 @@ class SnapshotBuilderService(
             title = module.title,
             lessons = lessonSnapshots
         )
+    }
+
+    fun buildLessonCurriculumSnapshot (lessonId: UUID) : LessonCurriculumDraftSnapshot {
+
+        val exerciseResponses = catalogService.getExercisesByLessonId(lessonId)
+        val exerciseSnapshots = exerciseResponses.map { exerciseResponse ->
+            buildExerciseSnapshot(exerciseResponse)
+        }
+
+        return LessonCurriculumDraftSnapshot(exerciseSnapshots)
+
     }
 
 

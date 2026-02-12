@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.catalog.app.service
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnap
 import com.ludocode.ludocodebackend.catalog.app.mapper.CourseMapper
@@ -166,6 +167,68 @@ class SnapshotService(
 
     fun getCourseSnapshot (courseId: UUID): CourseSnap {
         return snapshotBuilderService.buildCourseSnapshot(courseId)
+    }
+
+    @Transactional
+    fun applyCurriculumDiffs(courseId: UUID, snapshot: CurriculumDraftSnapshot): CurriculumDraftSnapshot {
+        courseRepository.findById(courseId).orElseThrow()
+
+        val oldModuleIds = moduleRepository.findActiveIdsByCourse(courseId)
+        oldModuleIds.forEach { moduleId ->
+            moduleLessonsRepository.deleteByModuleLessonsIdModuleId(moduleId)
+        }
+
+        moduleRepository.deleteByCourseId(courseId)
+
+        snapshot.modules.forEachIndexed { moduleIndex, moduleSnapshot ->
+
+            val module = Module(
+                id = moduleSnapshot.id,
+                title = moduleSnapshot.title,
+                courseId = courseId,
+                orderIndex = moduleIndex + 1,
+                isDeleted = false
+            )
+            moduleRepository.save(module)
+
+            moduleSnapshot.lessons.forEachIndexed { lessonIndex, lessonSnapshot ->
+
+                val existing = lessonRepository.findActiveById(lessonSnapshot.id)
+
+                val isNewLesson = existing == null
+
+                val lesson = existing ?: Lesson(
+                    id = lessonSnapshot.id,
+                    title = lessonSnapshot.title,
+                    isDeleted = false
+                )
+
+                if (isNewLesson) {
+                    val newExercise = exerciseRepository.save(Exercise(
+                        exerciseId = ExerciseId(UUID.randomUUID(), 1),
+                        title = "Placeholder Exercise",
+                        prompt = "Change me",
+                        exerciseType = ExerciseType.INFO,
+                        isDeleted = false
+                    ))
+                    lessonExercisesRepository.save(LessonExercise(LessonExercisesId(lesson.id, 1), newExercise.exerciseId.id, newExercise.exerciseId.versionNumber))
+                }
+
+                lesson.title = lessonSnapshot.title
+                lessonRepository.save(lesson)
+
+                val join = ModuleLesson(
+                    moduleLessonsId = ModuleLessonsId(
+                        moduleId = module.id,
+                        orderIndex = lessonIndex + 1
+                    ),
+                    lessonId = lessonSnapshot.id
+                )
+                moduleLessonsRepository.save(join)
+            }
+        }
+
+        return snapshot
     }
 
     private fun applyLessonDiffs(reqModuleSnap: ModuleSnap) {

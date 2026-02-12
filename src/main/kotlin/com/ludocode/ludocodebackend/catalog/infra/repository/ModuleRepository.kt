@@ -26,6 +26,9 @@ interface ModuleRepository : JpaRepository<Module, UUID> {
         """, nativeQuery = true)
     fun findActiveById(@Param("moduleId") moduleId: UUID): Module?
 
+
+    fun deleteByCourseId(courseId: UUID)
+
     @Query(value = """
   SELECT
     m.id            AS moduleId,

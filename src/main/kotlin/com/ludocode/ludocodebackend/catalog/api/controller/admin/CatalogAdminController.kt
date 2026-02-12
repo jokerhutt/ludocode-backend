@@ -3,6 +3,9 @@ package com.ludocode.ludocodebackend.catalog.api.controller.admin
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
+import com.ludocode.ludocodebackend.catalog.app.service.SnapshotBuilderService
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import io.swagger.v3.oas.annotations.Operation
@@ -28,7 +31,8 @@ import java.util.UUID
 @RestController
 @RequestMapping(ApiPaths.SNAPSHOTS.ADMIN_BASE)
 class CatalogAdminController(
-                             private val snapshotService: SnapshotService
+    private val snapshotService: SnapshotService,
+    private val snapshotBuilderService: SnapshotBuilderService
 ) {
 
     @Operation(summary = "Submit course snapshot for the selected course id",
@@ -56,6 +60,22 @@ class CatalogAdminController(
     fun getSnapshotsByCourseId(@PathVariable courseId: UUID) : ResponseEntity<CourseSnap> {
         return ResponseEntity.ok(snapshotService.getCourseSnapshot(courseId))
     }
+
+    @GetMapping(ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM)
+    fun getCourseCurriculumByCourseId(@PathVariable courseId: UUID) : ResponseEntity<CurriculumDraftSnapshot> {
+        return ResponseEntity.ok(snapshotBuilderService.buildCurriculumSnapshot(courseId))
+    }
+
+    @GetMapping(ApiPaths.SNAPSHOTS.BY_LESSON_CURRICULUM)
+    fun getLessonCurriculumByCourseId(@PathVariable lessonId: UUID) : ResponseEntity<LessonCurriculumDraftSnapshot> {
+        return ResponseEntity.ok(snapshotBuilderService.buildLessonCurriculumSnapshot(lessonId))
+    }
+
+    @PutMapping(ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM)
+    fun applyCurriculumSnapshot(@RequestBody snapshot: CurriculumDraftSnapshot, @PathVariable courseId: UUID): ResponseEntity<CurriculumDraftSnapshot> {
+        return ResponseEntity.ok(snapshotService.applyCurriculumDiffs(courseId, snapshot))
+    }
+
 
     @Operation(summary = "Create course",
         description = """

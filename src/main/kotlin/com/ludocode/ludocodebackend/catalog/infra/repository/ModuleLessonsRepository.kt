@@ -29,6 +29,8 @@ interface ModuleLessonsRepository : JpaRepository<ModuleLesson, ModuleLessonsId>
         """, nativeQuery = true)
     fun findActiveLessonsByModuleId (@Param("moduleId") moduleId: UUID) : List<Lesson>
 
+    fun deleteByModuleLessonsIdModuleId(moduleId: UUID)
+
     @Query(value = """
         SELECT module_lessons.order_index
         FROM module_lessons
@@ -45,6 +47,7 @@ interface ModuleLessonsRepository : JpaRepository<ModuleLesson, ModuleLessonsId>
 """
     )
     fun deleteLessonsInModule(@Param("moduleId") moduleId: UUID)
+
 
     @Query(value = """
         SELECT module_id
