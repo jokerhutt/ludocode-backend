@@ -101,6 +101,7 @@ object ApiPaths {
         fun byCourse(courseId: UUID): String = "$BASE/$courseId"
         fun byCourseCurriculum(courseId: UUID): String = "$BASE$CURRICULUM$BY_COURSE"
         fun byCourseCurriculumAdmin(courseId: UUID): String = "$ADMIN_BASE$CURRICULUM/$courseId"
+        fun byLessonCurriculumAdmin(lessonId: UUID): String = "$ADMIN_BASE$CURRICULUM/lesson/$lessonId"
         fun byCourseAdmin(courseId: UUID): String = "$ADMIN_BASE/$courseId"
     }
 

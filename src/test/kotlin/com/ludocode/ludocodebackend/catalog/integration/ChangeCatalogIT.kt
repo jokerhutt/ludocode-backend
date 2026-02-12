@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.catalog.integration
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
@@ -248,6 +249,55 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
     }
 
+    @Test
+    fun submitExercisesChangeWithDeletions_returnsChangedWithDeletions() {
+        val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
+
+        val lessonToChange = pythonSnap.modules[0].lessons[0]
+
+        val lessonCurriculum = LessonCurriculumDraftSnapshot(
+            exercises = lessonToChange.exercises
+        )
+
+        val exerciseToDelete = lessonCurriculum.exercises[0]
+        val exerciseToAdd1 = ExerciseSnap(
+            id = UUID.randomUUID(),
+            title = "New INFO exercise",
+            subtitle = null,
+            prompt = null,
+            media = null,
+            exerciseType = ExerciseType.INFO,
+            correctOptions = listOf(),
+            distractors = listOf()
+        )
+        val exerciseToAdd2 = ExerciseSnap(
+            id = UUID.randomUUID(),
+            title = "New CLOZE exercise",
+            subtitle = "You must wrap text in quotes",
+            prompt = "print(___i love python___)",
+            media = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIbjxOIxdHAylWUgy-LqVNWa9ID3VmUy8Lxg&s",
+            exerciseType = ExerciseType.CLOZE,
+            correctOptions = listOf(OptionSnap("'", exerciseOptionId = UUID.randomUUID(), answerOrder = 1), OptionSnap("'", exerciseOptionId = UUID.randomUUID(), answerOrder = 2)),
+            distractors = listOf(OptionSnap("+", exerciseOptionId = UUID.randomUUID(), answerOrder = null))
+        )
+
+        lessonCurriculum.exercises = lessonCurriculum.exercises - exerciseToDelete
+        lessonCurriculum.exercises = lessonCurriculum.exercises + exerciseToAdd1
+        lessonCurriculum.exercises = lessonCurriculum.exercises + exerciseToAdd2
+
+        val result = submitPostUpdateExerciseCatalog(lessonToChange.id, lessonCurriculum)
+
+        assertThat(result).isNotNull()
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .ignoringFieldsMatchingRegexes(".*exerciseOptionId")
+            .isEqualTo(lessonCurriculum)
+
+
+
+    }
+
 
 
 
@@ -258,5 +308,10 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
     private fun submitPostUpdateCatalog(req: CourseSnap): CourseSnap =
         TestRestClient.putOk(ApiPaths.SNAPSHOTS.byCourseAdmin(req.courseId), user1.id!!, req, CourseSnap::class.java)
+
+    private fun submitPostUpdateExerciseCatalog(lessonId: UUID, req: LessonCurriculumDraftSnapshot): LessonCurriculumDraftSnapshot =
+        TestRestClient.putOk(ApiPaths.SNAPSHOTS.byLessonCurriculumAdmin(lessonId), user1.id!!, req, LessonCurriculumDraftSnapshot::class.java)
+
+
 
 }
