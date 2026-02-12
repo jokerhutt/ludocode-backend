@@ -48,12 +48,4 @@ interface ModuleLessonsRepository : JpaRepository<ModuleLesson, ModuleLessonsId>
     )
     fun deleteLessonsInModule(@Param("moduleId") moduleId: UUID)
 
-
-    @Query(value = """
-        SELECT module_id
-        FROM module_lessons
-        WHERE lesson_id = :lessonId
-        """, nativeQuery = true)
-    fun findModuleIdForLesson(@Param("lessonId") lessonId: UUID): UUID?
-
 }

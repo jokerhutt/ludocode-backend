@@ -65,10 +65,6 @@ class RedisConfig (private val redisProps: RedisProps) {
                 valueCache(objectMapper, FlatCourseTreeResponse::class.java, Duration.ofMinutes(30))
             )
             .withCacheConfiguration(
-                CacheNames.LESSON_TREE,
-                valueCache(objectMapper, LessonTreeWithIdDTO::class.java, Duration.ofMinutes(30))
-            )
-            .withCacheConfiguration(
                 CacheNames.COURSE_LIST,
                 listCache(objectMapper, CourseResponse::class.java, Duration.ofMinutes(10))
             )
@@ -77,23 +73,11 @@ class RedisConfig (private val redisProps: RedisProps) {
                 listCache(objectMapper, ExerciseResponse::class.java, Duration.ofMinutes(10))
             )
             .withCacheConfiguration(
-                CacheNames.COURSE_FIRST_LESSON,
-                valueCache(objectMapper, UUID::class.java, Duration.ofMinutes(60))
-            )
-            .withCacheConfiguration(
                 CacheNames.COURSE_FIRST_MODULE,
                 valueCache(objectMapper, UUID::class.java, Duration.ofMinutes(60))
             )
             .withCacheConfiguration(
                 CacheNames.LESSON_MODULE,
-                valueCache(objectMapper, UUID::class.java, Duration.ofMinutes(60))
-            )
-            .withCacheConfiguration(
-                CacheNames.LESSON_NEXT,
-                valueCache(objectMapper, UUID::class.java, Duration.ofMinutes(60))
-            )
-            .withCacheConfiguration(
-                CacheNames.LESSON_COURSE,
                 valueCache(objectMapper, UUID::class.java, Duration.ofMinutes(60))
             )
             .withCacheConfiguration(
