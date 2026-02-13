@@ -75,6 +75,21 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
         @Param("courseIds") courseIds: List<UUID>
     ): List<CourseLessonStatsProjection>
 
+    @Modifying
+    @Query(
+        """
+    UPDATE course_progress
+    SET is_complete = false,
+        updated_at = :now
+    WHERE course_id = :courseId
+    """,
+        nativeQuery = true
+    )
+    fun markCourseIncompleteForAllUsers(
+        @Param("courseId") courseId: UUID,
+        @Param("now") now: OffsetDateTime
+    ): Int
+
     @Query(
         value = """
         SELECT

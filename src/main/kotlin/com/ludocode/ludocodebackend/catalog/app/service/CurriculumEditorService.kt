@@ -21,10 +21,12 @@ import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsReposi
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.OptionContentRepository
 import com.ludocode.ludocodebackend.commons.constants.CacheNames
+import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import jakarta.transaction.Transactional
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Caching
 import org.springframework.stereotype.Service
+import java.time.OffsetDateTime
 import java.util.UUID
 
 @Service
@@ -37,7 +39,8 @@ class CurriculumEditorService(
     private val lessonExercisesRepository: LessonExercisesRepository,
     private val exerciseOptionRepository: ExerciseOptionRepository,
     private val snapshotBuilderService: SnapshotBuilderService,
-    private val optionContentRepository: OptionContentRepository
+    private val optionContentRepository: OptionContentRepository,
+    private val courseProgressRepository: CourseProgressRepository
 ) {
 
     @Caching(
@@ -92,6 +95,10 @@ class CurriculumEditorService(
                         isDeleted = false
                     ))
                     lessonExercisesRepository.save(LessonExercise(LessonExercisesId(lesson.id, 1), newExercise.exerciseId.id, newExercise.exerciseId.versionNumber))
+                }
+
+                if (isNewLesson) {
+                    courseProgressRepository.markCourseIncompleteForAllUsers(courseId, OffsetDateTime.now())
                 }
 
                 lesson.title = lessonSnapshot.title
