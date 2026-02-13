@@ -95,4 +95,6 @@ interface LessonExercisesRepository : JpaRepository<LessonExercise, LessonExerci
         """, nativeQuery = true)
     fun deleteExerciseInLesson(@Param("lessonId") lessonId: UUID)
 
+    fun deleteAllByLessonExercisesIdLessonId(lessonId: UUID)
+
 }

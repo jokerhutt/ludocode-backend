@@ -346,7 +346,7 @@ class SnapshotService(
         for (i in 0 until allOptions.size) {
             val option = allOptions[i]
             optionContentRepository.upsertOption(id = UUID.randomUUID(), option.content)
-            val dbOption = optionContentRepository.findOptionContentByContent(option.content)
+            val dbOption = optionContentRepository.findByContent(option.content)
             val newExerciseOption = ExerciseOption(
                 id = UUID.randomUUID(),
                 exerciseId = dbExerciseId,

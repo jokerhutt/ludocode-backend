@@ -23,11 +23,6 @@ interface OptionContentRepository : JpaRepository<OptionContent, UUID> {
     fun findAllByContentIn(contents: Collection<String>): List<OptionContent>
 
 
-    @Query(value = """
-        SELECT *
-        FROM option_content
-        WHERE option_content.content = :content
-        """, nativeQuery = true)
-    fun findOptionContentByContent(@Param("content") content: String) : OptionContent?
+    fun findByContent(content: String): OptionContent?
 
 }
