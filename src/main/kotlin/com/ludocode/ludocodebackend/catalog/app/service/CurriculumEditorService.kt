@@ -1,13 +1,19 @@
 package com.ludocode.ludocodebackend.catalog.app.service
+import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
+import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
+import com.ludocode.ludocodebackend.catalog.app.mapper.CourseMapper
+import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
 import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
 import com.ludocode.ludocodebackend.catalog.domain.entity.LessonExercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
+import com.ludocode.ludocodebackend.catalog.domain.entity.Subject
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.LessonExercisesId
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
@@ -20,11 +26,20 @@ import com.ludocode.ludocodebackend.catalog.infra.repository.LessonRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.OptionContentRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.SubjectRepository
 import com.ludocode.ludocodebackend.commons.constants.CacheNames
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import jakarta.transaction.Transactional
+import net.logstash.logback.argument.StructuredArguments.kv
+import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Caching
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -40,8 +55,13 @@ class CurriculumEditorService(
     private val exerciseOptionRepository: ExerciseOptionRepository,
     private val snapshotBuilderService: SnapshotBuilderService,
     private val optionContentRepository: OptionContentRepository,
-    private val courseProgressRepository: CourseProgressRepository
+    private val courseProgressRepository: CourseProgressRepository,
+    private val courseMapper: CourseMapper,
+    private val subjectRepository: SubjectRepository,
+    private val codeLanguagesRepository: CodeLanguagesRepository
 ) {
+
+    private val logger = LoggerFactory.getLogger(CurriculumEditorService::class.java)
 
     @Caching(
         evict = [
@@ -184,6 +204,105 @@ class CurriculumEditorService(
 
 
         }
+
+    }
+
+    @Transactional
+    internal fun createCourse (request: CreateCourseRequest) : List<CourseResponse> {
+        val newCourseName = request.courseTitle
+        val newCourseHash = request.requestHash
+        val newCourseSubject = request.courseSubject
+        val newCourseType = request.courseType
+
+        val newCourseId = UUID.randomUUID()
+        val newModuleId = UUID.randomUUID()
+        val newLessonId = UUID.randomUUID()
+        val newExerciseId = UUID.randomUUID()
+
+        val codeLanguage =
+            request.languageId?.let { id ->
+                codeLanguagesRepository.findByIdOrNull(id)
+                    ?: throw ApiException(ErrorCode.LANGUAGE_NOT_FOUND)
+            }
+
+        val subject =
+            subjectRepository.findBySlugAndName(newCourseSubject.slug, newCourseSubject.name)
+                ?: subjectRepository.save(
+                    Subject(
+                        slug = newCourseSubject.slug,
+                        name = newCourseSubject.name,
+                    )
+                )
+
+        val newCourse = Course(
+            id = newCourseId,
+            title = newCourseName,
+            requestHash = newCourseHash,
+            courseType = newCourseType,
+            subject = subject,
+            language = codeLanguage
+
+        )
+
+        courseRepository.save(newCourse)
+
+        val newModuleTitle = "Intro to $newCourseName"
+
+        val newModule = Module (
+            id = newModuleId,
+            title = newModuleTitle,
+            isDeleted = false,
+            orderIndex = 1,
+            courseId = newCourseId
+        )
+        moduleRepository.save(newModule)
+
+        val newLesson = Lesson (
+            id = newLessonId,
+            title = "Hello world!",
+            isDeleted = false,
+        )
+
+        lessonRepository.save(newLesson)
+
+        val newModuleLesson = ModuleLesson(
+            moduleLessonsId = ModuleLessonsId(newModuleId, 1),
+            lessonId = newLessonId
+        )
+
+        moduleLessonsRepository.save(newModuleLesson)
+
+        val newExerciseTitle = "Welcome to $newCourseName"
+
+        val newExercise = Exercise (
+            exerciseId = ExerciseId(newExerciseId, 1),
+            title = newExerciseTitle,
+            prompt = null,
+            subtitle = null,
+            exerciseType = ExerciseType.INFO,
+            exerciseMedia = null,
+            isDeleted = false
+        )
+
+        exerciseRepository.save(newExercise)
+
+        val newLessonExercise = LessonExercise(
+            lessonExercisesId = LessonExercisesId(newLessonId, 1),
+            exerciseId = newExerciseId,
+            exerciseVersion = newExercise.exerciseId.versionNumber
+        )
+
+        lessonExercisesRepository.save(newLessonExercise)
+
+        logger.info(
+            LogEvents.COURSE_CREATED + " {} {} {} {}",
+            kv(LogFields.COURSE_ID, newCourseId.toString()),
+            kv(LogFields.MODULE_COUNT, 1),
+            kv(LogFields.LESSON_COUNT, 1),
+            kv(LogFields.EXERCISE_COUNT, 1)
+        )
+
+        return courseMapper.toCourseResponseList(courseRepository.findAll())
 
     }
 
