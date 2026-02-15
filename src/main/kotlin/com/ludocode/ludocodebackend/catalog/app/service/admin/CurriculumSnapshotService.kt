@@ -1,13 +1,10 @@
 package com.ludocode.ludocodebackend.catalog.app.service.admin
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleDraftSnapshot
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.SubjectSnap
 import com.ludocode.ludocodebackend.catalog.app.mapper.CourseMapper
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
@@ -23,11 +20,8 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
-import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.LessonSnap
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.OptionSnap
-import com.ludocode.ludocodebackend.lesson.app.service.LessonService
 import com.ludocode.ludocodebackend.lesson.app.service.admin.LessonSnapshotService
 import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
 import com.ludocode.ludocodebackend.lesson.domain.entity.ExerciseOption
@@ -56,9 +50,7 @@ import java.util.UUID
 class CurriculumSnapshotService(
     private val courseRepository: CourseRepository,
     private val moduleRepository: ModuleRepository,
-    private val languagesMapper: LanguagesMapper,
     private val moduleLessonsRepository: ModuleLessonsRepository,
-    private val lessonService: LessonService,
     private val lessonSnapshotService: LessonSnapshotService,
     private val exerciseRepository: ExerciseRepository,
     private val lessonExercisesRepository: LessonExercisesRepository,
@@ -315,35 +307,6 @@ class CurriculumSnapshotService(
 
     }
 
-    @Transactional
-    fun buildCourseSnapshot (courseId: UUID): CourseSnap {
-
-        val course = courseRepository.findById(courseId).orElseThrow{ ApiException(ErrorCode.COURSE_NOT_FOUND) }
-        val moduleIds = moduleRepository.findActiveIdsByCourse(courseId)
-        val modules = moduleRepository.findAllByIdIn(moduleIds)
-
-        logger.info(
-            LogEvents.COURSE_SNAPSHOT_BUILT + " {} {}",
-            kv(LogFields.COURSE_ID, courseId.toString()),
-            kv(LogFields.MODULE_COUNT, modules.size),
-        )
-
-        val moduleSnapshots = modules.map { module ->
-            buildModuleSnapshot(module)
-        }
-
-        val subject = course.subject
-
-        val codeLanguage = course.language?.let { lang -> languagesMapper.toLanguageMetadata(lang) }
-
-        val subjectSnap = SubjectSnap(slug = subject.slug, name = subject.name)
-
-        return CourseSnap(courseId, course.title, courseType = course.courseType, courseSubject = subjectSnap, codeLanguage,moduleSnapshots)
-
-
-    }
-
-
     fun buildCurriculumSnapshot (courseId: UUID) : CurriculumDraftSnapshot {
 
         val moduleIds = moduleRepository.findActiveIdsByCourse(courseId)
@@ -357,7 +320,7 @@ class CurriculumSnapshotService(
 
     }
 
-    private fun buildModuleDraftSnapshot (module: com.ludocode.ludocodebackend.catalog.domain.entity.Module) : ModuleDraftSnapshot {
+    private fun buildModuleDraftSnapshot (module: Module) : ModuleDraftSnapshot {
 
         val moduleId = module.id
         val lessons = moduleLessonsRepository.findActiveLessonsByModuleId(moduleId)
@@ -370,37 +333,6 @@ class CurriculumSnapshotService(
         }
 
         return ModuleDraftSnapshot(id=moduleId, title = module.title, lessons = lessonDraftSnapshots)
-    }
-
-    private fun buildModuleSnapshot (module: Module) : ModuleSnap {
-
-        val moduleId = module.id
-
-        val module = moduleRepository.findActiveById(moduleId)
-        val lessons = moduleLessonsRepository.findActiveLessonsByModuleId(moduleId)
-
-        val lessonSnapshots = lessons.map { lesson ->
-            val exerciseResponses = lessonService.getExercisesByLessonId(lesson.id)
-
-            val exerciseSnapshots = exerciseResponses.map { exerciseResponse ->
-                lessonSnapshotService.buildExerciseSnapshot(exerciseResponse)
-            }
-
-            val orderIndex = moduleLessonsRepository.findOrderIndexForLesson(moduleId, lesson.id)
-
-            LessonSnap(
-                id = lesson.id!!,
-                title = lesson.title,
-                orderIndex = orderIndex,
-                exercises = exerciseSnapshots
-            )
-        }
-
-        return ModuleSnap (
-            moduleId = module!!.id,
-            title = module.title,
-            lessons = lessonSnapshots
-        )
     }
 
 

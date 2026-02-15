@@ -1,6 +1,5 @@
 package com.ludocode.ludocodebackend.progress.integration
 
-import com.ludocode.ludocodebackend.catalog.app.service.admin.CurriculumSnapshotService
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.progress.api.dto.request.AttemptToken
@@ -16,7 +15,9 @@ import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
+import com.ludocode.ludocodebackend.support.util.CourseProgressTestUtil
 import com.ludocode.ludocodebackend.support.TestRestClient
+import com.ludocode.ludocodebackend.support.snapshot.TestSnapshotService
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
@@ -28,7 +29,7 @@ import kotlin.test.Test
 class LessonSubmissionIT : AbstractIntegrationTest() {
 
     @Autowired
-    private lateinit var curriculumSnapshotService: CurriculumSnapshotService
+    private lateinit var testSnapshotService: TestSnapshotService
 
     @Test
     fun submitLesson_success_resubmitSameLessonLater_success() {
@@ -36,7 +37,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         val userCoins = userCoinsRepository.save(UserCoins(user1.id!!, 0))
         userStreakRepository.save(UserStreak(userId = user1.id!!))
 
-        val pythonSnap = curriculumSnapshotService.buildCourseSnapshot(pythonId)
+        val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
 
         assertThat(pythonSnap).isNotNull()
 
@@ -109,7 +110,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         val userCoins = userCoinsRepository.save(UserCoins(user1.id!!, 0))
         userStreakRepository.save(UserStreak(userId = user1.id!!))
 
-        val pythonSnap = curriculumSnapshotService.buildCourseSnapshot(pythonId)
+        val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
 
         assertThat(pythonSnap).isNotNull()
 
@@ -173,7 +174,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         val userCoins = userCoinsRepository.save(UserCoins(user1.id!!, 0))
         userStreakRepository.save(UserStreak(userId = user1.id!!))
 
-        val pythonSnap = curriculumSnapshotService.buildCourseSnapshot(pythonId)
+        val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
 
         assertThat(pythonSnap).isNotNull()
 
@@ -254,65 +255,12 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
         courseProgressRepository.saveAll(listOf(
             CourseProgress(id = CourseProgressId(user1.id!!, currentCourse), currentModuleId = pyMod2Id, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
-            CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentModuleId = sw1L3, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
+            CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentModuleId = swMod1Id, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
         ))
 
-        val courseCompletions = listOf(
-            LessonCompletion(
-                submissionId = UUID.randomUUID(),
-                courseId = pythonId,
-                userId = user1.id,
-                lessonId = py1L1,
-                score = 50,
-                accuracy = BigDecimal(50),
-                completedAt = OffsetDateTime.now(),
-                isDeleted = false
-            ),
-            LessonCompletion(
-                submissionId = UUID.randomUUID(),
-                courseId = pythonId,
-                userId = user1.id,
-                lessonId = py1L2,
-                score = 50,
-                accuracy = BigDecimal(50),
-                completedAt = OffsetDateTime.now(),
-                isDeleted = false
-            ),
-            LessonCompletion(
-                submissionId = UUID.randomUUID(),
-                courseId = pythonId,
-                userId = user1.id,
-                lessonId = py1L3,
-                score = 50,
-                accuracy = BigDecimal(50),
-                completedAt = OffsetDateTime.now(),
-                isDeleted = false
-            ),
-            LessonCompletion(
-                submissionId = UUID.randomUUID(),
-                courseId = pythonId,
-                userId = user1.id,
-                lessonId = py1L4,
-                score = 50,
-                accuracy = BigDecimal(50),
-                completedAt = OffsetDateTime.now(),
-                isDeleted = false
-            ),
-            LessonCompletion(
-                submissionId = UUID.randomUUID(),
-                courseId = pythonId,
-                userId = user1.id,
-                lessonId = py2L1,
-                score = 50,
-                accuracy = BigDecimal(50),
-                completedAt = OffsetDateTime.now(),
-                isDeleted = false
-            )
-        )
+        lessonCompletionRepository.saveAll(CourseProgressTestUtil.pythonProgress(user1.id, currentCourse, pythonLessons))
 
-        lessonCompletionRepository.saveAll(courseCompletions)
-
-        val pythonSnap = curriculumSnapshotService.buildCourseSnapshot(pythonId)
+        val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
 
         val exercises : List<ExerciseSnap> = pythonSnap.modules[1].lessons[1].exercises
 
@@ -368,7 +316,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
             )
         )
 
-        val swiftSnap = curriculumSnapshotService.buildCourseSnapshot(swiftId)
+        val swiftSnap = testSnapshotService.buildCourseSnapshot(swiftId)
         val infoLesson = swiftSnap.modules[0].lessons[0]
         val exercises = infoLesson.exercises
         assertThat(exercises).isNotEmpty
@@ -430,7 +378,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
             )
         )
 
-        val pythonSnap = curriculumSnapshotService.buildCourseSnapshot(pythonId)
+        val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
         val lesson0 = pythonSnap.modules[0].lessons[0]
         val exercises: List<ExerciseSnap> = lesson0.exercises
         require(exercises.size >= 2) { "Lesson 1 must have at least two exercises for this test." }
