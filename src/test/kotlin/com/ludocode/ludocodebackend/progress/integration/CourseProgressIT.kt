@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.progress.integration
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.LessonSnap
 import com.ludocode.ludocodebackend.progress.api.dto.request.AttemptToken
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseAttemptRequest
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseSubmissionRequest
@@ -13,6 +14,7 @@ import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgre
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.support.snapshot.TestSnapshotService
+import com.ludocode.ludocodebackend.support.util.LessonSubmissionTestUtil
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -100,71 +102,13 @@ class CourseProgressIT : AbstractIntegrationTest() {
         val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
         val progress = courseProgressRepository.save(CourseProgress(id = CourseProgressId(user.id!!, courseId), currentModuleId = currentModule, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)))
 
-        val exercises : List<ExerciseSnap> = pythonSnap.modules[0].lessons[3].exercises
+        val sameModuleSubmission = LessonSubmissionTestUtil.completeLesson(user1.id!!, pythonSnap.modules[0].lessons[1], pythonId, allCorrect = false)
 
-        val sub1 = ExerciseSubmissionRequest(
-            exerciseId = exercises[0].id,
-            version = 1,
-            attempts = listOf(
-                ExerciseAttemptRequest(
-                    exerciseId = exercises[0].id!!,
-                    isCorrect = true,
-                    answer = exercises[0].correctOptions.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
-                )
-            )
-        )
+        assertThat(sameModuleSubmission.content!!.newCourseProgress.moduleId).isEqualTo(pyMod1Id)
 
-        val sub2 = ExerciseSubmissionRequest(
-            exerciseId = exercises[1].id!!,
-            version = 1,
-            attempts = listOf(
-                ExerciseAttemptRequest(
-                    exerciseId = exercises[1].id!!,
-                    isCorrect = false,
-                    answer = exercises[1].distractors.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
-                ),
-                ExerciseAttemptRequest(
-                    exerciseId = exercises[1].id!!,
-                    isCorrect = true,
-                    answer = exercises[1].correctOptions.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
-                )
-            )
-        )
+        val differentModuleSubmission = LessonSubmissionTestUtil.completeLesson(user1.id!!, pythonSnap.modules[1].lessons[0], pythonId)
 
-        val submissions: List<ExerciseSubmissionRequest> = listOf(sub1, sub2)
-
-        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), pythonSnap.modules[0].lessons[1].id, courseId = pythonId, submissions = submissions)
-        submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
-
-
-        val newsub1 = pythonSnap.modules[1].lessons[0]
-
-        val newsubEx = LessonSubmissionRequest(
-            UUID.randomUUID(),
-            newsub1.id,
-            pythonId, submissions = listOf(
-                ExerciseSubmissionRequest(
-                    exerciseId = newsub1.exercises[0].id,
-                    version = 1,
-                    attempts = listOf(
-                        ExerciseAttemptRequest(
-                           exerciseId = newsub1.exercises[0].id,
-                            true,
-                            listOf(AttemptToken( newsub1.exercises[0].correctOptions[0].exerciseOptionId, newsub1.exercises[0].correctOptions[0].content))
-                        )
-                    )
-                )
-            )
-        )
-        val res = submitPostForLessonSubmission(user1.id!!, newsubEx)
-
-
-        assertThat(res.content!!.newCourseProgress.moduleId).isEqualTo(pyMod2Id)
-
-
-
-
-
+        assertThat(differentModuleSubmission.content!!.newCourseProgress.moduleId).isEqualTo(pyMod2Id)
     }
 
     @Test
@@ -206,7 +150,5 @@ class CourseProgressIT : AbstractIntegrationTest() {
         TestRestClient.postOk(ApiPaths.PROGRESS.COURSES.reset(courseId), userId, null, CourseProgressResponse::class.java)
     private fun submitPostForLessonSubmission(userId: UUID, submission: LessonSubmissionRequest): LessonCompletionPacket =
         TestRestClient.postOk(ApiPaths.PROGRESS.COMPLETION.BASE, userId, submission, LessonCompletionPacket::class.java)
-
-
 
 }

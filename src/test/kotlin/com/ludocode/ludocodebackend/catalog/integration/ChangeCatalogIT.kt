@@ -20,6 +20,7 @@ import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.util.CourseProgressTestUtil
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.support.snapshot.TestSnapshotService
+import com.ludocode.ludocodebackend.support.util.LessonSubmissionTestUtil
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -319,26 +320,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             .ignoringFieldsMatchingRegexes(".*exerciseOptionId")
             .isEqualTo(lessonCurriculum)
 
-        val exercises : List<ExerciseSnap> = pythonSnap.modules[1].lessons[1].exercises
-
-
-        val sub1 = ExerciseSubmissionRequest(
-            exerciseId = exercises[0].id!!,
-            version = 1,
-            attempts = listOf(
-                ExerciseAttemptRequest(
-                    exerciseId = exercises[0].id!!,
-                    isCorrect = true,
-                    answer = exercises[0].correctOptions.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
-                )
-            )
-        )
-
-
-        val submissions: List<ExerciseSubmissionRequest> = listOf(sub1)
-        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), pythonSnap.modules[1].lessons[1].id, courseId = pythonId, submissions = submissions)
-
-        val response = submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
+        val response = LessonSubmissionTestUtil.completeLesson(user1.id, pythonSnap.modules[1].lessons[1], pythonId, true)
 
         assertThat(response).isNotNull()
 
@@ -429,26 +411,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             .usingRecursiveComparison()
             .isEqualTo(pythonCurriculum)
 
-        val exercises : List<ExerciseSnap> = pythonSnap.modules[1].lessons[1].exercises
-
-
-        val sub1 = ExerciseSubmissionRequest(
-            exerciseId = exercises[0].id!!,
-            version = 1,
-            attempts = listOf(
-                ExerciseAttemptRequest(
-                    exerciseId = exercises[0].id!!,
-                    isCorrect = true,
-                    answer = exercises[0].correctOptions.map { it -> AttemptToken(it.exerciseOptionId, it.content) },
-                )
-            )
-        )
-
-
-        val submissions: List<ExerciseSubmissionRequest> = listOf(sub1)
-        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), pythonSnap.modules[1].lessons[1].id, courseId = pythonId, submissions = submissions)
-
-        val response = submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
+        val response = LessonSubmissionTestUtil.completeLesson(user1.id, pythonSnap.modules[1].lessons[1], pythonId, true)
 
         assertThat(response).isNotNull()
 
@@ -460,22 +423,11 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
     }
 
-
-
-
-
-
-    private fun submitPostForLessonSubmission(userId: UUID, submission: LessonSubmissionRequest): LessonCompletionPacket =
-        TestRestClient.postOk(ApiPaths.PROGRESS.COMPLETION.BASE, userId, submission, LessonCompletionPacket::class.java)
-
-
     private fun submitPostUpdateCurriculum(req: CurriculumDraftSnapshot, courseId: UUID) : CurriculumDraftSnapshot =
         TestRestClient.putOk(ApiPaths.SNAPSHOTS.byCourseCurriculumAdmin(courseId), user1.id, req,
             CurriculumDraftSnapshot::class.java)
 
     private fun submitPostUpdateExerciseCatalog(lessonId: UUID, req: LessonCurriculumDraftSnapshot): LessonCurriculumDraftSnapshot =
         TestRestClient.putOk(ApiPaths.LESSONS.byAdminId(lessonId), user1.id!!, req, LessonCurriculumDraftSnapshot::class.java)
-
-
 
 }
