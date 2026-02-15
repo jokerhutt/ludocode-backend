@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
-import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
-import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
+import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseResponse
+import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
@@ -49,7 +49,7 @@ class ExercisesIT : AbstractIntegrationTest() {
         lessonId: UUID
     ): List<ExerciseResponse> =
         TestRestClient
-            .getOk(ApiPaths.CATALOG.lessonExercises(lessonId),
+            .getOk(ApiPaths.LESSONS.byIdExercises(lessonId),
                 user1.id!!,
                 Array<ExerciseResponse>::class.java)
             .toList()}

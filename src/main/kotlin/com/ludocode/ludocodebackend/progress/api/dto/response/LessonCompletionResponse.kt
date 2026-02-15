@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.progress.api.dto.response
 
-import com.ludocode.ludocodebackend.catalog.api.dto.response.LessonResponse
+import com.ludocode.ludocodebackend.lesson.api.dto.response.LessonResponse
 import java.math.BigDecimal
 
 data class LessonCompletionResponse(

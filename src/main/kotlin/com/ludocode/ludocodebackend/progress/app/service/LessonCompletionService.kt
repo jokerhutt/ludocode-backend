@@ -9,6 +9,7 @@ import com.ludocode.ludocodebackend.progress.api.dto.response.StreakResponsePack
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForProgress
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
+import com.ludocode.ludocodebackend.lesson.app.port.`in`.LessonPortForProgress
 import com.ludocode.ludocodebackend.progress.app.support.component.LessonScoreService
 import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
@@ -30,7 +31,8 @@ class LessonCompletionService(
     private val lessonCompletionRepository: LessonCompletionRepository,
     private val userCoinsService: UserCoinsService,
     private val courseProgressService: CourseProgressService,
-    private val streakService: StreakService
+    private val streakService: StreakService,
+    private val lessonPortForProgress: LessonPortForProgress
 ) {
 
     private val logger = LoggerFactory.getLogger(LessonCompletionService::class.java)
@@ -55,7 +57,7 @@ class LessonCompletionService(
         val lessonCompletion = lessonScoreService.addPointsAndCommitSubmission(request, userId, courseId)
         val scoreForLesson = lessonCompletion.score!!
 
-        val submittedLesson = catalogPortForProgress.findLessonResponseById(completedLessonId, userId)
+        val submittedLesson = lessonPortForProgress.findLessonResponseById(completedLessonId, userId)
 
         if (!submittedLesson.isCompleted) submittedLesson.isCompleted = true
 

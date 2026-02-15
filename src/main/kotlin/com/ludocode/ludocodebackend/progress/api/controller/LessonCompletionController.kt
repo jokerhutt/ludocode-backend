@@ -28,7 +28,7 @@ class LessonCompletionController(private val lessonCompletionService: LessonComp
         summary = "Submit lesson completion",
         description = """
         Submits the completion result for a lesson for the currently authenticated user.
-        Evaluates the submitted exercise attempts, updates lesson and course progress,
+        Evaluates the submitted lesson attempts, updates lesson and course progress,
         and applies rewards such as coins and streak updates.
         Returns the lesson completion result and updated progress state.
         Requires a valid session cookie to be present. 

@@ -1,26 +1,25 @@
 package com.ludocode.ludocodebackend.support
 import com.google.cloud.storage.Storage
-import com.ludocode.ludocodebackend.catalog.api.dto.request.CourseSubjectRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonSnap
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.LessonSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.SubjectSnap
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
-import com.ludocode.ludocodebackend.catalog.domain.entity.Exercise
-import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
-import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
-import com.ludocode.ludocodebackend.catalog.domain.entity.LessonExercise
+import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
+import com.ludocode.ludocodebackend.lesson.domain.entity.ExerciseOption
+import com.ludocode.ludocodebackend.lesson.domain.entity.Lesson
+import com.ludocode.ludocodebackend.lesson.domain.entity.LessonExercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
-import com.ludocode.ludocodebackend.catalog.domain.entity.OptionContent
+import com.ludocode.ludocodebackend.lesson.domain.entity.OptionContent
 import com.ludocode.ludocodebackend.catalog.domain.entity.Subject
-import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ExerciseId
-import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.LessonExercisesId
+import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
+import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.LessonExercisesId
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
-import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
+import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.catalog.infra.repository.*
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
@@ -32,10 +31,14 @@ import com.ludocode.ludocodebackend.config.MockOauthConstants
 import com.ludocode.ludocodebackend.config.security.TestSecurityConfig
 import com.ludocode.ludocodebackend.config.time.MutableClock
 import com.ludocode.ludocodebackend.config.TestCacheConfig
-import com.ludocode.ludocodebackend.languages.api.dto.LanguageMetadata
+import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseOptionRepository
+import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseRepository
+import com.ludocode.ludocodebackend.lesson.infra.repository.LessonExercisesRepository
+import com.ludocode.ludocodebackend.lesson.infra.repository.OptionContentRepository
 import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
+import com.ludocode.ludocodebackend.lesson.infra.repository.LessonRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.AttemptOptionRepository
@@ -204,7 +207,7 @@ abstract class AbstractIntegrationTest {
           lesson_exercises,
           module_lessons,
           lesson,
-          exercise, 
+          lesson, 
           module, 
           course,
           subjects,
@@ -292,7 +295,7 @@ abstract class AbstractIntegrationTest {
                             )
                         )
 
-                        // lesson ↔ exercise join (order = list index)
+                        // lesson ↔ lesson join (order = list index)
                         lessonExercisesRepository.save(
                             LessonExercise(
                                 LessonExercisesId(lessonId = ls.id, orderIndex = exIdx + 1),
