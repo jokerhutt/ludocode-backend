@@ -7,14 +7,11 @@ import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.app.service.CurriculumEditorService
 import com.ludocode.ludocodebackend.catalog.app.service.SnapshotBuilderService
-import com.ludocode.ludocodebackend.catalog.app.service.SnapshotService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.context.annotation.Profile
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -32,24 +29,10 @@ import java.util.UUID
 @RestController
 @RequestMapping(ApiPaths.SNAPSHOTS.ADMIN_BASE)
 class CatalogAdminController(
-    private val snapshotService: SnapshotService,
     private val snapshotBuilderService: SnapshotBuilderService,
     private val curriculumEditorService: CurriculumEditorService
 ) {
 
-    @Operation(summary = "Submit course snapshot for the selected course id",
-        description = """
-        Applies a course snapshot to the specified course.
-        This operation replaces the existing course structure with the provided snapshot, including modules, lessons, exercises, and ordering.
-        Intended for catalog modification & admin use.
-        Returns the persisted course snapshot after the update.  
-        """
-        )
-    @SecurityRequirement(name = "sessionAuth")
-    @PutMapping(ApiPaths.SNAPSHOTS.BY_COURSE)
-    fun applyCourseSnapshot(@RequestBody s: CourseSnap, @PathVariable courseId: UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<CourseSnap> {
-        return ResponseEntity.ok(snapshotService.applyNewSnapshot(s))
-    }
 
     @Operation(summary = "Get course snapshot for the selected course id",
         description = """
@@ -60,7 +43,7 @@ class CatalogAdminController(
         )
     @GetMapping(ApiPaths.SNAPSHOTS.BY_COURSE)
     fun getSnapshotsByCourseId(@PathVariable courseId: UUID) : ResponseEntity<CourseSnap> {
-        return ResponseEntity.ok(snapshotService.getCourseSnapshot(courseId))
+        return ResponseEntity.ok(snapshotBuilderService.buildCourseSnapshot(courseId))
     }
 
     @GetMapping(ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM)
@@ -93,7 +76,7 @@ class CatalogAdminController(
         )
     @PostMapping(ApiPaths.SNAPSHOTS.COURSE)
     fun createCourse(@RequestBody request: CreateCourseRequest) : ResponseEntity<List<CourseResponse>> {
-        return ResponseEntity.ok(snapshotService.createCourse(request))
+        return ResponseEntity.ok(curriculumEditorService.createCourse(request))
     }
 
 
