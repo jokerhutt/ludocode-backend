@@ -18,7 +18,10 @@ import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.util.CourseProgressTestUtil
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.support.snapshot.TestSnapshotService
+import com.ludocode.ludocodebackend.support.util.LessonSubmissionTestUtil
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.RepetitionInfo
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
 import java.time.OffsetDateTime
@@ -440,6 +443,166 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
     private fun submitPostForLessonSubmission(userId: UUID, submission: LessonSubmissionRequest): LessonCompletionPacket =
         TestRestClient.postOk(ApiPaths.PROGRESS.COMPLETION.BASE, userId, submission, LessonCompletionPacket::class.java)
 
+    @RepeatedTest(20, name = "Random Lesson Submission - Run {currentRepetition}/{totalRepetitions}")
+    fun submitRandomLesson_calculatesCorrectScoreAndAccuracy(repetitionInfo: RepetitionInfo) {
+        val seed = repetitionInfo.currentRepetition.toLong()
+        val random = java.util.Random(seed)
+
+        userCoinsRepository.save(UserCoins(user1.id!!, 0))
+
+        val courseId = if (random.nextBoolean()) pythonId else swiftId
+        val moduleId = if (courseId == pythonId) pyMod1Id else swMod1Id
+
+        courseProgressRepository.save(
+            CourseProgress(
+                id = CourseProgressId(user1.id!!, courseId),
+                currentModuleId = moduleId,
+                createdAt = OffsetDateTime.now(clock),
+                updatedAt = OffsetDateTime.now(clock)
+            )
+        )
+
+        val courseSnap = testSnapshotService.buildCourseSnapshot(courseId)
+        assertThat(courseSnap.modules).isNotEmpty()
+
+        val randomModuleIndex = random.nextInt(courseSnap.modules.size)
+        val randomModule = courseSnap.modules[randomModuleIndex]
+        assertThat(randomModule.lessons).isNotEmpty()
+
+        val randomLessonIndex = random.nextInt(randomModule.lessons.size)
+        val randomLesson = randomModule.lessons[randomLessonIndex]
+
+        // Create random exercise submissions with varying success patterns
+        val submissions = randomLesson.exercises.map { exercise ->
+            LessonSubmissionTestUtil.createRandomExerciseSubmission(exercise, random)
+        }
+
+        // Calculate expected accuracy
+        val totalAttempts = submissions.sumOf { it.attempts.size }
+        val correctAttempts = submissions.sumOf { sub -> sub.attempts.count { it.isCorrect } }
+        val expectedAccuracy = if (totalAttempts > 0) {
+            BigDecimal(correctAttempts).divide(BigDecimal(totalAttempts), 2, BigDecimal.ROUND_HALF_UP)
+        } else {
+            BigDecimal.ONE
+        }
+
+        val request = LessonSubmissionRequest(
+            submissionId = UUID.randomUUID(),
+            lessonId = randomLesson.id,
+            courseId = courseId,
+            submissions = submissions
+        )
+
+        val response = submitPostForLessonSubmission(user1.id!!, request)
+
+        assertThat(response).isNotNull()
+        assertThat(response.content).isNotNull()
+
+        val content = response.content!!
+
+        assertThat(content.accuracy).isEqualByComparingTo(expectedAccuracy)
+
+        assertThat(content.newCoins.coins).isGreaterThanOrEqualTo(0)
+
+        assertThat(content.updatedCompletedLesson.id).isEqualTo(randomLesson.id)
+        assertThat(content.updatedCompletedLesson.isCompleted).isTrue()
+
+        assertThat(content.newCourseProgress.userId).isEqualTo(user1.id)
+        assertThat(content.newCourseProgress.courseId).isEqualTo(courseId)
+    }
+
+    @RepeatedTest(15, name = "Random Perfect Score Lesson - Run {currentRepetition}/{totalRepetitions}")
+    fun submitRandomLesson_perfectScore_hasFullAccuracy(repetitionInfo: RepetitionInfo) {
+        val seed = repetitionInfo.currentRepetition.toLong()
+        val random = java.util.Random(seed)
+
+        userCoinsRepository.save(UserCoins(user1.id!!, 0))
+
+        val courseId = if (random.nextBoolean()) pythonId else swiftId
+        val moduleId = if (courseId == pythonId) pyMod1Id else swMod1Id
+
+        courseProgressRepository.save(
+            CourseProgress(
+                id = CourseProgressId(user1.id!!, courseId),
+                currentModuleId = moduleId,
+                createdAt = OffsetDateTime.now(clock),
+                updatedAt = OffsetDateTime.now(clock)
+            )
+        )
+
+        val courseSnap = testSnapshotService.buildCourseSnapshot(courseId)
+        val randomModuleIndex = random.nextInt(courseSnap.modules.size)
+        val randomModule = courseSnap.modules[randomModuleIndex]
+        val randomLessonIndex = random.nextInt(randomModule.lessons.size)
+        val randomLesson = randomModule.lessons[randomLessonIndex]
+
+        val submissions = randomLesson.exercises.map { exercise ->
+            LessonSubmissionTestUtil.createPerfectExerciseSubmission(exercise)
+        }
+
+        val request = LessonSubmissionRequest(
+            submissionId = UUID.randomUUID(),
+            lessonId = randomLesson.id,
+            courseId = courseId,
+            submissions = submissions
+        )
+
+        val response = submitPostForLessonSubmission(user1.id!!, request)
+        val content = response.content!!
+
+        assertThat(content.accuracy).isEqualByComparingTo(BigDecimal.ONE)
+
+        assertThat(content.newCoins.coins).isGreaterThan(0)
+
+        assertThat(content.updatedCompletedLesson.isCompleted).isTrue()
+    }
+
+    @RepeatedTest(15, name = "Random Imperfect Score Lesson - Run {currentRepetition}/{totalRepetitions}")
+    fun submitRandomLesson_imperfectScore_hasPartialAccuracy(repetitionInfo: RepetitionInfo) {
+        val seed = repetitionInfo.currentRepetition.toLong()
+        val random = java.util.Random(seed)
+
+        userCoinsRepository.save(UserCoins(user1.id!!, 0))
+
+        val courseId = if (random.nextBoolean()) pythonId else swiftId
+        val moduleId = if (courseId == pythonId) pyMod1Id else swMod1Id
+
+        courseProgressRepository.save(
+            CourseProgress(
+                id = CourseProgressId(user1.id!!, courseId),
+                currentModuleId = moduleId,
+                createdAt = OffsetDateTime.now(clock),
+                updatedAt = OffsetDateTime.now(clock)
+            )
+        )
+
+        val courseSnap = testSnapshotService.buildCourseSnapshot(courseId)
+        val randomModuleIndex = random.nextInt(courseSnap.modules.size)
+        val randomModule = courseSnap.modules[randomModuleIndex]
+        val randomLessonIndex = random.nextInt(randomModule.lessons.size)
+        val randomLesson = randomModule.lessons[randomLessonIndex]
+
+        val submissions = randomLesson.exercises.map { exercise ->
+            LessonSubmissionTestUtil.createImperfectExerciseSubmission(exercise, random)
+        }
+
+        val request = LessonSubmissionRequest(
+            submissionId = UUID.randomUUID(),
+            lessonId = randomLesson.id,
+            courseId = courseId,
+            submissions = submissions
+        )
+
+        val response = submitPostForLessonSubmission(user1.id!!, request)
+        val content = response.content!!
+
+        assertThat(content.accuracy).isLessThan(BigDecimal.ONE)
+        assertThat(content.accuracy).isGreaterThan(BigDecimal.ZERO)
+
+        assertThat(content.newCoins.coins).isGreaterThanOrEqualTo(0)
+
+        assertThat(content.updatedCompletedLesson.isCompleted).isTrue()
+    }
+
+
 }
-
-
