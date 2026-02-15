@@ -1,8 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.api.controller.admin
-
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.app.service.admin.CurriculumSnapshotService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
@@ -29,19 +27,6 @@ import java.util.UUID
 class CatalogAdminController(
     private val curriculumSnapshotService: CurriculumSnapshotService
 ) {
-
-
-    @Operation(summary = "Get course snapshot for the selected course id",
-        description = """
-        Returns a snapshot of the course structure for the specified course.
-        Includes modules, lessons, exercises, and lesson options in a nested object.
-        Intended for catalog modification & admin use. 
-        """
-        )
-    @GetMapping(ApiPaths.SNAPSHOTS.BY_COURSE)
-    fun getSnapshotsByCourseId(@PathVariable courseId: UUID) : ResponseEntity<CourseSnap> {
-        return ResponseEntity.ok(curriculumSnapshotService.buildCourseSnapshot(courseId))
-    }
 
     @GetMapping(ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM)
     fun getCourseCurriculumByCourseId(@PathVariable courseId: UUID) : ResponseEntity<CurriculumDraftSnapshot> {

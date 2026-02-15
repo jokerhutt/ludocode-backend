@@ -1,11 +1,11 @@
 package com.ludocode.ludocodebackend.support
 import com.google.cloud.storage.Storage
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
+import com.ludocode.ludocodebackend.support.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.LessonSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleSnap
+import com.ludocode.ludocodebackend.support.snapshot.ModuleSnap
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.OptionSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.SubjectSnap
+import com.ludocode.ludocodebackend.support.snapshot.SubjectSnap
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
 import com.ludocode.ludocodebackend.lesson.domain.entity.ExerciseOption
@@ -109,7 +109,9 @@ abstract class AbstractIntegrationTest {
      var sw1L3 = UUID.randomUUID()
      var sw1L4 = UUID.randomUUID()
 
-
+     var pythonLessons = listOf(
+         py1L1, py1L2, py1L3, py1L4, py2L1, py2L2
+     )
 
     lateinit var user1: User
     lateinit var user2: User

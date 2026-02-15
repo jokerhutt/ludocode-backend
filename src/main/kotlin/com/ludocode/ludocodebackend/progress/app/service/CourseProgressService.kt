@@ -69,6 +69,8 @@ class CourseProgressService(
             isCourseCompleteForFirstTime = true
         }
 
+        courseProgressRepository.save(courseProgress)
+
         return CourseProgressWithCompletion(findCourseProgress(userId, courseId), isCourseCompleteForFirstTime)
     }
 
