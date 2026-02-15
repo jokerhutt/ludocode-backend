@@ -244,7 +244,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
     @RepeatedTest(20, name = "Random Curriculum Changes - Run {currentRepetition}/{totalRepetitions}")
     fun submitRandomCurriculumChanges_returnsChanged(repetitionInfo: RepetitionInfo) {
-        val seed = repetitionInfo.currentRepetition.toLong() // Use repetition number as seed for reproducibility
+        val seed = repetitionInfo.currentRepetition.toLong()
 
         val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
         val pythonCurriculum = CatalogChangeTestUtil.generateRandomCurriculumChanges(pythonSnap, seed)

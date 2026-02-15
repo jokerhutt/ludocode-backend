@@ -173,12 +173,6 @@ object CatalogChangeTestUtil {
         }
     }
 
-    /**
-     * Generates random curriculum changes for testing
-     * @param courseSnapshot The original course snapshot
-     * @param seed Random seed for reproducible tests (optional)
-     * @return Modified curriculum draft with random changes
-     */
     fun generateRandomCurriculumChanges(
         courseSnapshot: CourseSnap,
         seed: Long? = null
@@ -186,7 +180,6 @@ object CatalogChangeTestUtil {
         val random = seed?.let { Random(it) } ?: Random.Default
         val curriculum = toCurriculumDraft(courseSnapshot)
 
-        // Define possible edit events
         val events = listOf(
             "CHANGE_LESSON_TITLE",
             "ADD_LESSONS_TO_MODULE",
@@ -200,7 +193,6 @@ object CatalogChangeTestUtil {
             "RENAME_MODULE"
         )
 
-        // Execute 1-5 random events
         val numEvents = random.nextInt(1, 6)
         repeat(numEvents) {
             val event = events[random.nextInt(events.size)]
@@ -296,7 +288,6 @@ object CatalogChangeTestUtil {
                     if (curriculum.modules.isNotEmpty()) {
                         val moduleIndex = random.nextInt(curriculum.modules.size)
                         val oldModule = curriculum.modules[moduleIndex]
-                        // Create new module with renamed title (title is immutable)
                         curriculum.modules = curriculum.modules.mapIndexed { index, module ->
                             if (index == moduleIndex) {
                                 ModuleDraftSnapshot(
@@ -316,12 +307,6 @@ object CatalogChangeTestUtil {
         return curriculum
     }
 
-    /**
-     * Generates random exercise changes for a lesson
-     * @param exercises The original exercises
-     * @param seed Random seed for reproducible tests (optional)
-     * @return Modified list of exercises with random changes
-     */
     fun generateRandomExerciseChanges(
         exercises: List<ExerciseSnap>,
         seed: Long? = null
@@ -471,9 +456,6 @@ object CatalogChangeTestUtil {
         return exerciseList
     }
 
-    /**
-     * Generates a random alphanumeric string
-     */
     private fun randomString(random: Random, length: Int): String {
         val chars = ('a'..'z') + ('A'..'Z') + ('0'..'9')
         return (1..length)
