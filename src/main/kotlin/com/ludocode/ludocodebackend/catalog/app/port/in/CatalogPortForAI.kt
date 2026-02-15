@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.app.port.`in`
 
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import java.util.UUID
 
 interface CatalogPortForAI {

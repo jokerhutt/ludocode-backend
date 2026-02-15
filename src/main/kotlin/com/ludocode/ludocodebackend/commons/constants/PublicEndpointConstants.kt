@@ -9,7 +9,7 @@ object PublicEndpointConstants {
         ApiPaths.FEATURES.BASE,
         "${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.MODULES}",
         "${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.COURSES}",
-        "${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.LESSON_EXERCISES}",
+        "${ApiPaths.CATALOG.BASE}${ApiPaths.LESSONS.EXERCISES}",
         "${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.COURSE_TREE}",
         "${ApiPaths.AI.BASE}/**",
     )

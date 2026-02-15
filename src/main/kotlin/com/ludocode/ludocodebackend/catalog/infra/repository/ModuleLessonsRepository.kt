@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.infra.repository
 
-import com.ludocode.ludocodebackend.catalog.domain.entity.Lesson
+import com.ludocode.ludocodebackend.lesson.domain.entity.Lesson
 import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
 import org.springframework.data.jpa.repository.JpaRepository

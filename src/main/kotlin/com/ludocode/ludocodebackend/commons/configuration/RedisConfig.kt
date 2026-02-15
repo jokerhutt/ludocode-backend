@@ -3,7 +3,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.ludocode.ludocodebackend.catalog.api.dto.internal.LessonTreeWithIdDTO
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
+import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTreeResponse
 import com.ludocode.ludocodebackend.commons.constants.CacheNames
 import io.lettuce.core.ClientOptions

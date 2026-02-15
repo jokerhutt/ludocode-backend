@@ -25,11 +25,8 @@ object ApiPaths {
         const val COURSES = "/courses"
         const val COURSE_TREE = "/courses/{courseId}/tree"
         const val MODULES = "/modules"
-        const val LESSONS = "/lessons"
-        const val LESSON_EXERCISES = "/lessons/{lessonId}/exercises"
 
         fun courseTree(courseId: UUID) : String = "$BASE$COURSES/$courseId/tree"
-        fun lessonExercises(lessonId: UUID) : String = "$BASE$LESSONS/$lessonId/exercises"
 
     }
 
@@ -47,6 +44,16 @@ object ApiPaths {
         const val ID = "/{id}"
         fun byId(id: Long) : String = "$BASE/$id"
         fun byIdAdmin(id: Long) : String = "$ADMIN_BASE/$id"
+    }
+
+    object LESSONS {
+        const val BASE = "$API_PREFIX/lessons"
+        const val ADMIN_BASE = "$API_PREFIX$ADMIN_PREFIX/lessons"
+        const val BY_ID = "/{lessonId}"
+        const val EXERCISES = "$BY_ID/exercises"
+        fun byId(id: UUID) : String = "$BASE/$id"
+        fun byAdminId(id: UUID) : String = "$ADMIN_BASE/$id"
+        fun byIdExercises(id: UUID) : String = "$BASE/$id/exercises"
     }
 
     object PROGRESS {

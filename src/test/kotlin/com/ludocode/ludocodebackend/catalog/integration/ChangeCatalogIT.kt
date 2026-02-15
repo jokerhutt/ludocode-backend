@@ -1,15 +1,13 @@
 package com.ludocode.ludocodebackend.catalog.integration
-
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleDraftSnapshot
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
-import com.ludocode.ludocodebackend.catalog.app.service.SnapshotBuilderService
-import com.ludocode.ludocodebackend.catalog.domain.entity.ExerciseOption
-import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.OptionSnap
+import com.ludocode.ludocodebackend.catalog.app.service.admin.CurriculumSnapshotService
+import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
@@ -23,7 +21,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
 
     @Autowired
-    private lateinit var snapshotBuilderService: SnapshotBuilderService
+    private lateinit var curriculumSnapshotService: CurriculumSnapshotService
 
     @BeforeEach
     fun seed () {
@@ -32,7 +30,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
     @Test
     fun submitCurriculumChange_returnsChanged() {
-        val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
+        val pythonSnap = curriculumSnapshotService.buildCourseSnapshot(pythonId)
 
         val pythonCurriculum = CurriculumDraftSnapshot(
             modules = pythonSnap.modules.map { module ->
@@ -101,7 +99,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
     @Test
     fun submitCurriculumChangeWithDeletions_returnsChangedWithDeletions() {
-        val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
+        val pythonSnap = curriculumSnapshotService.buildCourseSnapshot(pythonId)
 
         val pythonCurriculum = CurriculumDraftSnapshot(
             modules = pythonSnap.modules.map { module ->
@@ -179,7 +177,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
     @Test
     fun submitExercisesChangeWithDeletions_returnsChangedWithDeletions() {
-        val pythonSnap = snapshotBuilderService.buildCourseSnapshot(pythonId)
+        val pythonSnap = curriculumSnapshotService.buildCourseSnapshot(pythonId)
 
         val lessonToChange = pythonSnap.modules[0].lessons[0]
 
@@ -204,7 +202,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         val exerciseToDelete = lessonCurriculum.exercises[0]
         val exerciseToAdd1 = ExerciseSnap(
             id = UUID.randomUUID(),
-            title = "New INFO exercise",
+            title = "New INFO lesson",
             subtitle = null,
             prompt = null,
             media = null,
@@ -214,7 +212,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         )
         val exerciseToAdd2 = ExerciseSnap(
             id = UUID.randomUUID(),
-            title = "New CLOZE exercise",
+            title = "New CLOZE lesson",
             subtitle = "You must wrap text in quotes",
             prompt = "print(___i love python___)",
             media = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIbjxOIxdHAylWUgy-LqVNWa9ID3VmUy8Lxg&s",
@@ -246,11 +244,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         TestRestClient.putOk(ApiPaths.SNAPSHOTS.byCourseCurriculumAdmin(courseId), user1.id, req,
             CurriculumDraftSnapshot::class.java)
 
-    private fun submitPostUpdateCatalog(req: CourseSnap): CourseSnap =
-        TestRestClient.putOk(ApiPaths.SNAPSHOTS.byCourseAdmin(req.courseId), user1.id!!, req, CourseSnap::class.java)
-
     private fun submitPostUpdateExerciseCatalog(lessonId: UUID, req: LessonCurriculumDraftSnapshot): LessonCurriculumDraftSnapshot =
-        TestRestClient.putOk(ApiPaths.SNAPSHOTS.byLessonCurriculumAdmin(lessonId), user1.id!!, req, LessonCurriculumDraftSnapshot::class.java)
+        TestRestClient.putOk(ApiPaths.LESSONS.byAdminId(lessonId), user1.id!!, req, LessonCurriculumDraftSnapshot::class.java)
 
 
 

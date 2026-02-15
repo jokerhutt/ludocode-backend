@@ -1,21 +1,21 @@
 package com.ludocode.ludocodebackend.catalog.app.service
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.response.LessonResponse
+import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseResponse
+import com.ludocode.ludocodebackend.lesson.api.dto.response.LessonResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.ModuleResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTreeResponse
 import com.ludocode.ludocodebackend.catalog.app.mapper.CourseMapper
-import com.ludocode.ludocodebackend.catalog.app.mapper.ExerciseMapper
+import com.ludocode.ludocodebackend.lesson.app.mapper.ExerciseMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.FlatCourseTreeMapper
-import com.ludocode.ludocodebackend.catalog.app.mapper.LessonMapper
+import com.ludocode.ludocodebackend.lesson.app.mapper.LessonMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.ModuleMapper
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForProgress
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
-import com.ludocode.ludocodebackend.catalog.infra.projection.ExerciseFlatProjection
-import com.ludocode.ludocodebackend.catalog.infra.projection.UserLessonProjection
+import com.ludocode.ludocodebackend.lesson.infra.projection.ExerciseFlatProjection
+import com.ludocode.ludocodebackend.lesson.infra.repository.UserLessonProjection
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
-import com.ludocode.ludocodebackend.catalog.infra.repository.LessonExercisesRepository
-import com.ludocode.ludocodebackend.catalog.infra.repository.LessonRepository
+import com.ludocode.ludocodebackend.lesson.infra.repository.LessonExercisesRepository
+import com.ludocode.ludocodebackend.lesson.infra.repository.LessonRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
 import com.ludocode.ludocodebackend.commons.constants.CacheNames
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
@@ -33,12 +33,9 @@ class CatalogService(
     private val courseMapper: CourseMapper,
     private val courseRepository: CourseRepository,
     private val moduleRepository: ModuleRepository,
-    private val exerciseMapper: ExerciseMapper,
     private val moduleMapper: ModuleMapper,
     private val lessonRepository: LessonRepository,
-    private val lessonMapper: LessonMapper,
     private val flatCourseTreeMapper: FlatCourseTreeMapper,
-    private val lessonExercisesRepository: LessonExercisesRepository,
 ) : CatalogPortForProgress {
 
     private val logger = LoggerFactory.getLogger(CatalogService::class.java)
@@ -52,11 +49,6 @@ class CatalogService(
     @Cacheable(CacheNames.LESSON_MODULE, key = "#lessonId")
     override fun findModuleIdForLesson(lessonId: UUID): UUID {
        return lessonRepository.findModuleIdForLesson(lessonId) ?: throw ApiException(ErrorCode.MODULE_NOT_FOUND_FOR_LESSON)
-    }
-
-    override fun findLessonResponseById(lessonId: UUID, userId: UUID): LessonResponse {
-        return lessonMapper.toLessonResponse(lessonRepository.findUserLesson(lessonId, userId) ?: throw ApiException(
-            ErrorCode.LESSON_NOT_FOUND))
     }
 
     @Cacheable(CacheNames.COURSE_LIST)
@@ -74,30 +66,10 @@ class CatalogService(
         return flatCourseTreeMapper.toFlatTree(courseId, rows)
     }
 
-    @Cacheable(CacheNames.LESSON_EXERCISES, key = "#lessonId")
-    fun getExercisesByLessonId (lessonId: UUID): List<ExerciseResponse> {
-       val exercisesWithOptionsFlat: List<ExerciseFlatProjection> = lessonExercisesRepository.getFlatExercisesWithOptions(lessonId)
-        logger.info(
-            LogEvents.LESSON_EXERCISES_LOADED + " {}",
-            kv(LogFields.EXERCISE_COUNT, exercisesWithOptionsFlat.size)
-        )
-       return exerciseMapper.toLessonExercises(exercisesWithOptionsFlat)
-    }
-
-    @Cacheable(CacheNames.EXERCISE_SINGLE, key = "#exerciseId")
-    fun getExerciseByExerciseId (exerciseId: UUID) : ExerciseResponse {
-        val exerciseWithOptions = lessonExercisesRepository.getSingleExerciseNewestFlat(exerciseId)
-        return exerciseMapper.toExerciseResponse(exerciseWithOptions)
-    }
-
     internal fun getModulesByIds (moduleIds: List<UUID>) : List<ModuleResponse> {
         val modules: List<Module> = moduleRepository.findAllByIdIn(moduleIds)
         return moduleMapper.toModuleResponseList(modules)
     }
 
-    internal fun getLessonsByIds (lessonIds: List<UUID>, userId: UUID): List<LessonResponse> {
-        val lessons: List<UserLessonProjection> = lessonRepository.findUserLessonsByIds(lessonIds, userId)
-        return lessonMapper.toLessonResponseList(lessons)
-    }
 
 }

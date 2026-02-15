@@ -1,8 +1,8 @@
 package com.ludocode.ludocodebackend.ai.app.service
 
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.OptionSnap
-import com.ludocode.ludocodebackend.catalog.domain.enums.ExerciseType
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.OptionSnap
+import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
 import org.springframework.stereotype.Component
 
 @Component

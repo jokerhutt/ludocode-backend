@@ -5,7 +5,7 @@ import com.ludocode.ludocodebackend.ai.api.dto.request.UIMessageRequest
 import com.ludocode.ludocodebackend.ai.app.mapper.GeminiMapper
 import com.ludocode.ludocodebackend.ai.app.port.out.AIPort
 import com.ludocode.ludocodebackend.ai.domain.enums.ChatType
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForAI
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields

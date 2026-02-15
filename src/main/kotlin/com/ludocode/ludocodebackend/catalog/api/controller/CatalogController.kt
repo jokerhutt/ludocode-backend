@@ -1,8 +1,8 @@
 package com.ludocode.ludocodebackend.catalog.api.controller
 
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.response.ExerciseResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.response.LessonResponse
+import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseResponse
+import com.ludocode.ludocodebackend.lesson.api.dto.response.LessonResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.ModuleResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTreeResponse
 import com.ludocode.ludocodebackend.catalog.app.service.CatalogService
@@ -53,30 +53,11 @@ class CatalogController(private val catalogService: CatalogService) {
         }
     }
 
-    @Operation(summary = "Get exercises for lesson",
-        description = """
-        Returns all exercises associated with the provided lesson id.
-        Includes exercise metadata, options, and ordering. 
-        """
-        )
-    @GetMapping(ApiPaths.CATALOG.LESSON_EXERCISES)
-    fun getExercisesByLessonId(@PathVariable lessonId: UUID) : ResponseEntity<List<ExerciseResponse>> {
-        return withMdc(LogFields.LESSON_ID to lessonId.toString()) {
-            ResponseEntity.ok(catalogService.getExercisesByLessonId(lessonId));
-        }
-    }
-
     @Operation(summary = "Get modules by ID list", description = "Returns module metadata for the provided list of module IDs.")
     @GetMapping(ApiPaths.CATALOG.MODULES)
     fun getModulesByIdList(@RequestParam moduleIds: List<UUID>) : ResponseEntity<List<ModuleResponse>> {
         return ResponseEntity.ok(catalogService.getModulesByIds(moduleIds))
     }
 
-    @Operation(summary = "Get lessons by ID list", description = "Returns lesson metadata for the provided list of lesson IDs.")
-    @SecurityRequirement(name = "sessionAuth")
-    @GetMapping(ApiPaths.CATALOG.LESSONS)
-    fun getLessonsByIdList(@RequestParam lessonIds: List<UUID>, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<List<LessonResponse>> {
-        return ResponseEntity.ok(catalogService.getLessonsByIds(lessonIds, userId))
-    }
 
 }
