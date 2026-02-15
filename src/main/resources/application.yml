@@ -29,6 +29,10 @@ logging:
     root: ${LOGGING_LEVEL:INFO}
     com.ludocode.ludocodebackend.commons.configuration.CorsLoggingFilter: ${CORS_LOGGING_LEVEL:WARN}
 
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET}
+
 springdoc:
   api-docs:
     path: /v3/api-docs
@@ -64,6 +68,7 @@ avatar:
   count: 10
 
 app:
+  frontend-url: ${FRONTEND_URL}
   gcs-host:
 
 # mode: local, s3, gcs
