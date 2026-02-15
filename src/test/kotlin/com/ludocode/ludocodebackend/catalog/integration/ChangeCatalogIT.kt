@@ -13,6 +13,8 @@ import com.ludocode.ludocodebackend.support.snapshot.TestSnapshotService
 import com.ludocode.ludocodebackend.support.util.LessonSubmissionTestUtil
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.RepetitionInfo
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.OffsetDateTime
@@ -35,16 +37,13 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
         val moduleIndex = 1
 
-        // Change existing lesson title
         pythonCurriculum.modules[moduleIndex].lessons[0].title = "First lesson title"
 
-        // Add new lessons to existing module
         pythonCurriculum.modules[moduleIndex].lessons += listOf(
             CatalogChangeTestUtil.createLesson("New Lesson"),
             CatalogChangeTestUtil.createLesson("New Lesson")
         )
 
-        // Add new module with lessons
         pythonCurriculum.modules += CatalogChangeTestUtil.createModule(
             "New Module",
             "New Module Lesson",
@@ -66,23 +65,19 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
         val moduleIndex = 1
 
-        // Change existing lesson title
         pythonCurriculum.modules[moduleIndex].lessons[0].title = "First lesson title"
 
-        // Add new lessons
         pythonCurriculum.modules[moduleIndex].lessons += listOf(
             CatalogChangeTestUtil.createLesson("New Lesson"),
             CatalogChangeTestUtil.createLesson("New Lesson")
         )
 
-        // Add new module
         pythonCurriculum.modules += CatalogChangeTestUtil.createModule(
             "New Module",
             "New Module Lesson",
             "New Module Lesson Two"
         )
 
-        // Delete lesson and module
         val lessonToDelete = pythonCurriculum.modules[0].lessons[0]
         val moduleToDelete = pythonCurriculum.modules[1]
 
@@ -106,7 +101,6 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             exercises = lessonToChange.exercises
         )
 
-        // Change existing exercise
         val exerciseToChange = lessonCurriculum.exercises[1]
         exerciseToChange.title = "Changed title"
         CatalogChangeTestUtil.updateExerciseOptions(
@@ -115,11 +109,9 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             distractors = listOf("'mouse'")
         )
 
-        // Delete one exercise
         val exerciseToDelete = lessonCurriculum.exercises[0]
         lessonCurriculum.exercises -= exerciseToDelete
 
-        // Add new exercises
         lessonCurriculum.exercises += CatalogChangeTestUtil.createInfoExercise("New INFO lesson")
         lessonCurriculum.exercises += CatalogChangeTestUtil.createClozeExercise(
             title = "New CLOZE lesson",
@@ -159,7 +151,6 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
         lessonCompletionRepository.saveAll(completeProgress)
 
-        // Change existing exercise
         val exerciseToChange = lessonCurriculum.exercises[1]
         exerciseToChange.title = "Changed title"
         CatalogChangeTestUtil.updateExerciseOptions(
@@ -168,11 +159,9 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             distractors = listOf("'mouse'")
         )
 
-        // Delete one exercise
         val exerciseToDelete = lessonCurriculum.exercises[0]
         lessonCurriculum.exercises -= exerciseToDelete
 
-        // Add new exercises
         lessonCurriculum.exercises += CatalogChangeTestUtil.createInfoExercise("New INFO lesson")
         lessonCurriculum.exercises += CatalogChangeTestUtil.createClozeExercise(
             title = "New CLOZE lesson",
@@ -221,16 +210,13 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
         val moduleIndex = 1
 
-        // Change existing lesson title
         pythonCurriculum.modules[moduleIndex].lessons[0].title = "First lesson title"
 
-        // Add new lessons
         pythonCurriculum.modules[moduleIndex].lessons += listOf(
             CatalogChangeTestUtil.createLesson("New Lesson"),
             CatalogChangeTestUtil.createLesson("New Lesson")
         )
 
-        // Add new module
         pythonCurriculum.modules += CatalogChangeTestUtil.createModule(
             "New Module",
             "New Module Lesson",
@@ -254,6 +240,120 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         assertThat(content.newCourseProgress.moduleId).isEqualTo(pyMod2Id)
         assertThat(content.updatedCompletedLesson.isCompleted).isEqualTo(true)
 
+    }
+
+    @RepeatedTest(20, name = "Random Curriculum Changes - Run {currentRepetition}/{totalRepetitions}")
+    fun submitRandomCurriculumChanges_returnsChanged(repetitionInfo: RepetitionInfo) {
+        val seed = repetitionInfo.currentRepetition.toLong() // Use repetition number as seed for reproducibility
+
+        val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
+        val pythonCurriculum = CatalogChangeTestUtil.generateRandomCurriculumChanges(pythonSnap, seed)
+
+        val result = submitPostUpdateCurriculum(pythonCurriculum, pythonId)
+
+        assertThat(result).isNotNull()
+        assertThat(result.modules.size).isGreaterThan(0)
+
+        result.modules.forEach { module ->
+            assertThat(module.lessons).isNotEmpty()
+        }
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .isEqualTo(pythonCurriculum)
+    }
+
+    @RepeatedTest(20, name = "Random Exercise Changes - Run {currentRepetition}/{totalRepetitions}")
+    fun submitRandomExerciseChanges_returnsChanged(repetitionInfo: RepetitionInfo) {
+        val seed = repetitionInfo.currentRepetition.toLong()
+
+        val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
+        val lessonToChange = pythonSnap.modules[0].lessons[0]
+
+        val modifiedExercises = CatalogChangeTestUtil.generateRandomExerciseChanges(
+            lessonToChange.exercises,
+            seed
+        )
+
+        val lessonCurriculum = LessonCurriculumDraftSnapshot(exercises = modifiedExercises)
+
+        val result = submitPostUpdateExerciseCatalog(lessonToChange.id, lessonCurriculum)
+
+        assertThat(result).isNotNull()
+        assertThat(result.exercises.size).isGreaterThan(0)
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .ignoringFieldsMatchingRegexes(".*exerciseOptionId")
+            .isEqualTo(lessonCurriculum)
+    }
+
+    @RepeatedTest(10, name = "Random Curriculum + Exercise Changes - Run {currentRepetition}/{totalRepetitions}")
+    fun submitRandomCombinedChanges_preservesProgress(repetitionInfo: RepetitionInfo) {
+        val seed = repetitionInfo.currentRepetition.toLong()
+
+        courseProgressRepository.saveAll(listOf(
+            CourseProgress(
+                id = CourseProgressId(user1.id!!, pythonId),
+                isComplete = false,
+                currentModuleId = pyMod2Id,
+                createdAt = OffsetDateTime.now(clock),
+                updatedAt = OffsetDateTime.now(clock)
+            )
+        ))
+
+        val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
+
+        val pythonCurriculum = CatalogChangeTestUtil.generateRandomCurriculumChanges(pythonSnap, seed)
+        val curriculumResult = submitPostUpdateCurriculum(pythonCurriculum, pythonId)
+
+        assertThat(curriculumResult).isNotNull()
+        assertThat(curriculumResult.modules.size).isGreaterThan(0)
+
+        val refreshedSnap = testSnapshotService.buildCourseSnapshot(pythonId)
+
+        if (refreshedSnap.modules.isNotEmpty()) {
+            val random = java.util.Random(seed)
+            val randomModuleIndex = random.nextInt(refreshedSnap.modules.size)
+            val randomModule = refreshedSnap.modules[randomModuleIndex]
+
+            if (randomModule.lessons.isNotEmpty()) {
+                val randomLessonIndex = random.nextInt(randomModule.lessons.size)
+                val lessonToChange = randomModule.lessons[randomLessonIndex]
+
+                val modifiedExercises = CatalogChangeTestUtil.generateRandomExerciseChanges(
+                    lessonToChange.exercises,
+                    seed + 1000
+                )
+                val lessonCurriculum = LessonCurriculumDraftSnapshot(exercises = modifiedExercises)
+                val exerciseResult = submitPostUpdateExerciseCatalog(lessonToChange.id, lessonCurriculum)
+
+                assertThat(exerciseResult).isNotNull()
+                assertThat(exerciseResult.exercises.size).isGreaterThan(0)
+            }
+        }
+
+        val finalSnap = testSnapshotService.buildCourseSnapshot(pythonId)
+        if (finalSnap.modules.isNotEmpty()) {
+            val random = java.util.Random(seed + 2000)
+            val randomModuleIndex = random.nextInt(finalSnap.modules.size)
+            val randomModule = finalSnap.modules[randomModuleIndex]
+
+            if (randomModule.lessons.isNotEmpty()) {
+                val randomLessonIndex = random.nextInt(randomModule.lessons.size)
+                val lessonToComplete = randomModule.lessons[randomLessonIndex]
+
+                val response = LessonSubmissionTestUtil.completeLesson(
+                    user1.id,
+                    lessonToComplete,
+                    pythonId,
+                    true
+                )
+
+                assertThat(response).isNotNull()
+                assertThat(response.content).isNotNull()
+            }
+        }
     }
 
     private fun submitPostUpdateCurriculum(req: CurriculumDraftSnapshot, courseId: UUID) : CurriculumDraftSnapshot =

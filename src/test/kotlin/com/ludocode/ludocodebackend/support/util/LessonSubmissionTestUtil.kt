@@ -54,7 +54,16 @@ object LessonSubmissionTestUtil {
         exercise: ExerciseSnap,
         allCorrect: Boolean = true
     ): ExerciseSubmissionRequest {
-        val attempts = if (allCorrect) {
+        // Handle INFO exercises specially - they need a marker "I" to be skipped
+        val attempts = if (exercise.exerciseType == com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType.INFO) {
+            listOf(
+                ExerciseAttemptRequest(
+                    exerciseId = exercise.id,
+                    isCorrect = true,
+                    answer = listOf(AttemptToken(UUID.randomUUID(), "I")) // Marker for INFO exercises
+                )
+            )
+        } else if (allCorrect) {
             listOf(
                 ExerciseAttemptRequest(
                     exerciseId = exercise.id,
