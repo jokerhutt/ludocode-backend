@@ -70,7 +70,7 @@ class ProjectService(
 
             withMdc(LogFields.PROJECT_ID to newProject.id.toString()) {
 
-                val firstFileName = getFirstFileName(slug = codeLanguage.slug)
+                val firstFileName = getFirstFileName(base = codeLanguage.base, extension = codeLanguage.extension)
                 val firstFileId = UUID.randomUUID()
                 val firstFileContentUrl = "${newProject.id}/$firstFileId"
                 val firstFileContent = codeLanguage.initialScript ?: ""
@@ -105,9 +105,8 @@ class ProjectService(
 
     }
 
-    private fun getFirstFileName (slug: String): String {
-        val base = "script."
-        return base + slug
+    private fun getFirstFileName (base: String, extension: String): String {
+        return base + extension
     }
 
     internal fun getUserProjects(userId: UUID) : ProjectListResponse {

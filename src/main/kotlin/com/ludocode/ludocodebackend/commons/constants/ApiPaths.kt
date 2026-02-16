@@ -20,6 +20,12 @@ object ApiPaths {
         const val LOGOUT = "/logout"
     }
 
+    object SUBSCRIPTION {
+        const val BASE = "$API_PREFIX/subscription"
+        const val CHECKOUT = "/checkout"
+        const val WEBHOOK = "/webhook"
+    }
+
     object CATALOG {
         const val BASE = "$API_PREFIX/catalog"
         const val COURSES = "/courses"

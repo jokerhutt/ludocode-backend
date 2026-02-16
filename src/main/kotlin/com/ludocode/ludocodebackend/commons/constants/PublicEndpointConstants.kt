@@ -12,6 +12,8 @@ object PublicEndpointConstants {
         "${ApiPaths.CATALOG.BASE}${ApiPaths.LESSONS.EXERCISES}",
         "${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.COURSE_TREE}",
         "${ApiPaths.AI.BASE}/**",
+        "${ApiPaths.SUBSCRIPTION.BASE}${ApiPaths.SUBSCRIPTION.WEBHOOK}",
+        "${ApiPaths.SUBSCRIPTION.BASE}${ApiPaths.SUBSCRIPTION.WEBHOOK}/**"
     )
 
 }

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="015-01-create-subscription-plan" author="david">
+
+        <createTable tableName="subscription_plan">
+
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="plan_code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="display_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="stripe_price_id" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="billing_interval" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="ai_monthly_credit_limit" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="max_projects" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="priority_support" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMPTZ">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <createIndex tableName="subscription_plan" indexName="idx_subscription_plan_code">
+            <column name="plan_code"/>
+        </createIndex>
+
+
+
+    </changeSet>
+
+    <changeSet id="015-02-user-subscription-table" author="david">
+
+        <createTable tableName="user_subscription">
+
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="user_id" type="uuid">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="plan_id" type="uuid">
+                <constraints nullable="false"
+                             referencedTableName="subscription_plan"
+                             referencedColumnNames="id"
+                             foreignKeyName="fk_user_subscription_plan"/>
+            </column>
+
+            <column name="stripe_subscription_id" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="status" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="current_period_start" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="current_period_end" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="cancel_at_period_end" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated_at" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="user_subscription"
+                baseColumnNames="user_id"
+                referencedTableName="ludo_user"
+                referencedColumnNames="id"
+                constraintName="fk_user_subscription_user"/>
+
+        <createIndex tableName="user_subscription" indexName="idx_user_subscription_user">
+            <column name="user_id"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>
