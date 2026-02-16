@@ -37,8 +37,6 @@ class SecurityConfig(
                 ).permitAll()
                 it.requestMatchers("/api/v1/subscription/webhook", "/api/v1/subscription/webhook/**")
                     .permitAll()
-                it.requestMatchers("/api/v1/stripe/webhook", "/api/v1/subscription/stripe/**")
-                    .permitAll()
                 it.requestMatchers(*PublicEndpointConstants.PUBLIC_ENDPOINTS).permitAll()
                 it.requestMatchers("${ApiPaths.USERS.BASE}/**").authenticated()
                 it.requestMatchers(*AuthRoleEndpointConstants.ADMIN_REQUIRED)
