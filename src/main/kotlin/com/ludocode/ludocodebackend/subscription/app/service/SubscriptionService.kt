@@ -6,6 +6,8 @@ import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPl
 import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import jakarta.transaction.Transactional
+import net.logstash.logback.argument.StructuredArguments.kv
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -16,6 +18,7 @@ class SubscriptionService(
     private val subscriptionPlanRepository: SubscriptionPlanRepository,
     private val userSubscriptionRepository: UserSubscriptionRepository
 ) {
+    private val logger = LoggerFactory.getLogger(SubscriptionService::class.java)
 
 
     @Transactional
@@ -27,11 +30,20 @@ class SubscriptionService(
         currentPeriodEnd: OffsetDateTime
     ) {
 
+        logger.info("Activating subscription {}", kv("userId", userId), kv("planId", planId), kv("stripeSubscriptionId", stripeSubscriptionId))
+
         userRepository.findById(userId)
-            .orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
+            .orElseThrow {
+                logger.warn("User not found for subscription activation {}", kv("userId", userId))
+                ApiException(ErrorCode.USER_NOT_FOUND)
+            }
 
         val plan = subscriptionPlanRepository.findById(planId)
-            .orElseThrow { ApiException(ErrorCode.PLAN_NOT_FOUND) }
+            .orElseThrow {
+                logger.warn("Plan not found for subscription activation {}", kv("planId", planId))
+                ApiException(ErrorCode.PLAN_NOT_FOUND)
+            }
+
 
         val existing = userSubscriptionRepository.findByUserId(userId)
 
@@ -43,6 +55,9 @@ class SubscriptionService(
             existing.currentPeriodEnd = currentPeriodEnd
             existing.cancelAtPeriodEnd = false
             existing.updatedAt = OffsetDateTime.now()
+
+            logger.info("Updated existing subscription", kv("userId", userId), kv("subscriptionId", existing.id))
+
         } else {
             val subscription = UserSubscription(
                 id = UUID.randomUUID(),
@@ -58,6 +73,8 @@ class SubscriptionService(
             )
 
             userSubscriptionRepository.save(subscription)
+            logger.info("Created new subscription", kv("userId", userId), kv("subscriptionId", subscription.id))
+
         }
     }
 
