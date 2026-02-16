@@ -34,13 +34,16 @@ class JwtCookieAuthenticationFilter(
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
 
         val path = request.requestURI
-        return path.startsWith("/internal") ||
+        val exclude = path.startsWith("/internal") ||
                 path.startsWith("/swagger-ui") ||
                 path.startsWith("/v3/api-docs") ||
                 path.startsWith("/api/v1/auth/firebase") ||
                 path.startsWith("/api/v1/firebase") ||
                 path.startsWith("/actuator") ||
                 path.startsWith("/api/v1/subscription/webhook")
+
+        log.debug("shouldNotFilter check: path='$path', exclude=$exclude")
+        return exclude
     }
 
     @Throws(ServletException::class, IOException::class)
