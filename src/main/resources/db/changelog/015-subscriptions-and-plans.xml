@@ -112,7 +112,7 @@
         <addForeignKeyConstraint
                 baseTableName="user_subscription"
                 baseColumnNames="user_id"
-                referencedTableName="user"
+                referencedTableName="ludo_user"
                 referencedColumnNames="id"
                 constraintName="fk_user_subscription_user"/>
 
