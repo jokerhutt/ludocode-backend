@@ -26,6 +26,11 @@ object ApiPaths {
         const val WEBHOOK = "/webhook"
     }
 
+    object STRIPE {
+        const val BASE = "$API_PREFIX/stripe"
+        const val WEBHOOK = "/webhook"
+    }
+
     object CATALOG {
         const val BASE = "$API_PREFIX/catalog"
         const val COURSES = "/courses"

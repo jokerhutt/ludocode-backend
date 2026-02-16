@@ -40,7 +40,8 @@ class JwtCookieAuthenticationFilter(
                 path.startsWith("/api/v1/auth/firebase") ||
                 path.startsWith("/api/v1/firebase") ||
                 path.startsWith("/actuator") ||
-                path.startsWith("/api/v1/subscription/webhook")
+                path.startsWith("/api/v1/subscription/webhook") ||
+                path.startsWith("/api/v1/stripe/webhook")
 
         log.debug("shouldNotFilter check: path='$path', exclude=$exclude")
         return exclude
