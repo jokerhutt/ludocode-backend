@@ -39,7 +39,8 @@ class JwtCookieAuthenticationFilter(
                 path.startsWith("/v3/api-docs") ||
                 path.startsWith("/api/v1/auth/firebase") ||
                 path.startsWith("/api/v1/firebase") ||
-                path.startsWith("/actuator")
+                path.startsWith("/actuator") ||
+                path.startsWith("/api/v1/subscription/webhook")
     }
 
     @Throws(ServletException::class, IOException::class)
