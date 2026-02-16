@@ -9,5 +9,8 @@ interface SubscriptionPlanRepository : JpaRepository<SubscriptionPlan, UUID> {
 
     fun findByPlanCodeAndIsActiveTrue(planCode: Plan): SubscriptionPlan?
 
+    fun findByStripePriceId(stripePriceId: String): SubscriptionPlan?
+
+
 
 }

@@ -95,6 +95,7 @@ class SubscriptionController(
                     throw ApiException(ErrorCode.STRIPE_METADATA_MISSING)
                 }
 
+
             val userId = metadata["userId"]?.let { runCatching { UUID.fromString(it) }.getOrNull() }
                 ?: run {
                     logger.warn("Stripe metadata missing userId")
@@ -117,6 +118,8 @@ class SubscriptionController(
 
             val stripeSubscription = Subscription.retrieve(stripeSubscriptionId)
 
+            val stripePriceId = stripeSubscription.items.data[0].price.id
+
             val periodStart = OffsetDateTime.ofInstant(
                 Instant.ofEpochSecond(stripeSubscription.items.data[0].currentPeriodStart),
                 ZoneOffset.UTC
@@ -130,6 +133,7 @@ class SubscriptionController(
             subscriptionService.activateSubscription(
                 userId,
                 planId,
+                stripePriceId,
                 stripeSubscriptionId,
                 periodStart,
                 periodEnd

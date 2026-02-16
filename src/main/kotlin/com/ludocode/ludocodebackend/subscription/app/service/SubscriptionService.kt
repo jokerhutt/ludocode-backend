@@ -25,6 +25,7 @@ class SubscriptionService(
     fun activateSubscription(
         userId: UUID,
         planId: UUID,
+        stripePriceId: String,
         stripeSubscriptionId: String,
         currentPeriodStart: OffsetDateTime,
         currentPeriodEnd: OffsetDateTime
@@ -38,11 +39,8 @@ class SubscriptionService(
                 ApiException(ErrorCode.USER_NOT_FOUND)
             }
 
-        val plan = subscriptionPlanRepository.findById(planId)
-            .orElseThrow {
-                logger.warn("Plan not found for subscription activation {}", kv("planId", planId))
-                ApiException(ErrorCode.PLAN_NOT_FOUND)
-            }
+        val plan = subscriptionPlanRepository.findByStripePriceId(stripePriceId)
+            ?: throw ApiException(ErrorCode.PLAN_NOT_FOUND)
 
 
         val existing = userSubscriptionRepository.findByUserId(userId)
