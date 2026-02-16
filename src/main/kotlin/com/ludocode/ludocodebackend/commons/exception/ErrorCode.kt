@@ -46,7 +46,12 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     FILE_TOO_LARGE(HttpStatus.BAD_REQUEST, "The file you sent exceeds the limit"),
     DUPLICATE_FILE_NAME(HttpStatus.BAD_REQUEST, "Request contains duplicate file names"),
     INVALID_FILE_NAME(HttpStatus.BAD_REQUEST, "File name is invalid"),
-    EMPTY_REQUEST(HttpStatus.BAD_REQUEST, "Submission can not be empty")
+    EMPTY_REQUEST(HttpStatus.BAD_REQUEST, "Submission can not be empty"),
+
+
+    STRIPE_METADATA_MISSING(HttpStatus.BAD_REQUEST, "Stripe webhook metadata missing"),
+    STRIPE_SUBSCRIPTION_INVALID(HttpStatus.BAD_REQUEST, "Stripe subscription invalid"),
+    STRIPE_SIGNATURE_INVALID(HttpStatus.UNAUTHORIZED, "Invalid Stripe signature"),
 
 
 
