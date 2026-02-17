@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.subscription.app.service
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
 import com.ludocode.ludocodebackend.subscription.domain.entity.UserSubscription
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
 import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
@@ -19,6 +20,26 @@ class SubscriptionService(
     private val userSubscriptionRepository: UserSubscriptionRepository
 ) {
     private val logger = LoggerFactory.getLogger(SubscriptionService::class.java)
+
+
+    fun getUserSubscriptionResponse(userId: UUID): UserSubscriptionResponse {
+
+        val userPlan = userSubscriptionRepository.findByUserId(userId) ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
+        val subscriptionPlan = subscriptionPlanRepository.findByStripePriceId(userPlan.stripeSubscriptionId) ?: throw ApiException(
+            ErrorCode.PLAN_NOT_FOUND)
+
+        val res = UserSubscriptionResponse(
+            userId = userId,
+            planId = subscriptionPlan.id,
+            planCode = subscriptionPlan.planCode,
+            monthlyCreditAllowance = subscriptionPlan.aiMonthlyCreditlimit,
+            maxProjects = subscriptionPlan.maxProjects,
+            currentPeriodEnd = userPlan.currentPeriodEnd
+        )
+
+        return res
+
+    }
 
 
     @Transactional

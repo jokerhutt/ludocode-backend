@@ -48,6 +48,8 @@ import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRe
 import com.ludocode.ludocodebackend.progress.infra.repository.UserDailyGoalRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.UserCoinsRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.UserStreakRepository
+import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
+import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
 import com.ludocode.ludocodebackend.user.domain.entity.ExternalAccount
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
@@ -175,6 +177,8 @@ abstract class AbstractIntegrationTest {
     @Autowired lateinit var userDailyGoalRepository: UserDailyGoalRepository
     @Autowired lateinit var userProjectRepository: UserProjectRepository
     @Autowired lateinit var projectFileRepository: ProjectFileRepository
+    @Autowired lateinit var subscriptionPlanRepository: SubscriptionPlanRepository
+    @Autowired lateinit var userSubscriptionRepository: UserSubscriptionRepository
 
     @Autowired
     lateinit var storage: Storage
@@ -203,6 +207,7 @@ abstract class AbstractIntegrationTest {
           course_progress,
           user_coins,
           external_account,
+          user_subscription,
           ludo_user,
           option_content,
           exercise_option,
@@ -213,7 +218,8 @@ abstract class AbstractIntegrationTest {
           module, 
           course,
           subjects,
-          code_languages
+          code_languages,
+          subscription_plan
         RESTART IDENTITY CASCADE
         """.trimIndent()
         )

@@ -7,6 +7,7 @@ import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.subscription.api.dto.request.CheckoutRequest
+import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
 import com.ludocode.ludocodebackend.subscription.app.port.out.StripePort
 import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import com.ludocode.ludocodebackend.subscription.configuration.StripeProperties
@@ -19,6 +20,7 @@ import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
@@ -40,6 +42,11 @@ class SubscriptionController(
 ) {
 
     private val logger = LoggerFactory.getLogger(SubscriptionController::class.java)
+
+    @GetMapping
+    fun getUserSubscription (@AuthenticationPrincipal (expression = "userId") userId: UUID) : ResponseEntity<UserSubscriptionResponse> {
+        return ResponseEntity.ok(subscriptionService.getUserSubscriptionResponse(userId))
+    }
 
 
     @PostMapping(ApiPaths.SUBSCRIPTION.CHECKOUT)
