@@ -1,8 +1,16 @@
 package com.ludocode.ludocodebackend.subscription.app.service
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.subscription.api.dto.response.SubscriptionPlanFeatureResponse
+import com.ludocode.ludocodebackend.subscription.api.dto.response.SubscriptionPlanLimitsResponse
+import com.ludocode.ludocodebackend.subscription.api.dto.response.SubscriptionPlanOverviewResponse
 import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
+import com.ludocode.ludocodebackend.subscription.configuration.StripeProperties
 import com.ludocode.ludocodebackend.subscription.domain.entity.UserSubscription
+import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
+import com.ludocode.ludocodebackend.subscription.domain.enum.SubscriptionLimit
+import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanFeatureRepository
+import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanLimitRepository
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
 import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
@@ -17,7 +25,10 @@ import java.util.UUID
 class SubscriptionService(
     private val userRepository: UserRepository,
     private val subscriptionPlanRepository: SubscriptionPlanRepository,
-    private val userSubscriptionRepository: UserSubscriptionRepository
+    private val userSubscriptionRepository: UserSubscriptionRepository,
+    private val stripeProperties: StripeProperties,
+    private val subscriptionPlanLimitRepository: SubscriptionPlanLimitRepository,
+    private val subscriptionPlanFeatureRepository: SubscriptionPlanFeatureRepository
 ) {
     private val logger = LoggerFactory.getLogger(SubscriptionService::class.java)
 
@@ -28,12 +39,19 @@ class SubscriptionService(
         val subscriptionPlan = subscriptionPlanRepository.findByStripePriceId(userPlan.stripeSubscriptionId) ?: throw ApiException(
             ErrorCode.PLAN_NOT_FOUND)
 
+        val limits = subscriptionPlanLimitRepository
+            .findByPlanId(subscriptionPlan.id)
+            .associateBy { it.limitCode }
+
+        val maxProjects = limits[SubscriptionLimit.MAX_PROJECTS]?.limitValue ?: throw ApiException(ErrorCode.LIMITS_NOT_FOUND)
+        val monthlyCredits = limits[SubscriptionLimit.AI_MONTHLY_CREDITS]?.limitValue ?: throw ApiException(ErrorCode.LIMITS_NOT_FOUND)
+
         val res = UserSubscriptionResponse(
             userId = userId,
             planId = subscriptionPlan.id,
             planCode = subscriptionPlan.planCode,
-            monthlyCreditAllowance = subscriptionPlan.aiMonthlyCreditlimit,
-            maxProjects = subscriptionPlan.maxProjects,
+            monthlyCreditAllowance = monthlyCredits,
+            maxProjects = maxProjects,
             currentPeriodEnd = userPlan.currentPeriodEnd
         )
 
@@ -41,6 +59,48 @@ class SubscriptionService(
 
     }
 
+    fun getActivePlanOverviews(): List<SubscriptionPlanOverviewResponse> {
+
+        val plans = subscriptionPlanRepository.findAllByIsActiveTrue()
+        if (plans.isEmpty()) return emptyList()
+
+        val planIds = plans.map { it.id }
+
+        val features = subscriptionPlanFeatureRepository.findAllByPlanIdIn(planIds)
+        val limits   = subscriptionPlanLimitRepository.findAllByPlanIdIn(planIds)
+
+        val featuresByPlan = features.groupBy { it.planId }
+        val limitsByPlan   = limits.groupBy { it.planId }
+
+        return plans.map { plan ->
+
+            val planFeatures = featuresByPlan[plan.id].orEmpty()
+                .map {
+                    SubscriptionPlanFeatureResponse(
+                        title = it.title,
+                        enabled = it.enabled
+                    )
+                }
+
+            val planLimits = limitsByPlan[plan.id].orEmpty()
+                .map {
+                    SubscriptionPlanLimitsResponse(
+                        title = it.title,
+                        limit = it.limitValue
+                    )
+                }
+
+            SubscriptionPlanOverviewResponse(
+                tier = plan.planCode,
+                price = plan.displayPrice,
+                period = plan.billingInterval,
+                description = plan.description,
+                recommended = plan.planCode == Plan.CORE,
+                features = planFeatures,
+                limits = planLimits
+            )
+        }
+    }
 
     @Transactional
     fun activateSubscription(

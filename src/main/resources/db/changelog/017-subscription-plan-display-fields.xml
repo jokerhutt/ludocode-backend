@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+      http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="017-001-add-pricing-and-description" author="david">
+
+        <addColumn tableName="subscription_plan">
+            <column name="display_price" type="NUMERIC(10,2)"/>
+        </addColumn>
+
+        <addColumn tableName="subscription_plan">
+            <column name="currency" type="VARCHAR(10)"/>
+        </addColumn>
+
+        <addColumn tableName="subscription_plan">
+            <column name="description" type="TEXT"/>
+        </addColumn>
+
+    </changeSet>
+
+
+    <changeSet id="017-002-backfill-pricing-and-description" author="david" context="dev,prod">
+
+        <sql>
+            UPDATE subscription_plan
+            SET display_price = 0.00,
+                currency = 'EUR',
+                description = 'Default plan description'
+            WHERE display_price IS NULL;
+        </sql>
+
+    </changeSet>
+
+
+    <changeSet id="017-003-enforce-not-null" author="david">
+
+        <addNotNullConstraint
+                tableName="subscription_plan"
+                columnName="display_price"
+                columnDataType="NUMERIC(10,2)"/>
+
+        <addNotNullConstraint
+                tableName="subscription_plan"
+                columnName="currency"
+                columnDataType="VARCHAR(10)"/>
+
+        <addNotNullConstraint
+                tableName="subscription_plan"
+                columnName="description"
+                columnDataType="TEXT"/>
+
+    </changeSet>
+
+</databaseChangeLog>

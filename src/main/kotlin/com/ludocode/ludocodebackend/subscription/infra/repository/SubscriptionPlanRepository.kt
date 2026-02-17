@@ -11,6 +11,9 @@ interface SubscriptionPlanRepository : JpaRepository<SubscriptionPlan, UUID> {
 
     fun findByStripePriceId(stripePriceId: String): SubscriptionPlan?
 
+    fun findAllByIsActiveTrue(): List<SubscriptionPlan>
+
+
 
 
 }

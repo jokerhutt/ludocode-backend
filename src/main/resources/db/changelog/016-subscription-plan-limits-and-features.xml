@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="016-001-create-subscription-feature-enum" author="david">
+        <sql>
+            CREATE TYPE subscription_feature AS ENUM (
+            'CORE_COURSES',
+            'CODE_EDITOR',
+            'PUBLISH_PROJECTS',
+            'SKILL_PATHS',
+            'AI_ASSISTANT',
+            'PRIORITY_SUPPORT'
+        );
+        </sql>
+    </changeSet>
+
+    <changeSet id="016-002-create-subscription-limits-enum" author="david">
+        <sql>
+            CREATE TYPE subscription_limit AS ENUM (
+            'MAX_PROJECTS',
+            'AI_MONTHLY_CREDITS'
+        );
+        </sql>
+    </changeSet>
+
+    <changeSet id="016-003-create-subscription-plan-feature" author="david">
+
+        <createTable tableName="subscription_plan_feature">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="plan_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="feature_code" type="subscription_feature">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="enabled" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="subscription_plan_feature"
+                baseColumnNames="plan_id"
+                constraintName="fk_subscription_plan_feature_plan"
+                referencedTableName="subscription_plan"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <createIndex
+                tableName="subscription_plan_feature"
+                indexName="idx_subscription_plan_feature_plan_id">
+            <column name="plan_id"/>
+        </createIndex>
+
+        <addUniqueConstraint
+                tableName="subscription_plan_feature"
+                columnNames="plan_id, feature_code"
+                constraintName="uk_subscription_plan_feature_plan_feature_code"/>
+
+    </changeSet>
+
+    <changeSet id="016-004-create-subscription-plan-limit" author="david">
+
+        <createTable tableName="subscription_plan_limit">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="plan_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="limit_code" type="subscription_limit">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="limit_value" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="subscription_plan_limit"
+                baseColumnNames="plan_id"
+                constraintName="fk_subscription_plan_limit_plan"
+                referencedTableName="subscription_plan"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <createIndex
+                tableName="subscription_plan_limit"
+                indexName="idx_subscription_plan_limit_plan_id">
+            <column name="plan_id"/>
+        </createIndex>
+
+        <addUniqueConstraint
+                tableName="subscription_plan_limit"
+                columnNames="plan_id, limit_code"
+                constraintName="uk_subscription_plan_limit_plan_limit_code"/>
+
+    </changeSet>
+
+    <changeSet id="016-005-drop-inline-plan-limits" author="david">
+
+        <dropColumn tableName="subscription_plan" columnName="ai_monthly_credit_limit"/>
+        <dropColumn tableName="subscription_plan" columnName="max_projects"/>
+        <dropColumn tableName="subscription_plan" columnName="priority_support"/>
+
+    </changeSet>
+
+
+
+</databaseChangeLog>
