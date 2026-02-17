@@ -7,6 +7,7 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import java.math.BigDecimal
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -30,14 +31,14 @@ class SubscriptionPlan (
     @Column(name = "billing_interval", nullable = false)
     var billingInterval: String,
 
-    @Column(name = "ai_monthly_credit_limit", nullable = false)
-    var aiMonthlyCreditlimit: Int,
+    @Column(name = "display_price", nullable = false)
+    var displayPrice: BigDecimal,
 
-    @Column(name = "max_projects", nullable = false)
-    var maxProjects: Int,
+    @Column(name = "description", nullable = false)
+    var description: String,
 
-    @Column(name = "priority_support", nullable = false)
-    var prioritySupport: Boolean,
+    @Column(name = "currency")
+    var currency: String,
 
     @Column(name = "is_active", nullable = false)
     var isActive: Boolean,

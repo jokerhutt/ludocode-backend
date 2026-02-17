@@ -20,6 +20,8 @@
     <include file="/db/changelog/013-replace-current-lesson-with-module.xml"/>
     <include file="/db/changelog/014-exercise-option-unique-answer-order.xml"/>
     <include file="/db/changelog/015-subscriptions-and-plans.xml"/>
+    <include file="/db/changelog/016-subscription-plan-limits-and-features.xml"/>
+    <include file="/db/changelog/017-subscription-plan-display-fields.xml"/>
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>
 

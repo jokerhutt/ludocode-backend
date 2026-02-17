@@ -22,6 +22,7 @@ object ApiPaths {
 
     object SUBSCRIPTION {
         const val BASE = "$API_PREFIX/subscription"
+        const val PLANS = "/plans"
         const val CHECKOUT = "/checkout"
         const val WEBHOOK = "/webhook"
     }

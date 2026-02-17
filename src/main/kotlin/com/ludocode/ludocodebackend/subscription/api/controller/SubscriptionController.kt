@@ -7,10 +7,12 @@ import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.subscription.api.dto.request.CheckoutRequest
+import com.ludocode.ludocodebackend.subscription.api.dto.response.SubscriptionPlanOverviewResponse
 import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
 import com.ludocode.ludocodebackend.subscription.app.port.out.StripePort
 import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import com.ludocode.ludocodebackend.subscription.configuration.StripeProperties
+import com.ludocode.ludocodebackend.subscription.domain.entity.SubscriptionPlan
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
 import com.stripe.StripeClient
 import com.stripe.model.Subscription
@@ -48,6 +50,10 @@ class SubscriptionController(
         return ResponseEntity.ok(subscriptionService.getUserSubscriptionResponse(userId))
     }
 
+    @GetMapping(ApiPaths.SUBSCRIPTION.PLANS)
+    fun getPlans() : ResponseEntity<List<SubscriptionPlanOverviewResponse>> {
+        return ResponseEntity.ok(subscriptionService.getActivePlanOverviews())
+    }
 
     @PostMapping(ApiPaths.SUBSCRIPTION.CHECKOUT)
     fun createCheckoutSession(
