@@ -19,6 +19,8 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
 
     PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "Selected plan does not exist"),
 
+    USER_SUBSCRIPTION_NOT_FOUND(HttpStatus.NOT_FOUND,"User subscription not found"),
+
     COURSE_STATS_NOT_FOUND(HttpStatus.NOT_FOUND, "Course stats for this user and course not found"),
     COURSE_PROGRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "Course progress for this user and course not found"),
 
