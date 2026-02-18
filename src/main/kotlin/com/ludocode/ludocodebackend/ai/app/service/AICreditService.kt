@@ -46,8 +46,6 @@ class AICreditService(
 
     private fun adjustCredits (userId: UUID, amount: Int): Int {
 
-
-
         var userCreditsEntity = initializeOrGetCredits(userId)
         val currentCredits = userCreditsEntity.credits
         val newCredits = currentCredits + amount

@@ -24,8 +24,8 @@ class UserSubscription(
     @JoinColumn(name = "plan_id", nullable = false)
     var plan: SubscriptionPlan,
 
-    @Column(name = "stripe_subscription_id", nullable = false, unique = true)
-    var stripeSubscriptionId: String,
+    @Column(name = "stripe_subscription_id", nullable = true, unique = true)
+    var stripeSubscriptionId: String?,
 
     @Column(name = "status", nullable = false)
     var status: String,

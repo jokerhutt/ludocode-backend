@@ -1,13 +1,13 @@
 package com.ludocode.ludocodebackend.subscription.app.service
-import com.google.protobuf.Api
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.subscription.api.dto.response.SubscriptionPlanOverviewResponse
 import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
-import com.ludocode.ludocodebackend.subscription.configuration.Feature
+import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForAuth
 import com.ludocode.ludocodebackend.subscription.configuration.PlanDefinitions
 import com.ludocode.ludocodebackend.subscription.configuration.PlanLimits
 import com.ludocode.ludocodebackend.subscription.domain.entity.UserSubscription
+import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
 import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
@@ -24,7 +24,7 @@ class SubscriptionService(
     private val subscriptionPlanRepository: SubscriptionPlanRepository,
     private val userSubscriptionRepository: UserSubscriptionRepository,
 
-) {
+) : SubscriptionPortForAuth {
     private val logger = LoggerFactory.getLogger(SubscriptionService::class.java)
 
     fun getUserPlanLimits (userId: UUID) : PlanLimits {
@@ -37,8 +37,7 @@ class SubscriptionService(
     fun getUserSubscriptionResponse(userId: UUID): UserSubscriptionResponse {
 
         val userPlan = userSubscriptionRepository.findByUserId(userId) ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
-        val subscriptionPlan = subscriptionPlanRepository.findByStripePriceId(userPlan.stripeSubscriptionId) ?: throw ApiException(
-            ErrorCode.PLAN_NOT_FOUND)
+        val subscriptionPlan = userPlan.plan
 
         val planDefinitions = PlanDefinitions.configFor(subscriptionPlan.planCode)
 
@@ -81,16 +80,51 @@ class SubscriptionService(
     }
 
     @Transactional
-    fun activateSubscription(
+    override fun getOrElseInitializeFreeSubscription(
+        userId: UUID
+    ): UserSubscriptionResponse {
+
+        val existing = userSubscriptionRepository.findByUserIdWithPlan(userId)
+
+        if (existing != null) {
+            return getUserSubscriptionResponse(userId)
+        }
+
+        val plan = subscriptionPlanRepository
+            .findByPlanCodeAndIsActiveTrue(Plan.FREE)
+            ?: throw ApiException(ErrorCode.PLAN_NOT_FOUND)
+
+        val now = OffsetDateTime.now()
+        val periodEnd = now.plusMonths(1)
+
+        val subscription = UserSubscription(
+            id = UUID.randomUUID(),
+            userId = userId,
+            plan = plan,
+            stripeSubscriptionId = null,
+            status = "ACTIVE",
+            currentPeriodStart = now,
+            currentPeriodEnd = periodEnd,
+            cancelAtPeriodEnd = false,
+            createdAt = now,
+            updatedAt = now
+        )
+
+        userSubscriptionRepository.save(subscription)
+
+        return getUserSubscriptionResponse(userId)
+    }
+
+    @Transactional
+    fun activatePaidSubscription(
         userId: UUID,
-        planId: UUID,
         stripePriceId: String,
         stripeSubscriptionId: String,
         currentPeriodStart: OffsetDateTime,
         currentPeriodEnd: OffsetDateTime
     ) {
 
-        logger.info("Activating subscription {}", kv("userId", userId), kv("planId", planId), kv("stripeSubscriptionId", stripeSubscriptionId))
+        logger.info("Activating subscription {}", kv("userId", userId), kv("stripeSubscriptionId", stripeSubscriptionId))
 
         userRepository.findById(userId)
             .orElseThrow {

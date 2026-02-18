@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.auth.api.dto
 
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserCoinsResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
+import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 
-data class UserLoginResponse(val user: UserResponse, val userStats: UserCoinsResponse, val userStreak: UserStreakResponse)
+data class UserLoginResponse(val user: UserResponse, val userStats: UserCoinsResponse, val userStreak: UserStreakResponse, val subscription: UserSubscriptionResponse)

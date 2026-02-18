@@ -18,6 +18,10 @@ import com.ludocode.ludocodebackend.user.domain.entity.ExternalAccount
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.infra.repository.ExternalAccountRepository
 import com.ludocode.ludocodebackend.preferences.api.infra.repository.UserPreferencesRepository
+import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
+import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
+import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
+import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
