@@ -26,4 +26,11 @@
         </sql>
     </changeSet>
 
+    <changeSet id="018-005-make-stripe-subscription-id-nullable" author="dave">
+        <dropNotNullConstraint
+                tableName="user_subscription"
+                columnName="stripe_subscription_id"
+                columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
 </databaseChangeLog>
