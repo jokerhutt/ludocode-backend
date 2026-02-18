@@ -219,8 +219,6 @@ abstract class AbstractIntegrationTest {
           course,
           subjects,
           code_languages,
-          subscription_plan_feature,
-          subscription_plan_limit,
           subscription_plan
         RESTART IDENTITY CASCADE
         """.trimIndent()

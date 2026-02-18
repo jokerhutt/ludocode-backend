@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="018-001-drop-subscription-plan-feature-table" author="david">
+        <dropTable tableName="subscription_plan_feature" cascadeConstraints="true"/>
+    </changeSet>
+
+    <changeSet id="018-002-drop-subscription-plan-limit-table" author="david">
+        <dropTable tableName="subscription_plan_limit" cascadeConstraints="true"/>
+    </changeSet>
+
+    <changeSet id="018-003-drop-subscription-feature-enum" author="david">
+        <sql>
+            DROP TYPE IF EXISTS subscription_feature;
+        </sql>
+    </changeSet>
+
+    <changeSet id="018-004-drop-subscription-limit-enum" author="david">
+        <sql>
+            DROP TYPE IF EXISTS subscription_limit;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
