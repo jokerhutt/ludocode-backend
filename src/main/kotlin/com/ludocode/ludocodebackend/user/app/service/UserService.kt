@@ -19,6 +19,7 @@ import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.infra.repository.ExternalAccountRepository
 import com.ludocode.ludocodebackend.preferences.api.infra.repository.UserPreferencesRepository
 import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
+import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForUser
 import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
@@ -41,6 +42,7 @@ class UserService(
     private val avatarConfig: AvatarConfig,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val courseProgressPortForUser: CourseProgressPortForUser,
+    private val subscriptionPortForUser: SubscriptionPortForUser,
 ) : UserPortForProgress, UserPortForAuth, UserPortForOnboarding {
 
     private val logger = LoggerFactory.getLogger(UserService::class.java)
@@ -56,6 +58,7 @@ class UserService(
     @Transactional
     internal fun deleteUser(userId: UUID) {
         var existingUser = userRepository.findById(userId).orElseThrow()
+        subscriptionPortForUser.cancelSubscription(userId)
         val userExternalAccount = externalAccountRepository.findByUserId(userId) ?: throw ApiException(ErrorCode.USER_NOT_FOUND, "Could not find external account for user")
         externalAccountRepository.delete(userExternalAccount)
         logger.warn(LogEvents.USER_DELETED)

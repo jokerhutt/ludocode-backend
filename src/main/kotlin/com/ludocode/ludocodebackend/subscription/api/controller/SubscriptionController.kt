@@ -5,6 +5,7 @@ import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.subscription.api.dto.request.CheckoutRequest
+import com.ludocode.ludocodebackend.subscription.api.dto.request.ConfirmRequest
 import com.ludocode.ludocodebackend.subscription.api.dto.response.SubscriptionPlanOverviewResponse
 import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
 import com.ludocode.ludocodebackend.subscription.app.port.out.StripePort
@@ -49,6 +50,55 @@ class SubscriptionController(
     @GetMapping(ApiPaths.SUBSCRIPTION.PLANS)
     fun getPlans() : ResponseEntity<List<SubscriptionPlanOverviewResponse>> {
         return ResponseEntity.ok(subscriptionService.getActivePlanOverviews())
+    }
+
+
+    @PostMapping(ApiPaths.SUBSCRIPTION.CONFIRM)
+    fun confirmSubscription(
+        @AuthenticationPrincipal(expression = "userId") userId: UUID,
+        @RequestBody request: ConfirmRequest
+    ): ResponseEntity<UserSubscriptionResponse> {
+
+        val session = Session.retrieve(request.sessionId)
+
+        val metadataUserId = session.metadata["userId"]
+            ?: throw ApiException(ErrorCode.USER_NOT_FOUND)
+
+        if (metadataUserId != userId.toString()) {
+            throw ApiException(ErrorCode.BAD_REQ, "Not same user")
+        }
+
+        val stripeSubscriptionId = session.subscription as? String
+            ?: throw ApiException(ErrorCode.STRIPE_SUBSCRIPTION_INVALID)
+
+        val stripeSubscription = Subscription.retrieve(stripeSubscriptionId)
+
+        if (stripeSubscription.status != "active") {
+            throw ApiException(ErrorCode.PLAN_NOT_ACTIVE)
+        }
+
+        val stripePriceId = stripeSubscription.items.data[0].price.id
+
+        val periodStart = OffsetDateTime.ofInstant(
+            Instant.ofEpochSecond(stripeSubscription.items.data[0].currentPeriodStart),
+            ZoneOffset.UTC
+        )
+
+        val periodEnd = OffsetDateTime.ofInstant(
+            Instant.ofEpochSecond(stripeSubscription.items.data[0].currentPeriodEnd),
+            ZoneOffset.UTC
+        )
+
+        subscriptionService.activatePaidSubscription(
+            userId,
+            stripePriceId,
+            stripeSubscriptionId,
+            periodStart,
+            periodEnd
+        )
+
+        val response = subscriptionService.getUserSubscriptionResponse(userId)
+        return ResponseEntity.ok(response)
     }
 
     @PostMapping(ApiPaths.SUBSCRIPTION.CHECKOUT)

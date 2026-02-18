@@ -4,6 +4,7 @@ import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.subscription.api.dto.response.SubscriptionPlanOverviewResponse
 import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
 import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForAuth
+import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForUser
 import com.ludocode.ludocodebackend.subscription.configuration.PlanDefinitions
 import com.ludocode.ludocodebackend.subscription.configuration.PlanLimits
 import com.ludocode.ludocodebackend.subscription.domain.entity.UserSubscription
@@ -11,6 +12,7 @@ import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
 import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
+import com.stripe.model.Subscription
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
@@ -24,7 +26,7 @@ class SubscriptionService(
     private val subscriptionPlanRepository: SubscriptionPlanRepository,
     private val userSubscriptionRepository: UserSubscriptionRepository,
 
-) : SubscriptionPortForAuth {
+) : SubscriptionPortForAuth, SubscriptionPortForUser {
     private val logger = LoggerFactory.getLogger(SubscriptionService::class.java)
 
     fun getUserPlanLimits (userId: UUID) : PlanLimits {
@@ -113,6 +115,25 @@ class SubscriptionService(
         userSubscriptionRepository.save(subscription)
 
         return getUserSubscriptionResponse(userId)
+    }
+
+    @Transactional
+    override fun cancelSubscription(userId: UUID) {
+
+        val subscription = userSubscriptionRepository.findByUserId(userId)
+            ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
+
+        if (subscription.status != "ACTIVE") {
+            return
+        }
+
+        val stripeSub = Subscription.retrieve(subscription.stripeSubscriptionId)
+        stripeSub.cancel()
+
+        subscription.status = "CANCELLED"
+        subscription.cancelAtPeriodEnd = false
+        subscription.currentPeriodEnd = OffsetDateTime.now()
+        subscription.updatedAt = OffsetDateTime.now()
     }
 
     @Transactional
