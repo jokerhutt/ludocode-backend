@@ -2,19 +2,15 @@ package com.ludocode.ludocodebackend.subscription.api.controller
 
 import com.ludocode.ludocodebackend.commons.configuration.AppProps
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
-import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.subscription.api.dto.request.CheckoutRequest
 import com.ludocode.ludocodebackend.subscription.api.dto.response.SubscriptionPlanOverviewResponse
 import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
 import com.ludocode.ludocodebackend.subscription.app.port.out.StripePort
 import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import com.ludocode.ludocodebackend.subscription.configuration.StripeProperties
-import com.ludocode.ludocodebackend.subscription.domain.entity.SubscriptionPlan
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
-import com.stripe.StripeClient
 import com.stripe.model.Subscription
 import com.stripe.model.checkout.Session
 import com.stripe.net.Webhook
@@ -143,9 +139,8 @@ class SubscriptionController(
                 ZoneOffset.UTC
             )
 
-            subscriptionService.activateSubscription(
+            subscriptionService.activatePaidSubscription(
                 userId,
-                planId,
                 stripePriceId,
                 stripeSubscriptionId,
                 periodStart,

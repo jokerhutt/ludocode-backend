@@ -10,6 +10,7 @@ import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
+import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForAuth
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
@@ -27,7 +28,8 @@ class AuthService(
     private val userCoinsPortForAuth: UserCoinsPortForAuth,
     private val userStreakPortForAuth: UserStreakPortForAuth,
     private val demoConfig: DemoConfig,
-    private val firebaseAuthPort: FirebaseAuthPort
+    private val firebaseAuthPort: FirebaseAuthPort,
+    private val subscriptionPortForAuth: SubscriptionPortForAuth
 ) {
 
     private val logger = LoggerFactory.getLogger(AuthService::class.java)
@@ -78,6 +80,7 @@ class AuthService(
         response: HttpServletResponse
     ): UserLoginResponse {
         val user = userPortForAuth.findOrCreate(request)
+        val subscription = subscriptionPortForAuth.getOrElseInitializeFreeSubscription(user.id)
 
         return withMdc(LogFields.USER_ID to user.id.toString(), LogFields.PROVIDER to request.provider.toString()) {
             logger.info(LogEvents.AUTH_LOGIN_SUCCESS)
@@ -85,7 +88,7 @@ class AuthService(
             val streak = userStreakPortForAuth.getStreak(user.id)
             val jwt = jwtService.createToken(user.id, role = request.role)
             authCookieService.setJwt(response, jwt)
-            UserLoginResponse(user, coins, streak)
+            UserLoginResponse(user, coins, streak, subscription)
         }
 
     }

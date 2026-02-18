@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.auth.integration.demo
 import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured
 import org.assertj.core.api.Assertions
@@ -30,6 +31,7 @@ class DemoAuthIT : AbstractIntegrationTest() {
         Assertions.assertThat(res).isNotNull()
         Assertions.assertThat(res.user.id).isEqualTo(id)
         Assertions.assertThat(res.user.displayName).isEqualTo(demoUser1.displayName)
+        Assertions.assertThat(res.subscription.planCode).isEqualTo(Plan.FREE)
     }
 
     private fun submitGetDemoUser(token: String): UserLoginResponse {
