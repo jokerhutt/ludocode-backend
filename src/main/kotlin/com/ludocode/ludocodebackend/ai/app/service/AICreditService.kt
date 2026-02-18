@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
@@ -15,11 +16,12 @@ import java.util.UUID
 
 @ConditionalOnProperty(prefix = "ai", name = ["enabled"], havingValue = "true")
 @Service
-class AICreditService(private val userAICreditsRepository: UserAICreditsRepository) {
+class AICreditService(
+    private val userAICreditsRepository: UserAICreditsRepository,
+    private val subscriptionService: SubscriptionService
+) {
 
     private val logger = LoggerFactory.getLogger(AICreditService::class.java)
-
-    private val INITIAL_USER_CREDITS: Int = 10
 
     @Transactional
     internal fun addCredits (userId: UUID, amount: Int): Int {
@@ -43,6 +45,9 @@ class AICreditService(private val userAICreditsRepository: UserAICreditsReposito
     }
 
     private fun adjustCredits (userId: UUID, amount: Int): Int {
+
+
+
         var userCreditsEntity = initializeOrGetCredits(userId)
         val currentCredits = userCreditsEntity.credits
         val newCredits = currentCredits + amount
@@ -85,13 +90,18 @@ class AICreditService(private val userAICreditsRepository: UserAICreditsReposito
 
     @Transactional
     internal fun initializeOrGetCredits (userId: UUID) : UserAICredits {
+
+        val subscriptionLimits = subscriptionService.getUserPlanLimits(userId)
+        val planCreditAllowance = subscriptionLimits.monthlyAiCredits
+
         logger.info(
             LogEvents.AI_CREDITS_INITIALIZED + " {} {}",
             kv(LogFields.USER_ID, userId.toString()),
-            kv(LogFields.CREDITS, INITIAL_USER_CREDITS)
+            kv(LogFields.CREDITS, planCreditAllowance)
         )
+
         return userAICreditsRepository.findById(userId).orElseGet { userAICreditsRepository.save(
-            UserAICredits(userId, INITIAL_USER_CREDITS)
+            UserAICredits(userId, planCreditAllowance)
         ) }
     }
 

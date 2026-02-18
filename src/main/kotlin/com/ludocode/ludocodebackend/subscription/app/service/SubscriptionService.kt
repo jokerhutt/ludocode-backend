@@ -1,10 +1,12 @@
 package com.ludocode.ludocodebackend.subscription.app.service
+import com.google.protobuf.Api
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.subscription.api.dto.response.SubscriptionPlanOverviewResponse
 import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
 import com.ludocode.ludocodebackend.subscription.configuration.Feature
 import com.ludocode.ludocodebackend.subscription.configuration.PlanDefinitions
+import com.ludocode.ludocodebackend.subscription.configuration.PlanLimits
 import com.ludocode.ludocodebackend.subscription.domain.entity.UserSubscription
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
 import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
@@ -25,6 +27,12 @@ class SubscriptionService(
 ) {
     private val logger = LoggerFactory.getLogger(SubscriptionService::class.java)
 
+    fun getUserPlanLimits (userId: UUID) : PlanLimits {
+        val userPlan = userSubscriptionRepository.findByUserId(userId)
+            ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
+        val planDefinition = PlanDefinitions.configFor(userPlan.plan.planCode)
+        return planDefinition.limits
+    }
 
     fun getUserSubscriptionResponse(userId: UUID): UserSubscriptionResponse {
 
