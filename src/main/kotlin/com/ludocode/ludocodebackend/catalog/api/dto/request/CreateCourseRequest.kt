@@ -1,10 +1,15 @@
 package com.ludocode.ludocodebackend.catalog.api.dto.request
 
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
-import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
-import java.util.UUID
+import java.util.*
 
-data class CreateCourseRequest(val courseTitle: String, val requestHash: UUID, val courseType: CourseType, val courseSubject: CourseSubjectRequest, val languageId: Long?)
+data class CreateCourseRequest(
+    val courseTitle: String,
+    val requestHash: UUID,
+    val courseType: CourseType,
+    val courseSubject: CourseSubjectRequest,
+    val languageId: Long?
+)
 
 data class CourseSubjectRequest(
     val slug: String,

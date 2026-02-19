@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.progress.infra.projection
 
-import java.util.UUID
+import java.util.*
 
 interface CourseLessonStatsProjection {
     val courseId: UUID

@@ -1,55 +1,41 @@
 package com.ludocode.ludocodebackend.support
+
 import com.google.cloud.storage.Storage
-import com.ludocode.ludocodebackend.support.snapshot.CourseSnap
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.LessonSnap
-import com.ludocode.ludocodebackend.support.snapshot.ModuleSnap
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.OptionSnap
-import com.ludocode.ludocodebackend.support.snapshot.SubjectSnap
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
-import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
-import com.ludocode.ludocodebackend.lesson.domain.entity.ExerciseOption
-import com.ludocode.ludocodebackend.lesson.domain.entity.Lesson
-import com.ludocode.ludocodebackend.lesson.domain.entity.LessonExercise
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
-import com.ludocode.ludocodebackend.lesson.domain.entity.OptionContent
 import com.ludocode.ludocodebackend.catalog.domain.entity.Subject
-import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
-import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.LessonExercisesId
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
-import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
-import com.ludocode.ludocodebackend.catalog.infra.repository.*
+import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.SubjectRepository
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
-import com.ludocode.ludocodebackend.config.time.TestClockConfig
-import com.ludocode.ludocodebackend.config.GcpTestConfig
-import com.ludocode.ludocodebackend.config.GeminiTestConfig
-import com.ludocode.ludocodebackend.config.FirebaseAuthTestConfig
-import com.ludocode.ludocodebackend.config.MockOauthConstants
+import com.ludocode.ludocodebackend.config.*
 import com.ludocode.ludocodebackend.config.security.TestSecurityConfig
 import com.ludocode.ludocodebackend.config.time.MutableClock
-import com.ludocode.ludocodebackend.config.TestCacheConfig
-import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseOptionRepository
-import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseRepository
-import com.ludocode.ludocodebackend.lesson.infra.repository.LessonExercisesRepository
-import com.ludocode.ludocodebackend.lesson.infra.repository.OptionContentRepository
+import com.ludocode.ludocodebackend.config.time.TestClockConfig
 import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
-import com.ludocode.ludocodebackend.lesson.infra.repository.LessonRepository
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.LessonSnap
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.OptionSnap
+import com.ludocode.ludocodebackend.lesson.domain.entity.*
+import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
+import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.LessonExercisesId
+import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
+import com.ludocode.ludocodebackend.lesson.infra.repository.*
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
-import com.ludocode.ludocodebackend.progress.infra.repository.AttemptOptionRepository
-import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
-import com.ludocode.ludocodebackend.progress.infra.repository.ExerciseAttemptRepository
-import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
-import com.ludocode.ludocodebackend.progress.infra.repository.UserDailyGoalRepository
-import com.ludocode.ludocodebackend.progress.infra.repository.UserCoinsRepository
-import com.ludocode.ludocodebackend.progress.infra.repository.UserStreakRepository
+import com.ludocode.ludocodebackend.progress.infra.repository.*
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
 import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
+import com.ludocode.ludocodebackend.support.snapshot.CourseSnap
+import com.ludocode.ludocodebackend.support.snapshot.ModuleSnap
+import com.ludocode.ludocodebackend.support.snapshot.SubjectSnap
 import com.ludocode.ludocodebackend.user.domain.entity.ExternalAccount
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
@@ -68,17 +54,17 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
-import java.time.OffsetDateTime
 import java.time.Instant
-import java.util.UUID
-
+import java.time.OffsetDateTime
+import java.util.*
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
 @Import(
     TestSecurityConfig::class, TestClockConfig::class, GcpTestConfig::class, GeminiTestConfig::class,
-    FirebaseAuthTestConfig::class, TestCacheConfig::class)
+    FirebaseAuthTestConfig::class, TestCacheConfig::class
+)
 abstract class AbstractIntegrationTest {
 
 
@@ -91,29 +77,29 @@ abstract class AbstractIntegrationTest {
     @Autowired
     private lateinit var codeLanguagesRepository: CodeLanguagesRepository
     var pythonId = UUID.randomUUID()
-     var swiftId  = UUID.randomUUID()
+    var swiftId = UUID.randomUUID()
 
-     var pyMod1Id = UUID.randomUUID()
-     var pyMod2Id = UUID.randomUUID()
-     var swMod1Id = UUID.randomUUID()
+    var pyMod1Id = UUID.randomUUID()
+    var pyMod2Id = UUID.randomUUID()
+    var swMod1Id = UUID.randomUUID()
     var swMod2Id = UUID.randomUUID()
 
-     var py1L1 = UUID.randomUUID()
-     var py1L2 = UUID.randomUUID()
-     var py1L3 = UUID.randomUUID()
-     var py1L4 = UUID.randomUUID()
+    var py1L1 = UUID.randomUUID()
+    var py1L2 = UUID.randomUUID()
+    var py1L3 = UUID.randomUUID()
+    var py1L4 = UUID.randomUUID()
 
-     var py2L1 = UUID.randomUUID()
-     var py2L2 = UUID.randomUUID()
+    var py2L1 = UUID.randomUUID()
+    var py2L2 = UUID.randomUUID()
 
-     var sw1L1 = UUID.randomUUID()
-     var sw1L2 = UUID.randomUUID()
-     var sw1L3 = UUID.randomUUID()
-     var sw1L4 = UUID.randomUUID()
+    var sw1L1 = UUID.randomUUID()
+    var sw1L2 = UUID.randomUUID()
+    var sw1L3 = UUID.randomUUID()
+    var sw1L4 = UUID.randomUUID()
 
-     var pythonLessons = listOf(
-         py1L1, py1L2, py1L3, py1L4, py2L1, py2L2
-     )
+    var pythonLessons = listOf(
+        py1L1, py1L2, py1L3, py1L4, py2L1, py2L2
+    )
 
     lateinit var user1: User
     lateinit var user2: User
@@ -158,27 +144,48 @@ abstract class AbstractIntegrationTest {
 
     @Autowired
     lateinit var clock: MutableClock
-    @Autowired lateinit var courseProgressRepository: CourseProgressRepository
-    @Autowired lateinit var userRepository: UserRepository
-    @Autowired lateinit var externalAccountRepository: ExternalAccountRepository
-    @Autowired lateinit var courseRepository: CourseRepository
-    @Autowired lateinit var lessonRepository: LessonRepository
-    @Autowired lateinit var moduleRepository: ModuleRepository
-    @Autowired lateinit var exerciseRepository: ExerciseRepository
-    @Autowired lateinit var lessonCompletionRepository: LessonCompletionRepository
-    @Autowired lateinit var moduleLessonsRepository: ModuleLessonsRepository
-    @Autowired lateinit var lessonExercisesRepository: LessonExercisesRepository
-    @Autowired lateinit var exerciseOptionRepository: ExerciseOptionRepository
-    @Autowired lateinit var optionContentRepository: OptionContentRepository
-    @Autowired lateinit var userCoinsRepository: UserCoinsRepository
-    @Autowired lateinit var exerciseAttemptRepository: ExerciseAttemptRepository
-    @Autowired lateinit var attemptOptionRepository: AttemptOptionRepository
-    @Autowired lateinit var userStreakRepository: UserStreakRepository
-    @Autowired lateinit var userDailyGoalRepository: UserDailyGoalRepository
-    @Autowired lateinit var userProjectRepository: UserProjectRepository
-    @Autowired lateinit var projectFileRepository: ProjectFileRepository
-    @Autowired lateinit var subscriptionPlanRepository: SubscriptionPlanRepository
-    @Autowired lateinit var userSubscriptionRepository: UserSubscriptionRepository
+    @Autowired
+    lateinit var courseProgressRepository: CourseProgressRepository
+    @Autowired
+    lateinit var userRepository: UserRepository
+    @Autowired
+    lateinit var externalAccountRepository: ExternalAccountRepository
+    @Autowired
+    lateinit var courseRepository: CourseRepository
+    @Autowired
+    lateinit var lessonRepository: LessonRepository
+    @Autowired
+    lateinit var moduleRepository: ModuleRepository
+    @Autowired
+    lateinit var exerciseRepository: ExerciseRepository
+    @Autowired
+    lateinit var lessonCompletionRepository: LessonCompletionRepository
+    @Autowired
+    lateinit var moduleLessonsRepository: ModuleLessonsRepository
+    @Autowired
+    lateinit var lessonExercisesRepository: LessonExercisesRepository
+    @Autowired
+    lateinit var exerciseOptionRepository: ExerciseOptionRepository
+    @Autowired
+    lateinit var optionContentRepository: OptionContentRepository
+    @Autowired
+    lateinit var userCoinsRepository: UserCoinsRepository
+    @Autowired
+    lateinit var exerciseAttemptRepository: ExerciseAttemptRepository
+    @Autowired
+    lateinit var attemptOptionRepository: AttemptOptionRepository
+    @Autowired
+    lateinit var userStreakRepository: UserStreakRepository
+    @Autowired
+    lateinit var userDailyGoalRepository: UserDailyGoalRepository
+    @Autowired
+    lateinit var userProjectRepository: UserProjectRepository
+    @Autowired
+    lateinit var projectFileRepository: ProjectFileRepository
+    @Autowired
+    lateinit var subscriptionPlanRepository: SubscriptionPlanRepository
+    @Autowired
+    lateinit var userSubscriptionRepository: UserSubscriptionRepository
 
     @Autowired
     lateinit var storage: Storage
@@ -261,7 +268,15 @@ abstract class AbstractIntegrationTest {
                         ?: throw ApiException(ErrorCode.LANGUAGE_NOT_FOUND)
                 }
 
-            courseRepository.save(Course(id = cs.courseId, title = cs.title, courseType = cs.courseType, subject = subject!!, language = language))
+            courseRepository.save(
+                Course(
+                    id = cs.courseId,
+                    title = cs.title,
+                    courseType = cs.courseType,
+                    subject = subject!!,
+                    language = language
+                )
+            )
 
             cs.modules.forEachIndexed { mIdx, ms ->
                 moduleRepository.save(
@@ -348,89 +363,112 @@ abstract class AbstractIntegrationTest {
         }
     }
 
-    protected fun initializeUsers () {
+    protected fun initializeUsers() {
         user1 = userRepository.save(
-            User(displayName = "John Doe", createdAt = OffsetDateTime.now(clock), email = "email@google.com"))
+            User(displayName = "John Doe", createdAt = OffsetDateTime.now(clock), email = "email@google.com")
+        )
         user2 = userRepository.save(
-            User(displayName = "Micheal Scott", createdAt = OffsetDateTime.now(clock), email = "mscott@google.com"))
-
-        demoUser1 = userRepository.save(
-            User(id= UUID.fromString("47ad6daf-2433-4e76-b9c1-305614c5c033"), displayName = "Demo User", email = "demoUser", createdAt = OffsetDateTime.now(clock))
+            User(displayName = "Micheal Scott", createdAt = OffsetDateTime.now(clock), email = "mscott@google.com")
         )
 
-        externalAccountRepository.save(ExternalAccount(
-            userId = user1.id!!,
-            provider = AuthProvider.FIREBASE,
-            providerUserId = MockOauthConstants.USER_1_GOOGLE_SUB,
-            createdAt = Instant.from(OffsetDateTime.now(clock))
-        ))
+        demoUser1 = userRepository.save(
+            User(
+                id = UUID.fromString("47ad6daf-2433-4e76-b9c1-305614c5c033"),
+                displayName = "Demo User",
+                email = "demoUser",
+                createdAt = OffsetDateTime.now(clock)
+            )
+        )
 
-        externalAccountRepository.save(ExternalAccount(
-            userId = demoUser1.id!!,
-            provider = AuthProvider.DEMO,
-            providerUserId = demoUser1.id.toString(),
-            createdAt = Instant.from(OffsetDateTime.now(clock))
-        ))
+        externalAccountRepository.save(
+            ExternalAccount(
+                userId = user1.id!!,
+                provider = AuthProvider.FIREBASE,
+                providerUserId = MockOauthConstants.USER_1_GOOGLE_SUB,
+                createdAt = Instant.from(OffsetDateTime.now(clock))
+            )
+        )
 
+        externalAccountRepository.save(
+            ExternalAccount(
+                userId = demoUser1.id!!,
+                provider = AuthProvider.DEMO,
+                providerUserId = demoUser1.id.toString(),
+                createdAt = Instant.from(OffsetDateTime.now(clock))
+            )
+        )
 
-    }
-
-    @Transactional
-        fun initializeLanguages () {
-        pythonLanguage = codeLanguagesRepository.save(CodeLanguages(
-            slug = "py",
-            name = "python",
-            editorId = "python",
-            initialScript = "print('Hello World!')",
-            base = "script",
-            extension = ".py",
-            pistonId = "python",
-            iconName = "Python"
-        ))
-        swiftLanguage = codeLanguagesRepository.save(CodeLanguages(
-            slug = "swift",
-            name = "swift",
-            editorId = "swift",
-            initialScript = "print('Hello World!')",
-            base = "script",
-            extension = ".swift",
-            pistonId = "swift",
-            iconName = "Swift"
-        ))
-        luaLanguage = codeLanguagesRepository.save(CodeLanguages(
-            slug = "lua",
-            name = "Lua",
-            editorId = "lua",
-            initialScript = "print('Hello World!')",
-            base = "script",
-            extension = ".lua",
-            pistonId = "lua",
-            iconName = "Lua"
-        ))
-        jsLanguage = codeLanguagesRepository.save(CodeLanguages(
-            slug = "js",
-            name = "Javascript",
-            editorId = "js",
-            initialScript = "console.log('Hello World!')",
-            base = "script",
-            extension = ".js",
-            pistonId = "js",
-            iconName = "Javascript"
-        ))
 
     }
 
     @Transactional
-    fun initializeSubjects () {
-        pythonSubject = subjectRepository.save(Subject(
-            slug="py",
-            name="Python",
-        ))
+    fun initializeLanguages() {
+        pythonLanguage = codeLanguagesRepository.save(
+            CodeLanguages(
+                slug = "py",
+                name = "python",
+                editorId = "python",
+                initialScript = "print('Hello World!')",
+                base = "script",
+                extension = ".py",
+                pistonId = "python",
+                iconName = "Python"
+            )
+        )
+        swiftLanguage = codeLanguagesRepository.save(
+            CodeLanguages(
+                slug = "swift",
+                name = "swift",
+                editorId = "swift",
+                initialScript = "print('Hello World!')",
+                base = "script",
+                extension = ".swift",
+                pistonId = "swift",
+                iconName = "Swift"
+            )
+        )
+        luaLanguage = codeLanguagesRepository.save(
+            CodeLanguages(
+                slug = "lua",
+                name = "Lua",
+                editorId = "lua",
+                initialScript = "print('Hello World!')",
+                base = "script",
+                extension = ".lua",
+                pistonId = "lua",
+                iconName = "Lua"
+            )
+        )
+        jsLanguage = codeLanguagesRepository.save(
+            CodeLanguages(
+                slug = "js",
+                name = "Javascript",
+                editorId = "js",
+                initialScript = "console.log('Hello World!')",
+                base = "script",
+                extension = ".js",
+                pistonId = "js",
+                iconName = "Javascript"
+            )
+        )
 
-        swiftSubject = subjectRepository.save(Subject(
-            slug = "swift",
-            name="swift",
-        ))
+    }
+
+    @Transactional
+    fun initializeSubjects() {
+        pythonSubject = subjectRepository.save(
+            Subject(
+                slug = "py",
+                name = "Python",
+            )
+        )
+
+        swiftSubject = subjectRepository.save(
+            Subject(
+                slug = "swift",
+                name = "swift",
+            )
+        )
     }
 
     @Transactional
@@ -459,7 +497,7 @@ abstract class AbstractIntegrationTest {
             media = null,
             exerciseType = ExerciseType.CLOZE,
             correctOptions = listOf(
-                OptionSnap(content = "house",  answerOrder = 1, UUID.randomUUID()),
+                OptionSnap(content = "house", answerOrder = 1, UUID.randomUUID()),
                 OptionSnap(content = "'house'", answerOrder = 2, UUID.randomUUID())
             ),
             distractors = emptyList()
@@ -564,7 +602,7 @@ abstract class AbstractIntegrationTest {
             exerciseType = ExerciseType.INFO,
             correctOptions = emptyList(),
             distractors = emptyList()
-    )
+        )
 
         val ex10INFO = ExerciseSnap(
             id = UUID.randomUUID(),
@@ -599,9 +637,9 @@ abstract class AbstractIntegrationTest {
         )
 
         val pyMod2Lessons = listOf(
-            LessonSnap(id = py2L1, title = "If",       orderIndex = 1, exercises = listOf(ex7)),
+            LessonSnap(id = py2L1, title = "If", orderIndex = 1, exercises = listOf(ex7)),
             LessonSnap(
-                id = py2L2, title = "Else",     orderIndex = 2,
+                id = py2L2, title = "Else", orderIndex = 2,
                 exercises = listOf(ex8)
             ),
         )
@@ -615,7 +653,7 @@ abstract class AbstractIntegrationTest {
 
 
         val pythonModules = listOf(
-            ModuleSnap(moduleId = pyMod1Id, title = "Variables",   lessons = pyMod1Lessons),
+            ModuleSnap(moduleId = pyMod1Id, title = "Variables", lessons = pyMod1Lessons),
             ModuleSnap(moduleId = pyMod2Id, title = "Conditionals", lessons = pyMod2Lessons)
         )
         val swiftModules = listOf(
@@ -636,8 +674,22 @@ abstract class AbstractIntegrationTest {
         val swiftLanguageMetadata = languagesMapper.toLanguageMetadata(swiftLanguage)
 
         val snaps = listOf(
-            CourseSnap(courseId = pythonId, title = "Python", courseSubject = pythonSubjectSnap, courseType = CourseType.COURSE,  modules = pythonModules, language = swiftLanguageMetadata),
-            CourseSnap(courseId = swiftId,  title = "Swift", courseSubject = swiftSubjectSnap, courseType = CourseType.COURSE,  modules = swiftModules, language = pythonLanguageMetadata)
+            CourseSnap(
+                courseId = pythonId,
+                title = "Python",
+                courseSubject = pythonSubjectSnap,
+                courseType = CourseType.COURSE,
+                modules = pythonModules,
+                language = swiftLanguageMetadata
+            ),
+            CourseSnap(
+                courseId = swiftId,
+                title = "Swift",
+                courseSubject = swiftSubjectSnap,
+                courseType = CourseType.COURSE,
+                modules = swiftModules,
+                language = pythonLanguageMetadata
+            )
         )
 
         importSnapshots(snaps, defaultVersion = 1)

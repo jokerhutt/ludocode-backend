@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.infra.projection
 
-import java.util.UUID
+import java.util.*
 
 interface FlatModuleLessonRow {
     fun getModuleId(): UUID

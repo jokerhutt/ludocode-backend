@@ -13,8 +13,9 @@ import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
 @Service
-class LanguagesService(private val codeLanguagesRepository: CodeLanguagesRepository,
-                       private val languagesMapper: LanguagesMapper
+class LanguagesService(
+    private val codeLanguagesRepository: CodeLanguagesRepository,
+    private val languagesMapper: LanguagesMapper
 ) : LanguagePort {
 
     override fun findById(languageId: Long): CodeLanguages {
@@ -23,26 +24,28 @@ class LanguagesService(private val codeLanguagesRepository: CodeLanguagesReposit
             .orElseThrow { ApiException(ErrorCode.LANGUAGE_NOT_FOUND) }
     }
 
-    internal fun getAllLanguages () : List<LanguageMetadata> {
+    internal fun getAllLanguages(): List<LanguageMetadata> {
         val languages = codeLanguagesRepository.findAll()
         return languagesMapper.toLanguageMetadataList(languages)
     }
 
     @Transactional
-    internal fun createLanguage (req: CreateLanguageRequest) : List<LanguageMetadata> {
+    internal fun createLanguage(req: CreateLanguageRequest): List<LanguageMetadata> {
 
-         assertUnique(req)
+        assertUnique(req)
 
-         codeLanguagesRepository.save(CodeLanguages(
-            name = req.name,
-            slug = req.slug,
-            editorId = req.editorId,
-            pistonId = req.pistonId,
-            extension = req.extension,
-            base = req.base,
-            iconName = req.iconName,
-            initialScript = req.initialScript
-        ))
+        codeLanguagesRepository.save(
+            CodeLanguages(
+                name = req.name,
+                slug = req.slug,
+                editorId = req.editorId,
+                pistonId = req.pistonId,
+                extension = req.extension,
+                base = req.base,
+                iconName = req.iconName,
+                initialScript = req.initialScript
+            )
+        )
         return getAllLanguages()
     }
 
@@ -63,7 +66,7 @@ class LanguagesService(private val codeLanguagesRepository: CodeLanguagesReposit
 
 
     @Transactional
-    internal fun updateLanguage (id: Long, req: UpdateLanguageRequest) : List<LanguageMetadata> {
+    internal fun updateLanguage(id: Long, req: UpdateLanguageRequest): List<LanguageMetadata> {
         assertUniqueForUpdate(id, req)
         val language = codeLanguagesRepository.findById(id)
             .orElseThrow { ApiException(ErrorCode.LANGUAGE_NOT_FOUND) }
@@ -81,9 +84,14 @@ class LanguagesService(private val codeLanguagesRepository: CodeLanguagesReposit
 
 
     @Transactional
-    internal fun deleteLanguage (id: Long) : List<LanguageMetadata> {
+    internal fun deleteLanguage(id: Long): List<LanguageMetadata> {
         val existingLanguage = codeLanguagesRepository.findById(id)
-            .orElseThrow { ApiException(ErrorCode.LANGUAGE_NOT_FOUND, "The language doesn't exist. Have you already deleted it?") }
+            .orElseThrow {
+                ApiException(
+                    ErrorCode.LANGUAGE_NOT_FOUND,
+                    "The language doesn't exist. Have you already deleted it?"
+                )
+            }
         codeLanguagesRepository.delete(existingLanguage)
         return getAllLanguages()
     }

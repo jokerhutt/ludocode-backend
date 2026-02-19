@@ -4,8 +4,6 @@ import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.progress.app.service.StreakService
-import com.ludocode.ludocodebackend.progress.api.dto.response.DailyGoalResponse
-import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -15,7 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
+import java.util.*
 
 @Tag(
     name = "Streak",
@@ -35,7 +33,10 @@ class StreakController(private val streakService: StreakService) {
         """
     )
     @GetMapping
-    fun getUserStreak (@RequestParam(required = false) mode: String?, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<*> {
+    fun getUserStreak(
+        @RequestParam(required = false) mode: String?,
+        @AuthenticationPrincipal(expression = "userId") userId: UUID
+    ): ResponseEntity<*> {
         return when (mode) {
             "weekly" ->
                 ResponseEntity.ok(streakService.getPastWeekMondayToSunday(userId))

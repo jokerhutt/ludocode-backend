@@ -4,11 +4,11 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.util.UUID
+import java.util.*
 
 @Entity
 @Table(name = "user_coins")
-class UserCoins (
+class UserCoins(
 
     @Id
     @Column(name = "user_id")
@@ -16,4 +16,4 @@ class UserCoins (
 
     @Column(nullable = false) var coins: Int = 0,
 
-)
+    )

@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.config
 
-import com.ludocode.ludocodebackend.auth.infra.http.firebase.FirebaseUser
 import com.ludocode.ludocodebackend.auth.app.port.out.FirebaseAuthPort
+import com.ludocode.ludocodebackend.auth.infra.http.firebase.FirebaseUser
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 

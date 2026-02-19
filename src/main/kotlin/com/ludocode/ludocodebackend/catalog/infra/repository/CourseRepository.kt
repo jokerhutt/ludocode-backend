@@ -3,17 +3,18 @@ package com.ludocode.ludocodebackend.catalog.infra.repository
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.query.Param
-import java.util.UUID
+import java.util.*
 
 interface CourseRepository : JpaRepository<Course, UUID> {
 
-    @Query("""
+    @Query(
+        """
     select distinct c
     from Course c
     join fetch c.subject s
     left join fetch c.language l
-""")
+"""
+    )
     fun findAllWithSubjectAndLanguage(): List<Course>
 
     fun existsBySubjectId(subjectId: Long): Boolean

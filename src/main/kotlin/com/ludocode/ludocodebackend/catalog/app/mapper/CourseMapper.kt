@@ -9,7 +9,7 @@ import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import org.springframework.stereotype.Component
 
 @Component
-class CourseMapper (private val basicMapper: BasicMapper, private val languagesMapper: LanguagesMapper) {
+class CourseMapper(private val basicMapper: BasicMapper, private val languagesMapper: LanguagesMapper) {
 
     fun toCourseResponse(course: Course): CourseResponse =
         basicMapper.one(course) {
@@ -29,7 +29,7 @@ class CourseMapper (private val basicMapper: BasicMapper, private val languagesM
             toCourseResponse(course)
         }
 
-    fun toCourseSubjectResponse (subject: Subject): CourseSubjectResponse {
+    fun toCourseSubjectResponse(subject: Subject): CourseSubjectResponse {
         return CourseSubjectResponse(
             subjectId = subject.id,
             slug = subject.slug,
@@ -38,7 +38,7 @@ class CourseMapper (private val basicMapper: BasicMapper, private val languagesM
     }
 
     fun toCourseSubjectResponseList(courseSubjects: List<Subject>): List<CourseSubjectResponse> {
-        return basicMapper.list(courseSubjects) {subject -> toCourseSubjectResponse(subject)}
+        return basicMapper.list(courseSubjects) { subject -> toCourseSubjectResponse(subject) }
     }
 
 

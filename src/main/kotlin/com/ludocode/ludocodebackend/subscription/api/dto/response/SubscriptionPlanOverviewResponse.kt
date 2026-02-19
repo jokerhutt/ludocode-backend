@@ -5,7 +5,7 @@ import com.ludocode.ludocodebackend.subscription.configuration.PlanLimits
 import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
 import java.math.BigDecimal
 
-data class SubscriptionPlanOverviewResponse (
+data class SubscriptionPlanOverviewResponse(
     val tier: Plan,
     val price: BigDecimal,
     val period: String,

@@ -8,9 +8,9 @@ import com.ludocode.ludocodebackend.storage.app.dto.response.UploadedPaths
 
 interface StoragePortForServices {
 
-    fun getList (req: StorageGetRequest) : StorageContentMap
-    fun uploadList (req: StoragePutRequestList): UploadedPaths
+    fun getList(req: StorageGetRequest): StorageContentMap
+    fun uploadList(req: StoragePutRequestList): UploadedPaths
     fun get(path: String): String
-    fun deleteList (req: StorageDeleteRequest): UploadedPaths
+    fun deleteList(req: StorageDeleteRequest): UploadedPaths
 
 }

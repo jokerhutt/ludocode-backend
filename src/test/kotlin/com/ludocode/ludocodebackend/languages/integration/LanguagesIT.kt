@@ -16,12 +16,12 @@ import kotlin.test.Test
 class LanguagesIT : AbstractIntegrationTest() {
 
     @BeforeEach
-    fun seed () {
+    fun seed() {
 
     }
 
     @Test
-    fun getAllLanguages_returnsList () {
+    fun getAllLanguages_returnsList() {
         val existingLanguages = listOf(
             pythonLanguage, luaLanguage, swiftLanguage, jsLanguage
         )
@@ -33,8 +33,8 @@ class LanguagesIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun updateLanguage_usesExistingSlug_throwsError () {
-        val existingLanguages = listOf(
+    fun updateLanguage_usesExistingSlug_throwsError() {
+        listOf(
             pythonLanguage, luaLanguage, swiftLanguage, jsLanguage
         )
         val languageToChange = pythonLanguage
@@ -53,8 +53,8 @@ class LanguagesIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun updateLanguage_usesExistingEditorId_throwsError () {
-        val existingLanguages = listOf(
+    fun updateLanguage_usesExistingEditorId_throwsError() {
+        listOf(
             pythonLanguage, luaLanguage, swiftLanguage, jsLanguage
         )
         val languageToChange = pythonLanguage
@@ -73,8 +73,8 @@ class LanguagesIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun updateLanguage_usesExistingPistonId_throwsError () {
-        val existingLanguages = listOf(
+    fun updateLanguage_usesExistingPistonId_throwsError() {
+        listOf(
             pythonLanguage, luaLanguage, swiftLanguage, jsLanguage
         )
         val languageToChange = pythonLanguage
@@ -93,7 +93,7 @@ class LanguagesIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun deleteLanguage_deletesLanguage_returnsListExcludingDeleted () {
+    fun deleteLanguage_deletesLanguage_returnsListExcludingDeleted() {
         val newLanguage = CreateLanguageRequest(
             name = "SQL",
             extension = ".sql",
@@ -117,7 +117,7 @@ class LanguagesIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun deleteLanguage_alreadyDeleted_throwsError () {
+    fun deleteLanguage_alreadyDeleted_throwsError() {
         val newLanguage = CreateLanguageRequest(
             name = "SQL",
             extension = ".sql",
@@ -138,11 +138,11 @@ class LanguagesIT : AbstractIntegrationTest() {
         assertThat(res.map { it.languageId })
             .doesNotContain(languageToDeleteId)
 
-        val secondRes = assertDeleteLanguageError(languageToDeleteId, ErrorCode.LANGUAGE_NOT_FOUND)
+        assertDeleteLanguageError(languageToDeleteId, ErrorCode.LANGUAGE_NOT_FOUND)
     }
 
     @Test
-    fun createLanguage_createsLangugae_returnsUpdatedList () {
+    fun createLanguage_createsLangugae_returnsUpdatedList() {
         val existingLanguages = listOf(
             pythonLanguage, luaLanguage, swiftLanguage, jsLanguage
         )
@@ -165,8 +165,8 @@ class LanguagesIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun createLanguage_usesExistingSlug_throwsError () {
-        val existingLanguages = listOf(
+    fun createLanguage_usesExistingSlug_throwsError() {
+        listOf(
             pythonLanguage, luaLanguage, swiftLanguage, jsLanguage
         )
         val newLanguage = CreateLanguageRequest(
@@ -185,11 +185,11 @@ class LanguagesIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun updateLanguage_updatesLanguage_returnsUpdatedList () {
-        val existingLanguages = listOf(
+    fun updateLanguage_updatesLanguage_returnsUpdatedList() {
+        listOf(
             pythonLanguage, luaLanguage, swiftLanguage, jsLanguage
         )
-        val languageToChange = pythonLanguage
+        pythonLanguage
         val req = UpdateLanguageRequest(
             name = "The all new Python course",
             editorId = pythonLanguage.editorId,
@@ -218,28 +218,43 @@ class LanguagesIT : AbstractIntegrationTest() {
     }
 
 
-    private fun submitGetALlLanguages (): Array<LanguageMetadata> =
+    private fun submitGetALlLanguages(): Array<LanguageMetadata> =
         TestRestClient.getOk(ApiPaths.LANGUAGES.BASE, userId = user1.id, Array<LanguageMetadata>::class.java)
 
-    private fun assertPutLanguageError (languageId: Long, req: UpdateLanguageRequest, statusCode: ErrorCode) : ValidatableResponse? {
+    private fun assertPutLanguageError(
+        languageId: Long,
+        req: UpdateLanguageRequest,
+        statusCode: ErrorCode
+    ): ValidatableResponse? {
         return TestRestClient.assertError("PUT", ApiPaths.LANGUAGES.byIdAdmin(languageId), user1.id, req, statusCode)
     }
 
-    private fun assertPostLanguageError (req: CreateLanguageRequest, statusCode: ErrorCode) : ValidatableResponse? {
+    private fun assertPostLanguageError(req: CreateLanguageRequest, statusCode: ErrorCode): ValidatableResponse? {
         return TestRestClient.assertError("POST", ApiPaths.LANGUAGES.ADMIN_BASE, user1.id, req, statusCode)
     }
 
-    private fun assertDeleteLanguageError (languageId: Long, statusCode: ErrorCode) : ValidatableResponse? {
-        return TestRestClient.assertError("DELETE", ApiPaths.LANGUAGES.byIdAdmin(languageId), user1.id, null, statusCode)
+    private fun assertDeleteLanguageError(languageId: Long, statusCode: ErrorCode): ValidatableResponse? {
+        return TestRestClient.assertError(
+            "DELETE",
+            ApiPaths.LANGUAGES.byIdAdmin(languageId),
+            user1.id,
+            null,
+            statusCode
+        )
     }
 
-    private fun submitPutLanguage (languageId: Long, req: UpdateLanguageRequest): Array<LanguageMetadata> =
-        TestRestClient.putOk(ApiPaths.LANGUAGES.byIdAdmin(languageId), user1.id, req, Array<LanguageMetadata>::class.java)
+    private fun submitPutLanguage(languageId: Long, req: UpdateLanguageRequest): Array<LanguageMetadata> =
+        TestRestClient.putOk(
+            ApiPaths.LANGUAGES.byIdAdmin(languageId),
+            user1.id,
+            req,
+            Array<LanguageMetadata>::class.java
+        )
 
-    private fun submitPostLanguage (req: CreateLanguageRequest): Array<LanguageMetadata> =
+    private fun submitPostLanguage(req: CreateLanguageRequest): Array<LanguageMetadata> =
         TestRestClient.postOk(ApiPaths.LANGUAGES.ADMIN_BASE, user1.id, req, Array<LanguageMetadata>::class.java)
 
-    private fun submitDeleteLanguage (languageId: Long): Array<LanguageMetadata> =
+    private fun submitDeleteLanguage(languageId: Long): Array<LanguageMetadata> =
         TestRestClient.deleteOk(ApiPaths.LANGUAGES.byIdAdmin(languageId), user1.id, Array<LanguageMetadata>::class.java)
 
 }

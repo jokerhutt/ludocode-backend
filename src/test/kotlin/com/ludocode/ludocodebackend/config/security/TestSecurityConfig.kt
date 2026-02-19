@@ -1,6 +1,5 @@
 package com.ludocode.ludocodebackend.config.security
 
-import com.ludocode.ludocodebackend.config.security.AuthUser
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -14,7 +13,7 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.web.filter.OncePerRequestFilter
-import java.util.UUID
+import java.util.*
 
 @TestConfiguration
 @Profile("test")

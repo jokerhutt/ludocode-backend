@@ -9,8 +9,8 @@ import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import com.ludocode.ludocodebackend.playground.api.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
-import com.ludocode.ludocodebackend.playground.api.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.playground.api.dto.request.RenameRequest
+import com.ludocode.ludocodebackend.playground.api.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.junit.jupiter.EnabledIf
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
 @EnabledIf(
@@ -34,20 +34,22 @@ class UserProjectIT : AbstractIntegrationTest() {
     private lateinit var languagesMapper: LanguagesMapper
 
     lateinit var existingProject: UserProject
-    lateinit var existingFiles : List<ProjectFile>
+    lateinit var existingFiles: List<ProjectFile>
 
     @BeforeEach
-    fun seed () {
+    fun seed() {
 
-        existingProject = userProjectRepository.save(UserProject(
-            id = UUID.randomUUID(),
-            name = "Untitled",
-            userId = user1.id!!,
-            codeLanguage = pythonLanguage,
-            createdAt = OffsetDateTime.now(clock).minusDays(2),
-            updatedAt = OffsetDateTime.now(clock).minusDays(1),
-            requestHash = UUID.randomUUID()
-        ))
+        existingProject = userProjectRepository.save(
+            UserProject(
+                id = UUID.randomUUID(),
+                name = "Untitled",
+                userId = user1.id!!,
+                codeLanguage = pythonLanguage,
+                createdAt = OffsetDateTime.now(clock).minusDays(2),
+                updatedAt = OffsetDateTime.now(clock).minusDays(1),
+                requestHash = UUID.randomUUID()
+            )
+        )
 
         val projectId = existingProject.id
 
@@ -55,17 +57,34 @@ class UserProjectIT : AbstractIntegrationTest() {
         val f1Url = "$projectId/${f1Id}"
         val f1Content = "print(hello world!)"
         val f2Id = UUID.randomUUID()
-        val f2Url ="$projectId/${f2Id}"
+        val f2Url = "$projectId/${f2Id}"
         val f2Content = "print(bye world!)"
 
-        existingFiles = projectFileRepository.saveAll(listOf(
-            ProjectFile(id = f1Id, projectId = existingProject.id, contentUrl = f1Url, contentHash = sha256(f1Content), filePath = "script.py", codeLanguage = pythonLanguage),
-            ProjectFile(id = f2Id, projectId = existingProject.id, contentUrl = f2Url, contentHash = sha256(f2Content), filePath = "script-1.py", codeLanguage = pythonLanguage)
-        ))
+        existingFiles = projectFileRepository.saveAll(
+            listOf(
+                ProjectFile(
+                    id = f1Id,
+                    projectId = existingProject.id,
+                    contentUrl = f1Url,
+                    contentHash = sha256(f1Content),
+                    filePath = "script.py",
+                    codeLanguage = pythonLanguage
+                ),
+                ProjectFile(
+                    id = f2Id,
+                    projectId = existingProject.id,
+                    contentUrl = f2Url,
+                    contentHash = sha256(f2Content),
+                    filePath = "script-1.py",
+                    codeLanguage = pythonLanguage
+                )
+            )
+        )
 
         try {
             storage.create(BucketInfo.of("lumo-file-content"))
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+        }
 
         storage.list("lumo-file-content")
             .iterateAll()
@@ -85,7 +104,11 @@ class UserProjectIT : AbstractIntegrationTest() {
     @Test
     fun createPythonProject_createsNew_returnsNewProjectsList() {
 
-        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguageId = pythonLanguage.id, requestHash = UUID.randomUUID())
+        val newProjectRequest = CreateProjectRequest(
+            projectName = "Second Project",
+            projectLanguageId = pythonLanguage.id,
+            requestHash = UUID.randomUUID()
+        )
         val response = submitPostCreateProject(newProjectRequest, user1.id!!)
         assertThat(response).isNotNull()
         assertThat(response.projects.size).isEqualTo(2)
@@ -103,7 +126,11 @@ class UserProjectIT : AbstractIntegrationTest() {
     @Test
     fun createJsProject_createsNew_returnsNewProjectsList() {
 
-        val newProjectRequest = CreateProjectRequest(projectName = "Third Project", projectLanguageId = jsLanguage.id, requestHash = UUID.randomUUID())
+        val newProjectRequest = CreateProjectRequest(
+            projectName = "Third Project",
+            projectLanguageId = jsLanguage.id,
+            requestHash = UUID.randomUUID()
+        )
         val response = submitPostCreateProject(newProjectRequest, user1.id!!)
         assertThat(response).isNotNull()
         assertThat(response.projects.size).isEqualTo(2)
@@ -128,7 +155,7 @@ class UserProjectIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun renameProject_renamesProject_returnsRenamed () {
+    fun renameProject_renamesProject_returnsRenamed() {
 
         val projectId = existingProject.id
         val newName = "Test Project Name"
@@ -142,9 +169,13 @@ class UserProjectIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun renameProject_renamesProject_returnsRenamedFirst () {
+    fun renameProject_renamesProject_returnsRenamedFirst() {
 
-        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguageId = pythonLanguage.id, requestHash = UUID.randomUUID())
+        val newProjectRequest = CreateProjectRequest(
+            projectName = "Second Project",
+            projectLanguageId = pythonLanguage.id,
+            requestHash = UUID.randomUUID()
+        )
         val response = submitPostCreateProject(newProjectRequest, user1.id!!)
 
         val newProjectToModify = response.projects.find { it.projectName == "Second Project" }
@@ -167,7 +198,11 @@ class UserProjectIT : AbstractIntegrationTest() {
     @Test
     fun createAndDelete_onlyCreatedRemains_returnsOnlyCreated() {
 
-        val newProjectRequest = CreateProjectRequest(projectName = "Second Project", projectLanguageId = pythonLanguage.id, requestHash = UUID.randomUUID())
+        val newProjectRequest = CreateProjectRequest(
+            projectName = "Second Project",
+            projectLanguageId = pythonLanguage.id,
+            requestHash = UUID.randomUUID()
+        )
         val response = submitPostCreateProject(newProjectRequest, user1.id!!)
         assertThat(response).isNotNull()
         assertThat(response.projects.size).isEqualTo(2)
@@ -240,7 +275,7 @@ class UserProjectIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun saveProject_duplicateNames_returnsError () {
+    fun saveProject_duplicateNames_returnsError() {
         val projectId = existingProject.id
         val snapshot = submitGetProjectSnapshot(projectId, user1.id!!)
         assertThat(snapshot).isNotNull()
@@ -251,7 +286,7 @@ class UserProjectIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun saveProject_emptyRequest_returnsError () {
+    fun saveProject_emptyRequest_returnsError() {
         val projectId = existingProject.id
         val snapshot = submitGetProjectSnapshot(projectId, user1.id!!)
         assertThat(snapshot).isNotNull()
@@ -260,7 +295,7 @@ class UserProjectIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun saveProject_invalidFileName_returnsError () {
+    fun saveProject_invalidFileName_returnsError() {
         val projectId = existingProject.id
         val snapshot = submitGetProjectSnapshot(projectId, user1.id!!)
         assertThat(snapshot).isNotNull()
@@ -271,7 +306,7 @@ class UserProjectIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun getProject_notOwnProject_returnsUnautharized () {
+    fun getProject_notOwnProject_returnsUnautharized() {
         val projectId = existingProject.id
         val userId = user2.id!!
         assertErrorOnGet(projectId, userId, ErrorCode.NOT_ALLOWED)
@@ -279,40 +314,44 @@ class UserProjectIT : AbstractIntegrationTest() {
 
 
     @Test
-    fun getProject_returnsProjectSnapshot () {
+    fun getProject_returnsProjectSnapshot() {
 
         val projectId = existingProject.id
 
-       val res = submitGetProjectSnapshot(projectId, user1.id!!)
+        val res = submitGetProjectSnapshot(projectId, user1.id!!)
 
-       assertThat(res).isNotNull()
+        assertThat(res).isNotNull()
 
-       assertThat(res.projectId).isEqualTo(projectId)
-       assertThat(res.files.size).isEqualTo(2)
+        assertThat(res.projectId).isEqualTo(projectId)
+        assertThat(res.files.size).isEqualTo(2)
 
     }
 
-    private fun submitGetProjectSnapshot (pid: UUID, userId: UUID): ProjectSnapshot =
+    private fun submitGetProjectSnapshot(pid: UUID, userId: UUID): ProjectSnapshot =
         TestRestClient.getOk(ApiPaths.PROJECTS.byId(pid), userId, ProjectSnapshot::class.java)
 
-    private fun submitPutSaveProject (userId: UUID, snapshot: ProjectSnapshot): ProjectSnapshot =
+    private fun submitPutSaveProject(userId: UUID, snapshot: ProjectSnapshot): ProjectSnapshot =
         TestRestClient.putOk(ApiPaths.PROJECTS.byId(snapshot.projectId), userId, snapshot, ProjectSnapshot::class.java)
 
-    private fun submitDeleteProject (pid: UUID, userId: UUID) : ProjectListResponse =
+    private fun submitDeleteProject(pid: UUID, userId: UUID): ProjectListResponse =
         TestRestClient.deleteOk(ApiPaths.PROJECTS.byId(pid), userId, ProjectListResponse::class.java)
 
-    private fun submitPatchRenameProject (request: RenameRequest, userId: UUID) : ProjectListResponse =
-        TestRestClient.patchOk(ApiPaths.PROJECTS.name(request.targetId), userId, request, ProjectListResponse::class.java)
+    private fun submitPatchRenameProject(request: RenameRequest, userId: UUID): ProjectListResponse =
+        TestRestClient.patchOk(
+            ApiPaths.PROJECTS.name(request.targetId),
+            userId,
+            request,
+            ProjectListResponse::class.java
+        )
 
-    private fun assertErrorOnGet (pid: UUID, userId: UUID, errorCode: ErrorCode): ValidatableResponse? =
+    private fun assertErrorOnGet(pid: UUID, userId: UUID, errorCode: ErrorCode): ValidatableResponse? =
         TestRestClient.assertError("GET", ApiPaths.PROJECTS.byId(pid), userId, null, errorCode)
 
-    private fun submitPostCreateProject (request: CreateProjectRequest, userId: UUID) : ProjectListResponse =
+    private fun submitPostCreateProject(request: CreateProjectRequest, userId: UUID): ProjectListResponse =
         TestRestClient.postOk(ApiPaths.PROJECTS.BASE, userId, request, ProjectListResponse::class.java)
 
-    private fun assertErrorOnSave (userId: UUID, snapshot: ProjectSnapshot, errorCode: ErrorCode): ValidatableResponse? =
+    private fun assertErrorOnSave(userId: UUID, snapshot: ProjectSnapshot, errorCode: ErrorCode): ValidatableResponse? =
         TestRestClient.assertError("PUT", ApiPaths.PROJECTS.byId(snapshot.projectId), userId, snapshot, errorCode)
-
 
 
 }

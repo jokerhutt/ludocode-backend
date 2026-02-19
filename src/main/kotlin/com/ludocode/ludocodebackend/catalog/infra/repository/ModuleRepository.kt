@@ -6,30 +6,35 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import java.util.UUID
+import java.util.*
 
 interface ModuleRepository : JpaRepository<Module, UUID> {
 
-    @Query("""
+    @Query(
+        """
     SELECT * 
     FROM module 
     WHERE id IN (:ids)
       AND is_deleted = false
-""", nativeQuery = true)
+""", nativeQuery = true
+    )
     fun findAllByIdIn(@Param("ids") ids: List<UUID>): List<Module>
 
-    @Query(value = """
+    @Query(
+        value = """
         SELECT *
         FROM module
         WHERE id = :moduleId
         AND is_deleted = false
-        """, nativeQuery = true)
+        """, nativeQuery = true
+    )
     fun findActiveById(@Param("moduleId") moduleId: UUID): Module?
 
 
     fun deleteByCourseId(courseId: UUID)
 
-    @Query(value = """
+    @Query(
+        value = """
   SELECT
     m.id            AS moduleId,
     m.order_index   AS moduleOrder,
@@ -44,37 +49,41 @@ interface ModuleRepository : JpaRepository<Module, UUID> {
     AND m.is_deleted = false
     AND l.is_deleted = false
   ORDER BY m.order_index, ml.order_index, l.id
-""", nativeQuery = true)
+""", nativeQuery = true
+    )
     fun findFlatCourseTree(@Param("courseId") courseId: UUID): List<FlatModuleLessonRow>
 
-    @Query(value = """
+    @Query(
+        value = """
         SELECT id
         FROM module
         WHERE course_id = :courseId
         AND is_deleted = false
-        """, nativeQuery = true)
+        """, nativeQuery = true
+    )
     fun findActiveIdsByCourse(@Param("courseId") courseId: UUID): List<UUID>
 
 
-
     @Modifying
-    @Query(value = """
+    @Query(
+        value = """
         UPDATE module
         SET is_deleted = true
         WHERE id = :id
-        """, nativeQuery = true)
-    fun softDeleteModulesByModuleId (@Param("id") id: UUID): Int
+        """, nativeQuery = true
+    )
+    fun softDeleteModulesByModuleId(@Param("id") id: UUID): Int
 
     @Modifying
-    @Query(value = """
+    @Query(
+        value = """
         UPDATE module
         SET order_index = order_index + 1000
         WHERE course_id = :courseId
         AND is_deleted = false
-        """, nativeQuery = true)
-    fun bumpAllModuleOrderIndexesInCourse (@Param("courseId") courseId: UUID)
-
-
+        """, nativeQuery = true
+    )
+    fun bumpAllModuleOrderIndexesInCourse(@Param("courseId") courseId: UUID)
 
 
 }

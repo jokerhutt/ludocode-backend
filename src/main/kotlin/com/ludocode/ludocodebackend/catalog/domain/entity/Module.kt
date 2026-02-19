@@ -2,16 +2,13 @@ package com.ludocode.ludocodebackend.catalog.domain.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import org.hibernate.annotations.UuidGenerator
-import java.util.UUID
+import java.util.*
 
 @Entity
 @Table(name = "module")
-class Module (
+class Module(
 
     @Id
     val id: UUID,
@@ -28,4 +25,4 @@ class Module (
     @Column(name = "order_index")
     var orderIndex: Int
 
-    )
+)

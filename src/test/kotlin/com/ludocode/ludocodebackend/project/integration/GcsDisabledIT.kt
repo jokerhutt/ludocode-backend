@@ -1,12 +1,12 @@
 package com.ludocode.ludocodebackend.project.integration
+
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.playground.api.dto.request.CreateProjectRequest
-import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.springframework.test.context.junit.jupiter.DisabledIf
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
 @DisabledIf(
@@ -19,7 +19,11 @@ class GcsDisabledIT : AbstractIntegrationTest() {
     fun createProject_returns403_whenFeatureDisabled() {
 
         val uid = user1.id!!
-        val newProjectRequest = CreateProjectRequest(projectName = "Test Project", projectLanguageId = pythonLanguage.id, requestHash = UUID.randomUUID())
+        val newProjectRequest = CreateProjectRequest(
+            projectName = "Test Project",
+            projectLanguageId = pythonLanguage.id,
+            requestHash = UUID.randomUUID()
+        )
 
         given()
             .header("X-Test-User-Id", uid.toString())

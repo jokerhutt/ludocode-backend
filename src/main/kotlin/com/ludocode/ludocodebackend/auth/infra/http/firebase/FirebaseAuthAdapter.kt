@@ -1,7 +1,6 @@
 package com.ludocode.ludocodebackend.auth.infra.http.firebase
 
 import com.google.firebase.auth.FirebaseAuth
-import com.ludocode.ludocodebackend.auth.infra.http.firebase.FirebaseUser
 import com.ludocode.ludocodebackend.auth.app.port.out.FirebaseAuthPort
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component

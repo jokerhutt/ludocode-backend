@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.lesson.app.mapper
 
-import com.ludocode.ludocodebackend.lesson.api.dto.response.LessonResponse
 import com.ludocode.ludocodebackend.commons.mapper.BasicMapper
+import com.ludocode.ludocodebackend.lesson.api.dto.response.LessonResponse
 import com.ludocode.ludocodebackend.lesson.infra.repository.UserLessonProjection
 import org.springframework.stereotype.Component
 

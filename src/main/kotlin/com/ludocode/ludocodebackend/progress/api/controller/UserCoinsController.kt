@@ -1,8 +1,8 @@
 package com.ludocode.ludocodebackend.progress.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.progress.app.service.UserCoinsService
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserCoinsResponse
+import com.ludocode.ludocodebackend.progress.app.service.UserCoinsService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
+import java.util.*
 
 @Tag(
     name = "Coins",
@@ -22,10 +22,9 @@ class UserCoinsController(private val userCoinsService: UserCoinsService) {
 
     @Operation(summary = "Get coins by user IDs", description = "Returns coin balances for the specified user IDs.")
     @GetMapping
-    fun getStatsListByUserIds (@RequestParam userIds: List<UUID>) : ResponseEntity<List<UserCoinsResponse>> {
+    fun getStatsListByUserIds(@RequestParam userIds: List<UUID>): ResponseEntity<List<UserCoinsResponse>> {
         return ResponseEntity.ok(userCoinsService.getUserCoinsList(userIds))
     }
-
 
 
 }

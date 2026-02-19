@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.s3.model.NoSuchKeyException
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import java.nio.charset.StandardCharsets
 
-class S3StorageService (private val s3Client: S3Client, private val bucketName: String) : StoragePortForServices {
+class S3StorageService(private val s3Client: S3Client, private val bucketName: String) : StoragePortForServices {
     override fun uploadList(req: StoragePutRequestList): UploadedPaths {
         val uploaded = mutableListOf<String>()
 

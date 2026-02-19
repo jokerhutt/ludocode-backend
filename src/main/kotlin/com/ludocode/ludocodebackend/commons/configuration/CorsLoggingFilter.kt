@@ -25,12 +25,16 @@ class CorsLoggingFilter(private val corsProps: CorsProps) : OncePerRequestFilter
             }
 
             if (isAllowed) {
-                log.debug("CORS request allowed - Origin: {} matches allowed patterns: {}",
-                    origin, corsProps.origins)
+                log.debug(
+                    "CORS request allowed - Origin: {} matches allowed patterns: {}",
+                    origin, corsProps.origins
+                )
             } else {
-                log.warn("CORS request REJECTED - Origin: '{}' does not match any allowed patterns: {}. " +
-                    "Request method: {}, Request URI: {}",
-                    origin, corsProps.origins, request.method, request.requestURI)
+                log.warn(
+                    "CORS request REJECTED - Origin: '{}' does not match any allowed patterns: {}. " +
+                            "Request method: {}, Request URI: {}",
+                    origin, corsProps.origins, request.method, request.requestURI
+                )
             }
         }
 

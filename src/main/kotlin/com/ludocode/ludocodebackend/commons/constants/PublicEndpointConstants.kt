@@ -1,4 +1,5 @@
 package com.ludocode.ludocodebackend.commons.constants
+
 object PublicEndpointConstants {
 
     @JvmField

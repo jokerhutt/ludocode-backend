@@ -9,10 +9,6 @@ import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequestLis
 import com.ludocode.ludocodebackend.storage.app.dto.response.StorageContentMap
 import com.ludocode.ludocodebackend.storage.app.dto.response.UploadedPaths
 import com.ludocode.ludocodebackend.storage.app.port.`in`.StoragePortForServices
-import com.ludocode.ludocodebackend.storage.configuration.StorageProperties
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.context.annotation.Bean
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path

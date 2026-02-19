@@ -7,7 +7,7 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name = "user_daily_goal")
-class UserDailyGoal (
+class UserDailyGoal(
 
     @EmbeddedId
     val userDailyGoalId: UserDailyGoalId

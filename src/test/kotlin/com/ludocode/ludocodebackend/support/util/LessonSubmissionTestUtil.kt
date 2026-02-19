@@ -10,7 +10,7 @@ import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseSubmissionR
 import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionRequest
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionPacket
 import com.ludocode.ludocodebackend.support.TestRestClient
-import java.util.UUID
+import java.util.*
 
 object LessonSubmissionTestUtil {
 
@@ -34,7 +34,10 @@ object LessonSubmissionTestUtil {
         return submitPostForLessonSubmission(userId, request)
     }
 
-    private fun submitPostForLessonSubmission(userId: UUID, submission: LessonSubmissionRequest): LessonCompletionPacket =
+    private fun submitPostForLessonSubmission(
+        userId: UUID,
+        submission: LessonSubmissionRequest
+    ): LessonCompletionPacket =
         TestRestClient.postOk(ApiPaths.PROGRESS.COMPLETION.BASE, userId, submission, LessonCompletionPacket::class.java)
 
     private fun createExerciseSubmission(
@@ -87,7 +90,7 @@ object LessonSubmissionTestUtil {
 
     fun createRandomExerciseSubmission(
         exercise: ExerciseSnap,
-        random: java.util.Random
+        random: Random
     ): ExerciseSubmissionRequest {
         if (exercise.exerciseType == ExerciseType.INFO) {
             return ExerciseSubmissionRequest(
@@ -176,7 +179,7 @@ object LessonSubmissionTestUtil {
 
     fun createImperfectExerciseSubmission(
         exercise: ExerciseSnap,
-        random: java.util.Random
+        random: Random
     ): ExerciseSubmissionRequest {
         if (exercise.exerciseType == ExerciseType.INFO) {
             return ExerciseSubmissionRequest(

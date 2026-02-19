@@ -1,4 +1,5 @@
 package com.ludocode.ludocodebackend.catalog.integration
+
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
@@ -6,10 +7,10 @@ import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
-import com.ludocode.ludocodebackend.support.util.CatalogChangeTestUtil
-import com.ludocode.ludocodebackend.support.util.CourseProgressTestUtil
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.support.snapshot.TestSnapshotService
+import com.ludocode.ludocodebackend.support.util.CatalogChangeTestUtil
+import com.ludocode.ludocodebackend.support.util.CourseProgressTestUtil
 import com.ludocode.ludocodebackend.support.util.LessonSubmissionTestUtil
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -18,7 +19,7 @@ import org.junit.jupiter.api.RepetitionInfo
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 class ChangeCatalogIT : AbstractIntegrationTest() {
 
@@ -26,7 +27,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
     private lateinit var testSnapshotService: TestSnapshotService
 
     @BeforeEach
-    fun seed () {
+    fun seed() {
 
     }
 
@@ -132,7 +133,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun submitExercisesChangeWithDeletions_preservesCourseCompletion () {
+    fun submitExercisesChangeWithDeletions_preservesCourseCompletion() {
         val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
         val lessonToChange = pythonSnap.modules[0].lessons[0]
 
@@ -140,14 +141,28 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             exercises = lessonToChange.exercises
         )
 
-        courseProgressRepository.saveAll(listOf(
-            CourseProgress(id = CourseProgressId(user1.id!!, pythonId), currentModuleId = pyMod2Id, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
-            CourseProgress(id = CourseProgressId(user1.id!!, swiftId),  currentModuleId = swMod2Id, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
-        ))
+        courseProgressRepository.saveAll(
+            listOf(
+                CourseProgress(
+                    id = CourseProgressId(user1.id!!, pythonId),
+                    currentModuleId = pyMod2Id,
+                    createdAt = OffsetDateTime.now(clock),
+                    updatedAt = OffsetDateTime.now(clock)
+                ),
+                CourseProgress(
+                    id = CourseProgressId(user1.id!!, swiftId),
+                    currentModuleId = swMod2Id,
+                    createdAt = OffsetDateTime.now(clock),
+                    updatedAt = OffsetDateTime.now(clock)
+                )
+            )
+        )
 
-        val completeProgress = lessonCompletionRepository.saveAll(CourseProgressTestUtil.pythonProgress(
-            user1.id, pythonId, pythonLessons
-        ))
+        val completeProgress = lessonCompletionRepository.saveAll(
+            CourseProgressTestUtil.pythonProgress(
+                user1.id, pythonId, pythonLessons
+            )
+        )
 
         lessonCompletionRepository.saveAll(completeProgress)
 
@@ -180,7 +195,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             .ignoringFieldsMatchingRegexes(".*exerciseOptionId")
             .isEqualTo(lessonCurriculum)
 
-        val response = LessonSubmissionTestUtil.completeLesson(user1.id, pythonSnap.modules[1].lessons[1], pythonId, true)
+        val response =
+            LessonSubmissionTestUtil.completeLesson(user1.id, pythonSnap.modules[1].lessons[1], pythonId, true)
 
         assertThat(response).isNotNull()
 
@@ -194,14 +210,30 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
     @Test
     fun submitCurriculumChange_addsLessons_courseIncomplete() {
 
-        courseProgressRepository.saveAll(listOf(
-            CourseProgress(id = CourseProgressId(user1.id!!, pythonId), isComplete = true, currentModuleId = pyMod2Id, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
-            CourseProgress(id = CourseProgressId(user1.id!!, swiftId), isComplete = true,  currentModuleId = swMod2Id, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
-        ))
+        courseProgressRepository.saveAll(
+            listOf(
+                CourseProgress(
+                    id = CourseProgressId(user1.id!!, pythonId),
+                    isComplete = true,
+                    currentModuleId = pyMod2Id,
+                    createdAt = OffsetDateTime.now(clock),
+                    updatedAt = OffsetDateTime.now(clock)
+                ),
+                CourseProgress(
+                    id = CourseProgressId(user1.id!!, swiftId),
+                    isComplete = true,
+                    currentModuleId = swMod2Id,
+                    createdAt = OffsetDateTime.now(clock),
+                    updatedAt = OffsetDateTime.now(clock)
+                )
+            )
+        )
 
-        val completeProgress = lessonCompletionRepository.saveAll(CourseProgressTestUtil.pythonProgress(
-            user1.id, pythonId, pythonLessons
-        ))
+        val completeProgress = lessonCompletionRepository.saveAll(
+            CourseProgressTestUtil.pythonProgress(
+                user1.id, pythonId, pythonLessons
+            )
+        )
 
         lessonCompletionRepository.saveAll(completeProgress)
 
@@ -230,7 +262,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             .usingRecursiveComparison()
             .isEqualTo(pythonCurriculum)
 
-        val response = LessonSubmissionTestUtil.completeLesson(user1.id, pythonSnap.modules[1].lessons[1], pythonId, true)
+        val response =
+            LessonSubmissionTestUtil.completeLesson(user1.id, pythonSnap.modules[1].lessons[1], pythonId, true)
 
         assertThat(response).isNotNull()
 
@@ -292,15 +325,17 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
     fun submitRandomCombinedChanges_preservesProgress(repetitionInfo: RepetitionInfo) {
         val seed = repetitionInfo.currentRepetition.toLong()
 
-        courseProgressRepository.saveAll(listOf(
-            CourseProgress(
-                id = CourseProgressId(user1.id!!, pythonId),
-                isComplete = false,
-                currentModuleId = pyMod2Id,
-                createdAt = OffsetDateTime.now(clock),
-                updatedAt = OffsetDateTime.now(clock)
+        courseProgressRepository.saveAll(
+            listOf(
+                CourseProgress(
+                    id = CourseProgressId(user1.id!!, pythonId),
+                    isComplete = false,
+                    currentModuleId = pyMod2Id,
+                    createdAt = OffsetDateTime.now(clock),
+                    updatedAt = OffsetDateTime.now(clock)
+                )
             )
-        ))
+        )
 
         val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
 
@@ -313,7 +348,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         val refreshedSnap = testSnapshotService.buildCourseSnapshot(pythonId)
 
         if (refreshedSnap.modules.isNotEmpty()) {
-            val random = java.util.Random(seed)
+            val random = Random(seed)
             val randomModuleIndex = random.nextInt(refreshedSnap.modules.size)
             val randomModule = refreshedSnap.modules[randomModuleIndex]
 
@@ -335,7 +370,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
         val finalSnap = testSnapshotService.buildCourseSnapshot(pythonId)
         if (finalSnap.modules.isNotEmpty()) {
-            val random = java.util.Random(seed + 2000)
+            val random = Random(seed + 2000)
             val randomModuleIndex = random.nextInt(finalSnap.modules.size)
             val randomModule = finalSnap.modules[randomModuleIndex]
 
@@ -356,11 +391,21 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         }
     }
 
-    private fun submitPostUpdateCurriculum(req: CurriculumDraftSnapshot, courseId: UUID) : CurriculumDraftSnapshot =
-        TestRestClient.putOk(ApiPaths.SNAPSHOTS.byCourseCurriculumAdmin(courseId), user1.id, req,
-            CurriculumDraftSnapshot::class.java)
+    private fun submitPostUpdateCurriculum(req: CurriculumDraftSnapshot, courseId: UUID): CurriculumDraftSnapshot =
+        TestRestClient.putOk(
+            ApiPaths.SNAPSHOTS.byCourseCurriculumAdmin(courseId), user1.id, req,
+            CurriculumDraftSnapshot::class.java
+        )
 
-    private fun submitPostUpdateExerciseCatalog(lessonId: UUID, req: LessonCurriculumDraftSnapshot): LessonCurriculumDraftSnapshot =
-        TestRestClient.putOk(ApiPaths.LESSONS.byAdminId(lessonId), user1.id!!, req, LessonCurriculumDraftSnapshot::class.java)
+    private fun submitPostUpdateExerciseCatalog(
+        lessonId: UUID,
+        req: LessonCurriculumDraftSnapshot
+    ): LessonCurriculumDraftSnapshot =
+        TestRestClient.putOk(
+            ApiPaths.LESSONS.byAdminId(lessonId),
+            user1.id!!,
+            req,
+            LessonCurriculumDraftSnapshot::class.java
+        )
 
 }

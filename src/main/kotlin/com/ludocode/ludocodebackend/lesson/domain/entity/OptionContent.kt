@@ -4,11 +4,11 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.util.UUID
+import java.util.*
 
 @Entity
-@Table(name="option_content")
-class OptionContent (
+@Table(name = "option_content")
+class OptionContent(
 
     @Id
     val id: UUID,
@@ -17,4 +17,4 @@ class OptionContent (
     var content: String
 
 
-    )
+)

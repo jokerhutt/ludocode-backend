@@ -4,12 +4,14 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.preferences.api.infra.repository.UserPreferencesRepository
+import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
+import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForUser
+import com.ludocode.ludocodebackend.user.api.dto.request.EditProfileRequest
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
+import com.ludocode.ludocodebackend.user.api.dto.response.AvatarInfo
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.mapper.UserMapper
-import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
-import com.ludocode.ludocodebackend.user.api.dto.request.EditProfileRequest
-import com.ludocode.ludocodebackend.user.api.dto.response.AvatarInfo
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForOnboarding
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForProgress
@@ -17,20 +19,14 @@ import com.ludocode.ludocodebackend.user.configuration.AvatarConfig
 import com.ludocode.ludocodebackend.user.domain.entity.ExternalAccount
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.infra.repository.ExternalAccountRepository
-import com.ludocode.ludocodebackend.preferences.api.infra.repository.UserPreferencesRepository
-import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
-import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForUser
-import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
-import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
-import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.time.OffsetDateTime
 import java.time.Clock
-import java.util.UUID
+import java.time.OffsetDateTime
+import java.util.*
 import kotlin.random.Random
 
 @Service
@@ -59,14 +55,17 @@ class UserService(
     internal fun deleteUser(userId: UUID) {
         var existingUser = userRepository.findById(userId).orElseThrow()
         subscriptionPortForUser.cancelSubscription(userId)
-        val userExternalAccount = externalAccountRepository.findByUserId(userId) ?: throw ApiException(ErrorCode.USER_NOT_FOUND, "Could not find external account for user")
+        val userExternalAccount = externalAccountRepository.findByUserId(userId) ?: throw ApiException(
+            ErrorCode.USER_NOT_FOUND,
+            "Could not find external account for user"
+        )
         externalAccountRepository.delete(userExternalAccount)
         logger.warn(LogEvents.USER_DELETED)
         existingUser.isDeleted = true
     }
 
     @Transactional
-    override fun setDisplayName (userId: UUID, displayName: String) {
+    override fun setDisplayName(userId: UUID, displayName: String) {
         val user = userRepository.findById(userId).orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
         user.displayName = displayName
         userRepository.save(user)
@@ -75,9 +74,10 @@ class UserService(
     @Transactional
     override fun findOrCreate(req: FindOrCreateUserRequest): UserResponse {
 
-        val existingUser : ExternalAccount? = externalAccountRepository.findByProviderAndProviderUserId(req.provider, req.providerUserId)
+        val existingUser: ExternalAccount? =
+            externalAccountRepository.findByProviderAndProviderUserId(req.provider, req.providerUserId)
 
-        if (existingUser != null)  {
+        if (existingUser != null) {
             logger.info(LogEvents.USER_LOGIN_EXISTING + " {}", kv(LogFields.PROVIDER, req.provider.name))
             return getById(existingUser.userId)
         }
@@ -111,14 +111,14 @@ class UserService(
         return userMapper.toUserResponse(newUser, hasOnboarded(newUser))
     }
 
-    private fun assignAvatar (): AvatarInfo{
+    private fun assignAvatar(): AvatarInfo {
         val index = Random.nextInt(1, avatarConfig.count + 1)
         val version = avatarConfig.version
         return AvatarInfo(version, index)
     }
 
     @Transactional
-    internal fun editUser(userId: UUID, request: EditProfileRequest) : UserResponse {
+    internal fun editUser(userId: UUID, request: EditProfileRequest): UserResponse {
         val user = userRepository.findById(userId).orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
         if ((user.displayName != request.username) && request.username.isNotEmpty()) {
             val oldName = user.displayName
@@ -143,7 +143,7 @@ class UserService(
 
 
     @Transactional
-    internal fun changeUserAvatar(user: User, avatarInfo: AvatarInfo): UserResponse{
+    internal fun changeUserAvatar(user: User, avatarInfo: AvatarInfo): UserResponse {
 
         val newIndex = avatarInfo.index
         val newVersion = avatarInfo.version
@@ -182,7 +182,7 @@ class UserService(
         return hasOnboarded(user)
     }
 
-    private fun hasOnboarded (user: User) : Boolean {
+    private fun hasOnboarded(user: User): Boolean {
         val displayNameExists = user.displayName != null
         val preferencesExist = userPreferencesRepository.existsById(user.id)
         val currentCourseExists = courseProgressPortForUser.existsAnyByUserId(user.id)

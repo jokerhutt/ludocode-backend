@@ -14,12 +14,8 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
+import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @Tag(
     name = "Auth",
@@ -29,13 +25,14 @@ import java.util.UUID
 @RequestMapping(ApiPaths.AUTH.BASE)
 class AuthController(private val authService: AuthService, private val cookieConfig: AuthCookieConfig) {
 
-    @Operation(summary = "Authenticate user using Firebase",
+    @Operation(
+        summary = "Authenticate user using Firebase",
         description = """
         Authenticate a user using a Firebase ID token.
         If the user does not exist, a new account is created.
         On success, a session cookie is set and the authenticated user is returned. 
         """
-        )
+    )
     @PostMapping(ApiPaths.AUTH.FIREBASE)
     fun loginWithFirebase(
         @RequestHeader("Authorization") authHeader: String,
@@ -51,26 +48,28 @@ class AuthController(private val authService: AuthService, private val cookieCon
 
     }
 
-    @Operation(summary = "Get current authenticated user",
+    @Operation(
+        summary = "Get current authenticated user",
         description = """
         Returns the currently authenticated user associated with the active session.
         Requires a valid session cookie to be present. 
         """
-        )
+    )
     @SecurityRequirement(name = "sessionAuth")
     @GetMapping(ApiPaths.AUTH.ME)
     fun getCurrentUser(
         @AuthenticationPrincipal(expression = "userId") userId: UUID
-    ) : ResponseEntity<UserResponse> {
+    ): ResponseEntity<UserResponse> {
         return ResponseEntity.ok(authService.getAuthenticatedUser(userId))
     }
 
-    @Operation(summary = "Log out the current user",
+    @Operation(
+        summary = "Log out the current user",
         description = """
         Logs out the currently authenticated user by expiring the session cookie.
         After this request, the user is no longer authenticated.   
         """
-        )
+    )
     @SecurityRequirement(name = "sessionAuth")
     @PostMapping(ApiPaths.AUTH.LOGOUT)
     fun logout(response: HttpServletResponse): ResponseEntity<Unit> {

@@ -1,4 +1,5 @@
 package com.ludocode.ludocodebackend.subscription.api.controller
+
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
@@ -20,16 +21,11 @@ import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import java.util.UUID
+import java.util.*
 
 @Tag(
     name = "Subscriptions",
@@ -56,7 +52,7 @@ class SubscriptionController(
     )
     @SecurityRequirement(name = "sessionAuth")
     @GetMapping
-    fun getUserSubscription (@AuthenticationPrincipal (expression = "userId") userId: UUID) : ResponseEntity<UserSubscriptionResponse> {
+    fun getUserSubscription(@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<UserSubscriptionResponse> {
         return ResponseEntity.ok(subscriptionService.getUserSubscriptionResponse(userId))
     }
 
@@ -68,7 +64,7 @@ class SubscriptionController(
         """
     )
     @GetMapping(ApiPaths.SUBSCRIPTION.PLANS)
-    fun getPlans() : ResponseEntity<List<SubscriptionPlanOverviewResponse>> {
+    fun getPlans(): ResponseEntity<List<SubscriptionPlanOverviewResponse>> {
         return ResponseEntity.ok(subscriptionService.getActivePlanOverviews())
     }
 
@@ -227,7 +223,12 @@ class SubscriptionController(
                     throw ApiException(ErrorCode.STRIPE_SUBSCRIPTION_INVALID)
                 }
 
-            logger.info("Activating subscription for user", kv("userId", userId), kv("planId", planId), kv("stripeSubscriptionId", stripeSubscriptionId))
+            logger.info(
+                "Activating subscription for user",
+                kv("userId", userId),
+                kv("planId", planId),
+                kv("stripeSubscriptionId", stripeSubscriptionId)
+            )
 
             val stripeSubscription = Subscription.retrieve(stripeSubscriptionId)
 
@@ -258,7 +259,6 @@ class SubscriptionController(
 
         return ResponseEntity.ok().build()
     }
-
 
 
 }

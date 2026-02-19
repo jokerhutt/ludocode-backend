@@ -1,29 +1,22 @@
 package com.ludocode.ludocodebackend.playground.domain.entity
 
 import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
-import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import com.ludocode.ludocodebackend.playground.domain.enums.Visibility
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.FetchType
-import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 @Entity
 @Table(name = "user_project")
-class UserProject (
+class UserProject(
 
     @Id
-    val id : UUID,
+    val id: UUID,
 
     @Column(name = "name")
-    var name : String,
+    var name: String,
 
     @Column(name = "user_id")
     val userId: UUID,

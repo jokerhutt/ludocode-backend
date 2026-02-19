@@ -1,4 +1,5 @@
 package com.ludocode.ludocodebackend.subscription.app.service
+
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.subscription.api.dto.response.SubscriptionPlanOverviewResponse
@@ -18,7 +19,7 @@ import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 @Service
 class SubscriptionService(
@@ -26,10 +27,10 @@ class SubscriptionService(
     private val subscriptionPlanRepository: SubscriptionPlanRepository,
     private val userSubscriptionRepository: UserSubscriptionRepository,
 
-) : SubscriptionPortForAuth, SubscriptionPortForUser {
+    ) : SubscriptionPortForAuth, SubscriptionPortForUser {
     private val logger = LoggerFactory.getLogger(SubscriptionService::class.java)
 
-    fun getUserPlanLimits (userId: UUID) : PlanLimits {
+    fun getUserPlanLimits(userId: UUID): PlanLimits {
         val userPlan = userSubscriptionRepository.findByUserId(userId)
             ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
         val planDefinition = PlanDefinitions.configFor(userPlan.plan.planCode)
@@ -38,7 +39,8 @@ class SubscriptionService(
 
     fun getUserSubscriptionResponse(userId: UUID): UserSubscriptionResponse {
 
-        val userPlan = userSubscriptionRepository.findByUserId(userId) ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
+        val userPlan =
+            userSubscriptionRepository.findByUserId(userId) ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
         val subscriptionPlan = userPlan.plan
 
         val planDefinitions = PlanDefinitions.configFor(subscriptionPlan.planCode)
@@ -77,7 +79,7 @@ class SubscriptionService(
                 features = config.features,
                 limits = config.limits,
 
-            )
+                )
         }
     }
 
@@ -145,7 +147,11 @@ class SubscriptionService(
         currentPeriodEnd: OffsetDateTime
     ) {
 
-        logger.info("Activating subscription {}", kv("userId", userId), kv("stripeSubscriptionId", stripeSubscriptionId))
+        logger.info(
+            "Activating subscription {}",
+            kv("userId", userId),
+            kv("stripeSubscriptionId", stripeSubscriptionId)
+        )
 
         userRepository.findById(userId)
             .orElseThrow {

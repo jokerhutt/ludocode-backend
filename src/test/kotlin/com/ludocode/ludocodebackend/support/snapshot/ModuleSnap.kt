@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.support.snapshot
 
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.LessonSnap
-import java.util.UUID
+import java.util.*
 
 data class ModuleSnap(
     val moduleId: UUID,

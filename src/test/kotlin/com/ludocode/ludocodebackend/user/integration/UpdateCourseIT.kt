@@ -1,28 +1,28 @@
 package com.ludocode.ludocodebackend.user.integration
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
-import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.user.api.dto.request.ChangeCourseRequest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
 class UpdateCourseIT : AbstractIntegrationTest() {
 
 
     @BeforeEach
-    fun seed () {
+    fun seed() {
 
     }
 
     @Test
-    fun updateCourse_returnExistingCourseProgress () {
+    fun updateCourse_returnExistingCourseProgress() {
 
         val user = user1
         val now = OffsetDateTime.now(clock)
@@ -48,7 +48,7 @@ class UpdateCourseIT : AbstractIntegrationTest() {
 
         assertThat(response).isNotNull()
 
-        val courseProgressResponse  = response.courseProgress
+        val courseProgressResponse = response.courseProgress
 
         assertThat(courseProgressResponse.courseId).isEqualTo(swiftId)
         assertThat(courseProgressResponse.userId).isEqualTo(user.id)
@@ -74,8 +74,12 @@ class UpdateCourseIT : AbstractIntegrationTest() {
 
 
     private fun submitPostUpdateCurrentCourse(userId: UUID, newCourseId: UUID): CourseProgressResponseWithEnrolled =
-        TestRestClient.putOk("${ApiPaths.PROGRESS.COURSES.BASE}${ApiPaths.PROGRESS.COURSES.CURRENT}", userId, ChangeCourseRequest(newCourseId), CourseProgressResponseWithEnrolled::class.java)
-
+        TestRestClient.putOk(
+            "${ApiPaths.PROGRESS.COURSES.BASE}${ApiPaths.PROGRESS.COURSES.CURRENT}",
+            userId,
+            ChangeCourseRequest(newCourseId),
+            CourseProgressResponseWithEnrolled::class.java
+        )
 
 
 }

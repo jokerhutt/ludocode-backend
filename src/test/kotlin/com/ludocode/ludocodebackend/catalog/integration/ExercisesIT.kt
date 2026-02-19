@@ -1,19 +1,19 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
+import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
-import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
 class ExercisesIT : AbstractIntegrationTest() {
 
     @BeforeEach
-    fun seed () {
+    fun seed() {
 
     }
 
@@ -49,7 +49,10 @@ class ExercisesIT : AbstractIntegrationTest() {
         lessonId: UUID
     ): List<ExerciseResponse> =
         TestRestClient
-            .getOk(ApiPaths.LESSONS.byIdExercises(lessonId),
+            .getOk(
+                ApiPaths.LESSONS.byIdExercises(lessonId),
                 user1.id!!,
-                Array<ExerciseResponse>::class.java)
-            .toList()}
+                Array<ExerciseResponse>::class.java
+            )
+            .toList()
+}

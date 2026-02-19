@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 @Component
 class LanguagesMapper(private val basicMapper: BasicMapper) {
 
-    fun toLanguageMetadata(language: CodeLanguages) : LanguageMetadata {
+    fun toLanguageMetadata(language: CodeLanguages): LanguageMetadata {
         return basicMapper.one(language) {
             LanguageMetadata(
                 name = it.name,
@@ -21,10 +21,11 @@ class LanguagesMapper(private val basicMapper: BasicMapper) {
                 base = it.base,
                 iconName = it.iconName
             )
-        }}
+        }
+    }
 
-    fun toLanguageMetadataList(languages: List<CodeLanguages>) : List<LanguageMetadata> {
-        return basicMapper.list(languages) {it -> toLanguageMetadata(it)}
+    fun toLanguageMetadataList(languages: List<CodeLanguages>): List<LanguageMetadata> {
+        return basicMapper.list(languages) { it -> toLanguageMetadata(it) }
     }
 
 }

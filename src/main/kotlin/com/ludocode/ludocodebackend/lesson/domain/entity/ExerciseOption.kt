@@ -4,11 +4,11 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.util.UUID
+import java.util.*
 
 @Entity
 @Table(name = "exercise_option")
-class ExerciseOption (
+class ExerciseOption(
 
     @Id
     var id: UUID,

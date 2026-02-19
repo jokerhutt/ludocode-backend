@@ -8,7 +8,7 @@ import org.springframework.http.ResponseCookie
 import org.springframework.stereotype.Component
 
 @Component
-class AuthCookieService (private val cookieConfig: AuthCookieConfig) {
+class AuthCookieService(private val cookieConfig: AuthCookieConfig) {
 
     internal fun setJwt(response: HttpServletResponse, jwt: String, maxAgeSeconds: Long = cookieConfig.maxAgeSeconds) {
         addCookie(response, jwt, maxAgeSeconds)

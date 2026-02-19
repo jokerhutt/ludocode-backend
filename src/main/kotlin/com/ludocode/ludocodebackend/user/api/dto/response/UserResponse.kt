@@ -1,9 +1,9 @@
 package com.ludocode.ludocodebackend.user.api.dto.response
 
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
-data class UserResponse (
+data class UserResponse(
     val id: UUID,
     val displayName: String?,
     val avatarVersion: String,

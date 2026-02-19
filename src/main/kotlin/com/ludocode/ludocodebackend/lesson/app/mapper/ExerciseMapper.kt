@@ -1,8 +1,8 @@
 package com.ludocode.ludocodebackend.lesson.app.mapper
 
+import com.ludocode.ludocodebackend.commons.mapper.BasicMapper
 import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseOptionResponse
 import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseResponse
-import com.ludocode.ludocodebackend.commons.mapper.BasicMapper
 import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.lesson.infra.projection.ExerciseFlatProjection
 import org.springframework.stereotype.Component

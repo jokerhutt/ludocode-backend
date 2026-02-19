@@ -4,7 +4,6 @@ import com.google.cloud.NoCredentials
 import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
 import com.ludocode.ludocodebackend.support.Containers
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.test.context.DynamicPropertyRegistry

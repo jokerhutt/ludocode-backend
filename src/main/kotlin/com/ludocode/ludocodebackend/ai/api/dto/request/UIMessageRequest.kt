@@ -1,8 +1,9 @@
 package com.ludocode.ludocodebackend.ai.api.dto.request
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.ludocode.ludocodebackend.ai.domain.enums.AiMessageRole
 import com.ludocode.ludocodebackend.ai.domain.enums.ChatType
-import java.util.UUID
+import java.util.*
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)

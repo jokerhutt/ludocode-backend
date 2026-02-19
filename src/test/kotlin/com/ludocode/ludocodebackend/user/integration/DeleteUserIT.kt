@@ -1,4 +1,5 @@
 package com.ludocode.ludocodebackend.user.integration
+
 import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
@@ -10,74 +11,74 @@ import io.restassured.http.ContentType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 
 class DeleteUserIT : AbstractIntegrationTest() {
 
     @BeforeEach
-    fun seed () {
+    fun seed() {
 
     }
 
 
-        @Test
-        fun deleteUser_thenLoginAgain_createsNewUser() {
+    @Test
+    fun deleteUser_thenLoginAgain_createsNewUser() {
 
-            val originalUser = user1
-            val originalUserId = originalUser.id!!
+        val originalUser = user1
+        val originalUserId = originalUser.id!!
 
-            assert(externalAccountRepository.findByUserId(originalUserId) != null)
+        assert(externalAccountRepository.findByUserId(originalUserId) != null)
 
-            val originalExternalAccount = externalAccountRepository.findByUserId(originalUserId)!!
+        val originalExternalAccount = externalAccountRepository.findByUserId(originalUserId)!!
 
-            val originalGoogleSub = originalExternalAccount.providerUserId
+        val originalGoogleSub = originalExternalAccount.providerUserId
 
-            TestRestClient.deleteNoContent(
-                "${ApiPaths.USERS.BASE}${ApiPaths.USERS.ME}",
-                originalUserId,
-            )
+        TestRestClient.deleteNoContent(
+            "${ApiPaths.USERS.BASE}${ApiPaths.USERS.ME}",
+            originalUserId,
+        )
 
-            val users = TestRestClient.getOk(
-                ApiPaths.USERS.fromIds(listOf(originalUserId)),
-                originalUserId,
-                Array<UserResponse>::class.java
-            )
+        val users = TestRestClient.getOk(
+            ApiPaths.USERS.fromIds(listOf(originalUserId)),
+            originalUserId,
+            Array<UserResponse>::class.java
+        )
 
-            assert(users.isEmpty())
+        assert(users.isEmpty())
 
-            assert(externalAccountRepository.findByUserId(originalUserId) == null)
+        assert(externalAccountRepository.findByUserId(originalUserId) == null)
 
-            val loginResponse =
-                given()
-                    .contentType(ContentType.JSON)
-                    .header("Authorization", "Bearer fake-firebase-token")
-                    .`when`()
-                    .post("${ApiPaths.AUTH.BASE}${ApiPaths.AUTH.FIREBASE}")
-                    .then()
-                    .statusCode(200)
-                    .extract()
-                    .`as`(UserLoginResponse::class.java)
+        val loginResponse =
+            given()
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer fake-firebase-token")
+                .`when`()
+                .post("${ApiPaths.AUTH.BASE}${ApiPaths.AUTH.FIREBASE}")
+                .then()
+                .statusCode(200)
+                .extract()
+                .`as`(UserLoginResponse::class.java)
 
-            val newUserId = loginResponse.user.id
+        val newUserId = loginResponse.user.id
 
-            assert(newUserId != originalUserId)
+        assert(newUserId != originalUserId)
 
-            val newUser = userRepository.findById(newUserId).orElseThrow()
-            assert(!newUser.isDeleted)
+        val newUser = userRepository.findById(newUserId).orElseThrow()
+        assert(!newUser.isDeleted)
 
-            val newUsers = TestRestClient.getOk(
-                ApiPaths.USERS.fromIds(listOf(newUserId)),
-                newUserId,
-                Array<UserResponse>::class.java
-            )
-            assertThat(newUsers.size).isEqualTo(1)
-            assertThat(newUsers[0].id == newUserId)
+        val newUsers = TestRestClient.getOk(
+            ApiPaths.USERS.fromIds(listOf(newUserId)),
+            newUserId,
+            Array<UserResponse>::class.java
+        )
+        assertThat(newUsers.size).isEqualTo(1)
+        assertThat(newUsers[0].id == newUserId)
 
-            val newExternalAccount =
-                externalAccountRepository.findByUserId(newUserId)!!
+        val newExternalAccount =
+            externalAccountRepository.findByUserId(newUserId)!!
 
-            assertThat(newExternalAccount.provider).isEqualTo(AuthProvider.FIREBASE)
-            assertThat(newExternalAccount.providerUserId).isEqualTo(originalGoogleSub)
+        assertThat(newExternalAccount.provider).isEqualTo(AuthProvider.FIREBASE)
+        assertThat(newExternalAccount.providerUserId).isEqualTo(originalGoogleSub)
 
 
     }

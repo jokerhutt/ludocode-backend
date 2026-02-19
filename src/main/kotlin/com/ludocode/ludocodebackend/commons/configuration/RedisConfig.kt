@@ -1,11 +1,11 @@
 package com.ludocode.ludocodebackend.commons.configuration
+
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.ludocode.ludocodebackend.catalog.api.dto.internal.LessonTreeWithIdDTO
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
-import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTreeResponse
 import com.ludocode.ludocodebackend.commons.constants.CacheNames
+import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseResponse
 import io.lettuce.core.ClientOptions
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cache.CacheManager
@@ -24,13 +24,13 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer
 import org.springframework.data.redis.serializer.RedisSerializationContext
 import org.springframework.data.redis.serializer.StringRedisSerializer
 import java.time.Duration
-import java.util.UUID
+import java.util.*
 
 @Configuration
 @EnableCaching
 @EnableConfigurationProperties(RedisProps::class)
 @Profile("!test")
-class RedisConfig (private val redisProps: RedisProps) {
+class RedisConfig(private val redisProps: RedisProps) {
 
     @Bean
     @Primary

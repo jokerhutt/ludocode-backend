@@ -24,13 +24,14 @@ class DemoAuthController(
     private val authService: AuthService
 ) {
 
-    @Operation(summary = "Authenticate user using demo account token",
+    @Operation(
+        summary = "Authenticate user using demo account token",
         description = """
         Authenticates a user using a demo access token.
         If the demo user does not exist, a new demo account is created.
         On success, a session cookie is set and the authenticated user is returned. 
         """
-        )
+    )
     @GetMapping(ApiPaths.AUTH.DEMO)
     fun loginDemo(
         @RequestParam token: String,

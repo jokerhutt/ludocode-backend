@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.playground.app.port.`in`
 
-import java.util.UUID
+import java.util.*
 
 interface ProjectsPortForAI {
 

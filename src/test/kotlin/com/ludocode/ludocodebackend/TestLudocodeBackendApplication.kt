@@ -5,5 +5,5 @@ import org.springframework.boot.with
 
 
 fun main(args: Array<String>) {
-	fromApplication<LudocodeBackendApplication>().with(TestcontainersConfiguration::class).run(*args)
+    fromApplication<LudocodeBackendApplication>().with(TestcontainersConfiguration::class).run(*args)
 }

@@ -11,7 +11,7 @@ import io.restassured.response.ValidatableResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 
 class EditUserIT : AbstractIntegrationTest() {
 
@@ -34,7 +34,7 @@ class EditUserIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun editUserProfile_outOfBoundsAvatarIndex_abortsAndReturnsError () {
+    fun editUserProfile_outOfBoundsAvatarIndex_abortsAndReturnsError() {
         val user = user1
         val avatarInfo = AvatarInfo("v1", 30)
         val req = EditProfileRequest("Steve Carell", avatarInfo)
@@ -46,18 +46,23 @@ class EditUserIT : AbstractIntegrationTest() {
         assertThat(res.avatarVersion).isEqualTo(user.avatarVersion)
     }
 
-    private fun submitGetUser(userId: UUID) : UserResponse {
-        val users = TestRestClient.getOk(ApiPaths.USERS.fromIds(listOf(userId)), userId, Array<UserResponse>::class.java)
+    private fun submitGetUser(userId: UUID): UserResponse {
+        val users =
+            TestRestClient.getOk(ApiPaths.USERS.fromIds(listOf(userId)), userId, Array<UserResponse>::class.java)
         assertThat(users).isNotEmpty()
         assertThat(users.size).isEqualTo(1)
         return users[0]
     }
 
-    private fun submitPutEditUser(userId: UUID, req: EditProfileRequest) : UserResponse {
+    private fun submitPutEditUser(userId: UUID, req: EditProfileRequest): UserResponse {
         return TestRestClient.putOk("${ApiPaths.USERS.BASE}${ApiPaths.USERS.ME}", userId, req, UserResponse::class.java)
     }
 
-    private fun submitPutErrorEditProfile(userId: UUID, req: EditProfileRequest, statusCode: ErrorCode) : ValidatableResponse? {
+    private fun submitPutErrorEditProfile(
+        userId: UUID,
+        req: EditProfileRequest,
+        statusCode: ErrorCode
+    ): ValidatableResponse? {
         return TestRestClient.assertError("PUT", "${ApiPaths.USERS.BASE}${ApiPaths.USERS.ME}", userId, req, statusCode)
     }
 

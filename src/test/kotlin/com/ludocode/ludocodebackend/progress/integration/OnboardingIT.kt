@@ -1,4 +1,5 @@
 package com.ludocode.ludocodebackend.progress.integration
+
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.preferences.api.dto.TogglePreferencesRequest
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
@@ -8,15 +9,15 @@ import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
 import com.ludocode.ludocodebackend.user.domain.entity.UserPreferences
 import com.ludocode.ludocodebackend.user.domain.enums.DesiredPath
 import org.assertj.core.api.Assertions.assertThat
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
 class OnboardingIT : AbstractIntegrationTest() {
 
     @Test
-    fun submitOnboarding_returnsCourseAndPreferences () {
+    fun submitOnboarding_returnsCourseAndPreferences() {
 
-        val user = user1
+        user1
         val submission = OnboardingSubmission(
             chosenPath = DesiredPath.DATA,
             chosenCourse = pythonId,
@@ -38,7 +39,7 @@ class OnboardingIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun getInitialPreferences_bothEnabledByDefault () {
+    fun getInitialPreferences_bothEnabledByDefault() {
 
         val userId = user1.id
 
@@ -52,7 +53,7 @@ class OnboardingIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun submitPreferences_updatesPreferences () {
+    fun submitPreferences_updatesPreferences() {
 
         val userId = user1.id
 
@@ -87,7 +88,7 @@ class OnboardingIT : AbstractIntegrationTest() {
 
     }
 
-    private fun initializePreferences (userId: UUID) {
+    private fun initializePreferences(userId: UUID) {
         val submission = OnboardingSubmission(
             chosenPath = DesiredPath.DATA,
             chosenCourse = pythonId,
@@ -102,10 +103,10 @@ class OnboardingIT : AbstractIntegrationTest() {
     private fun submitPostForOnboarding(userId: UUID, submission: OnboardingSubmission): OnboardingResponse =
         TestRestClient.putOk("${ApiPaths.PREFERENCES.BASE}", userId, submission, OnboardingResponse::class.java)
 
-    private fun submitPatchForPreferences(userId: UUID, submission: TogglePreferencesRequest) : UserPreferences =
+    private fun submitPatchForPreferences(userId: UUID, submission: TogglePreferencesRequest): UserPreferences =
         TestRestClient.patchOk("${ApiPaths.PREFERENCES.BASE}", userId, submission, UserPreferences::class.java)
 
-    private fun submitGetForPreferences(userId: UUID) : UserPreferences =
+    private fun submitGetForPreferences(userId: UUID): UserPreferences =
         TestRestClient.getOk("${ApiPaths.PREFERENCES.BASE}", userId, UserPreferences::class.java)
 
 }

@@ -21,7 +21,6 @@ class GlobalExceptionHandler {
     private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
 
-
     @ExceptionHandler(ApiException::class)
     fun handleApi(ex: ApiException, req: HttpServletRequest): ResponseEntity<ProblemDetail> {
         logger.warn(
@@ -94,7 +93,7 @@ class GlobalExceptionHandler {
             kv(LogFields.URI_PATH, req.requestURI),
             ex
         )
-        
+
         if (
             req.requestURI.startsWith("/v3/api-docs") ||
             req.requestURI.startsWith("/swagger-ui")

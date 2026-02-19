@@ -1,8 +1,7 @@
 package com.ludocode.ludocodebackend.progress.infra.projection
 
 import java.time.Instant
-import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 interface CourseProgressWithModuleProjection {
     fun getCourseId(): UUID

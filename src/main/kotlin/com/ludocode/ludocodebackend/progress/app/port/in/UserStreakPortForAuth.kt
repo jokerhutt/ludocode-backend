@@ -1,8 +1,8 @@
 package com.ludocode.ludocodebackend.progress.app.port.`in`
 
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
-import java.util.UUID
+import java.util.*
 
 interface UserStreakPortForAuth {
-    fun getStreak(userId: UUID) : UserStreakResponse
+    fun getStreak(userId: UUID): UserStreakResponse
 }

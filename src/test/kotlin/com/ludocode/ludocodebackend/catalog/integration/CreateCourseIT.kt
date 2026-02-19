@@ -8,13 +8,13 @@ import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import org.assertj.core.api.Assertions.assertThat
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
 class CreateCourseIT : AbstractIntegrationTest() {
 
     @Test
-    fun createCourse_createsCourse_returnsNewCourses () {
+    fun createCourse_createsCourse_returnsNewCourses() {
 
         val newCourseName = "Lua"
         val requestHash = UUID.randomUUID()
@@ -26,7 +26,7 @@ class CreateCourseIT : AbstractIntegrationTest() {
 
         val languageId = luaLanguage.id
 
-        val req = CreateCourseRequest(newCourseName, requestHash, CourseType.COURSE,  subjectReq, languageId)
+        val req = CreateCourseRequest(newCourseName, requestHash, CourseType.COURSE, subjectReq, languageId)
 
         val res = submitPostCreateCourse(req)
 

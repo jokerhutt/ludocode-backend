@@ -1,8 +1,8 @@
 package com.ludocode.ludocodebackend.progress.app.port.`in`
 
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserCoinsResponse
-import java.util.UUID
+import java.util.*
 
 interface UserCoinsPortForAuth {
-    fun findOrCreateCoins(userId: UUID) : UserCoinsResponse
+    fun findOrCreateCoins(userId: UUID): UserCoinsResponse
 }

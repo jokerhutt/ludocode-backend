@@ -7,7 +7,7 @@ import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.support.snapshot.CourseSnap
-import java.util.UUID
+import java.util.*
 import kotlin.random.Random
 
 object CatalogChangeTestUtil {
@@ -214,7 +214,14 @@ object CatalogChangeTestUtil {
                         val moduleIndex = random.nextInt(curriculum.modules.size)
                         val numLessons = random.nextInt(1, 4)
                         repeat(numLessons) {
-                            curriculum.modules[moduleIndex].lessons += createLesson("Random Lesson ${randomString(random, 5)}")
+                            curriculum.modules[moduleIndex].lessons += createLesson(
+                                "Random Lesson ${
+                                    randomString(
+                                        random,
+                                        5
+                                    )
+                                }"
+                            )
                         }
                     }
                 }
@@ -371,12 +378,14 @@ object CatalogChangeTestUtil {
                                 correctAnswer = randomString(random, 10),
                                 distractors = arrayOf(randomString(random, 10), randomString(random, 10))
                             )
+
                             ExerciseType.CLOZE -> createClozeExercise(
                                 title = "Cloze ${randomString(random, 8)}",
                                 prompt = "Fill ${randomString(random, 5)} the blanks",
                                 correctAnswers = listOf(randomString(random, 5), randomString(random, 5)),
                                 distractors = listOf(randomString(random, 5))
                             )
+
                             ExerciseType.ANALYZE -> createAnalyzeExercise(
                                 title = "Analyze ${randomString(random, 8)}",
                                 prompt = "What does this ${randomString(random, 10)} do?",
@@ -435,12 +444,14 @@ object CatalogChangeTestUtil {
                                 correctAnswer = randomString(random, 10),
                                 distractors = arrayOf(randomString(random, 10), randomString(random, 10))
                             )
+
                             ExerciseType.CLOZE -> createClozeExercise(
                                 title = oldExercise.title,
                                 prompt = "Fill the blanks",
                                 correctAnswers = listOf(randomString(random, 8)),
                                 distractors = listOf(randomString(random, 8))
                             )
+
                             ExerciseType.ANALYZE -> createAnalyzeExercise(
                                 title = oldExercise.title,
                                 prompt = "What does this do?",

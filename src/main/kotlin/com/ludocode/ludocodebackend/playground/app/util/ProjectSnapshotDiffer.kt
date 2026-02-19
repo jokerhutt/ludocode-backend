@@ -1,15 +1,17 @@
 package com.ludocode.ludocodebackend.playground.app.util
 
 import com.ludocode.ludocodebackend.commons.util.sha256
-import com.ludocode.ludocodebackend.playground.api.dto.response.ProjectSnapshotDiff
 import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectFileSnapshot
+import com.ludocode.ludocodebackend.playground.api.dto.response.ProjectSnapshotDiff
 import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
-import kotlin.collections.contains
 
 object ProjectSnapshotDiffer {
 
 
-    fun computeSnapshotDiff (incomingFiles: List<ProjectFileSnapshot>, existingFiles: List<ProjectFile>): ProjectSnapshotDiff {
+    fun computeSnapshotDiff(
+        incomingFiles: List<ProjectFileSnapshot>,
+        existingFiles: List<ProjectFile>
+    ): ProjectSnapshotDiff {
 
 
         val filesToAdd = mutableListOf<ProjectFileSnapshot>()
@@ -45,12 +47,12 @@ object ProjectSnapshotDiffer {
 
         }
 
-        return ProjectSnapshotDiff(toAdd = filesToAdd, toDeleteFiles = filesToDelete, toUpdate = filesToUpdate )
+        return ProjectSnapshotDiff(toAdd = filesToAdd, toDeleteFiles = filesToDelete, toUpdate = filesToUpdate)
 
     }
 
 
-    private fun hasFileChanged (incomingFile: ProjectFileSnapshot, existingFile: ProjectFile) : Boolean {
+    private fun hasFileChanged(incomingFile: ProjectFileSnapshot, existingFile: ProjectFile): Boolean {
         if (incomingFile.path != existingFile.filePath) return true
         val incomingHash = sha256(incomingFile.content)
         return incomingHash != existingFile.contentHash

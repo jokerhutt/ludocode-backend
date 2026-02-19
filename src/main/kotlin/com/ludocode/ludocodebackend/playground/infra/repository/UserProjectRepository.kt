@@ -1,11 +1,10 @@
 package com.ludocode.ludocodebackend.playground.infra.repository
 
 import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
-import com.ludocode.ludocodebackend.playground.domain.enums.LanguageType
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import java.util.UUID
+import java.util.*
 
 interface UserProjectRepository : JpaRepository<UserProject, UUID> {
 

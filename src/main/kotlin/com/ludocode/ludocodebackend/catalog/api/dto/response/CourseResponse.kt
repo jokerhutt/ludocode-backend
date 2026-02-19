@@ -2,7 +2,7 @@ package com.ludocode.ludocodebackend.catalog.api.dto.response
 
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
 import com.ludocode.ludocodebackend.languages.api.dto.LanguageMetadata
-import java.util.UUID
+import java.util.*
 
 data class CourseResponse(
     val id: UUID,

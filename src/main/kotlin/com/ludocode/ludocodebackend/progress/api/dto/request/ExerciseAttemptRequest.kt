@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.progress.api.dto.request
 
-import java.util.UUID
+import java.util.*
 
 data class ExerciseAttemptRequest(
     val exerciseId: UUID,

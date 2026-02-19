@@ -3,7 +3,7 @@ package com.ludocode.ludocodebackend.subscription.infra.repository
 import com.ludocode.ludocodebackend.subscription.domain.entity.SubscriptionPlan
 import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
 import org.springframework.data.jpa.repository.JpaRepository
-import java.util.UUID
+import java.util.*
 
 interface SubscriptionPlanRepository : JpaRepository<SubscriptionPlan, UUID> {
 
@@ -12,8 +12,6 @@ interface SubscriptionPlanRepository : JpaRepository<SubscriptionPlan, UUID> {
     fun findByStripePriceId(stripePriceId: String): SubscriptionPlan?
 
     fun findAllByIsActiveTrue(): List<SubscriptionPlan>
-
-
 
 
 }

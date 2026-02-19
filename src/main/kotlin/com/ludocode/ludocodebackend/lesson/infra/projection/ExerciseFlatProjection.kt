@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.lesson.infra.projection
 
-import java.util.UUID
+import java.util.*
 
 interface ExerciseFlatProjection {
 
