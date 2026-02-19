@@ -20,6 +20,7 @@ import com.stripe.net.Webhook
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
@@ -210,6 +211,7 @@ class SubscriptionController(
         This endpoint is intended for Stripe and should not be called directly by clients.
         """
     )
+    @Transactional
     @PostMapping(ApiPaths.SUBSCRIPTION.WEBHOOK)
     fun handleWebhook(
         @RequestBody payload: String,
