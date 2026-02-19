@@ -24,8 +24,6 @@ class AIPromptBuilder {
 
         Here is the correct answer (for your own reasoning only—never reveal directly):
         $filled
-
-        Use hints but do not give away solutions outright.
     """.trimIndent()
 
         return buildBasePrompt(
@@ -49,18 +47,10 @@ class AIPromptBuilder {
         chatHistory: List<String>
     ): String {
 
-        val extra = """
-        Respond with:
-        - A fitting answer to their request
-        - Hints
-        - Clarification if required
-    """.trimIndent()
-
         return buildBasePrompt(
             systemRole = "You are a helpful and concise coding helper.",
             req = req,
             chatHistory = chatHistory,
-            extra = extra
         )
     }
 
@@ -75,11 +65,6 @@ class AIPromptBuilder {
         $fileContent
 
         Ensure code blocks follow Vercel AI SDK formatting.
-
-        Respond with:
-        - A fitting answer
-        - Hints
-        - Any necessary fixed code
     """.trimIndent()
 
         return buildBasePrompt(
