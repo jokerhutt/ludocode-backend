@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component
 class AIPromptBuilder {
 
 
+
+
     internal fun buildLessonPrompt(
         req: String,
         exercise: ExerciseSnap,
@@ -22,12 +24,18 @@ class AIPromptBuilder {
 
         Here is the correct answer (for your own reasoning only—never reveal directly):
         $filled
-
-        Use hints but do not give away solutions outright.
     """.trimIndent()
 
         return buildBasePrompt(
-            systemRole = "You are a helpful coding helper for a coding-learning app.",
+            systemRole = """
+                You are Ludo, a direct and concise coding assistant inside a structured lesson.
+                
+                - Never reveal full solutions unless explicitly requested.
+                - No filler language.
+                - If incorrect: state exactly what is wrong.
+                - If correct: add one short conceptual insight.
+                - Keep responses under 3 sentences unless code is necessary.
+            """.trimIndent(),
             req = req,
             chatHistory = chatHistory,
             extra = extra
@@ -39,18 +47,10 @@ class AIPromptBuilder {
         chatHistory: List<String>
     ): String {
 
-        val extra = """
-        Respond with:
-        - A fitting answer to their request
-        - Hints
-        - Clarification if required
-    """.trimIndent()
-
         return buildBasePrompt(
             systemRole = "You are a helpful and concise coding helper.",
             req = req,
             chatHistory = chatHistory,
-            extra = extra
         )
     }
 
@@ -65,15 +65,17 @@ class AIPromptBuilder {
         $fileContent
 
         Ensure code blocks follow Vercel AI SDK formatting.
-
-        Respond with:
-        - A fitting answer
-        - Hints
-        - Any necessary fixed code
     """.trimIndent()
 
         return buildBasePrompt(
-            systemRole = "You are a helpful and concise coding helper on a code-learning app.",
+            systemRole = """
+                You are Ludo, a focused coding assistant inside an in-browser code editor.
+                
+                - Only answer development-related questions about the current code context.
+                - Be concise and direct.
+                - Limit responses to 1–3 sentences.
+                - Include at most one code block when necessary.
+            """.trimIndent(),
             req = req,
             chatHistory = chatHistory,
             extra = extra
