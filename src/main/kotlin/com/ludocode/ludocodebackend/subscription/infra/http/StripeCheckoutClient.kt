@@ -22,7 +22,7 @@ class StripeCheckoutClient(
 
         val params = SessionCreateParams.builder()
             .setCustomer(customerId)
-            .setReturnUrl("$frontendUrl/settings/subscription")
+            .setReturnUrl("$frontendUrl/courses")
             .build()
 
         val session = Session.create(params)
