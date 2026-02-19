@@ -236,12 +236,15 @@ class SubscriptionController(
                     .findByStripeSubscriptionId(stripeSub.id)
                     ?: return ResponseEntity.ok().build()
 
-                local.cancelAtPeriodEnd = stripeSub.cancelAtPeriodEnd
+                val isCancelling = stripeSub.cancelAt != null
+
+                local.cancelAtPeriodEnd = isCancelling
                 local.updatedAt = OffsetDateTime.now()
 
                 logger.info(
                     "Subscription updated",
                     kv("subscriptionId", stripeSub.id),
+                    kv("cancelAt", stripeSub.cancelAt),
                     kv("cancelAtPeriodEnd", stripeSub.cancelAtPeriodEnd)
                 )
             }
