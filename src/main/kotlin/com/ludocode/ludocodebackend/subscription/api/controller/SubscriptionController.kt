@@ -1,6 +1,4 @@
 package com.ludocode.ludocodebackend.subscription.api.controller
-
-import com.ludocode.ludocodebackend.commons.configuration.AppProps
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
@@ -15,6 +13,9 @@ import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPl
 import com.stripe.model.Subscription
 import com.stripe.model.checkout.Session
 import com.stripe.net.Webhook
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
@@ -30,11 +31,14 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
 
+@Tag(
+    name = "Subscriptions",
+    description = "Operations related to subscription plans, checkout, and Stripe integration"
+)
 @RestController
 @RequestMapping(ApiPaths.SUBSCRIPTION.BASE)
 class SubscriptionController(
     private val subscriptionPlanRepository: SubscriptionPlanRepository,
-    private val appProps: AppProps,
     private val stripeProperties: StripeProperties,
     private val stripePort: StripePort,
     private val subscriptionService: SubscriptionService
@@ -42,17 +46,44 @@ class SubscriptionController(
 
     private val logger = LoggerFactory.getLogger(SubscriptionController::class.java)
 
+    @Operation(
+        summary = "Get current user subscription",
+        description = """
+        Returns the subscription details for the currently authenticated user.
+        Includes plan information, status, and billing period dates.
+        Requires a valid session cookie.
+        """
+    )
+    @SecurityRequirement(name = "sessionAuth")
     @GetMapping
     fun getUserSubscription (@AuthenticationPrincipal (expression = "userId") userId: UUID) : ResponseEntity<UserSubscriptionResponse> {
         return ResponseEntity.ok(subscriptionService.getUserSubscriptionResponse(userId))
     }
 
+    @Operation(
+        summary = "Get active subscription plans",
+        description = """
+        Returns all currently active subscription plans available for purchase.
+        Includes plan metadata such as name, price, and billing interval.
+        """
+    )
     @GetMapping(ApiPaths.SUBSCRIPTION.PLANS)
     fun getPlans() : ResponseEntity<List<SubscriptionPlanOverviewResponse>> {
         return ResponseEntity.ok(subscriptionService.getActivePlanOverviews())
     }
 
-
+    @Operation(
+        summary = "Confirm Stripe subscription",
+        description = """
+        Confirms a completed Stripe Checkout session.
+        
+        Validates the session, verifies metadata integrity, retrieves the Stripe subscription,
+        and activates the paid subscription in the system.
+        
+        Requires a valid session cookie.
+        """
+    )
+    @SecurityRequirement(name = "sessionAuth")
     @PostMapping(ApiPaths.SUBSCRIPTION.CONFIRM)
     fun confirmSubscription(
         @AuthenticationPrincipal(expression = "userId") userId: UUID,
@@ -101,6 +132,18 @@ class SubscriptionController(
         return ResponseEntity.ok(response)
     }
 
+    @Operation(
+        summary = "Create Stripe checkout session",
+        description = """
+        Creates a Stripe Checkout session for the specified subscription plan.
+        
+        Returns a redirect URL that the frontend must use to redirect the user
+        to Stripe's hosted checkout page.
+        
+        Requires a valid session cookie.
+        """
+    )
+    @SecurityRequirement(name = "sessionAuth")
     @PostMapping(ApiPaths.SUBSCRIPTION.CHECKOUT)
     fun createCheckoutSession(
         @AuthenticationPrincipal(expression = "userId") userId: UUID,
@@ -127,6 +170,17 @@ class SubscriptionController(
         return mapOf("url" to url)
     }
 
+    @Operation(
+        summary = "Handle Stripe webhook",
+        description = """
+        Endpoint for receiving Stripe webhook events.
+        
+        Validates the Stripe signature and processes relevant events
+        such as checkout.session.completed to activate subscriptions.
+        
+        This endpoint is intended for Stripe and should not be called directly by clients.
+        """
+    )
     @PostMapping(ApiPaths.SUBSCRIPTION.WEBHOOK)
     fun handleWebhook(
         @RequestBody payload: String,
