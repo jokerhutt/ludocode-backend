@@ -17,7 +17,7 @@ object PlanDefinitions {
         )
     )
 
-    private val CORE = PlanConfig(
+    private val SUPPORTER = PlanConfig(
         limits = PlanLimits(
             monthlyAiCredits = 100,
             maxProjects = 10
@@ -32,7 +32,7 @@ object PlanDefinitions {
         recommended = true
     )
 
-    private val PRO = PlanConfig(
+    private val PATRON = PlanConfig(
         limits = PlanLimits(
             monthlyAiCredits = 800,
             maxProjects = 100
@@ -50,7 +50,7 @@ object PlanDefinitions {
     fun configFor(plan: Plan): PlanConfig =
         when (plan) {
             Plan.FREE -> FREE
-            Plan.CORE -> CORE
-            Plan.PRO -> PRO
+            Plan.SUPPORTER -> SUPPORTER
+            Plan.PATRON -> PATRON
         }
 }
