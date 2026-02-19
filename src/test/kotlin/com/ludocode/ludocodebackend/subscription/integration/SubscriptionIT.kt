@@ -35,10 +35,10 @@ class SubscriptionIT : AbstractIntegrationTest() {
             )
         )
 
-        val corePlan = subscriptionPlanRepository.save(
+        val SUPPORTERPlan = subscriptionPlanRepository.save(
             SubscriptionPlan(
                 id = UUID.randomUUID(),
-                planCode = Plan.CORE,
+                planCode = Plan.SUPPORTER,
                 displayName = "Core",
                 stripePriceId = "price_core",
                 billingInterval = "month",
@@ -55,7 +55,7 @@ class SubscriptionIT : AbstractIntegrationTest() {
         assertThat(res).hasSize(2)
 
         val free = res.first { it.tier == Plan.FREE }
-        val core = res.first { it.tier == Plan.CORE }
+        val SUPPORTER = res.first { it.tier == Plan.SUPPORTER }
 
         assertThat(free.price).isEqualByComparingTo(BigDecimal.ZERO)
         assertThat(free.period).isEqualTo("month")
@@ -67,12 +67,12 @@ class SubscriptionIT : AbstractIntegrationTest() {
 
         assertThat(free.features).doesNotContain(Feature.SKILL_PATHS)
 
-        assertThat(core.price).isEqualByComparingTo(corePlan.displayPrice)
-        assertThat(core.recommended).isTrue()
+        assertThat(SUPPORTER.price).isEqualByComparingTo(SUPPORTERPlan.displayPrice)
+        assertThat(SUPPORTER.recommended).isTrue()
 
-        assertThat(core.limits.monthlyAiCredits).isEqualTo(PlanDefinitions.configFor(Plan.CORE).limits.monthlyAiCredits)
+        assertThat(SUPPORTER.limits.monthlyAiCredits).isEqualTo(PlanDefinitions.configFor(Plan.SUPPORTER).limits.monthlyAiCredits)
 
-        assertThat(core.features).contains(Feature.CORE_COURSES)
+        assertThat(SUPPORTER.features).contains(Feature.CORE_COURSES)
 
     }
 
