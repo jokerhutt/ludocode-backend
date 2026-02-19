@@ -5,7 +5,7 @@ import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import io.restassured.response.ValidatableResponse
 import org.hamcrest.CoreMatchers.equalTo
-import java.util.UUID
+import java.util.*
 
 object TestRestClient {
 

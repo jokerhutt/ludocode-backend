@@ -21,7 +21,7 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     PLAN_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "Plan is not active"),
     LIMITS_NOT_FOUND(HttpStatus.NOT_FOUND, "Could not find limits for selected plan"),
 
-    USER_SUBSCRIPTION_NOT_FOUND(HttpStatus.NOT_FOUND,"User subscription not found"),
+    USER_SUBSCRIPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "User subscription not found"),
 
     COURSE_STATS_NOT_FOUND(HttpStatus.NOT_FOUND, "Course stats for this user and course not found"),
     COURSE_PROGRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "Course progress for this user and course not found"),
@@ -56,9 +56,6 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     STRIPE_METADATA_MISSING(HttpStatus.BAD_REQUEST, "Stripe webhook metadata missing"),
     STRIPE_SUBSCRIPTION_INVALID(HttpStatus.BAD_REQUEST, "Stripe subscription invalid"),
     STRIPE_SIGNATURE_INVALID(HttpStatus.UNAUTHORIZED, "Invalid Stripe signature"),
-
-
-
 
 
 }

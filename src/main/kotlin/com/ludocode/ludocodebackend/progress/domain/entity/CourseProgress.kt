@@ -6,11 +6,11 @@ import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 @Entity
 @Table(name = "course_progress")
-class CourseProgress (
+class CourseProgress(
 
     @EmbeddedId
     val id: CourseProgressId,

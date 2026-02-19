@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.progress.integration
 
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.progress.api.dto.request.AttemptToken
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseAttemptRequest
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseSubmissionRequest
@@ -9,15 +9,14 @@ import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionReq
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionPacket
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionResponse
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
-import com.ludocode.ludocodebackend.progress.domain.entity.LessonCompletion
 import com.ludocode.ludocodebackend.progress.domain.entity.UserCoins
 import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
-import com.ludocode.ludocodebackend.support.util.CourseProgressTestUtil
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.support.snapshot.TestSnapshotService
+import com.ludocode.ludocodebackend.support.util.CourseProgressTestUtil
 import com.ludocode.ludocodebackend.support.util.LessonSubmissionTestUtil
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.RepeatedTest
@@ -25,8 +24,7 @@ import org.junit.jupiter.api.RepetitionInfo
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
 import java.time.OffsetDateTime
-
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
 class LessonSubmissionIT : AbstractIntegrationTest() {
@@ -37,7 +35,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
     @Test
     fun submitLesson_success_resubmitSameLessonLater_success() {
 
-        val userCoins = userCoinsRepository.save(UserCoins(user1.id!!, 0))
+        userCoinsRepository.save(UserCoins(user1.id!!, 0))
         userStreakRepository.save(UserStreak(userId = user1.id!!))
 
         val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
@@ -49,12 +47,24 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
         val currentModule = pyMod1Id
 
-        val progressList = courseProgressRepository.saveAll(listOf(
-            CourseProgress(id = CourseProgressId(user1.id!!, currentCourse), currentModuleId = currentModule, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
-            CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentModuleId = swMod1Id, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
-        ))
+        courseProgressRepository.saveAll(
+            listOf(
+                CourseProgress(
+                    id = CourseProgressId(user1.id!!, currentCourse),
+                    currentModuleId = currentModule,
+                    createdAt = OffsetDateTime.now(clock),
+                    updatedAt = OffsetDateTime.now(clock)
+                ),
+                CourseProgress(
+                    id = CourseProgressId(user1.id!!, swiftId),
+                    currentModuleId = swMod1Id,
+                    createdAt = OffsetDateTime.now(clock),
+                    updatedAt = OffsetDateTime.now(clock)
+                )
+            )
+        )
 
-        val exercises : List<ExerciseSnap> = pythonSnap.modules[0].lessons[3].exercises
+        val exercises: List<ExerciseSnap> = pythonSnap.modules[0].lessons[3].exercises
 
 
         val sub1 = ExerciseSubmissionRequest(
@@ -87,13 +97,19 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         )
 
         val submissions: List<ExerciseSubmissionRequest> = listOf(sub1, sub2)
-        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), currentLesson, submissions = submissions, courseId = currentCourse)
+        val lessonCompletionRequest = LessonSubmissionRequest(
+            UUID.randomUUID(),
+            currentLesson,
+            submissions = submissions,
+            courseId = currentCourse
+        )
 
-        val res1 = submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
+        submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
 
-        val secondLessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), currentLesson,  courseId = currentCourse, submissions)
+        val secondLessonCompletionRequest =
+            LessonSubmissionRequest(UUID.randomUUID(), currentLesson, courseId = currentCourse, submissions)
         val res2 = submitPostForLessonSubmission(user1.id!!, secondLessonCompletionRequest)
-        val content : LessonCompletionResponse = res2.content!!
+        val content: LessonCompletionResponse = res2.content!!
 
         assertThat(res2.status).isEqualTo(LessonCompletionStatus.OK)
         assertThat(content.newCoins.coins).isGreaterThan(0)
@@ -110,7 +126,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
     @Test
     fun submitLesson_duplicate_returnsDuplicateError() {
 
-        val userCoins = userCoinsRepository.save(UserCoins(user1.id!!, 0))
+        userCoinsRepository.save(UserCoins(user1.id!!, 0))
         userStreakRepository.save(UserStreak(userId = user1.id!!))
 
         val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
@@ -119,15 +135,27 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
         val currentCourse = pythonId
         val currentLesson = py1L4
-        val nextLesson = py2L1
+        py2L1
 
 
-        val progressList = courseProgressRepository.saveAll(listOf(
-            CourseProgress(id = CourseProgressId(user1.id!!, currentCourse), currentModuleId = pyMod1Id, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
-            CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentModuleId = swMod1Id, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
-        ))
+        courseProgressRepository.saveAll(
+            listOf(
+                CourseProgress(
+                    id = CourseProgressId(user1.id!!, currentCourse),
+                    currentModuleId = pyMod1Id,
+                    createdAt = OffsetDateTime.now(clock),
+                    updatedAt = OffsetDateTime.now(clock)
+                ),
+                CourseProgress(
+                    id = CourseProgressId(user1.id!!, swiftId),
+                    currentModuleId = swMod1Id,
+                    createdAt = OffsetDateTime.now(clock),
+                    updatedAt = OffsetDateTime.now(clock)
+                )
+            )
+        )
 
-        val exercises : List<ExerciseSnap> = pythonSnap.modules[0].lessons[3].exercises
+        val exercises: List<ExerciseSnap> = pythonSnap.modules[0].lessons[3].exercises
 
 
         val sub1 = ExerciseSubmissionRequest(
@@ -160,11 +188,17 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         )
 
         val submissions: List<ExerciseSubmissionRequest> = listOf(sub1, sub2)
-        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), currentLesson, courseId = pythonId, submissions = submissions)
+        val lessonCompletionRequest =
+            LessonSubmissionRequest(UUID.randomUUID(), currentLesson, courseId = pythonId, submissions = submissions)
 
-        val res1 = submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
+        submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
 
-        val secondLessonCompletionRequest = LessonSubmissionRequest(lessonCompletionRequest.submissionId, currentLesson, courseId = pythonId, submissions)
+        val secondLessonCompletionRequest = LessonSubmissionRequest(
+            lessonCompletionRequest.submissionId,
+            currentLesson,
+            courseId = pythonId,
+            submissions
+        )
         val res2 = submitPostForLessonSubmission(user1.id!!, secondLessonCompletionRequest)
         assertThat(res2.status).isEqualTo(LessonCompletionStatus.DUPLICATE)
         assertThat(res2.content).isNull()
@@ -174,7 +208,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
     @Test
     fun submitLesson_endOfModule_returnsSameModule() {
 
-        val userCoins = userCoinsRepository.save(UserCoins(user1.id!!, 0))
+        userCoinsRepository.save(UserCoins(user1.id!!, 0))
         userStreakRepository.save(UserStreak(userId = user1.id!!))
 
         val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
@@ -183,15 +217,27 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
         val currentCourse = pythonId
         val currentLesson = py1L4
-        val nextLesson = py2L1
+        py2L1
 
 
-        val progressList = courseProgressRepository.saveAll(listOf(
-            CourseProgress(id = CourseProgressId(user1.id!!, currentCourse), currentModuleId = pyMod1Id, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
-            CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentModuleId = swMod1Id, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
-        ))
+        courseProgressRepository.saveAll(
+            listOf(
+                CourseProgress(
+                    id = CourseProgressId(user1.id!!, currentCourse),
+                    currentModuleId = pyMod1Id,
+                    createdAt = OffsetDateTime.now(clock),
+                    updatedAt = OffsetDateTime.now(clock)
+                ),
+                CourseProgress(
+                    id = CourseProgressId(user1.id!!, swiftId),
+                    currentModuleId = swMod1Id,
+                    createdAt = OffsetDateTime.now(clock),
+                    updatedAt = OffsetDateTime.now(clock)
+                )
+            )
+        )
 
-        val exercises : List<ExerciseSnap> = pythonSnap.modules[0].lessons[3].exercises
+        val exercises: List<ExerciseSnap> = pythonSnap.modules[0].lessons[3].exercises
 
 
         val sub1 = ExerciseSubmissionRequest(
@@ -224,13 +270,18 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         )
 
         val submissions: List<ExerciseSubmissionRequest> = listOf(sub1, sub2)
-        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), currentLesson, courseId = currentCourse, submissions = submissions)
+        val lessonCompletionRequest = LessonSubmissionRequest(
+            UUID.randomUUID(),
+            currentLesson,
+            courseId = currentCourse,
+            submissions = submissions
+        )
 
         val response = submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
 
         assertThat(response).isNotNull()
 
-        val content : LessonCompletionResponse = response.content!!
+        val content: LessonCompletionResponse = response.content!!
 
         assertThat(response.status).isEqualTo(LessonCompletionStatus.OK)
         assertThat(content.newCoins.coins).isGreaterThan(0)
@@ -250,22 +301,40 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
     @Test
     fun submitLesson_endOfCourse_returnsEndOfCourse() {
 
-        val userCoins = userCoinsRepository.save(UserCoins(user1.id!!, 0))
+        userCoinsRepository.save(UserCoins(user1.id!!, 0))
 
 
         val currentCourse = pythonId
         val currentLesson = py2L2
 
-        courseProgressRepository.saveAll(listOf(
-            CourseProgress(id = CourseProgressId(user1.id!!, currentCourse), currentModuleId = pyMod2Id, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
-            CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentModuleId = swMod1Id, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
-        ))
+        courseProgressRepository.saveAll(
+            listOf(
+                CourseProgress(
+                    id = CourseProgressId(user1.id!!, currentCourse),
+                    currentModuleId = pyMod2Id,
+                    createdAt = OffsetDateTime.now(clock),
+                    updatedAt = OffsetDateTime.now(clock)
+                ),
+                CourseProgress(
+                    id = CourseProgressId(user1.id!!, swiftId),
+                    currentModuleId = swMod1Id,
+                    createdAt = OffsetDateTime.now(clock),
+                    updatedAt = OffsetDateTime.now(clock)
+                )
+            )
+        )
 
-        lessonCompletionRepository.saveAll(CourseProgressTestUtil.pythonProgress(user1.id, currentCourse, pythonLessons))
+        lessonCompletionRepository.saveAll(
+            CourseProgressTestUtil.pythonProgress(
+                user1.id,
+                currentCourse,
+                pythonLessons
+            )
+        )
 
         val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
 
-        val exercises : List<ExerciseSnap> = pythonSnap.modules[1].lessons[1].exercises
+        val exercises: List<ExerciseSnap> = pythonSnap.modules[1].lessons[1].exercises
 
 
         val sub1 = ExerciseSubmissionRequest(
@@ -282,7 +351,12 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
 
         val submissions: List<ExerciseSubmissionRequest> = listOf(sub1)
-        val lessonCompletionRequest = LessonSubmissionRequest(UUID.randomUUID(), currentLesson, courseId = currentCourse, submissions = submissions)
+        val lessonCompletionRequest = LessonSubmissionRequest(
+            UUID.randomUUID(),
+            currentLesson,
+            courseId = currentCourse,
+            submissions = submissions
+        )
 
         val response = submitPostForLessonSubmission(user1.id!!, lessonCompletionRequest)
 
@@ -308,7 +382,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
         val currentCourse = swiftId
         val currentLesson = sw1L1
-        val nextLesson = sw1L2
+        sw1L2
 
         courseProgressRepository.save(
             CourseProgress(
@@ -372,12 +446,22 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
         val currentCourse = pythonId
         val currentLesson = py1L1
-        val nextLesson = py1L2
+        py1L2
 
         courseProgressRepository.saveAll(
             listOf(
-                CourseProgress(id = CourseProgressId(user1.id!!, currentCourse), currentModuleId = pyMod1Id, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock)),
-                CourseProgress(id = CourseProgressId(user1.id!!, swiftId), currentModuleId = swMod1Id, createdAt = OffsetDateTime.now(clock), updatedAt = OffsetDateTime.now(clock))
+                CourseProgress(
+                    id = CourseProgressId(user1.id!!, currentCourse),
+                    currentModuleId = pyMod1Id,
+                    createdAt = OffsetDateTime.now(clock),
+                    updatedAt = OffsetDateTime.now(clock)
+                ),
+                CourseProgress(
+                    id = CourseProgressId(user1.id!!, swiftId),
+                    currentModuleId = swMod1Id,
+                    createdAt = OffsetDateTime.now(clock),
+                    updatedAt = OffsetDateTime.now(clock)
+                )
             )
         )
 
@@ -417,7 +501,6 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         )
 
 
-
         val submissions = listOf(sub1, sub2)
         val req = LessonSubmissionRequest(UUID.randomUUID(), currentLesson, courseId = pythonId, submissions)
 
@@ -437,16 +520,18 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         assertThat(content.updatedCompletedLesson.isCompleted).isTrue()
 
 
-
     }
 
-    private fun submitPostForLessonSubmission(userId: UUID, submission: LessonSubmissionRequest): LessonCompletionPacket =
+    private fun submitPostForLessonSubmission(
+        userId: UUID,
+        submission: LessonSubmissionRequest
+    ): LessonCompletionPacket =
         TestRestClient.postOk(ApiPaths.PROGRESS.COMPLETION.BASE, userId, submission, LessonCompletionPacket::class.java)
 
     @RepeatedTest(20, name = "Random Lesson Submission - Run {currentRepetition}/{totalRepetitions}")
     fun submitRandomLesson_calculatesCorrectScoreAndAccuracy(repetitionInfo: RepetitionInfo) {
         val seed = repetitionInfo.currentRepetition.toLong()
-        val random = java.util.Random(seed)
+        val random = Random(seed)
 
         userCoinsRepository.save(UserCoins(user1.id!!, 0))
 
@@ -514,7 +599,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
     @RepeatedTest(15, name = "Random Perfect Score Lesson - Run {currentRepetition}/{totalRepetitions}")
     fun submitRandomLesson_perfectScore_hasFullAccuracy(repetitionInfo: RepetitionInfo) {
         val seed = repetitionInfo.currentRepetition.toLong()
-        val random = java.util.Random(seed)
+        val random = Random(seed)
 
         userCoinsRepository.save(UserCoins(user1.id!!, 0))
 
@@ -560,7 +645,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
     @RepeatedTest(15, name = "Random Imperfect Score Lesson - Run {currentRepetition}/{totalRepetitions}")
     fun submitRandomLesson_imperfectScore_hasPartialAccuracy(repetitionInfo: RepetitionInfo) {
         val seed = repetitionInfo.currentRepetition.toLong()
-        val random = java.util.Random(seed)
+        val random = Random(seed)
 
         userCoinsRepository.save(UserCoins(user1.id!!, 0))
 

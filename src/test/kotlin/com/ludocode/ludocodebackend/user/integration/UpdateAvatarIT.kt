@@ -10,7 +10,7 @@ import io.restassured.response.ValidatableResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 
 class UpdateAvatarIT : AbstractIntegrationTest() {
 
@@ -21,7 +21,7 @@ class UpdateAvatarIT : AbstractIntegrationTest() {
 
     @Test
     fun getUser_returnsAvatar() {
-        val user = user1;
+        val user = user1
         val res = submitGetUser(user.id)
         assertThat(res.avatarVersion).isEqualTo("v1")
         assertThat(res.avatarIndex).isEqualTo(1)
@@ -39,7 +39,7 @@ class UpdateAvatarIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun updateUserAvatar_outOfBoundsIndex_abortsAndReturnsError () {
+    fun updateUserAvatar_outOfBoundsIndex_abortsAndReturnsError() {
         val user = user1
         val req = AvatarInfo("v1", 30)
         submitPutErrorUpdateAvatar(user.id, req, ErrorCode.BAD_REQ)
@@ -49,19 +49,31 @@ class UpdateAvatarIT : AbstractIntegrationTest() {
         assertThat(res.avatarVersion).isEqualTo(user.avatarVersion)
     }
 
-    private fun submitGetUser(userId: UUID) : UserResponse {
-        val users = TestRestClient.getOk(ApiPaths.USERS.fromIds(listOf(userId)), userId, Array<UserResponse>::class.java)
+    private fun submitGetUser(userId: UUID): UserResponse {
+        val users =
+            TestRestClient.getOk(ApiPaths.USERS.fromIds(listOf(userId)), userId, Array<UserResponse>::class.java)
         assertThat(users).isNotEmpty()
         assertThat(users.size).isEqualTo(1)
         return users[0]
     }
 
-    private fun submitPutUpdateAvatar(userId: UUID, req: AvatarInfo) : UserResponse {
-        return TestRestClient.putOk("${ApiPaths.USERS.BASE}${ApiPaths.USERS.AVATAR}", userId, req, UserResponse::class.java)
+    private fun submitPutUpdateAvatar(userId: UUID, req: AvatarInfo): UserResponse {
+        return TestRestClient.putOk(
+            "${ApiPaths.USERS.BASE}${ApiPaths.USERS.AVATAR}",
+            userId,
+            req,
+            UserResponse::class.java
+        )
     }
 
-    private fun submitPutErrorUpdateAvatar(userId: UUID, req: AvatarInfo, statusCode: ErrorCode) : ValidatableResponse? {
-        return TestRestClient.assertError("PUT", "${ApiPaths.USERS.BASE}${ApiPaths.USERS.AVATAR}", userId, req, statusCode)
+    private fun submitPutErrorUpdateAvatar(userId: UUID, req: AvatarInfo, statusCode: ErrorCode): ValidatableResponse? {
+        return TestRestClient.assertError(
+            "PUT",
+            "${ApiPaths.USERS.BASE}${ApiPaths.USERS.AVATAR}",
+            userId,
+            req,
+            statusCode
+        )
     }
 
 

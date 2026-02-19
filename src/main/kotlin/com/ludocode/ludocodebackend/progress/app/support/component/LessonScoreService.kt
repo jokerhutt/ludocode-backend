@@ -17,7 +17,7 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Clock
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 @Component
 class LessonScoreService(
@@ -28,7 +28,11 @@ class LessonScoreService(
 ) {
 
     @Transactional
-    internal fun addPointsAndCommitSubmission (request: LessonSubmissionRequest, userId: UUID, courseId: UUID): LessonCompletion {
+    internal fun addPointsAndCommitSubmission(
+        request: LessonSubmissionRequest,
+        userId: UUID,
+        courseId: UUID
+    ): LessonCompletion {
 
         val currentLessonId = request.lessonId
 
@@ -105,7 +109,7 @@ class LessonScoreService(
         return completion
     }
 
-    private fun computeScoreForAttempt (attempt: ExerciseAttemptRequest, isPerfect: Boolean) : Int {
+    private fun computeScoreForAttempt(attempt: ExerciseAttemptRequest, isPerfect: Boolean): Int {
         if (isPerfect) {
             return 5
         } else if (attempt.isCorrect) {
@@ -115,13 +119,12 @@ class LessonScoreService(
         }
     }
 
-    private fun computeAccuracy (correct: Int, total: Int): BigDecimal {
-        if (total == 0) return BigDecimal(1); //Entire exercise is INFO
+    private fun computeAccuracy(correct: Int, total: Int): BigDecimal {
+        if (total == 0) return BigDecimal(1) //Entire exercise is INFO
         return BigDecimal(correct)
             .divide(BigDecimal(total), 2, RoundingMode.HALF_UP)
 
     }
-
 
 
 }

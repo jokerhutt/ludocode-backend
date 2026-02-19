@@ -3,13 +3,13 @@ package com.ludocode.ludocodebackend.storage.configuration
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "storage")
-class StorageProperties (
+class StorageProperties(
     var mode: Mode = Mode.LOCAL,
     var local: Local = Local(),
     var gcs: Gcs = Gcs(),
     var s3: S3 = S3()
 ) {
-   enum class Mode {LOCAL, GCS, S3}
+    enum class Mode { LOCAL, GCS, S3 }
 
     data class Local(var bucketName: String = "/data/local-bucket")
 
@@ -25,7 +25,6 @@ class StorageProperties (
         var bucket: String = "",
         var endpoint: String = ""
     )
-
 
 
 }

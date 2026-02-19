@@ -9,7 +9,7 @@ import io.restassured.http.ContentType
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.junit.jupiter.DisabledIf
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
 @DisabledIf(
@@ -25,7 +25,13 @@ class RunnerDisabledIT : AbstractIntegrationTest() {
     fun runCode_returns403_whenFeatureDisabled() {
 
         val languageMetadata = languagesMapper.toLanguageMetadata(pythonLanguage)
-        val testRequest = ProjectSnapshot(projectId = UUID.randomUUID(), projectName = "I Wont run", updatedAt = OffsetDateTime.now(clock), projectLanguage = languageMetadata, files = listOf())
+        val testRequest = ProjectSnapshot(
+            projectId = UUID.randomUUID(),
+            projectName = "I Wont run",
+            updatedAt = OffsetDateTime.now(clock),
+            projectLanguage = languageMetadata,
+            files = listOf()
+        )
 
         given()
             .header("X-Test-User-Id", user1.id.toString())

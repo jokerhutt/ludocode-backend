@@ -4,12 +4,12 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.util.UUID
+import java.util.*
 
 @Entity
 @Table(name = "user_ai_credits")
-class UserAICredits (
-    
+class UserAICredits(
+
     @Id
     val userId: UUID,
 
@@ -17,6 +17,4 @@ class UserAICredits (
     var credits: Int
 
 
-
-    
 )

@@ -3,7 +3,7 @@ package com.ludocode.ludocodebackend.lesson.domain.entity.embeddable
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 import java.io.Serializable
-import java.util.UUID
+import java.util.*
 
 @Embeddable
 data class LessonExercisesId(

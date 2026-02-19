@@ -1,24 +1,25 @@
 package com.ludocode.ludocodebackend.auth.app.service
+
 import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.app.port.out.FirebaseAuthPort
-import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
-import com.ludocode.ludocodebackend.progress.app.port.`in`.UserCoinsPortForAuth
-import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStreakPortForAuth
 import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
+import com.ludocode.ludocodebackend.progress.app.port.`in`.UserCoinsPortForAuth
+import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStreakPortForAuth
 import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForAuth
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
+import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
 import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
 import jakarta.servlet.http.HttpServletResponse
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 @Service
 class AuthService(
@@ -34,7 +35,7 @@ class AuthService(
 
     private val logger = LoggerFactory.getLogger(AuthService::class.java)
 
-    internal fun loginWithFirebase (response: HttpServletResponse, token: String) : UserLoginResponse {
+    internal fun loginWithFirebase(response: HttpServletResponse, token: String): UserLoginResponse {
 
         return try {
             val decoded = firebaseAuthPort.verifyIdToken(token)
@@ -93,7 +94,7 @@ class AuthService(
 
     }
 
-    internal fun getAuthenticatedUser (id: UUID) : UserResponse {
+    internal fun getAuthenticatedUser(id: UUID): UserResponse {
         return userPortForAuth.getById(id)
     }
 

@@ -13,14 +13,14 @@ import com.ludocode.ludocodebackend.support.TestRestClient
 import org.assertj.core.api.Assertions.assertThat
 import java.math.BigDecimal
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 
-class SubscriptionIT  : AbstractIntegrationTest() {
+class SubscriptionIT : AbstractIntegrationTest() {
 
     @Test
     fun getPlanOverviews_returnsOverviews() {
-        val freePlan = subscriptionPlanRepository.save(
+        subscriptionPlanRepository.save(
             SubscriptionPlan(
                 id = UUID.randomUUID(),
                 planCode = Plan.FREE,
@@ -77,20 +77,22 @@ class SubscriptionIT  : AbstractIntegrationTest() {
     }
 
     @Test
-    fun getSubscription_returnsSubscription () {
+    fun getSubscription_returnsSubscription() {
 
-        val plan = subscriptionPlanRepository.save(SubscriptionPlan(
-            id = UUID.randomUUID(),
-            planCode = Plan.FREE,
-            displayName = "Free",
-            stripePriceId = "Random stripe price id",
-            billingInterval = "month",
-            isActive = true,
-            createdAt = OffsetDateTime.now(clock),
-            displayPrice = BigDecimal(0),
-            description = "Get started with the basics",
-            currency = "EUR"
-        ))
+        val plan = subscriptionPlanRepository.save(
+            SubscriptionPlan(
+                id = UUID.randomUUID(),
+                planCode = Plan.FREE,
+                displayName = "Free",
+                stripePriceId = "Random stripe price id",
+                billingInterval = "month",
+                isActive = true,
+                createdAt = OffsetDateTime.now(clock),
+                displayPrice = BigDecimal(0),
+                description = "Get started with the basics",
+                currency = "EUR"
+            )
+        )
 
         val userSubscription = userSubscriptionRepository.save(
             UserSubscription(
@@ -117,10 +119,9 @@ class SubscriptionIT  : AbstractIntegrationTest() {
         assertThat(res.maxProjects).isEqualTo(PlanDefinitions.configFor(Plan.FREE).limits.maxProjects)
 
 
-
     }
 
-    private fun submitGetSubscription (userId: UUID): UserSubscriptionResponse =
+    private fun submitGetSubscription(userId: UUID): UserSubscriptionResponse =
         TestRestClient.getOk(ApiPaths.SUBSCRIPTION.BASE, userId, UserSubscriptionResponse::class.java)
 
     private fun submitGetPlans(): List<SubscriptionPlanOverviewResponse> {

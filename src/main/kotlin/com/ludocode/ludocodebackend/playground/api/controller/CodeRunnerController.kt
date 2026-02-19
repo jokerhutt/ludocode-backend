@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
+import java.util.*
 
 @Tag(
     name = "Code Runner",
@@ -26,16 +26,20 @@ import java.util.UUID
 class CodeRunnerController(private val codeRunnerService: CodeRunnerService) {
 
 
-    @Operation(summary = "Execute project code",
+    @Operation(
+        summary = "Execute project code",
         description = """
         Executes the code contained in the provided project snapshot.
         Runs the project in an isolated execution environment.
         Returns the program's standard output, standard error, and exit code.
         """
-        )
+    )
     @SecurityRequirement(name = "sessionAuth")
     @PostMapping(ApiPaths.RUNNER.EXECUTE)
-    fun runProject (@RequestBody request: ProjectSnapshot, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<RunnerResult> {
+    fun runProject(
+        @RequestBody request: ProjectSnapshot,
+        @AuthenticationPrincipal(expression = "userId") userId: UUID
+    ): ResponseEntity<RunnerResult> {
         return ResponseEntity.ok(codeRunnerService.runCode(request))
     }
 

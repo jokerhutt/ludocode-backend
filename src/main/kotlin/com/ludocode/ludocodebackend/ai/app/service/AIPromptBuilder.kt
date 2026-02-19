@@ -80,7 +80,7 @@ class AIPromptBuilder {
         )
     }
 
-    private fun buildExerciseAnswerString(exerciseSnap: ExerciseSnap) : String {
+    private fun buildExerciseAnswerString(exerciseSnap: ExerciseSnap): String {
         val hasPrompt = exerciseSnap.prompt != null
         val hasCorrectOptions = exerciseSnap.correctOptions != null
 
@@ -90,10 +90,12 @@ class AIPromptBuilder {
                 if (!hasCorrectOptions) return ""
                 return buildTriviaAnswer(exerciseSnap)
             }
+
             ExerciseType.ANALYZE -> {
                 if (!hasPrompt || !hasCorrectOptions) return ""
                 return buildAnalyzeAnswer(exerciseSnap)
             }
+
             ExerciseType.CLOZE -> {
                 if (!hasPrompt || !hasCorrectOptions) return ""
                 return buildClozeAnswer(exerciseSnap)
@@ -124,20 +126,20 @@ class AIPromptBuilder {
     """.trimIndent()
     }
 
-    private fun buildInfoAnswer () : String {
+    private fun buildInfoAnswer(): String {
         return "This is an informational exercise with no answers. If the user is confused about what to do, instruct them to simply press continue. If the user asks about the content, refer to the title"
     }
 
-    private fun buildClozeAnswer (exerciseSnap: ExerciseSnap): String {
+    private fun buildClozeAnswer(exerciseSnap: ExerciseSnap): String {
         println("BLANKS: " + fillBlanks(exerciseSnap.prompt!!, exerciseSnap.correctOptions!!))
         return "The exercise's correct solution is: " + fillBlanks(exerciseSnap.prompt!!, exerciseSnap.correctOptions!!)
     }
 
-    private fun buildTriviaAnswer (exerciseSnap: ExerciseSnap): String {
+    private fun buildTriviaAnswer(exerciseSnap: ExerciseSnap): String {
         return "The correct answer is: ${exerciseSnap.correctOptions[0].content}"
     }
 
-    private fun buildAnalyzeAnswer (exerciseSnap: ExerciseSnap) : String {
+    private fun buildAnalyzeAnswer(exerciseSnap: ExerciseSnap): String {
         return "The exercise asks the user to analyse the code: ${exerciseSnap.prompt}. The answer is ${exerciseSnap.correctOptions[0]}"
     }
 
@@ -148,9 +150,6 @@ class AIPromptBuilder {
         }
         return result
     }
-
-
-
 
 
 }

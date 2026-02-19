@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.lesson.api.dto.snapshot
 
-import java.util.UUID
+import java.util.*
 
 data class OptionSnap(
     val content: String,

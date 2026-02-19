@@ -1,8 +1,8 @@
 package com.ludocode.ludocodebackend.support.snapshot
-import com.ludocode.ludocodebackend.support.snapshot.ModuleSnap
+
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
 import com.ludocode.ludocodebackend.languages.api.dto.LanguageMetadata
-import java.util.UUID
+import java.util.*
 
 data class CourseSnap(
     val courseId: UUID,

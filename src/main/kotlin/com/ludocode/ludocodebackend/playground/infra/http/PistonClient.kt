@@ -16,7 +16,7 @@ import org.springframework.http.MediaType
 import org.springframework.web.client.RestTemplate
 
 @ConditionalOnProperty(prefix = "piston", name = ["enabled"], havingValue = "true")
-class PistonClient (
+class PistonClient(
     private val pistonBase: String
 ) : PistonOutboundPort {
 
@@ -57,7 +57,6 @@ class PistonClient (
             emptyList()
         }
     }
-
 
 
 }

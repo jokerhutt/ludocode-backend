@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgressId> {
 
@@ -113,7 +113,6 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
         @Param("userId") userId: UUID,
         @Param("courseId") courseId: UUID
     ): CourseLessonStatsProjection?
-
 
 
     @Modifying

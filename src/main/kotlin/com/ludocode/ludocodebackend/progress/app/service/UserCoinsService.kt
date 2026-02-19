@@ -12,11 +12,12 @@ import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 @Service
-class UserCoinsService(private val userCoinsRepository: UserCoinsRepository,
-                       private val userCoinsMapper: UserCoinsMapper
+class UserCoinsService(
+    private val userCoinsRepository: UserCoinsRepository,
+    private val userCoinsMapper: UserCoinsMapper
 ) : UserCoinsPortForAuth {
 
     private val logger = LoggerFactory.getLogger(UserCoinsService::class.java)
@@ -30,7 +31,7 @@ class UserCoinsService(private val userCoinsRepository: UserCoinsRepository,
         return userCoinsMapper.toUserCoinsResponse(stats)
     }
 
-    internal fun getUserCoinsList (userIds: List<UUID>) : List<UserCoinsResponse> {
+    internal fun getUserCoinsList(userIds: List<UUID>): List<UserCoinsResponse> {
         return userCoinsMapper.toUserCoinsResponseList(userCoinsRepository.findAllById(userIds))
     }
 

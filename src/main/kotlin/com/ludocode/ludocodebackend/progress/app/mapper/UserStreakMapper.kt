@@ -6,9 +6,9 @@ import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak
 import org.springframework.stereotype.Component
 
 @Component
-class UserStreakMapper (private val basicMapper: BasicMapper) {
+class UserStreakMapper(private val basicMapper: BasicMapper) {
 
-    fun toStreakResponse (userStreak: UserStreak) : UserStreakResponse {
+    fun toStreakResponse(userStreak: UserStreak): UserStreakResponse {
 
         return basicMapper.one(userStreak) {
             UserStreakResponse(

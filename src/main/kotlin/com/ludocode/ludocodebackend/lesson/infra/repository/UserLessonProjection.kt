@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.lesson.infra.repository
 
-import java.util.UUID
+import java.util.*
 
 interface UserLessonProjection {
 

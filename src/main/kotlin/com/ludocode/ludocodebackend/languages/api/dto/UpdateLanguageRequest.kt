@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.languages.api.dto
 
-data class UpdateLanguageRequest (
+data class UpdateLanguageRequest(
     val name: String,
     val slug: String,
     val editorId: String,

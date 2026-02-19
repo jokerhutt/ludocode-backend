@@ -1,19 +1,14 @@
 package com.ludocode.ludocodebackend.subscription.domain.entity
 
 import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import java.math.BigDecimal
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 @Entity
 @Table(name = "subscription_plan")
-class SubscriptionPlan (
+class SubscriptionPlan(
 
     @Id
     var id: UUID,

@@ -3,7 +3,7 @@ package com.ludocode.ludocodebackend.support.util
 import com.ludocode.ludocodebackend.progress.domain.entity.LessonCompletion
 import java.math.BigDecimal
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 object CourseProgressTestUtil {
 
@@ -48,7 +48,6 @@ object CourseProgressTestUtil {
             )
         }
     }
-
 
 
 }

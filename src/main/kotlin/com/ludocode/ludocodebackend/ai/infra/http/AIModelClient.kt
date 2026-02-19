@@ -1,4 +1,5 @@
 package com.ludocode.ludocodebackend.ai.infra.http
+
 import com.fasterxml.jackson.databind.JsonNode
 import com.ludocode.ludocodebackend.ai.api.dto.request.GeminiRequest
 import com.ludocode.ludocodebackend.ai.app.port.out.AIPort

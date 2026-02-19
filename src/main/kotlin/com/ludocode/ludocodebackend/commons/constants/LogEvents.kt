@@ -56,7 +56,6 @@ object LogEvents {
     const val STREAK_UPDATED = "streak_updated"
 
 
-
     const val PROJECT_SNAPSHOT_LOADED = "project_snapshot_loaded"
     const val PROJECT_RENAME_REQUESTED = "project_rename_requested"
     const val PROJECT_SNAPSHOT_DIFF = "project_snapshot_diff"

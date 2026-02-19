@@ -5,7 +5,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatLesson
 import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatModule
 import com.ludocode.ludocodebackend.catalog.infra.projection.FlatModuleLessonRow
 import org.springframework.stereotype.Component
-import java.util.UUID
+import java.util.*
 
 @Component
 class FlatCourseTreeMapper {

@@ -9,17 +9,17 @@ import com.ludocode.ludocodebackend.user.domain.entity.User
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 
 class CourseTreeIT : AbstractIntegrationTest() {
 
     @BeforeEach
-    fun seed () {
+    fun seed() {
 
     }
 
     @Test
-    fun getCourseTree_returnsCourseTree () {
+    fun getCourseTree_returnsCourseTree() {
         val user: User = user1
         val courseId: UUID = pythonId
         val response: FlatCourseTreeResponse = submitGetCourseTree(courseId, user.id!!)
@@ -30,7 +30,7 @@ class CourseTreeIT : AbstractIntegrationTest() {
         }
     }
 
-    private fun submitGetCourseTree (courseId: UUID, userId: UUID): FlatCourseTreeResponse =
+    private fun submitGetCourseTree(courseId: UUID, userId: UUID): FlatCourseTreeResponse =
         TestRestClient.getOk(ApiPaths.CATALOG.courseTree(courseId), userId, FlatCourseTreeResponse::class.java)
 
 

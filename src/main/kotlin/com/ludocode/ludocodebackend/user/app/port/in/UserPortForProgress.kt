@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.user.app.port.`in`
 
-import java.util.UUID
+import java.util.*
 
 interface UserPortForProgress {
-    fun getUserTimezone(userId: UUID) : String?
+    fun getUserTimezone(userId: UUID): String?
 }

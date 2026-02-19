@@ -25,7 +25,10 @@ class DemoFeatureToggleFilter(
         }
 
         if (!demoConfig.enabled) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Demo disabled, to enable it edit the demo.enabled flag in application-yml")
+            response.sendError(
+                HttpServletResponse.SC_FORBIDDEN,
+                "Demo disabled, to enable it edit the demo.enabled flag in application-yml"
+            )
             return
         }
 

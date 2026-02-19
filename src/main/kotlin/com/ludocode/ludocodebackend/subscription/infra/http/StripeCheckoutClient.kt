@@ -7,10 +7,10 @@ import com.stripe.param.checkout.SessionCreateParams
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import java.util.UUID
+import java.util.*
 
 @Component
-class StripeCheckoutClient (
+class StripeCheckoutClient(
     private val appProperties: AppProps
 ) : StripePort {
 

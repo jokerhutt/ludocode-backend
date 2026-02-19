@@ -1,16 +1,15 @@
 package com.ludocode.ludocodebackend.lesson.infra.repository
 
-import com.ludocode.ludocodebackend.lesson.infra.repository.UserLessonProjection
 import com.ludocode.ludocodebackend.lesson.domain.entity.Lesson
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import java.util.UUID
+import java.util.*
 
 interface LessonRepository : JpaRepository<Lesson, UUID> {
 
-    @Query(value = """
+    @Query(
+        value = """
     SELECT l.id AS id,
            l.title AS title,
            ml.order_index AS orderIndex,
@@ -24,7 +23,8 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
     JOIN module_lessons ml ON ml.lesson_id = l.id
     WHERE l.is_deleted = false
       AND l.id = :lessonId
-  """, nativeQuery = true)
+  """, nativeQuery = true
+    )
     fun findUserLesson(
         @Param("lessonId") lessonId: UUID,
         @Param("userId") userId: UUID
@@ -75,13 +75,15 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
     ): UUID?
 
 
-    @Query(value = """
+    @Query(
+        value = """
         SELECT *
         FROM lesson
         WHERE id = :id
         AND is_deleted = false
-        """, nativeQuery = true)
-    fun findActiveById (@Param("id") id: UUID) : Lesson?
+        """, nativeQuery = true
+    )
+    fun findActiveById(@Param("id") id: UUID): Lesson?
 
 
 }

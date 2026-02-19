@@ -5,7 +5,6 @@ import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.features.api.dto.response.ActiveFeaturesResponse
 import com.ludocode.ludocodebackend.playground.config.PistonFeatureConfig
-import com.ludocode.ludocodebackend.storage.configuration.StorageConfig
 import com.ludocode.ludocodebackend.storage.configuration.StorageProperties
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -32,7 +31,10 @@ class FeaturesController(
     fun isAdminEnabled(): Boolean =
         env.activeProfiles.contains("admin") || env.activeProfiles.contains("devadmin")
 
-    @Operation(summary = "Get feature toggle status", description = "Returns the enabled or disabled status of all runtime feature flags.")
+    @Operation(
+        summary = "Get feature toggle status",
+        description = "Returns the enabled or disabled status of all runtime feature flags."
+    )
     @GetMapping
     fun getActiveFeatures(): ResponseEntity<ActiveFeaturesResponse> {
         return ResponseEntity.ok(

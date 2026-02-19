@@ -17,7 +17,7 @@ import kotlin.test.Test
 class SubjectsIT : AbstractIntegrationTest() {
 
     @BeforeEach
-    fun seed () {
+    fun seed() {
 
     }
 
@@ -34,9 +34,9 @@ class SubjectsIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun updateSubject_updatesSubject_returnsUpdatedList () {
+    fun updateSubject_updatesSubject_returnsUpdatedList() {
 
-        val existingSubjects = listOf(
+        listOf(
             pythonSubject, swiftSubject
         )
 
@@ -49,7 +49,7 @@ class SubjectsIT : AbstractIntegrationTest() {
 
         val res = submitPutSubject(subjectToChange.id, req)
 
-        val updated = res.firstOrNull {it.subjectId == subjectToChange.id}
+        val updated = res.firstOrNull { it.subjectId == subjectToChange.id }
             ?: fail("Updated subject not found in response")
 
         assertThat(updated.name).isEqualTo(req.name)
@@ -70,7 +70,7 @@ class SubjectsIT : AbstractIntegrationTest() {
     @Test
     fun createSubject_usesExistingSlug_throwsError() {
 
-        val existingSubjects = listOf(
+        listOf(
             pythonSubject, swiftSubject
         )
 
@@ -86,7 +86,7 @@ class SubjectsIT : AbstractIntegrationTest() {
     @Test
     fun updateSubject_usesExistingSlug_throwsError() {
 
-        val existingSubjects = listOf(
+        listOf(
             pythonSubject, swiftSubject
         )
 
@@ -101,7 +101,7 @@ class SubjectsIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun createSubject_createsSubject_returnsUpdatedList () {
+    fun createSubject_createsSubject_returnsUpdatedList() {
 
         val existingSubjects = listOf(pythonSubject, swiftSubject)
         val newSubjectReq = SubjectRequest(
@@ -117,7 +117,7 @@ class SubjectsIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun deleteSubject_deletesSubject_returnsListExcludingDeleted () {
+    fun deleteSubject_deletesSubject_returnsListExcludingDeleted() {
         val newSubjectReq = SubjectRequest(
             name = "DSA",
             slug = "dsa",
@@ -125,7 +125,7 @@ class SubjectsIT : AbstractIntegrationTest() {
 
         val existingSubjects = submitPostSubject(newSubjectReq)
 
-        val subjectToDeleteId = existingSubjects.firstOrNull {it.slug == newSubjectReq.slug}
+        val subjectToDeleteId = existingSubjects.firstOrNull { it.slug == newSubjectReq.slug }
             ?.subjectId
             ?: fail("Created subject not found in response")
 
@@ -142,31 +142,54 @@ class SubjectsIT : AbstractIntegrationTest() {
     }
 
 
-    private fun submitGetAllCourses (): Array<CourseResponse> =
-        TestRestClient.getOk("${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.COURSES}", user1.id, Array<CourseResponse>::class.java)
+    private fun submitGetAllCourses(): Array<CourseResponse> =
+        TestRestClient.getOk(
+            "${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.COURSES}",
+            user1.id,
+            Array<CourseResponse>::class.java
+        )
 
-    private fun submitGetAllSubjects (): Array<CourseSubjectResponse> =
+    private fun submitGetAllSubjects(): Array<CourseSubjectResponse> =
         TestRestClient.getOk(ApiPaths.SUBJECTS.BASE, userId = user1.id, Array<CourseSubjectResponse>::class.java)
 
-    private fun assertPutSubjectError (subjectId: Long, req: SubjectRequest, statusCode: ErrorCode) : ValidatableResponse? {
+    private fun assertPutSubjectError(
+        subjectId: Long,
+        req: SubjectRequest,
+        statusCode: ErrorCode
+    ): ValidatableResponse? {
         return TestRestClient.assertError("PUT", ApiPaths.SUBJECTS.bySubjectAdmin(subjectId), user1.id, req, statusCode)
     }
 
-    private fun assertPostSubjecterror (req: SubjectRequest, statusCode: ErrorCode) : ValidatableResponse? {
+    private fun assertPostSubjecterror(req: SubjectRequest, statusCode: ErrorCode): ValidatableResponse? {
         return TestRestClient.assertError("POST", ApiPaths.SUBJECTS.ADMIN_BASE, user1.id, req, statusCode)
     }
 
-    private fun assertDeleteSubjectError (subjectId: Long, statusCode: ErrorCode) : ValidatableResponse? {
-        return TestRestClient.assertError("DELETE", ApiPaths.SUBJECTS.bySubjectAdmin(subjectId), user1.id, null, statusCode)
+    private fun assertDeleteSubjectError(subjectId: Long, statusCode: ErrorCode): ValidatableResponse? {
+        return TestRestClient.assertError(
+            "DELETE",
+            ApiPaths.SUBJECTS.bySubjectAdmin(subjectId),
+            user1.id,
+            null,
+            statusCode
+        )
     }
 
-    private fun submitPutSubject (subjectId: Long, req: SubjectRequest): Array<CourseSubjectResponse> =
-        TestRestClient.putOk(ApiPaths.SUBJECTS.bySubjectAdmin(subjectId), user1.id, req, Array<CourseSubjectResponse>::class.java)
+    private fun submitPutSubject(subjectId: Long, req: SubjectRequest): Array<CourseSubjectResponse> =
+        TestRestClient.putOk(
+            ApiPaths.SUBJECTS.bySubjectAdmin(subjectId),
+            user1.id,
+            req,
+            Array<CourseSubjectResponse>::class.java
+        )
 
-    private fun submitPostSubject (req: SubjectRequest): Array<CourseSubjectResponse> =
+    private fun submitPostSubject(req: SubjectRequest): Array<CourseSubjectResponse> =
         TestRestClient.postOk(ApiPaths.SUBJECTS.ADMIN_BASE, user1.id, req, Array<CourseSubjectResponse>::class.java)
 
-    private fun submitDeleteSubject (subjectId: Long): Array<CourseSubjectResponse> =
-        TestRestClient.deleteOk(ApiPaths.SUBJECTS.bySubjectAdmin(subjectId), user1.id, Array<CourseSubjectResponse>::class.java)
+    private fun submitDeleteSubject(subjectId: Long): Array<CourseSubjectResponse> =
+        TestRestClient.deleteOk(
+            ApiPaths.SUBJECTS.bySubjectAdmin(subjectId),
+            user1.id,
+            Array<CourseSubjectResponse>::class.java
+        )
 
 }

@@ -1,10 +1,9 @@
 package com.ludocode.ludocodebackend.lesson.api.dto.response
 
-import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseOptionResponse
 import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
-import java.util.UUID
+import java.util.*
 
-data class ExerciseResponse (
+data class ExerciseResponse(
 
     val id: UUID,
     val title: String,

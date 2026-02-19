@@ -1,4 +1,5 @@
 package com.ludocode.ludocodebackend.catalog.app.service
+
 import com.ludocode.ludocodebackend.catalog.api.dto.request.SubjectRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseSubjectResponse
 import com.ludocode.ludocodebackend.catalog.app.mapper.CourseMapper
@@ -36,13 +37,13 @@ class SubjectService(
         return getAllSubjects()
     }
 
-    fun getAllSubjects() : List<CourseSubjectResponse> {
+    fun getAllSubjects(): List<CourseSubjectResponse> {
         val subjects = subjectRepository.findAll()
         return courseMapper.toCourseSubjectResponseList(subjects)
     }
 
     @Transactional
-    fun deleteSubject (id: Long) : List<CourseSubjectResponse> {
+    fun deleteSubject(id: Long): List<CourseSubjectResponse> {
         if (courseRepository.existsBySubjectId(id)) {
             throw ApiException(ErrorCode.SUBJECT_IN_USE)
         }

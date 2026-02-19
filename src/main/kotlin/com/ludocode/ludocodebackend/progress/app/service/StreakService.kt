@@ -1,29 +1,24 @@
 package com.ludocode.ludocodebackend.progress.app.service
+
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
-import com.ludocode.ludocodebackend.commons.exception.ApiException
-import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.progress.api.dto.response.DailyGoalResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.StreakResponsePacket
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
 import com.ludocode.ludocodebackend.progress.app.mapper.UserStreakMapper
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStreakPortForAuth
-import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.UserStreak
 import com.ludocode.ludocodebackend.progress.domain.enums.StreakAction
 import com.ludocode.ludocodebackend.progress.infra.repository.UserDailyGoalRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.UserStreakRepository
-import java.time.Clock
+import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForProgress
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.time.ZoneId
+import java.time.*
 import java.time.temporal.TemporalAdjusters
-import java.util.UUID
+import java.util.*
 import kotlin.math.max
 
 @Service
@@ -93,8 +88,8 @@ class StreakService(
         }
         val oldDays = streak.currentStreakDays ?: 0
         if (shouldResetStreak(userId, streak.lastMetLocalDate)) {
-           streak.currentStreakDays = 0
-           userStreakRepository.save(streak)
+            streak.currentStreakDays = 0
+            userStreakRepository.save(streak)
 
             logger.warn(
                 LogEvents.STREAK_RESET_MISSED_DAY + " {}",
@@ -152,22 +147,22 @@ class StreakService(
         return getStreak(userId)
     }
 
-    private fun calculateNewStreak (today: LocalDate, lastModified: LocalDate? ,currentStreakDays: Int): Int {
+    private fun calculateNewStreak(today: LocalDate, lastModified: LocalDate?, currentStreakDays: Int): Int {
         if (isFirstEverSubmission(lastModified)) return 1
         if (isFirstSubmissionOfDay(today, lastModified!!)) return currentStreakDays + 1
         if (hasMissedStreak(today, lastModified!!)) return 1
         return currentStreakDays
     }
 
-    private fun shouldResetStreak (userId: UUID, lastModified: LocalDate?) : Boolean {
-        if (lastModified == null) return false;
+    private fun shouldResetStreak(userId: UUID, lastModified: LocalDate?): Boolean {
+        if (lastModified == null) return false
         val userZone = ZoneId.of(userPortForProgress.getUserTimezone(userId))
         val nowUtc = OffsetDateTime.now(clock)
         val today = nowUtc.atZoneSameInstant(userZone).toLocalDate()
         return hasMissedStreak(today, lastModified)
     }
 
-    private fun createNewStreak (userId: UUID) : UserStreak {
+    private fun createNewStreak(userId: UUID): UserStreak {
         return UserStreak(
             userId = userId,
             currentStreakDays = 0,
@@ -178,9 +173,11 @@ class StreakService(
     }
 
 
+    private fun isFirstEverSubmission(lastModified: LocalDate?): Boolean = lastModified == null
+    private fun isFirstSubmissionOfDay(today: LocalDate, lastModified: LocalDate): Boolean =
+        today == lastModified.plusDays(1)
 
-    private fun isFirstEverSubmission (lastModified: LocalDate?) : Boolean = lastModified == null
-    private fun isFirstSubmissionOfDay (today: LocalDate, lastModified: LocalDate) : Boolean = today == lastModified.plusDays(1)
-    private fun hasMissedStreak (today: LocalDate, lastModified: LocalDate) : Boolean = today.isAfter(lastModified.plusDays(1))
+    private fun hasMissedStreak(today: LocalDate, lastModified: LocalDate): Boolean =
+        today.isAfter(lastModified.plusDays(1))
 
 }

@@ -3,9 +3,7 @@ package com.ludocode.ludocodebackend.auth.integration.demo
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured.given
-import org.junit.jupiter.api.Disabled
 import org.springframework.test.context.junit.jupiter.DisabledIf
-import org.springframework.test.context.junit.jupiter.EnabledIf
 import kotlin.test.Test
 
 @DisabledIf(

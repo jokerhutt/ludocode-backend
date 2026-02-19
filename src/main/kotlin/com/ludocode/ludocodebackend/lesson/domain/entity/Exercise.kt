@@ -8,11 +8,11 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Table
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
-import java.util.UUID
+import java.util.*
 
 @Entity
 @Table(name = "exercise")
-class Exercise (
+class Exercise(
 
     @EmbeddedId
     val exerciseId: ExerciseId = ExerciseId(UUID.randomUUID(), 1),

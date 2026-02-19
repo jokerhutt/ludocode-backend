@@ -1,8 +1,7 @@
 package com.ludocode.ludocodebackend.lesson.api.dto.snapshot
 
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
-import java.util.UUID
+import java.util.*
 
 data class ExerciseSnap(
     val id: UUID,

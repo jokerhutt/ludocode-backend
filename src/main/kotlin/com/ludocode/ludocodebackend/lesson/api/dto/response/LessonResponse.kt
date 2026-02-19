@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.lesson.api.dto.response
 
-import java.util.UUID
+import java.util.*
 
 data class LessonResponse(
     val id: UUID,

@@ -12,7 +12,7 @@ import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 @ConditionalOnProperty(prefix = "ai", name = ["enabled"], havingValue = "true")
 @Service
@@ -24,7 +24,7 @@ class AICreditService(
     private val logger = LoggerFactory.getLogger(AICreditService::class.java)
 
     @Transactional
-    internal fun addCredits (userId: UUID, amount: Int): Int {
+    internal fun addCredits(userId: UUID, amount: Int): Int {
         if (amount <= 0) {
             throw ApiException(ErrorCode.BAD_REQ, "Amount must be a positive integer but received $amount")
         }
@@ -32,19 +32,19 @@ class AICreditService(
     }
 
     @Transactional
-    internal fun deductCredits (userId: UUID): Int {
+    internal fun deductCredits(userId: UUID): Int {
         return adjustCredits(userId, -1)
     }
 
     @Transactional
-    internal fun deductCredits (userId: UUID, amountToDeduct: Int): Int {
+    internal fun deductCredits(userId: UUID, amountToDeduct: Int): Int {
         if (amountToDeduct <= 0) {
             throw ApiException(ErrorCode.BAD_REQ, "Amount must be a positive integer but received $amountToDeduct")
         }
         return adjustCredits(userId, (amountToDeduct * -1))
     }
 
-    private fun adjustCredits (userId: UUID, amount: Int): Int {
+    private fun adjustCredits(userId: UUID, amount: Int): Int {
 
         var userCreditsEntity = initializeOrGetCredits(userId)
         val currentCredits = userCreditsEntity.credits
@@ -87,7 +87,7 @@ class AICreditService(
 
 
     @Transactional
-    internal fun initializeOrGetCredits (userId: UUID) : UserAICredits {
+    internal fun initializeOrGetCredits(userId: UUID): UserAICredits {
 
         val subscriptionLimits = subscriptionService.getUserPlanLimits(userId)
         val planCreditAllowance = subscriptionLimits.monthlyAiCredits
@@ -98,9 +98,11 @@ class AICreditService(
             kv(LogFields.CREDITS, planCreditAllowance)
         )
 
-        return userAICreditsRepository.findById(userId).orElseGet { userAICreditsRepository.save(
-            UserAICredits(userId, planCreditAllowance)
-        ) }
+        return userAICreditsRepository.findById(userId).orElseGet {
+            userAICreditsRepository.save(
+                UserAICredits(userId, planCreditAllowance)
+            )
+        }
     }
 
 

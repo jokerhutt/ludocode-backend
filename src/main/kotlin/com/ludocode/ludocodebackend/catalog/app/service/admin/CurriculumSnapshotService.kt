@@ -1,4 +1,5 @@
 package com.ludocode.ludocodebackend.catalog.app.service.admin
+
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
@@ -30,11 +31,7 @@ import com.ludocode.ludocodebackend.lesson.domain.entity.LessonExercise
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.LessonExercisesId
 import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
-import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseOptionRepository
-import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseRepository
-import com.ludocode.ludocodebackend.lesson.infra.repository.LessonExercisesRepository
-import com.ludocode.ludocodebackend.lesson.infra.repository.LessonRepository
-import com.ludocode.ludocodebackend.lesson.infra.repository.OptionContentRepository
+import com.ludocode.ludocodebackend.lesson.infra.repository.*
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
@@ -44,7 +41,7 @@ import org.springframework.cache.annotation.Caching
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 @Service
 class CurriculumSnapshotService(
@@ -109,14 +106,22 @@ class CurriculumSnapshotService(
                 )
 
                 if (isNewLesson) {
-                    val newExercise = exerciseRepository.save(Exercise(
-                        exerciseId = ExerciseId(UUID.randomUUID(), 1),
-                        title = "Placeholder Exercise",
-                        prompt = "Change me",
-                        exerciseType = ExerciseType.INFO,
-                        isDeleted = false
-                    ))
-                    lessonExercisesRepository.save(LessonExercise(LessonExercisesId(lesson.id, 1), newExercise.exerciseId.id, newExercise.exerciseId.versionNumber))
+                    val newExercise = exerciseRepository.save(
+                        Exercise(
+                            exerciseId = ExerciseId(UUID.randomUUID(), 1),
+                            title = "Placeholder Exercise",
+                            prompt = "Change me",
+                            exerciseType = ExerciseType.INFO,
+                            isDeleted = false
+                        )
+                    )
+                    lessonExercisesRepository.save(
+                        LessonExercise(
+                            LessonExercisesId(lesson.id, 1),
+                            newExercise.exerciseId.id,
+                            newExercise.exerciseId.versionNumber
+                        )
+                    )
                 }
 
                 if (isNewLesson) {
@@ -150,7 +155,7 @@ class CurriculumSnapshotService(
         ]
     )
     @Transactional
-    fun applyExerciseDiffs (lessonId: UUID, lessonDraft: LessonCurriculumDraftSnapshot) : LessonCurriculumDraftSnapshot {
+    fun applyExerciseDiffs(lessonId: UUID, lessonDraft: LessonCurriculumDraftSnapshot): LessonCurriculumDraftSnapshot {
 
         val exercises = lessonDraft.exercises
         lessonExercisesRepository.deleteAllByLessonExercisesIdLessonId(lessonId)
@@ -165,21 +170,25 @@ class CurriculumSnapshotService(
 
             val version = if (existing != null) existing.exerciseId.versionNumber + 1 else 1
 
-            val exerciseEntity = exerciseRepository.save(Exercise(
-                exerciseId = ExerciseId(exercise.id, versionNumber = version),
-                title = exercise.title,
-                subtitle = exercise.subtitle,
-                prompt = exercise.prompt,
-                exerciseType = exercise.exerciseType,
-                exerciseMedia = exercise.media,
-                isDeleted = false
-            ))
+            val exerciseEntity = exerciseRepository.save(
+                Exercise(
+                    exerciseId = ExerciseId(exercise.id, versionNumber = version),
+                    title = exercise.title,
+                    subtitle = exercise.subtitle,
+                    prompt = exercise.prompt,
+                    exerciseType = exercise.exerciseType,
+                    exerciseMedia = exercise.media,
+                    isDeleted = false
+                )
+            )
 
-            lessonExercisesRepository.save(LessonExercise(
-                lessonExercisesId = LessonExercisesId(lessonId, exerciseIndex + 1),
-                exerciseId = exerciseEntity.exerciseId.id,
-                exerciseVersion = exerciseEntity.exerciseId.versionNumber
-            ))
+            lessonExercisesRepository.save(
+                LessonExercise(
+                    lessonExercisesId = LessonExercisesId(lessonId, exerciseIndex + 1),
+                    exerciseId = exerciseEntity.exerciseId.id,
+                    exerciseVersion = exerciseEntity.exerciseId.versionNumber
+                )
+            )
 
             val options = exercise.correctOptions + exercise.distractors
             applyOptionDiffs(options, exerciseEntity.exerciseId.id, exerciseEntity.exerciseId.versionNumber)
@@ -195,13 +204,15 @@ class CurriculumSnapshotService(
         for (option in options) {
             optionContentRepository.upsertOption(id = UUID.randomUUID(), option.content)
             val dbOption = optionContentRepository.findByContent(option.content)
-            exerciseOptionRepository.save(ExerciseOption(
-                id = UUID.randomUUID(),
-                exerciseId = exerciseId,
-                exerciseVersion = exerciseVersion,
-                optionId = dbOption!!.id,
-                answerOrder = option.answerOrder,
-            ))
+            exerciseOptionRepository.save(
+                ExerciseOption(
+                    id = UUID.randomUUID(),
+                    exerciseId = exerciseId,
+                    exerciseVersion = exerciseVersion,
+                    optionId = dbOption!!.id,
+                    answerOrder = option.answerOrder,
+                )
+            )
 
 
         }
@@ -209,7 +220,7 @@ class CurriculumSnapshotService(
     }
 
     @Transactional
-    internal fun createCourse (request: CreateCourseRequest) : List<CourseResponse> {
+    internal fun createCourse(request: CreateCourseRequest): List<CourseResponse> {
         val newCourseName = request.courseTitle
         val newCourseHash = request.requestHash
         val newCourseSubject = request.courseSubject
@@ -249,7 +260,7 @@ class CurriculumSnapshotService(
 
         val newModuleTitle = "Intro to $newCourseName"
 
-        val newModule = Module (
+        val newModule = Module(
             id = newModuleId,
             title = newModuleTitle,
             isDeleted = false,
@@ -258,7 +269,7 @@ class CurriculumSnapshotService(
         )
         moduleRepository.save(newModule)
 
-        val newLesson = Lesson (
+        val newLesson = Lesson(
             id = newLessonId,
             title = "Hello world!",
             isDeleted = false,
@@ -275,7 +286,7 @@ class CurriculumSnapshotService(
 
         val newExerciseTitle = "Welcome to $newCourseName"
 
-        val newExercise = Exercise (
+        val newExercise = Exercise(
             exerciseId = ExerciseId(newExerciseId, 1),
             title = newExerciseTitle,
             prompt = null,
@@ -307,7 +318,7 @@ class CurriculumSnapshotService(
 
     }
 
-    fun buildCurriculumSnapshot (courseId: UUID) : CurriculumDraftSnapshot {
+    fun buildCurriculumSnapshot(courseId: UUID): CurriculumDraftSnapshot {
 
         val moduleIds = moduleRepository.findActiveIdsByCourse(courseId)
         val modules = moduleRepository.findAllByIdIn(moduleIds)
@@ -320,7 +331,7 @@ class CurriculumSnapshotService(
 
     }
 
-    private fun buildModuleDraftSnapshot (module: Module) : ModuleDraftSnapshot {
+    private fun buildModuleDraftSnapshot(module: Module): ModuleDraftSnapshot {
 
         val moduleId = module.id
         val lessons = moduleLessonsRepository.findActiveLessonsByModuleId(moduleId)
@@ -332,7 +343,7 @@ class CurriculumSnapshotService(
             )
         }
 
-        return ModuleDraftSnapshot(id=moduleId, title = module.title, lessons = lessonDraftSnapshots)
+        return ModuleDraftSnapshot(id = moduleId, title = module.title, lessons = lessonDraftSnapshots)
     }
 
 

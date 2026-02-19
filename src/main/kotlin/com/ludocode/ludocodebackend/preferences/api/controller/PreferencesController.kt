@@ -11,13 +11,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
+import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @Tag(
     name = "Preferences",
@@ -37,8 +32,11 @@ class PreferencesController(private val preferencesService: PreferencesService) 
     )
     @SecurityRequirement(name = "sessionAuth")
     @PutMapping
-    fun submitOnboarding(@RequestBody req: OnboardingSubmission, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<OnboardingResponse> {
-        return ResponseEntity.ok(preferencesService.createPreferences(req,userId))
+    fun submitOnboarding(
+        @RequestBody req: OnboardingSubmission,
+        @AuthenticationPrincipal(expression = "userId") userId: UUID
+    ): ResponseEntity<OnboardingResponse> {
+        return ResponseEntity.ok(preferencesService.createPreferences(req, userId))
     }
 
     @Operation(
@@ -51,20 +49,23 @@ class PreferencesController(private val preferencesService: PreferencesService) 
     )
     @SecurityRequirement(name = "sessionAuth")
     @PatchMapping
-    fun updateTogglePreferences(@RequestBody req: TogglePreferencesRequest, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<UserPreferences> {
+    fun updateTogglePreferences(
+        @RequestBody req: TogglePreferencesRequest,
+        @AuthenticationPrincipal(expression = "userId") userId: UUID
+    ): ResponseEntity<UserPreferences> {
         return ResponseEntity.ok(preferencesService.updateTogglePreferences(userId, req))
     }
 
     @Operation(
-        summary="Get current user's preferences",
-        description="""
+        summary = "Get current user's preferences",
+        description = """
         Returns the preference settings for the currently authenticated user.
         Requires a valid session cookie. 
         """
     )
     @SecurityRequirement(name = "sessionAuth")
     @GetMapping
-    fun getUserPreferences(@AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<UserPreferences> {
+    fun getUserPreferences(@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<UserPreferences> {
         return ResponseEntity.ok(preferencesService.getPreferences(userId))
     }
 

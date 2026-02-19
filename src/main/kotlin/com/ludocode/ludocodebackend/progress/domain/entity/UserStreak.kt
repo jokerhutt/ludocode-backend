@@ -7,11 +7,11 @@ import jakarta.persistence.Table
 import org.hibernate.annotations.ColumnDefault
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 @Entity
 @Table(name = "user_streak")
-class UserStreak (
+class UserStreak(
 
     @Id
     val userId: UUID,

@@ -10,7 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
+import java.util.*
 
 @Tag(
     name = "AI Credits",
@@ -21,12 +21,13 @@ import java.util.UUID
 @RequestMapping(ApiPaths.CREDITS.BASE)
 class AICreditsController(private val aICreditService: AICreditService) {
 
-    @Operation(summary = "Get AI credit balance",
+    @Operation(
+        summary = "Get AI credit balance",
         description = """
         Returns the remaining AI credit balance for the currently authenticated user.
         Requires a valid session cookie. 
         """
-        )
+    )
     @GetMapping
     fun getAiCredits(@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<Int> {
         return ResponseEntity.ok(aICreditService.initializeOrGetCredits(userId).credits)

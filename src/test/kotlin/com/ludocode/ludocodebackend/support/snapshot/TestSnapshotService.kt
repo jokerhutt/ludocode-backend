@@ -1,6 +1,5 @@
 package com.ludocode.ludocodebackend.support.snapshot
 
-import com.ludocode.ludocodebackend.support.snapshot.ModuleSnap
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
@@ -13,7 +12,7 @@ import com.ludocode.ludocodebackend.lesson.app.service.LessonService
 import com.ludocode.ludocodebackend.lesson.app.service.admin.LessonSnapshotService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 @Service
 class TestSnapshotService(
@@ -26,9 +25,9 @@ class TestSnapshotService(
 ) {
 
     @Transactional
-    fun buildCourseSnapshot (courseId: UUID): CourseSnap {
+    fun buildCourseSnapshot(courseId: UUID): CourseSnap {
 
-        val course = courseRepository.findById(courseId).orElseThrow{ ApiException(ErrorCode.COURSE_NOT_FOUND) }
+        val course = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
         val moduleIds = moduleRepository.findActiveIdsByCourse(courseId)
         val modules = moduleRepository.findAllByIdIn(moduleIds)
 
@@ -54,7 +53,7 @@ class TestSnapshotService(
 
     }
 
-    private fun buildModuleSnapshot (module: Module) : ModuleSnap {
+    private fun buildModuleSnapshot(module: Module): ModuleSnap {
 
         val moduleId = module.id
 

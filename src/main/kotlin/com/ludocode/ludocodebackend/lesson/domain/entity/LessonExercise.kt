@@ -5,11 +5,11 @@ import jakarta.persistence.Column
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
-import java.util.UUID
+import java.util.*
 
 @Entity
 @Table(name = "lesson_exercises")
-class LessonExercise (
+class LessonExercise(
 
     @EmbeddedId
     val lessonExercisesId: LessonExercisesId,

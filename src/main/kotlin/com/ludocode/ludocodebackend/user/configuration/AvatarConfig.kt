@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @EnableConfigurationProperties(CorsProps::class)
-data class AvatarConfig (
+data class AvatarConfig(
     var version: String = "v1",
     var count: Int = 10
 )

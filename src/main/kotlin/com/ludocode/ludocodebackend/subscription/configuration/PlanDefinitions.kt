@@ -1,4 +1,5 @@
 package com.ludocode.ludocodebackend.subscription.configuration
+
 import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
 
 object PlanDefinitions {

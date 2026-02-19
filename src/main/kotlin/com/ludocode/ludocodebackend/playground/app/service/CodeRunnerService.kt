@@ -18,7 +18,7 @@ class CodeRunnerService(private val pistonOutboundPort: PistonOutboundPort) {
 
     private val logger = LoggerFactory.getLogger(CodeRunnerService::class.java)
 
-    internal fun runCode (project: ProjectSnapshot) : RunnerResult {
+    internal fun runCode(project: ProjectSnapshot): RunnerResult {
 
         val runtime = project.projectLanguage.editorId
         val fileNames = project.files.map { it.path }

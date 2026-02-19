@@ -10,4 +10,4 @@ data class LanguageMetadata(
     val base: String,
     val iconName: String,
     val initialScript: String,
-    )
+)

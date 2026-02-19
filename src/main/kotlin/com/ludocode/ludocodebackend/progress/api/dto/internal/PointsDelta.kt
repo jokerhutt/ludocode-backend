@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.progress.api.dto.internal
 
-import java.util.UUID
+import java.util.*
 
 data class PointsDelta(
     val userId: UUID,

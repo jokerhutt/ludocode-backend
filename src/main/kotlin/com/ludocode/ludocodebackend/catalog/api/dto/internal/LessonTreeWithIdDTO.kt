@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.api.dto.internal
 
-import java.util.UUID
+import java.util.*
 
 data class LessonTreeWithIdDTO(
     val lessonId: UUID,
