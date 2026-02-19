@@ -1,6 +1,5 @@
 package com.ludocode.ludocodebackend.subscription.api.controller
 
-import com.google.protobuf.Api
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
@@ -8,10 +7,10 @@ import com.ludocode.ludocodebackend.subscription.api.dto.request.CheckoutRequest
 import com.ludocode.ludocodebackend.subscription.api.dto.request.ConfirmRequest
 import com.ludocode.ludocodebackend.subscription.api.dto.response.SubscriptionPlanOverviewResponse
 import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
-import com.ludocode.ludocodebackend.subscription.app.port.out.StripePort
+import com.ludocode.ludocodebackend.subscription.app.port.out.StripeBillingPort
+import com.ludocode.ludocodebackend.subscription.app.port.out.StripeCheckoutPort
 import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import com.ludocode.ludocodebackend.subscription.configuration.StripeProperties
-import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
 import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
@@ -40,7 +39,8 @@ import java.util.*
 class SubscriptionController(
     private val subscriptionPlanRepository: SubscriptionPlanRepository,
     private val stripeProperties: StripeProperties,
-    private val stripePort: StripePort,
+    private val stripeCheckoutPort: StripeCheckoutPort,
+    private val stripeBillingPort: StripeBillingPort,
     private val subscriptionService: SubscriptionService,
     private val userSubscriptionRepository: UserSubscriptionRepository,
     private val userRepository: UserRepository
@@ -165,7 +165,7 @@ class SubscriptionController(
                 throw ApiException(ErrorCode.PLAN_NOT_FOUND)
             }
 
-        val url = stripePort.createCheckoutSession(
+        val url = stripeCheckoutPort.createCheckoutSession(
             planPriceId = plan.stripePriceId,
             planId = plan.id,
             userId = userId
@@ -194,7 +194,7 @@ class SubscriptionController(
         val stripeCustomerId = stripeCustomerUser.stripeCustomerId
             ?: throw ApiException(ErrorCode.STRIPE_CUSTOMER_INVALID)
 
-        val url = stripePort.createBillingPortalSession(stripeCustomerId)
+        val url = stripeBillingPort.createBillingPortalSession(stripeCustomerId)
 
         return mapOf("url" to url)
     }
