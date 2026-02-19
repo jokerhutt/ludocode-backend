@@ -8,4 +8,7 @@ interface StripePort {
         planId: UUID,
         userId: UUID
     ): String
+
+    fun createBillingPortalSession(customerId: String): String
+
 }

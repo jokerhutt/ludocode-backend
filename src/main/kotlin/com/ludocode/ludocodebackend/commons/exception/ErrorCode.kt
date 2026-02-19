@@ -56,6 +56,7 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     STRIPE_METADATA_MISSING(HttpStatus.BAD_REQUEST, "Stripe webhook metadata missing"),
     STRIPE_SUBSCRIPTION_INVALID(HttpStatus.BAD_REQUEST, "Stripe subscription invalid"),
     STRIPE_SIGNATURE_INVALID(HttpStatus.UNAUTHORIZED, "Invalid Stripe signature"),
+    STRIPE_CUSTOMER_INVALID(HttpStatus.BAD_REQUEST, "Stripe Customer Invalid")
 
 
 }

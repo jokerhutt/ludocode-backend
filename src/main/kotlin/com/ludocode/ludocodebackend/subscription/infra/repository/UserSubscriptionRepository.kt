@@ -18,4 +18,6 @@ interface UserSubscriptionRepository : JpaRepository<UserSubscription, UUID> {
     )
     fun findByUserIdWithPlan(userId: UUID): UserSubscription?
 
+    fun findByStripeSubscriptionId(stripeSubscriptionId: String): UserSubscription?
+
 }

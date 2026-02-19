@@ -16,6 +16,20 @@ class StripeCheckoutClient(
 
     private val logger = LoggerFactory.getLogger(StripeCheckoutClient::class.java)
 
+    override fun createBillingPortalSession(customerId: String): String {
+
+        val frontendUrl = appProperties.frontendUrl
+
+        val params = SessionCreateParams.builder()
+            .setCustomer(customerId)
+            .setReturnUrl("$frontendUrl/settings/subscription")
+            .build()
+
+        val session = Session.create(params)
+
+        return session.url!!
+    }
+
     override fun createCheckoutSession(planPriceId: String, planId: UUID, userId: UUID): String {
 
         val frontendUrl = appProperties.frontendUrl

@@ -23,6 +23,9 @@ class User(
     @Column(name = "display_name")
     var displayName: String? = null,
 
+    @Column(name = "stripe_customer_id", unique = true)
+    var stripeCustomerId: String? = null,
+
     @Column(name = "avatar_version")
     var avatarVersion: String = "v1",
 

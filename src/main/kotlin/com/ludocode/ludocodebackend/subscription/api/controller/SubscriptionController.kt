@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.subscription.api.controller
 
+import com.google.protobuf.Api
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
@@ -10,7 +11,10 @@ import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscripti
 import com.ludocode.ludocodebackend.subscription.app.port.out.StripePort
 import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import com.ludocode.ludocodebackend.subscription.configuration.StripeProperties
+import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
+import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
+import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import com.stripe.model.Subscription
 import com.stripe.model.checkout.Session
 import com.stripe.net.Webhook
@@ -37,7 +41,9 @@ class SubscriptionController(
     private val subscriptionPlanRepository: SubscriptionPlanRepository,
     private val stripeProperties: StripeProperties,
     private val stripePort: StripePort,
-    private val subscriptionService: SubscriptionService
+    private val subscriptionService: SubscriptionService,
+    private val userSubscriptionRepository: UserSubscriptionRepository,
+    private val userRepository: UserRepository
 ) {
 
     private val logger = LoggerFactory.getLogger(SubscriptionController::class.java)
@@ -104,6 +110,9 @@ class SubscriptionController(
             throw ApiException(ErrorCode.PLAN_NOT_ACTIVE)
         }
 
+        val stripeCustomerId = stripeSubscription.customer
+            ?: throw ApiException(ErrorCode.STRIPE_CUSTOMER_INVALID)
+
         val stripePriceId = stripeSubscription.items.data[0].price.id
 
         val periodStart = OffsetDateTime.ofInstant(
@@ -119,6 +128,7 @@ class SubscriptionController(
         subscriptionService.activatePaidSubscription(
             userId,
             stripePriceId,
+            stripeCustomerId,
             stripeSubscriptionId,
             periodStart,
             periodEnd
@@ -166,6 +176,29 @@ class SubscriptionController(
         return mapOf("url" to url)
     }
 
+    @PostMapping(ApiPaths.SUBSCRIPTION.MANAGE)
+    fun createManageSession(
+        @AuthenticationPrincipal(expression = "userId") userId: UUID
+    ): Map<String, String> {
+
+        val subscription = userSubscriptionRepository
+            .findByUserId(userId)
+            ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
+
+        if (subscription.stripeSubscriptionId == null) {
+            throw ApiException(ErrorCode.BAD_REQ, "Free plan can not manage subscriptions")
+        }
+
+        val stripeCustomerUser = userRepository.findById(subscription.userId)
+            .orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
+        val stripeCustomerId = stripeCustomerUser.stripeCustomerId
+            ?: throw ApiException(ErrorCode.STRIPE_CUSTOMER_INVALID)
+
+        val url = stripePort.createBillingPortalSession(stripeCustomerId)
+
+        return mapOf("url" to url)
+    }
+
     @Operation(
         summary = "Handle Stripe webhook",
         description = """
@@ -191,71 +224,101 @@ class SubscriptionController(
             stripeProperties.webhookSecret
         )
 
-        if (event.type == "checkout.session.completed") {
+        when (event.type) {
+
+            "customer.subscription.updated" -> {
+
+                val stripeSub = event.dataObjectDeserializer
+                    .getObject()
+                    .get() as Subscription
+
+                val local = userSubscriptionRepository
+                    .findByStripeSubscriptionId(stripeSub.id)
+                    ?: return ResponseEntity.ok().build()
+
+                local.cancelAtPeriodEnd = stripeSub.cancelAtPeriodEnd
+                local.updatedAt = OffsetDateTime.now()
+
+                logger.info(
+                    "Subscription updated",
+                    kv("subscriptionId", stripeSub.id),
+                    kv("cancelAtPeriodEnd", stripeSub.cancelAtPeriodEnd)
+                )
+            }
+
+            "checkout.session.completed" -> {
+                val session = event.dataObjectDeserializer
+                    .getObject()
+                    .get() as Session
+
+                val metadata = session.metadata
+                    ?: run {
+                        logger.warn("Stripe session metadata missing")
+                        throw ApiException(ErrorCode.STRIPE_METADATA_MISSING)
+                    }
 
 
-            val session = event.dataObjectDeserializer
-                .getObject()
-                .get() as Session
+                val userId = metadata["userId"]?.let { runCatching { UUID.fromString(it) }.getOrNull() }
+                    ?: run {
+                        logger.warn("Stripe metadata missing userId")
+                        throw ApiException(ErrorCode.STRIPE_METADATA_MISSING)
+                    }
 
-            val metadata = session.metadata
-                ?: run {
-                    logger.warn("Stripe session metadata missing")
-                    throw ApiException(ErrorCode.STRIPE_METADATA_MISSING)
-                }
+                val planId = metadata["planId"]?.let { runCatching { UUID.fromString(it) }.getOrNull() }
+                    ?: run {
+                        logger.warn("Stripe metadata missing planId")
+                        throw ApiException(ErrorCode.STRIPE_METADATA_MISSING)
+                    }
 
+                val stripeSubscriptionId = session.subscription as? String
+                    ?: run {
+                        logger.warn("Stripe subscription ID missing")
+                        throw ApiException(ErrorCode.STRIPE_SUBSCRIPTION_INVALID)
+                    }
 
-            val userId = metadata["userId"]?.let { runCatching { UUID.fromString(it) }.getOrNull() }
-                ?: run {
-                    logger.warn("Stripe metadata missing userId")
-                    throw ApiException(ErrorCode.STRIPE_METADATA_MISSING)
-                }
+                logger.info(
+                    "Activating subscription for user",
+                    kv("userId", userId),
+                    kv("planId", planId),
+                    kv("stripeSubscriptionId", stripeSubscriptionId)
+                )
 
-            val planId = metadata["planId"]?.let { runCatching { UUID.fromString(it) }.getOrNull() }
-                ?: run {
-                    logger.warn("Stripe metadata missing planId")
-                    throw ApiException(ErrorCode.STRIPE_METADATA_MISSING)
-                }
+                val stripeSubscription = Subscription.retrieve(stripeSubscriptionId)
 
-            val stripeSubscriptionId = session.subscription as? String
-                ?: run {
-                    logger.warn("Stripe subscription ID missing")
-                    throw ApiException(ErrorCode.STRIPE_SUBSCRIPTION_INVALID)
-                }
+                val stripeCustomerId = stripeSubscription.customer
+                    ?: throw ApiException(ErrorCode.STRIPE_CUSTOMER_INVALID)
 
-            logger.info(
-                "Activating subscription for user",
-                kv("userId", userId),
-                kv("planId", planId),
-                kv("stripeSubscriptionId", stripeSubscriptionId)
-            )
+                val stripePriceId = stripeSubscription.items.data[0].price.id
 
-            val stripeSubscription = Subscription.retrieve(stripeSubscriptionId)
+                val periodStart = OffsetDateTime.ofInstant(
+                    Instant.ofEpochSecond(stripeSubscription.items.data[0].currentPeriodStart),
+                    ZoneOffset.UTC
+                )
 
-            val stripePriceId = stripeSubscription.items.data[0].price.id
+                val periodEnd = OffsetDateTime.ofInstant(
+                    Instant.ofEpochSecond(stripeSubscription.items.data[0].currentPeriodEnd),
+                    ZoneOffset.UTC
+                )
 
-            val periodStart = OffsetDateTime.ofInstant(
-                Instant.ofEpochSecond(stripeSubscription.items.data[0].currentPeriodStart),
-                ZoneOffset.UTC
-            )
+                subscriptionService.activatePaidSubscription(
+                    userId,
+                    stripePriceId,
+                    stripeCustomerId,
+                    stripeSubscriptionId,
+                    periodStart,
+                    periodEnd
+                )
 
-            val periodEnd = OffsetDateTime.ofInstant(
-                Instant.ofEpochSecond(stripeSubscription.items.data[0].currentPeriodEnd),
-                ZoneOffset.UTC
-            )
+                logger.info("Subscription activated", kv("userId", userId), kv("planId", planId))
+            }
 
-            subscriptionService.activatePaidSubscription(
-                userId,
-                stripePriceId,
-                stripeSubscriptionId,
-                periodStart,
-                periodEnd
-            )
+            else -> {
+                logger.debug("Ignoring Stripe event type {}", kv("eventType", event.type))
+            }
 
-            logger.info("Subscription activated", kv("userId", userId), kv("planId", planId))
-        } else {
-            logger.debug("Ignoring Stripe event type {}", kv("eventType", event.type))
         }
+
+
 
         return ResponseEntity.ok().build()
     }
