@@ -4,6 +4,7 @@ import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.subscription.api.dto.response.SubscriptionPlanOverviewResponse
 import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
+import com.ludocode.ludocodebackend.subscription.app.mapper.UserSubscriptionMapper
 import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForAuth
 import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForUser
 import com.ludocode.ludocodebackend.subscription.configuration.PlanDefinitions
@@ -26,6 +27,7 @@ class SubscriptionService(
     private val userRepository: UserRepository,
     private val subscriptionPlanRepository: SubscriptionPlanRepository,
     private val userSubscriptionRepository: UserSubscriptionRepository,
+    private val userSubscriptionMapper: UserSubscriptionMapper,
 
     ) : SubscriptionPortForAuth, SubscriptionPortForUser {
     private val logger = LoggerFactory.getLogger(SubscriptionService::class.java)
@@ -43,19 +45,7 @@ class SubscriptionService(
             userSubscriptionRepository.findByUserId(userId) ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
         val subscriptionPlan = userPlan.plan
 
-        val planDefinitions = PlanDefinitions.configFor(subscriptionPlan.planCode)
-
-        val maxProjects = planDefinitions.limits.maxProjects
-        val monthlyCredits = planDefinitions.limits.monthlyAiCredits
-
-        val res = UserSubscriptionResponse(
-            userId = userId,
-            planId = subscriptionPlan.id,
-            planCode = subscriptionPlan.planCode,
-            monthlyCreditAllowance = monthlyCredits,
-            maxProjects = maxProjects,
-            currentPeriodEnd = userPlan.currentPeriodEnd
-        )
+        val res = userSubscriptionMapper.toUserSubscriptionResponse(userPlan, subscriptionPlan)
 
         return res
 

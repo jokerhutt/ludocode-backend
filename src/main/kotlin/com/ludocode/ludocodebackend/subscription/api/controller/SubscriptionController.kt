@@ -318,10 +318,7 @@ class SubscriptionController(
 
         }
 
-
-
         return ResponseEntity.ok().build()
     }
-
 
 }
