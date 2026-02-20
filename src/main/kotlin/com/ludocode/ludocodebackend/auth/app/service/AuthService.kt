@@ -10,12 +10,11 @@ import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserCoinsPortForAuth
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStreakPortForAuth
-import com.ludocode.ludocodebackend.subscription.api.dto.event.UserRegisteredEvent
-import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForAuth
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
 import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
+import com.ludocode.ludocodebackend.user.domain.event.UserRegisteredEvent
 import jakarta.servlet.http.HttpServletResponse
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
@@ -32,7 +31,6 @@ class AuthService(
     private val userStreakPortForAuth: UserStreakPortForAuth,
     private val demoConfig: DemoConfig,
     private val firebaseAuthPort: FirebaseAuthPort,
-    private val subscriptionPortForAuth: SubscriptionPortForAuth,
     private val applicationEventPublisher: ApplicationEventPublisher
 ) {
 
