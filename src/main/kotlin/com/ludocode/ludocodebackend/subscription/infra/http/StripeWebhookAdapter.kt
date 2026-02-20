@@ -71,28 +71,6 @@ class StripeWebhookAdapter(
                     isActive = sub.status == "active"
                 )
             }
-
-            "checkout.session.completed" -> {
-                val session = event.dataObjectDeserializer
-                    .getObject()
-                    .orElse(null) as? Session
-                    ?: return
-
-                val metadata = session.metadata ?: return
-
-                val userId = metadata["userId"]
-                    ?.let { runCatching { UUID.fromString(it) }.getOrNull() }
-                    ?: return
-
-                val subscriptionId = session.subscription as? String ?: return
-
-                val subscriptionSnapshot = stripeSubscriptionPort.retrieveSnapshot(subscriptionId)
-
-                subscriptionService.handleCheckoutComplete(
-                    userId = userId,
-                    subscriptionSnapshot = subscriptionSnapshot
-                )
-            }
         }
     }
 }
