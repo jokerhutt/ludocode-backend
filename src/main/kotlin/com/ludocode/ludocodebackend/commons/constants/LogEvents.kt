@@ -72,4 +72,15 @@ object LogEvents {
     const val USER_AVATAR_CHANGED = "user_avatar_changed"
 
 
+    const val STRIPE_CUSTOMER_CREATED = "stripe_customer_created"
+    const val STRIPE_SUBSCRIPTION_CREATED = "stripe_subscription_created"
+    const val STRIPE_SUBSCRIPTION_CANCEL_REQUESTED = "stripe_subscription_cancel_requested"
+
+    const val SUBSCRIPTION_INVOICE_PAID = "subscription_invoice_paid"
+    const val SUBSCRIPTION_UPDATED = "subscription_updated"
+    const val SUBSCRIPTION_DELETED = "subscription_deleted"
+
+    const val FREE_SUBSCRIPTION_CREATED = "free_subscription_created"
+    const val SUBSCRIPTION_CANCELLED_LOCALLY = "subscription_cancelled_locally"
+
 }

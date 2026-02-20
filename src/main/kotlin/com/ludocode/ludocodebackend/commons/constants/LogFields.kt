@@ -41,6 +41,18 @@ object LogFields {
     const val LESSON_ACCURACY = "lessonAccuracy"
     const val LESSON_STATUS = "lessonStatus"
 
+    const val STRIPE_CUSTOMER_ID = "stripeCustomerId"
+    const val STRIPE_SUB_ID = "stripeSubscriptionId"
+
+    const val PLAN = "plan"
+    const val PLAN_CODE = "planCode"
+
+    const val CURRENT_PERIOD_START = "currentPeriodStart"
+    const val CURRENT_PERIOD_END = "currentPeriodEnd"
+
+    const val CANCEL_AT_PERIOD_END = "cancelAtPeriodEnd"
+    const val ACTIVE = "active"
+
     const val HISTORY_COUNT = "historyCount"
     const val USER_MESSAGE_LENGTH = "userMessageLength"
 

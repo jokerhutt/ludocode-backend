@@ -6,6 +6,7 @@ import com.stripe.model.Subscription
 import com.stripe.param.CustomerCreateParams
 import com.stripe.param.SubscriptionCreateParams
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 @Component
 class StripeSubscriptionCommandAdapter : StripeSubscriptionCommandPort {
@@ -28,7 +29,11 @@ class StripeSubscriptionCommandAdapter : StripeSubscriptionCommandPort {
         return customer.id
     }
 
-    override fun createSubscription(customerId: String, priceId: String): String {
+    override fun createSubscription(
+        customerId: String,
+        priceId: String,
+        userId: UUID
+    ): String {
 
         val params = SubscriptionCreateParams.builder()
             .setCustomer(customerId)
@@ -37,10 +42,10 @@ class StripeSubscriptionCommandAdapter : StripeSubscriptionCommandPort {
                     .setPrice(priceId)
                     .build()
             )
+            .putMetadata("userId", userId.toString())
             .build()
 
         val subscription = Subscription.create(params)
-
         return subscription.id
     }
 

@@ -15,8 +15,10 @@ import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
 import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
-import jakarta.transaction.Transactional
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
 import net.logstash.logback.argument.StructuredArguments.kv
+import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
@@ -50,6 +52,13 @@ class SubscriptionService(
         if (existing == null) {
 
             val userId = resolveUserFromCustomer(snapshot.customerId)
+
+            logger.info(
+                LogEvents.SUBSCRIPTION_INVOICE_PAID + " {} {} {}",
+                kv(LogFields.USER_ID, userId.toString()),
+                kv(LogFields.PLAN_CODE, plan.planCode.name),
+                kv(LogFields.STRIPE_SUB_ID, snapshot.subscriptionId)
+            )
 
             val newSub = UserSubscription(
                 id = UUID.randomUUID(),
@@ -135,8 +144,11 @@ class SubscriptionService(
             newCustomer
         }
 
-        val existing = userSubscriptionRepository.findByUserId(userId)
-        if (existing?.stripeSubscriptionId != null) return
+        logger.info(
+            LogEvents.STRIPE_CUSTOMER_CREATED + " {} {}",
+            kv(LogFields.USER_ID, userId.toString()),
+            kv(LogFields.STRIPE_CUSTOMER_ID, customerId)
+        )
 
         val freePlan = subscriptionPlanRepository
             .findByPlanCodeAndIsActiveTrue(Plan.FREE)
@@ -144,8 +156,16 @@ class SubscriptionService(
 
         stripeSubscriptionCommandPort.createSubscription(
             customerId = customerId,
-            priceId = freePlan.stripePriceId
+            priceId = freePlan.stripePriceId,
+            userId = userId
         )
+
+        logger.info(
+            LogEvents.FREE_SUBSCRIPTION_CREATED + " {} {}",
+            kv(LogFields.USER_ID, userId.toString()),
+            kv(LogFields.PLAN_CODE, Plan.FREE.name)
+        )
+
     }
 
     @Transactional
