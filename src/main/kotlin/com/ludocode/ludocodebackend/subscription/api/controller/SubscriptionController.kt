@@ -278,28 +278,37 @@ class SubscriptionController(
                 val stripeSub = event.dataObjectDeserializer
                     .getObject()
                     .orElse(null) as? Subscription
-                    ?: return ok().build()
+                    ?: return ResponseEntity.ok().build()
 
                 val local = userSubscriptionRepository
                     .findByStripeSubscriptionId(stripeSub.id)
-                    ?: return ok().build()
+                    ?: return ResponseEntity.ok().build()
 
-                val item = stripeSub.items.data.firstOrNull()
-                    ?: return ok().build()
+                // Handle BOTH cancellation modes
+                val isScheduledToCancel =
+                    stripeSub.cancelAtPeriodEnd || stripeSub.cancelAt != null
 
-                val periodStart = OffsetDateTime.ofInstant(
-                    Instant.ofEpochSecond(item.currentPeriodStart),
-                    ZoneOffset.UTC
-                )
+                local.cancelAtPeriodEnd = isScheduledToCancel
 
-                val periodEnd = OffsetDateTime.ofInstant(
-                    Instant.ofEpochSecond(item.currentPeriodEnd),
-                    ZoneOffset.UTC
-                )
+                // Only update billing period if subscription is still active
+                if (stripeSub.status == "active") {
+                    val item = stripeSub.items.data.firstOrNull()
+                        ?: return ResponseEntity.ok().build()
 
-                local.currentPeriodStart = periodStart
-                local.currentPeriodEnd = periodEnd
-                local.cancelAtPeriodEnd = stripeSub.cancelAtPeriodEnd
+                    val periodStart = OffsetDateTime.ofInstant(
+                        Instant.ofEpochSecond(item.currentPeriodStart),
+                        ZoneOffset.UTC
+                    )
+
+                    val periodEnd = OffsetDateTime.ofInstant(
+                        Instant.ofEpochSecond(item.currentPeriodEnd),
+                        ZoneOffset.UTC
+                    )
+
+                    local.currentPeriodStart = periodStart
+                    local.currentPeriodEnd = periodEnd
+                }
+
                 local.updatedAt = OffsetDateTime.now()
             }
 
