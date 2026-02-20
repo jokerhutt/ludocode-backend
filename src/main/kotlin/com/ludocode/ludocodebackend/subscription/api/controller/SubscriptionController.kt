@@ -287,7 +287,21 @@ class SubscriptionController(
                 val isScheduledToCancel =
                     stripeSub.cancelAtPeriodEnd || stripeSub.cancelAt != null
 
+                logger.error(
+                    "STRIPE EVENT → subId={}, stripe.cancelAtPeriodEnd={}, stripe.cancelAt={}, computedShouldCancel={}",
+                    stripeSub.id,
+                    stripeSub.cancelAtPeriodEnd,
+                    stripeSub.cancelAt,
+                    isScheduledToCancel
+                )
+
                 local.cancelAtPeriodEnd = isScheduledToCancel
+
+                logger.error(
+                    "DB BEFORE COMMIT → subId={}, local.cancelAtPeriodEnd={}",
+                    stripeSub.id,
+                    local.cancelAtPeriodEnd
+                )
 
                 if (stripeSub.status == "active") {
                     val item = stripeSub.items.data.firstOrNull()
@@ -310,9 +324,19 @@ class SubscriptionController(
                 local.updatedAt = OffsetDateTime.now()
 
                 logger.warn(
-                    "UPDATED EVENT: cancelAtPeriodEnd={}, cancelAt={}",
+                    """
+                        UPDATED EVENT:
+                          stripeSub.id={}
+                          stripe.cancelAtPeriodEnd={}
+                          stripe.cancelAt={}
+                          computedShouldCancel={}
+                          local.cancelAtPeriodEnd(afterSet)={}
+                        """.trimIndent(),
+                    stripeSub.id,
                     stripeSub.cancelAtPeriodEnd,
-                    stripeSub.cancelAt
+                    stripeSub.cancelAt,
+                    isScheduledToCancel,
+                    local.cancelAtPeriodEnd
                 )
 
             }
