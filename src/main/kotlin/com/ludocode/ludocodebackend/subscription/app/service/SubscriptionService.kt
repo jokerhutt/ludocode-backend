@@ -1,20 +1,21 @@
 package com.ludocode.ludocodebackend.subscription.app.service
-
+import com.ludocode.ludocodebackend.ai.app.port.out.AiCreditPortForSubscription
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.subscription.api.dto.response.SubscriptionPlanOverviewResponse
 import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
+import com.ludocode.ludocodebackend.subscription.api.dto.snapshot.StripeSubscriptionSnapshot
+import com.ludocode.ludocodebackend.subscription.app.mapper.SubscriptionPlanOverviewMapper
 import com.ludocode.ludocodebackend.subscription.app.mapper.UserSubscriptionMapper
+import com.ludocode.ludocodebackend.subscription.app.port.out.StripeSubscriptionCommandPort
 import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForAuth
 import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForUser
 import com.ludocode.ludocodebackend.subscription.configuration.PlanDefinitions
-import com.ludocode.ludocodebackend.subscription.configuration.PlanLimits
 import com.ludocode.ludocodebackend.subscription.domain.entity.UserSubscription
 import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
 import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
-import com.stripe.model.Subscription
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
@@ -28,49 +29,57 @@ class SubscriptionService(
     private val subscriptionPlanRepository: SubscriptionPlanRepository,
     private val userSubscriptionRepository: UserSubscriptionRepository,
     private val userSubscriptionMapper: UserSubscriptionMapper,
+    private val aiCreditPortForSubscription: AiCreditPortForSubscription,
+    private val stripeSubscriptionCommandPort: StripeSubscriptionCommandPort,
+    private val subscriptionPlanOverviewMapper: SubscriptionPlanOverviewMapper,
 
     ) : SubscriptionPortForAuth, SubscriptionPortForUser {
     private val logger = LoggerFactory.getLogger(SubscriptionService::class.java)
 
-    fun getUserPlanLimits(userId: UUID): PlanLimits {
-        val userPlan = userSubscriptionRepository.findByUserId(userId)
-            ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
-        val planDefinition = PlanDefinitions.configFor(userPlan.plan.planCode)
-        return planDefinition.limits
+    fun handleInvoicePaid(snapshot: StripeSubscriptionSnapshot) {
+        val local = userSubscriptionRepository
+            .findByStripeSubscriptionId(snapshot.subscriptionId)
+            ?: throw ApiException(ErrorCode.STRIPE_SUBSCRIPTION_INVALID)
+
+        activateFromSnapshot(local.userId, snapshot)
     }
 
-    fun getUserSubscriptionResponse(userId: UUID): UserSubscriptionResponse {
+    @Transactional
+    fun handleSubscriptionUpdated(
+        snapshot: StripeSubscriptionSnapshot,
+        cancelAtPeriodEnd: Boolean,
+        isActive: Boolean
+    ) {
+        val local = userSubscriptionRepository
+            .findByStripeSubscriptionId(snapshot.subscriptionId)
+            ?: throw ApiException(ErrorCode.STRIPE_SUBSCRIPTION_INVALID)
 
-        val userPlan =
-            userSubscriptionRepository.findByUserId(userId) ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
-        val subscriptionPlan = userPlan.plan
+        local.cancelAtPeriodEnd = cancelAtPeriodEnd
 
-        val res = userSubscriptionMapper.toUserSubscriptionResponse(userPlan, subscriptionPlan)
-
-        return res
-
-    }
-
-    fun getActivePlanOverviews(): List<SubscriptionPlanOverviewResponse> {
-
-        val plans = subscriptionPlanRepository.findAllByIsActiveTrue()
-        if (plans.isEmpty()) return emptyList()
-
-        return plans.map { plan ->
-
-            val config = PlanDefinitions.configFor(plan.planCode)
-
-            SubscriptionPlanOverviewResponse(
-                tier = plan.planCode,
-                price = plan.displayPrice,
-                period = plan.billingInterval,
-                description = plan.description,
-                recommended = config.recommended ?: false,
-                features = config.features,
-                limits = config.limits,
-
-                )
+        if (isActive) {
+            local.currentPeriodStart = snapshot.periodStart
+            local.currentPeriodEnd = snapshot.periodEnd
         }
+    }
+
+    @Transactional
+    fun handleSubscriptionDeleted(subscriptionId: String) {
+
+        val local = userSubscriptionRepository
+            .findByStripeSubscriptionId(subscriptionId)
+            ?: throw ApiException(ErrorCode.STRIPE_SUBSCRIPTION_INVALID)
+
+        val freePlan = subscriptionPlanRepository
+            .findByPlanCodeAndIsActiveTrue(Plan.FREE)
+            ?: throw ApiException(ErrorCode.PLAN_NOT_FOUND)
+
+        local.plan = freePlan
+        local.stripeSubscriptionId = null
+        local.cancelAtPeriodEnd = false
+        local.status = "ACTIVE"
+        local.updatedAt = OffsetDateTime.now()
+
+        setAiCredits(local.userId, Plan.FREE)
     }
 
     @Transactional
@@ -109,6 +118,19 @@ class SubscriptionService(
         return getUserSubscriptionResponse(userId)
     }
 
+    fun getUserSubscriptionResponse(userId: UUID): UserSubscriptionResponse {
+        val userPlan = userSubscriptionRepository.findByUserId(userId) ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
+        val subscriptionPlan = userPlan.plan
+        val res = userSubscriptionMapper.toUserSubscriptionResponse(userPlan, subscriptionPlan)
+        return res
+    }
+
+    fun getActivePlanOverviews(): List<SubscriptionPlanOverviewResponse> {
+        val plans = subscriptionPlanRepository.findAllByIsActiveTrue()
+        if (plans.isEmpty()) return emptyList()
+        return subscriptionPlanOverviewMapper.toPlanOverviewResponseList(plans)
+    }
+
     @Transactional
     override fun cancelSubscription(userId: UUID) {
 
@@ -119,8 +141,10 @@ class SubscriptionService(
             return
         }
 
-        val stripeSub = Subscription.retrieve(subscription.stripeSubscriptionId)
-        stripeSub.cancel()
+        stripeSubscriptionCommandPort.cancelSubscription(
+            subscription.stripeSubscriptionId
+                ?: throw ApiException(ErrorCode.STRIPE_SUBSCRIPTION_INVALID)
+        )
 
         subscription.status = "CANCELLED"
         subscription.cancelAtPeriodEnd = false
@@ -129,19 +153,23 @@ class SubscriptionService(
     }
 
     @Transactional
-    fun activatePaidSubscription(
+    fun handleCheckoutComplete(
         userId: UUID,
-        stripePriceId: String,
-        stripeCustomerId: String,
-        stripeSubscriptionId: String,
-        currentPeriodStart: OffsetDateTime,
-        currentPeriodEnd: OffsetDateTime
+        subscriptionSnapshot: StripeSubscriptionSnapshot
+    ) {
+        activateFromSnapshot(userId, subscriptionSnapshot)
+    }
+
+    @Transactional
+    fun activateFromSnapshot(
+        userId: UUID,
+        subscriptionSnapshot: StripeSubscriptionSnapshot
     ) {
 
         logger.info(
             "Activating subscription {}",
             kv("userId", userId),
-            kv("stripeSubscriptionId", stripeSubscriptionId)
+            kv("stripeSubscriptionId", subscriptionSnapshot.subscriptionId)
         )
 
         val user = userRepository.findById(userId)
@@ -151,10 +179,10 @@ class SubscriptionService(
             }
 
         if (user.stripeCustomerId.isNullOrBlank()) {
-            user.stripeCustomerId = stripeCustomerId
+            user.stripeCustomerId = subscriptionSnapshot.customerId
         }
 
-        val plan = subscriptionPlanRepository.findByStripePriceId(stripePriceId)
+        val plan = subscriptionPlanRepository.findByStripePriceId(subscriptionSnapshot.priceId)
             ?: throw ApiException(ErrorCode.PLAN_NOT_FOUND)
 
 
@@ -162,12 +190,13 @@ class SubscriptionService(
 
         if (existing != null) {
             existing.plan = plan
-            existing.stripeSubscriptionId = stripeSubscriptionId
+            existing.stripeSubscriptionId = subscriptionSnapshot.subscriptionId
             existing.status = "ACTIVE"
-            existing.currentPeriodStart = currentPeriodStart
-            existing.currentPeriodEnd = currentPeriodEnd
+            existing.currentPeriodStart = subscriptionSnapshot.periodStart
+            existing.currentPeriodEnd = subscriptionSnapshot.periodEnd
             existing.cancelAtPeriodEnd = false
             existing.updatedAt = OffsetDateTime.now()
+
 
             logger.info("Updated existing subscription", kv("userId", userId), kv("subscriptionId", existing.id))
 
@@ -176,10 +205,10 @@ class SubscriptionService(
                 id = UUID.randomUUID(),
                 userId = userId,
                 plan = plan,
-                stripeSubscriptionId = stripeSubscriptionId,
+                stripeSubscriptionId = subscriptionSnapshot.subscriptionId,
                 status = "ACTIVE",
-                currentPeriodStart = currentPeriodStart,
-                currentPeriodEnd = currentPeriodEnd,
+                currentPeriodStart = subscriptionSnapshot.periodStart,
+                currentPeriodEnd = subscriptionSnapshot.periodEnd,
                 cancelAtPeriodEnd = false,
                 createdAt = OffsetDateTime.now(),
                 updatedAt = OffsetDateTime.now()
@@ -189,6 +218,16 @@ class SubscriptionService(
             logger.info("Created new subscription", kv("userId", userId), kv("subscriptionId", subscription.id))
 
         }
+
+        setAiCredits(userId, plan.planCode)
+
+
+
+    }
+
+    private fun setAiCredits(userId: UUID, plan: Plan) {
+        val creditLimits = PlanDefinitions.configFor(plan).limits.monthlyAiCredits
+        aiCreditPortForSubscription.resetCredits(userId, creditLimits)
     }
 
 }
