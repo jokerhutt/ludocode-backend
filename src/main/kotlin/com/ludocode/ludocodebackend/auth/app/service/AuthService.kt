@@ -16,6 +16,7 @@ import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
 import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
 import com.ludocode.ludocodebackend.user.domain.event.UserRegisteredEvent
 import jakarta.servlet.http.HttpServletResponse
+import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
@@ -77,7 +78,8 @@ class AuthService(
         return buildLoginResponse(request, response)
     }
 
-    private fun buildLoginResponse(
+    @Transactional
+     fun buildLoginResponse(
         request: FindOrCreateUserRequest,
         response: HttpServletResponse
     ): UserLoginResponse {
