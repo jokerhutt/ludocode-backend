@@ -2,10 +2,11 @@ package com.ludocode.ludocodebackend.subscription.app.port.out
 
 import java.util.*
 
-interface StripePort {
+interface StripeCheckoutPort {
     fun createCheckoutSession(
         planPriceId: String,
         planId: UUID,
         userId: UUID
     ): String
+
 }

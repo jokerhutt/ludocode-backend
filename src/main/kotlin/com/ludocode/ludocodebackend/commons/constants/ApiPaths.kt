@@ -26,6 +26,7 @@ object ApiPaths {
         const val CONFIRM = "/confirm"
         const val CHECKOUT = "/checkout"
         const val WEBHOOK = "/webhook"
+        const val MANAGE = "/manage"
     }
 
     object CATALOG {

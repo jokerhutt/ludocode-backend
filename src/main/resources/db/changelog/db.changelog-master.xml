@@ -23,6 +23,8 @@
     <include file="/db/changelog/016-subscription-plan-limits-and-features.xml"/>
     <include file="/db/changelog/017-subscription-plan-display-fields.xml"/>
     <include file="/db/changelog/018-drop-subscription-limits-and-features.xml"/>
+    <include file="/db/changelog/019-add-stripe-customer-id.xml"/>
+
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>
 
