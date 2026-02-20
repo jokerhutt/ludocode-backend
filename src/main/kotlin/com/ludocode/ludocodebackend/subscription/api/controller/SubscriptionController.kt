@@ -323,6 +323,8 @@ class SubscriptionController(
 
                 local.updatedAt = OffsetDateTime.now()
 
+                userSubscriptionRepository.save(local)
+
                 logger.warn(
                     """
                         UPDATED EVENT:
