@@ -1,5 +1,4 @@
 package com.ludocode.ludocodebackend.subscription.api.controller
-
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
@@ -14,6 +13,7 @@ import com.ludocode.ludocodebackend.subscription.configuration.StripeProperties
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
 import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
+import com.stripe.model.Invoice
 import com.stripe.model.Subscription
 import com.stripe.model.checkout.Session
 import com.stripe.net.Webhook
@@ -24,6 +24,7 @@ import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
+import org.springframework.http.ResponseEntity.ok
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
@@ -228,7 +229,32 @@ class SubscriptionController(
 
         when (event.type) {
 
-            "customer.subscription.updated" -> {
+            "invoice.paid" -> {
+
+                val invoice = event.dataObjectDeserializer
+                    .getObject()
+                    .orElse(null) as? Invoice
+                    ?: return ok().build()
+
+                val stripeSubscriptionId = invoice.parent
+                    ?.subscriptionDetails
+                    ?.subscription
+                    ?: return ok().build()
+
+                val local = userSubscriptionRepository
+                    .findByStripeSubscriptionId(stripeSubscriptionId)
+                    ?: return ok().build()
+
+                local.status = "ACTIVE"
+                local.updatedAt = OffsetDateTime.now()
+
+                subscriptionService.setAiCredits(
+                    local.userId,
+                    local.plan.planCode
+                )
+            }
+
+            "customer.subscription.deleted" -> {
 
                 val stripeSub = event.dataObjectDeserializer
                     .getObject()
@@ -236,19 +262,45 @@ class SubscriptionController(
 
                 val local = userSubscriptionRepository
                     .findByStripeSubscriptionId(stripeSub.id)
-                    ?: return ResponseEntity.ok().build()
+                    ?: return ok().build()
 
-                val isCancelling = stripeSub.cancelAt != null
-
-                local.cancelAtPeriodEnd = isCancelling
-                local.updatedAt = OffsetDateTime.now()
+                subscriptionService.downgradeToFree(local.userId)
 
                 logger.info(
-                    "Subscription updated",
-                    kv("subscriptionId", stripeSub.id),
-                    kv("cancelAt", stripeSub.cancelAt),
-                    kv("cancelAtPeriodEnd", stripeSub.cancelAtPeriodEnd)
+                    "Subscription cancelled and downgraded to FREE",
+                    kv("userId", local.userId),
+                    kv("subscriptionId", stripeSub.id)
                 )
+            }
+
+            "customer.subscription.updated" -> {
+
+                val stripeSub = event.dataObjectDeserializer
+                    .getObject()
+                    .orElse(null) as? Subscription
+                    ?: return ok().build()
+
+                val local = userSubscriptionRepository
+                    .findByStripeSubscriptionId(stripeSub.id)
+                    ?: return ok().build()
+
+                val item = stripeSub.items.data.firstOrNull()
+                    ?: return ok().build()
+
+                val periodStart = OffsetDateTime.ofInstant(
+                    Instant.ofEpochSecond(item.currentPeriodStart),
+                    ZoneOffset.UTC
+                )
+
+                val periodEnd = OffsetDateTime.ofInstant(
+                    Instant.ofEpochSecond(item.currentPeriodEnd),
+                    ZoneOffset.UTC
+                )
+
+                local.currentPeriodStart = periodStart
+                local.currentPeriodEnd = periodEnd
+                local.cancelAtPeriodEnd = stripeSub.cancelAtPeriodEnd
+                local.updatedAt = OffsetDateTime.now()
             }
 
             "checkout.session.completed" -> {

@@ -85,6 +85,7 @@ class SubscriptionService(
     ): UserSubscriptionResponse {
 
         val existing = userSubscriptionRepository.findByUserIdWithPlan(userId)
+
         if (existing != null) {
             return getUserSubscriptionResponse(userId)
         }
@@ -93,42 +94,18 @@ class SubscriptionService(
             .findByPlanCodeAndIsActiveTrue(Plan.FREE)
             ?: throw ApiException(ErrorCode.PLAN_NOT_FOUND)
 
-        val user = userRepository.findById(userId)
-            .orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
-
-        val stripeCustomerId = user.stripeCustomerId
-            ?: stripeBillingPort.createCustomer(userId).also {
-                user.stripeCustomerId = it
-            }
-
-        val stripeSub = stripeBillingPort.createSubscription(
-            stripeCustomerId = stripeCustomerId,
-            priceId = plan.stripePriceId
-        )
-
-        val item = stripeSub.items.data[0]
-
-        val periodStart = OffsetDateTime.ofInstant(
-            Instant.ofEpochSecond(item.currentPeriodStart),
-            ZoneOffset.UTC
-        )
-
-        val periodEnd = OffsetDateTime.ofInstant(
-            Instant.ofEpochSecond(item.currentPeriodEnd),
-            ZoneOffset.UTC
-        )
-
         val now = OffsetDateTime.now()
+        val periodEnd = now.plusMonths(1)
 
         val subscription = UserSubscription(
             id = UUID.randomUUID(),
             userId = userId,
             plan = plan,
-            stripeSubscriptionId = stripeSub.id,
-            status = stripeSub.status.uppercase(),
-            currentPeriodStart = periodStart,
+            stripeSubscriptionId = null,
+            status = "ACTIVE",
+            currentPeriodStart = now,
             currentPeriodEnd = periodEnd,
-            cancelAtPeriodEnd = stripeSub.cancelAtPeriodEnd,
+            cancelAtPeriodEnd = false,
             createdAt = now,
             updatedAt = now
         )
@@ -136,6 +113,25 @@ class SubscriptionService(
         userSubscriptionRepository.save(subscription)
 
         return getUserSubscriptionResponse(userId)
+    }
+
+    @Transactional
+    fun downgradeToFree(userId: UUID) {
+
+        val local = userSubscriptionRepository.findByUserId(userId)
+            ?: return
+
+        val freePlan = subscriptionPlanRepository
+            .findByPlanCodeAndIsActiveTrue(Plan.FREE)
+            ?: throw ApiException(ErrorCode.PLAN_NOT_FOUND)
+
+        local.plan = freePlan
+        local.stripeSubscriptionId = null
+        local.cancelAtPeriodEnd = false
+        local.status = "ACTIVE"
+        local.updatedAt = OffsetDateTime.now()
+
+        setAiCredits(local.userId, Plan.FREE)
     }
 
     @Transactional
@@ -219,8 +215,6 @@ class SubscriptionService(
             logger.info("Created new subscription", kv("userId", userId), kv("subscriptionId", subscription.id))
 
         }
-
-        setAiCredits(userId, plan.planCode)
 
     }
 
