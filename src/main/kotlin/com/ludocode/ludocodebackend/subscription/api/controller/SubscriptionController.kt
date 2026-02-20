@@ -278,22 +278,20 @@ class SubscriptionController(
                 val stripeSub = event.dataObjectDeserializer
                     .getObject()
                     .orElse(null) as? Subscription
-                    ?: return ResponseEntity.ok().build()
+                    ?: return ok().build()
 
                 val local = userSubscriptionRepository
                     .findByStripeSubscriptionId(stripeSub.id)
-                    ?: return ResponseEntity.ok().build()
+                    ?: return ok().build()
 
-                // Handle BOTH cancellation modes
                 val isScheduledToCancel =
                     stripeSub.cancelAtPeriodEnd || stripeSub.cancelAt != null
 
                 local.cancelAtPeriodEnd = isScheduledToCancel
 
-                // Only update billing period if subscription is still active
                 if (stripeSub.status == "active") {
                     val item = stripeSub.items.data.firstOrNull()
-                        ?: return ResponseEntity.ok().build()
+                        ?: return ok().build()
 
                     val periodStart = OffsetDateTime.ofInstant(
                         Instant.ofEpochSecond(item.currentPeriodStart),

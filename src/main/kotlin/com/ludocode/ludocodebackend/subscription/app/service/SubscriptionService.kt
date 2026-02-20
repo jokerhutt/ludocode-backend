@@ -32,7 +32,6 @@ class SubscriptionService(
     private val subscriptionPlanRepository: SubscriptionPlanRepository,
     private val userSubscriptionRepository: UserSubscriptionRepository,
     private val userSubscriptionMapper: UserSubscriptionMapper,
-    private val stripeBillingPort: StripeBillingPort,
     private val aiCreditPortForSubscription: AiCreditPortForSubscription,
 
     ) : SubscriptionPortForAuth, SubscriptionPortForUser {
