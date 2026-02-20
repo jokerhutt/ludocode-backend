@@ -36,13 +36,11 @@ import java.util.*
 @RequestMapping(ApiPaths.SUBSCRIPTION.BASE)
 class SubscriptionController(
     private val subscriptionPlanRepository: SubscriptionPlanRepository,
-    private val stripeProperties: StripeProperties,
     private val stripeCheckoutPort: StripeCheckoutPort,
     private val stripeBillingPort: StripeBillingPort,
     private val subscriptionService: SubscriptionService,
     private val userSubscriptionRepository: UserSubscriptionRepository,
     private val userRepository: UserRepository,
-    private val stripeSubscriptionPort: StripeSubscriptionPort,
     private val stripeWebhookPort: StripeWebhookPort
 ) {
 
