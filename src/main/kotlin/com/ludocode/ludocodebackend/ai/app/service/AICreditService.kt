@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.ai.app.service
 
+import com.ludocode.ludocodebackend.ai.app.port.out.AiCreditPortForSubscription
 import com.ludocode.ludocodebackend.ai.domain.entity.UserAICredits
 import com.ludocode.ludocodebackend.ai.infra.repository.UserAICreditsRepository
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
@@ -19,7 +20,7 @@ import java.util.*
 class AICreditService(
     private val userAICreditsRepository: UserAICreditsRepository,
     private val subscriptionService: SubscriptionService
-) {
+): AiCreditPortForSubscription {
 
     private val logger = LoggerFactory.getLogger(AICreditService::class.java)
 
@@ -44,7 +45,15 @@ class AICreditService(
         return adjustCredits(userId, (amountToDeduct * -1))
     }
 
-    private fun adjustCredits(userId: UUID, amount: Int): Int {
+    @Transactional
+    override fun resetCredits(userId: UUID, amount: Int) {
+
+        var userCreditsEntity = initializeOrGetCredits(userId)
+        userCreditsEntity.credits = amount
+    }
+
+    @Transactional
+    fun adjustCredits(userId: UUID, amount: Int): Int {
 
         var userCreditsEntity = initializeOrGetCredits(userId)
         val currentCredits = userCreditsEntity.credits

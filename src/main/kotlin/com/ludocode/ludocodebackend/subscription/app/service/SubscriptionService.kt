@@ -1,10 +1,12 @@
 package com.ludocode.ludocodebackend.subscription.app.service
 
+import com.ludocode.ludocodebackend.ai.app.port.out.AiCreditPortForSubscription
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.subscription.api.dto.response.SubscriptionPlanOverviewResponse
 import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
 import com.ludocode.ludocodebackend.subscription.app.mapper.UserSubscriptionMapper
+import com.ludocode.ludocodebackend.subscription.app.port.out.StripeBillingPort
 import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForAuth
 import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForUser
 import com.ludocode.ludocodebackend.subscription.configuration.PlanDefinitions
@@ -19,7 +21,9 @@ import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.time.Instant
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.util.*
 
 @Service
@@ -28,6 +32,8 @@ class SubscriptionService(
     private val subscriptionPlanRepository: SubscriptionPlanRepository,
     private val userSubscriptionRepository: UserSubscriptionRepository,
     private val userSubscriptionMapper: UserSubscriptionMapper,
+    private val stripeBillingPort: StripeBillingPort,
+    private val aiCreditPortForSubscription: AiCreditPortForSubscription,
 
     ) : SubscriptionPortForAuth, SubscriptionPortForUser {
     private val logger = LoggerFactory.getLogger(SubscriptionService::class.java)
@@ -79,7 +85,6 @@ class SubscriptionService(
     ): UserSubscriptionResponse {
 
         val existing = userSubscriptionRepository.findByUserIdWithPlan(userId)
-
         if (existing != null) {
             return getUserSubscriptionResponse(userId)
         }
@@ -88,18 +93,42 @@ class SubscriptionService(
             .findByPlanCodeAndIsActiveTrue(Plan.FREE)
             ?: throw ApiException(ErrorCode.PLAN_NOT_FOUND)
 
+        val user = userRepository.findById(userId)
+            .orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
+
+        val stripeCustomerId = user.stripeCustomerId
+            ?: stripeBillingPort.createCustomer(userId).also {
+                user.stripeCustomerId = it
+            }
+
+        val stripeSub = stripeBillingPort.createSubscription(
+            stripeCustomerId = stripeCustomerId,
+            priceId = plan.stripePriceId
+        )
+
+        val item = stripeSub.items.data[0]
+
+        val periodStart = OffsetDateTime.ofInstant(
+            Instant.ofEpochSecond(item.currentPeriodStart),
+            ZoneOffset.UTC
+        )
+
+        val periodEnd = OffsetDateTime.ofInstant(
+            Instant.ofEpochSecond(item.currentPeriodEnd),
+            ZoneOffset.UTC
+        )
+
         val now = OffsetDateTime.now()
-        val periodEnd = now.plusMonths(1)
 
         val subscription = UserSubscription(
             id = UUID.randomUUID(),
             userId = userId,
             plan = plan,
-            stripeSubscriptionId = null,
-            status = "ACTIVE",
-            currentPeriodStart = now,
+            stripeSubscriptionId = stripeSub.id,
+            status = stripeSub.status.uppercase(),
+            currentPeriodStart = periodStart,
             currentPeriodEnd = periodEnd,
-            cancelAtPeriodEnd = false,
+            cancelAtPeriodEnd = stripeSub.cancelAtPeriodEnd,
             createdAt = now,
             updatedAt = now
         )
@@ -169,6 +198,7 @@ class SubscriptionService(
             existing.cancelAtPeriodEnd = false
             existing.updatedAt = OffsetDateTime.now()
 
+
             logger.info("Updated existing subscription", kv("userId", userId), kv("subscriptionId", existing.id))
 
         } else {
@@ -189,6 +219,14 @@ class SubscriptionService(
             logger.info("Created new subscription", kv("userId", userId), kv("subscriptionId", subscription.id))
 
         }
+
+        setAiCredits(userId, plan.planCode)
+
+    }
+
+    fun setAiCredits(userId: UUID, plan: Plan) {
+        val creditLimits = PlanDefinitions.configFor(plan).limits.monthlyAiCredits
+        aiCreditPortForSubscription.resetCredits(userId, creditLimits)
     }
 
 }
