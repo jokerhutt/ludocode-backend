@@ -308,6 +308,13 @@ class SubscriptionController(
                 }
 
                 local.updatedAt = OffsetDateTime.now()
+
+                logger.warn(
+                    "UPDATED EVENT: cancelAtPeriodEnd={}, cancelAt={}",
+                    stripeSub.cancelAtPeriodEnd,
+                    stripeSub.cancelAt
+                )
+
             }
 
             "checkout.session.completed" -> {
