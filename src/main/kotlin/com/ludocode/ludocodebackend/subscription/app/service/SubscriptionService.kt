@@ -8,7 +8,6 @@ import com.ludocode.ludocodebackend.subscription.api.dto.snapshot.StripeSubscrip
 import com.ludocode.ludocodebackend.subscription.app.mapper.SubscriptionPlanOverviewMapper
 import com.ludocode.ludocodebackend.subscription.app.mapper.UserSubscriptionMapper
 import com.ludocode.ludocodebackend.subscription.app.port.out.StripeSubscriptionCommandPort
-import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForAuth
 import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForUser
 import com.ludocode.ludocodebackend.subscription.configuration.PlanDefinitions
 import com.ludocode.ludocodebackend.subscription.domain.entity.UserSubscription
@@ -33,7 +32,7 @@ class SubscriptionService(
     private val stripeSubscriptionCommandPort: StripeSubscriptionCommandPort,
     private val subscriptionPlanOverviewMapper: SubscriptionPlanOverviewMapper,
 
-    ) : SubscriptionPortForAuth, SubscriptionPortForUser {
+    ) : SubscriptionPortForUser {
     private val logger = LoggerFactory.getLogger(SubscriptionService::class.java)
 
     @Transactional
@@ -115,19 +114,29 @@ class SubscriptionService(
     }
 
     @Transactional
-    override fun ensureSubscriptionExists(userId: UUID) {
+    fun ensureSubscriptionExists(userId: UUID) {
 
         val user = userRepository.findById(userId)
             .orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
 
-        val customerId = user.stripeCustomerId
-            ?: throw ApiException(ErrorCode.STRIPE_CUSTOMER_INVALID)
+        val userEmail = user.email
+
+        if (userEmail == null) {
+            throw ApiException(ErrorCode.EMAIL_NOT_FOUND)
+        }
+
+        val customerId : String = user.stripeCustomerId ?: run {
+            val newCustomer = stripeSubscriptionCommandPort.createCustomer(
+                email = userEmail,
+                name = user.displayName
+            )
+            user.stripeCustomerId = newCustomer
+            userRepository.save(user)
+            newCustomer
+        }
 
         val existing = userSubscriptionRepository.findByUserId(userId)
-
-        if (existing?.stripeSubscriptionId != null) {
-            return
-        }
+        if (existing?.stripeSubscriptionId != null) return
 
         val freePlan = subscriptionPlanRepository
             .findByPlanCodeAndIsActiveTrue(Plan.FREE)
