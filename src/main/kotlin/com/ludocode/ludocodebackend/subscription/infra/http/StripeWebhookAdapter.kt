@@ -40,8 +40,10 @@ class StripeWebhookAdapter(
                     ?.subscription
                     ?: return
 
+                val snapshot = stripeSubscriptionPort.retrieveSnapshot(subscriptionId)
+
                 subscriptionService.handleInvoicePaid(
-                    subscriptionId
+                    snapshot
                 )
             }
 

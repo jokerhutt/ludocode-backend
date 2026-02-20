@@ -15,10 +15,7 @@ import com.ludocode.ludocodebackend.subscription.configuration.StripeProperties
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
 import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
-import com.stripe.model.Invoice
-import com.stripe.model.Subscription
 import com.stripe.model.checkout.Session
-import com.stripe.net.Webhook
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -29,9 +26,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.ok
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
-import java.time.Instant
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import java.util.*
 
 @Tag(
@@ -112,7 +106,7 @@ class SubscriptionController(
 
         val subscriptionSnapshot = stripeSubscriptionPort.retrieveSnapshot(stripeSubscriptionId)
 
-        subscriptionService.handleCheckoutComplete(
+        subscriptionService.activateFromSnapshot(
             userId,
             subscriptionSnapshot
         )
