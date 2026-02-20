@@ -81,7 +81,7 @@ class AuthService(
         response: HttpServletResponse
     ): UserLoginResponse {
         val user = userPortForAuth.findOrCreate(request)
-        val subscription = subscriptionPortForAuth.getOrElseInitializeFreeSubscription(user.id)
+        subscriptionPortForAuth.ensureSubscriptionExists(user.id)
 
         return withMdc(LogFields.USER_ID to user.id.toString(), LogFields.PROVIDER to request.provider.toString()) {
             logger.info(LogEvents.AUTH_LOGIN_SUCCESS)
@@ -89,7 +89,7 @@ class AuthService(
             val streak = userStreakPortForAuth.getStreak(user.id)
             val jwt = jwtService.createToken(user.id, role = request.role)
             authCookieService.setJwt(response, jwt)
-            UserLoginResponse(user, coins, streak, subscription)
+            UserLoginResponse(user, coins, streak)
         }
 
     }

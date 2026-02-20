@@ -9,5 +9,4 @@ data class UserLoginResponse(
     val user: UserResponse,
     val userStats: UserCoinsResponse,
     val userStreak: UserStreakResponse,
-    val subscription: UserSubscriptionResponse
 )

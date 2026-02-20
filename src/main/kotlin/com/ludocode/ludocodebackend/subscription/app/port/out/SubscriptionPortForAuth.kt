@@ -4,5 +4,5 @@ import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscripti
 import java.util.*
 
 interface SubscriptionPortForAuth {
-    fun getOrElseInitializeFreeSubscription(userId: UUID): UserSubscriptionResponse
+    fun ensureSubscriptionExists(userId: UUID)
 }

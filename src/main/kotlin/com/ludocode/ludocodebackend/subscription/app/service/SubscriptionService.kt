@@ -36,12 +36,51 @@ class SubscriptionService(
     ) : SubscriptionPortForAuth, SubscriptionPortForUser {
     private val logger = LoggerFactory.getLogger(SubscriptionService::class.java)
 
+    @Transactional
     fun handleInvoicePaid(snapshot: StripeSubscriptionSnapshot) {
-        val local = userSubscriptionRepository
-            .findByStripeSubscriptionId(snapshot.subscriptionId)
-            ?: throw ApiException(ErrorCode.STRIPE_SUBSCRIPTION_INVALID)
 
-        activateFromSnapshot(local.userId, snapshot)
+        val existing = userSubscriptionRepository
+            .findByStripeSubscriptionId(snapshot.subscriptionId)
+
+        val plan = subscriptionPlanRepository
+            .findByStripePriceId(snapshot.priceId)
+            ?: throw ApiException(ErrorCode.PLAN_NOT_FOUND)
+
+        val now = OffsetDateTime.now()
+
+        if (existing == null) {
+
+            val userId = resolveUserFromCustomer(snapshot.customerId)
+
+            val newSub = UserSubscription(
+                id = UUID.randomUUID(),
+                userId = userId,
+                plan = plan,
+                stripeSubscriptionId = snapshot.subscriptionId,
+                status = "ACTIVE",
+                currentPeriodStart = snapshot.periodStart,
+                currentPeriodEnd = snapshot.periodEnd,
+                cancelAtPeriodEnd = false,
+                createdAt = now,
+                updatedAt = now
+            )
+
+            userSubscriptionRepository.save(newSub)
+
+        } else {
+
+            existing.plan = plan
+            existing.status = "ACTIVE"
+            existing.currentPeriodStart = snapshot.periodStart
+            existing.currentPeriodEnd = snapshot.periodEnd
+            existing.cancelAtPeriodEnd = false
+            existing.updatedAt = now
+        }
+
+        setAiCredits(
+            resolveUserFromCustomer(snapshot.customerId),
+            plan.planCode
+        )
     }
 
     @Transactional
@@ -69,66 +108,35 @@ class SubscriptionService(
             .findByStripeSubscriptionId(subscriptionId)
             ?: throw ApiException(ErrorCode.STRIPE_SUBSCRIPTION_INVALID)
 
+        local.status = "CANCELLED"
+        local.cancelAtPeriodEnd = false
+        local.stripeSubscriptionId = null
+        local.updatedAt = OffsetDateTime.now()
+    }
+
+    @Transactional
+    override fun ensureSubscriptionExists(userId: UUID) {
+
+        val user = userRepository.findById(userId)
+            .orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
+
+        val customerId = user.stripeCustomerId
+            ?: throw ApiException(ErrorCode.STRIPE_CUSTOMER_INVALID)
+
+        val existing = userSubscriptionRepository.findByUserId(userId)
+
+        if (existing?.stripeSubscriptionId != null) {
+            return
+        }
+
         val freePlan = subscriptionPlanRepository
             .findByPlanCodeAndIsActiveTrue(Plan.FREE)
             ?: throw ApiException(ErrorCode.PLAN_NOT_FOUND)
 
-        local.plan = freePlan
-        local.stripeSubscriptionId = null
-        local.cancelAtPeriodEnd = false
-        local.status = "ACTIVE"
-        local.updatedAt = OffsetDateTime.now()
-
-        setAiCredits(local.userId, Plan.FREE)
-    }
-
-    @Transactional
-    override fun getOrElseInitializeFreeSubscription(
-        userId: UUID
-    ): UserSubscriptionResponse {
-
-        val existing = userSubscriptionRepository.findByUserIdWithPlan(userId)
-
-        if (existing != null) {
-            return getUserSubscriptionResponse(userId)
-        }
-
-        val plan = subscriptionPlanRepository
-            .findByPlanCodeAndIsActiveTrue(Plan.FREE)
-            ?: throw ApiException(ErrorCode.PLAN_NOT_FOUND)
-
-        val now = OffsetDateTime.now()
-        val periodEnd = now.plusMonths(1)
-
-        val subscription = UserSubscription(
-            id = UUID.randomUUID(),
-            userId = userId,
-            plan = plan,
-            stripeSubscriptionId = null,
-            status = "ACTIVE",
-            currentPeriodStart = now,
-            currentPeriodEnd = periodEnd,
-            cancelAtPeriodEnd = false,
-            createdAt = now,
-            updatedAt = now
+        stripeSubscriptionCommandPort.createSubscription(
+            customerId = customerId,
+            priceId = freePlan.stripePriceId
         )
-
-        userSubscriptionRepository.save(subscription)
-
-        return getUserSubscriptionResponse(userId)
-    }
-
-    fun getUserSubscriptionResponse(userId: UUID): UserSubscriptionResponse {
-        val userPlan = userSubscriptionRepository.findByUserId(userId) ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
-        val subscriptionPlan = userPlan.plan
-        val res = userSubscriptionMapper.toUserSubscriptionResponse(userPlan, subscriptionPlan)
-        return res
-    }
-
-    fun getActivePlanOverviews(): List<SubscriptionPlanOverviewResponse> {
-        val plans = subscriptionPlanRepository.findAllByIsActiveTrue()
-        if (plans.isEmpty()) return emptyList()
-        return subscriptionPlanOverviewMapper.toPlanOverviewResponseList(plans)
     }
 
     @Transactional
@@ -152,82 +160,29 @@ class SubscriptionService(
         subscription.updatedAt = OffsetDateTime.now()
     }
 
-    @Transactional
-    fun handleCheckoutComplete(
-        userId: UUID,
-        subscriptionSnapshot: StripeSubscriptionSnapshot
-    ) {
-        activateFromSnapshot(userId, subscriptionSnapshot)
+    fun getUserSubscriptionResponse(userId: UUID): UserSubscriptionResponse {
+        val userPlan = userSubscriptionRepository.findByUserId(userId) ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
+        val subscriptionPlan = userPlan.plan
+        val res = userSubscriptionMapper.toUserSubscriptionResponse(userPlan, subscriptionPlan)
+        return res
     }
 
-    @Transactional
-    fun activateFromSnapshot(
-        userId: UUID,
-        subscriptionSnapshot: StripeSubscriptionSnapshot
-    ) {
-
-        logger.info(
-            "Activating subscription {}",
-            kv("userId", userId),
-            kv("stripeSubscriptionId", subscriptionSnapshot.subscriptionId)
-        )
-
-        val user = userRepository.findById(userId)
-            .orElseThrow {
-                logger.warn("User not found for subscription activation {}", kv("userId", userId))
-                ApiException(ErrorCode.USER_NOT_FOUND)
-            }
-
-        if (user.stripeCustomerId.isNullOrBlank()) {
-            user.stripeCustomerId = subscriptionSnapshot.customerId
-        }
-
-        val plan = subscriptionPlanRepository.findByStripePriceId(subscriptionSnapshot.priceId)
-            ?: throw ApiException(ErrorCode.PLAN_NOT_FOUND)
-
-
-        val existing = userSubscriptionRepository.findByUserId(userId)
-
-        if (existing != null) {
-            existing.plan = plan
-            existing.stripeSubscriptionId = subscriptionSnapshot.subscriptionId
-            existing.status = "ACTIVE"
-            existing.currentPeriodStart = subscriptionSnapshot.periodStart
-            existing.currentPeriodEnd = subscriptionSnapshot.periodEnd
-            existing.cancelAtPeriodEnd = false
-            existing.updatedAt = OffsetDateTime.now()
-
-
-            logger.info("Updated existing subscription", kv("userId", userId), kv("subscriptionId", existing.id))
-
-        } else {
-            val subscription = UserSubscription(
-                id = UUID.randomUUID(),
-                userId = userId,
-                plan = plan,
-                stripeSubscriptionId = subscriptionSnapshot.subscriptionId,
-                status = "ACTIVE",
-                currentPeriodStart = subscriptionSnapshot.periodStart,
-                currentPeriodEnd = subscriptionSnapshot.periodEnd,
-                cancelAtPeriodEnd = false,
-                createdAt = OffsetDateTime.now(),
-                updatedAt = OffsetDateTime.now()
-            )
-
-            userSubscriptionRepository.save(subscription)
-            logger.info("Created new subscription", kv("userId", userId), kv("subscriptionId", subscription.id))
-
-        }
-
-        setAiCredits(userId, plan.planCode)
-
-
-
+    fun getActivePlanOverviews(): List<SubscriptionPlanOverviewResponse> {
+        val plans = subscriptionPlanRepository.findAllByIsActiveTrue()
+        if (plans.isEmpty()) return emptyList()
+        return subscriptionPlanOverviewMapper.toPlanOverviewResponseList(plans)
     }
 
     private fun setAiCredits(userId: UUID, plan: Plan) {
         val creditLimits = PlanDefinitions.configFor(plan).limits.monthlyAiCredits
         aiCreditPortForSubscription.resetCredits(userId, creditLimits)
+    }
+
+    private fun resolveUserFromCustomer(customerId: String): UUID {
+        val user = userRepository.findByStripeCustomerId(customerId)
+            ?: throw ApiException(ErrorCode.USER_NOT_FOUND)
+
+        return user.id
     }
 
 }
