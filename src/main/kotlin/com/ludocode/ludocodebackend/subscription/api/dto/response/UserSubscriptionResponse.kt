@@ -10,5 +10,5 @@ data class UserSubscriptionResponse(
     val monthlyCreditAllowance: Int,
     val maxProjects: Int,
     val cancelAtPeriodEnd: Boolean,
-    val currentPeriodEnd: OffsetDateTime?,
+    val currentPeriodEnd: OffsetDateTime,
 )

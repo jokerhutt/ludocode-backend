@@ -1,4 +1,6 @@
 package com.ludocode.ludocodebackend.subscription.app.mapper
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
 import com.ludocode.ludocodebackend.subscription.configuration.PlanDefinitions
 import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
@@ -28,21 +30,24 @@ class UserSubscriptionMapper (
     fun toUserSubscriptionResponse(
         userId: UUID,
         planCode: Plan,
+        renewalDate: OffsetDateTime?,
         cancelAtPeriodEnd: Boolean,
     ): UserSubscriptionResponse {
 
         val planDefinitions = PlanDefinitions.configFor(planCode)
 
-        val renewalDate =
-            if (planCode == Plan.FREE) null
-            else nextMonthFirstDayUtc()
+        val currentPeriodEnd =
+            if (planCode == Plan.FREE)
+                nextMonthFirstDayUtc()
+            else
+                renewalDate ?: throw ApiException(ErrorCode.PAID_PLAN_WITHOUT_RENEWAL)
 
         return UserSubscriptionResponse(
             userId = userId,
             planCode = planCode,
             monthlyCreditAllowance = planDefinitions.limits.monthlyAiCredits,
             maxProjects = planDefinitions.limits.maxProjects,
-            currentPeriodEnd = renewalDate,
+            currentPeriodEnd = currentPeriodEnd,
             cancelAtPeriodEnd = cancelAtPeriodEnd
         )
     }
