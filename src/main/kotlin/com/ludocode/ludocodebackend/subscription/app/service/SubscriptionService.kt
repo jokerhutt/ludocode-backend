@@ -152,8 +152,7 @@ class SubscriptionService(
 
     override fun cancelSubscription(userId: UUID) {
 
-        val subscription = userSubscriptionRepository.findByUserId(userId)
-            ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
+        val subscription = userSubscriptionRepository.findByUserIdAndStatusIn(userId, listOf("active", "trialing"))
 
         if (subscription == null) {
             logger.debug(
