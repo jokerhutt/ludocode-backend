@@ -112,5 +112,10 @@ class AICreditService(
         }
     }
 
+    @Transactional
+    internal fun resetFreeCredits(userId: UUID) {
+
+    }
+
 
 }

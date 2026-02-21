@@ -52,6 +52,10 @@ class SubscriptionService(
 
     }
 
+    fun isFreeUser(userId: UUID) : Boolean {
+        return userSubscriptionRepository.findByUserIdAndStatusIn(userId, listOf("active", "trialing")) == null
+    }
+
     @Transactional
     fun createCustomerId(userId: UUID) {
 
