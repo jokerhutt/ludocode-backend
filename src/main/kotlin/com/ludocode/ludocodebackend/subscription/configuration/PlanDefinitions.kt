@@ -32,25 +32,9 @@ object PlanDefinitions {
         recommended = true
     )
 
-    private val PATRON = PlanConfig(
-        limits = PlanLimits(
-            monthlyAiCredits = 800,
-            maxProjects = 100
-        ),
-        features = setOf(
-            Feature.AI_ASSISTANT,
-            Feature.CORE_COURSES,
-            Feature.PUBLISH_PROJECTS,
-            Feature.CODE_EDITOR,
-            Feature.SKILL_PATHS,
-            Feature.PRIORITY_SUPPORT
-        )
-    )
-
     fun configFor(plan: Plan): PlanConfig =
         when (plan) {
             Plan.FREE -> FREE
             Plan.SUPPORTER -> SUPPORTER
-            Plan.PATRON -> PATRON
         }
 }
