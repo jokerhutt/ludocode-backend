@@ -5,23 +5,20 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
-import org.springframework.boot.ApplicationArguments
-import org.springframework.boot.ApplicationRunner
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import kotlin.system.exitProcess
 
 @Component
-class JobRunner(
+class MonthlyCreditResetScheduler(
     private val monthlyCreditResetJob: MonthlyCreditResetJob
-) : ApplicationRunner {
+) {
 
-    private val logger = LoggerFactory.getLogger(JobRunner::class.java)
+    private val logger = LoggerFactory.getLogger(MonthlyCreditResetScheduler::class.java)
 
-    override fun run(args: ApplicationArguments) {
+    @Scheduled(cron = "0 0 0 1 * *", zone = "UTC")
+    fun runMonthlyCreditReset() {
 
-        val jobName = args.getOptionValues("job")?.firstOrNull()
-            ?: return
-
+        val jobName = JobNames.MONTHLY_CREDIT_RESET
         val start = System.currentTimeMillis()
 
         logger.info(
@@ -30,19 +27,7 @@ class JobRunner(
         )
 
         try {
-            when (jobName) {
-                JobNames.MONTHLY_CREDIT_RESET -> {
-                    monthlyCreditResetJob.execute()
-                }
-
-                else -> {
-                    logger.error(
-                        LogEvents.JOB_UNKNOWN + " {}",
-                        kv(LogFields.JOB_NAME, jobName)
-                    )
-                    throw IllegalArgumentException("Unknown job: $jobName")
-                }
-            }
+            monthlyCreditResetJob.execute()
 
             val durationMs = System.currentTimeMillis() - start
 
@@ -51,8 +36,6 @@ class JobRunner(
                 kv(LogFields.JOB_NAME, jobName),
                 kv(LogFields.DURATION_MS, durationMs)
             )
-
-            exitProcess(0)
 
         } catch (ex: Exception) {
 
@@ -65,8 +48,6 @@ class JobRunner(
                 kv(LogFields.ERROR_CODE, ex.message ?: "unknown"),
                 ex
             )
-
-            exitProcess(1)
         }
     }
 }

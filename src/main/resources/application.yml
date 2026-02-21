@@ -69,6 +69,10 @@ avatar:
   count: 10
 
 app:
+  jobs:
+    monthly-credit-reset:
+      cron: ${MONTHLY_CREDIT_RESET_CRON:0 0 0 1 * *}
+      zone: ${MONTHLY_CREDIT_RESET_ZONE:UTC}
   frontend-url: ${FRONTEND_URL}
   gcs-host:
 
