@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.auth.configuration.AuthCookieConfig
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
@@ -23,7 +24,11 @@ import java.util.*
 )
 @RestController
 @RequestMapping(ApiPaths.AUTH.BASE)
-class AuthController(private val authService: AuthService, private val cookieConfig: AuthCookieConfig) {
+class AuthController(
+    private val authService: AuthService,
+    private val cookieConfig: AuthCookieConfig,
+    private val subscriptionService: SubscriptionService
+) {
 
     @Operation(
         summary = "Authenticate user using Firebase",
@@ -44,7 +49,10 @@ class AuthController(private val authService: AuthService, private val cookieCon
             throw ApiException(ErrorCode.BAD_REQ, "Missing Firebase token")
         }
 
-        return ResponseEntity.ok(authService.loginWithFirebase(response, token))
+        val userLoginResponse = authService.loginWithFirebase(response, token)
+        subscriptionService.createCustomerId(userId = userLoginResponse.user.id)
+
+        return ResponseEntity.ok(userLoginResponse)
 
     }
 

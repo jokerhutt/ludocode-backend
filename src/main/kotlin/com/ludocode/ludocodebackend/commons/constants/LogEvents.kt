@@ -43,6 +43,11 @@ object LogEvents {
     const val COURSE_SNAPSHOT_APPLY = "course_snapshot_applied"
     const val COURSE_SNAPSHOT_BUILT = "course_snapshot_built"
 
+    const val JOB_STARTED = "job_started"
+    const val JOB_UNKNOWN = "job_unknown"
+    const val JOB_COMPLETED = "job_completed"
+    const val JOB_FAILED = "job_failed"
+
     const val LESSON_EXERCISES_LOADED = "lesson_exercises_loaded"
     const val COURSE_TREE_LOADED = "course_tree_loaded"
 
@@ -71,5 +76,16 @@ object LogEvents {
     const val USER_CREATED = "user_created"
     const val USER_AVATAR_CHANGED = "user_avatar_changed"
 
+
+    const val STRIPE_CUSTOMER_CREATED = "stripe_customer_created"
+    const val STRIPE_SUBSCRIPTION_CREATED = "stripe_subscription_created"
+    const val STRIPE_SUBSCRIPTION_CANCEL_REQUESTED = "stripe_subscription_cancel_requested"
+
+    const val SUBSCRIPTION_INVOICE_PAID = "subscription_invoice_paid"
+    const val SUBSCRIPTION_UPDATED = "subscription_updated"
+    const val SUBSCRIPTION_DELETED = "subscription_deleted"
+
+    const val FREE_SUBSCRIPTION_CREATED = "free_subscription_created"
+    const val SUBSCRIPTION_CANCELLED_LOCALLY = "subscription_cancelled_locally"
 
 }

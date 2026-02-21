@@ -16,12 +16,13 @@ class StripeCheckoutClient(
 
     private val logger = LoggerFactory.getLogger(StripeCheckoutPort::class.java)
 
-    override fun createCheckoutSession(planPriceId: String, planId: UUID, userId: UUID): String {
+    override fun createCheckoutSession(planPriceId: String, planId: UUID, userId: UUID, stripeCustomerId: String): String {
 
         val frontendUrl = appProperties.frontendUrl
 
         val params = SessionCreateParams.builder()
             .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
+            .setCustomer(stripeCustomerId)
             .setSuccessUrl("$frontendUrl/subscription/success?session_id={CHECKOUT_SESSION_ID}")
             .setCancelUrl("$frontendUrl/subscription/cancel")
             .addLineItem(

@@ -33,7 +33,8 @@ class StripeSubscriptionAdapter : StripeSubscriptionPort {
             periodEnd = OffsetDateTime.ofInstant(
                 Instant.ofEpochSecond(item.currentPeriodEnd),
                 ZoneOffset.UTC
-            )
+            ),
+            status = stripeSub.status
         )
     }
 }

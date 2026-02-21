@@ -227,8 +227,8 @@
                   (
                       '11111111-1111-1111-1111-111111111111',
                       'FREE',
-                      'Free Plan',
-                      null,
+                      'Free',
+                      'price_1T1XKU70FW11rZbtkkYVKREY',
                       0.00,
                       'Get started with the basics',
                       'EUR',
@@ -247,19 +247,7 @@
                       'month',
                       true,
                       now()
-                  ),
-                  (
-                      '33333333-3333-3333-3333-333333333333',
-                      'PATRON',
-                      'Patron',
-                      'price_1T1XLM70FW11rZbtjOH2BoR5',
-                      19.99,
-                      'Everything, plus AI and priority perks',
-                      'EUR',
-                      'month',
-                      true,
-                      now()
-                  );
+                  )
         </sql>
     </changeSet>
 

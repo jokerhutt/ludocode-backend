@@ -31,7 +31,6 @@ class DemoAuthIT : AbstractIntegrationTest() {
         Assertions.assertThat(res).isNotNull()
         Assertions.assertThat(res.user.id).isEqualTo(id)
         Assertions.assertThat(res.user.displayName).isEqualTo(demoUser1.displayName)
-        Assertions.assertThat(res.subscription.planCode).isEqualTo(Plan.FREE)
     }
 
     private fun submitGetDemoUser(token: String): UserLoginResponse {

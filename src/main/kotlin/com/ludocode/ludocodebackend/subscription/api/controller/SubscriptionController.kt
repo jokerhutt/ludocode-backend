@@ -36,13 +36,11 @@ import java.util.*
 @RequestMapping(ApiPaths.SUBSCRIPTION.BASE)
 class SubscriptionController(
     private val subscriptionPlanRepository: SubscriptionPlanRepository,
-    private val stripeProperties: StripeProperties,
     private val stripeCheckoutPort: StripeCheckoutPort,
     private val stripeBillingPort: StripeBillingPort,
     private val subscriptionService: SubscriptionService,
     private val userSubscriptionRepository: UserSubscriptionRepository,
     private val userRepository: UserRepository,
-    private val stripeSubscriptionPort: StripeSubscriptionPort,
     private val stripeWebhookPort: StripeWebhookPort
 ) {
 
@@ -75,47 +73,6 @@ class SubscriptionController(
     }
 
     @Operation(
-        summary = "Confirm Stripe subscription",
-        description = """
-        Confirms a completed Stripe Checkout session.
-        
-        Validates the session, verifies metadata integrity, retrieves the Stripe subscription,
-        and activates the paid subscription in the system.
-        
-        Requires a valid session cookie.
-        """
-    )
-    @SecurityRequirement(name = "sessionAuth")
-    @PostMapping(ApiPaths.SUBSCRIPTION.CONFIRM)
-    fun confirmSubscription(
-        @AuthenticationPrincipal(expression = "userId") userId: UUID,
-        @RequestBody request: ConfirmRequest
-    ): ResponseEntity<UserSubscriptionResponse> {
-
-        val session = Session.retrieve(request.sessionId)
-
-        val metadataUserId = session.metadata["userId"]
-            ?: throw ApiException(ErrorCode.USER_NOT_FOUND)
-
-        if (metadataUserId != userId.toString()) {
-            throw ApiException(ErrorCode.BAD_REQ, "Not same user")
-        }
-
-        val stripeSubscriptionId = session.subscription as? String
-            ?: throw ApiException(ErrorCode.STRIPE_SUBSCRIPTION_INVALID)
-
-        val subscriptionSnapshot = stripeSubscriptionPort.retrieveSnapshot(stripeSubscriptionId)
-
-        subscriptionService.activateFromSnapshot(
-            userId,
-            subscriptionSnapshot
-        )
-
-        val response = subscriptionService.getUserSubscriptionResponse(userId)
-        return ResponseEntity.ok(response)
-    }
-
-    @Operation(
         summary = "Create Stripe checkout session",
         description = """
         Creates a Stripe Checkout session for the specified subscription plan.
@@ -142,10 +99,16 @@ class SubscriptionController(
                 throw ApiException(ErrorCode.PLAN_NOT_FOUND)
             }
 
+        val stripeCustomerUser = userRepository.findById(userId)
+            .orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
+
+        val stripeCustomerId = stripeCustomerUser.stripeCustomerId ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
+
         val url = stripeCheckoutPort.createCheckoutSession(
             planPriceId = plan.stripePriceId,
             planId = plan.id,
-            userId = userId
+            userId = userId,
+            stripeCustomerId = stripeCustomerId
         )
 
         logger.info("Stripe checkout session created {}", kv("userId", userId), kv("checkoutUrl", url))
@@ -159,7 +122,7 @@ class SubscriptionController(
     ): Map<String, String> {
 
         val subscription = userSubscriptionRepository
-            .findByUserId(userId)
+            .findByUserIdAndStatusIn(userId, listOf("active", "trialing"))
             ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
 
         if (subscription.stripeSubscriptionId == null) {

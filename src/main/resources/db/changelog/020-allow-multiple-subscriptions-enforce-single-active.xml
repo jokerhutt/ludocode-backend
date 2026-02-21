@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="020-001-drop-unique-user-subscription-user-id" author="dave">
+        <dropUniqueConstraint
+                tableName="user_subscription"
+                constraintName="user_subscription_user_id_key"/>
+    </changeSet>
+
+    <changeSet id="020-002-add-partial-unique-active-sub-per-user" author="dave">
+        <sql>
+            CREATE UNIQUE INDEX IF NOT EXISTS ux_user_subscription_one_active_per_user
+                ON user_subscription (user_id)
+                WHERE status IN ('active', 'trialing');
+        </sql>
+    </changeSet>
+
+    <changeSet id="020-003-add-index-user-status" author="dave">
+        <createIndex tableName="user_subscription" indexName="idx_user_subscription_user_status">
+            <column name="user_id"/>
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="020-004-make-stripe-sub-id-not-null" author="dave">
+
+        <addNotNullConstraint
+                tableName="user_subscription"
+                columnName="stripe_subscription_id"
+                columnDataType="VARCHAR(255)"/>
+
+    </changeSet>
+
+
+</databaseChangeLog>

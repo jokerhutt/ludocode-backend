@@ -24,4 +24,6 @@ interface UserRepository : JpaRepository<User, UUID> {
 
     fun findByEmail(email: String): User?
 
+    fun findByStripeCustomerId(stripeCustomerId: String): User?
+
 }

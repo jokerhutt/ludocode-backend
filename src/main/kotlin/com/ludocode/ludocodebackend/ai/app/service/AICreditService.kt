@@ -8,7 +8,7 @@ import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.subscription.configuration.PlanDefinitions
-import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
+import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
@@ -20,7 +20,6 @@ import java.util.*
 @Service
 class AICreditService(
     private val userAICreditsRepository: UserAICreditsRepository,
-    private val userSubscriptionRepository: UserSubscriptionRepository
 ): AiCreditPortForSubscription {
 
     private val logger = LoggerFactory.getLogger(AICreditService::class.java)
@@ -99,22 +98,23 @@ class AICreditService(
     @Transactional
     internal fun initializeOrGetCredits(userId: UUID): UserAICredits {
 
-        val userPlan = userSubscriptionRepository.findByUserId(userId)
-            ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
-        val planDefinition = PlanDefinitions.configFor(userPlan.plan.planCode)
-        val planCreditAllowance = planDefinition.limits.monthlyAiCredits
+        val existing = userAICreditsRepository.findById(userId).orElse(null)
+        if (existing != null) return existing
 
-        logger.info(
-            LogEvents.AI_CREDITS_INITIALIZED + " {} {}",
-            kv(LogFields.USER_ID, userId.toString()),
-            kv(LogFields.CREDITS, planCreditAllowance)
-        )
+        val allowance = PlanDefinitions.configFor(Plan.FREE).limits.monthlyAiCredits
 
-        return userAICreditsRepository.findById(userId).orElseGet {
-            userAICreditsRepository.save(
-                UserAICredits(userId, planCreditAllowance)
-            )
+        return try {
+            val created = userAICreditsRepository.save(UserAICredits(userId, allowance))
+            logger.info(LogEvents.AI_CREDITS_INITIALIZED + " {}", kv(LogFields.USER_ID, userId.toString()))
+            created
+        } catch (e: org.springframework.dao.DataIntegrityViolationException) {
+            userAICreditsRepository.findById(userId).orElseThrow()
         }
+    }
+
+    @Transactional
+    internal fun resetFreeCredits(userId: UUID) {
+
     }
 
 

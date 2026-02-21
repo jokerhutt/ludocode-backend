@@ -10,14 +10,17 @@ import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserCoinsPortForAuth
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStreakPortForAuth
-import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForAuth
+import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
 import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
+import com.ludocode.ludocodebackend.user.domain.event.UserRegisteredEvent
 import jakarta.servlet.http.HttpServletResponse
+import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -30,7 +33,8 @@ class AuthService(
     private val userStreakPortForAuth: UserStreakPortForAuth,
     private val demoConfig: DemoConfig,
     private val firebaseAuthPort: FirebaseAuthPort,
-    private val subscriptionPortForAuth: SubscriptionPortForAuth
+    private val applicationEventPublisher: ApplicationEventPublisher,
+    private val subscriptionService: SubscriptionService
 ) {
 
     private val logger = LoggerFactory.getLogger(AuthService::class.java)
@@ -76,12 +80,12 @@ class AuthService(
         return buildLoginResponse(request, response)
     }
 
-    private fun buildLoginResponse(
+    @Transactional
+     fun buildLoginResponse(
         request: FindOrCreateUserRequest,
         response: HttpServletResponse
     ): UserLoginResponse {
         val user = userPortForAuth.findOrCreate(request)
-        val subscription = subscriptionPortForAuth.getOrElseInitializeFreeSubscription(user.id)
 
         return withMdc(LogFields.USER_ID to user.id.toString(), LogFields.PROVIDER to request.provider.toString()) {
             logger.info(LogEvents.AUTH_LOGIN_SUCCESS)
@@ -89,7 +93,7 @@ class AuthService(
             val streak = userStreakPortForAuth.getStreak(user.id)
             val jwt = jwtService.createToken(user.id, role = request.role)
             authCookieService.setJwt(response, jwt)
-            UserLoginResponse(user, coins, streak, subscription)
+            UserLoginResponse(user, coins, streak)
         }
 
     }
