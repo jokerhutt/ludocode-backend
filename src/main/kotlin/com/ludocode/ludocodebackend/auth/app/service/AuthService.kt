@@ -86,7 +86,6 @@ class AuthService(
         response: HttpServletResponse
     ): UserLoginResponse {
         val user = userPortForAuth.findOrCreate(request)
-        subscriptionService.ensureSubscriptionExists(userId = user.id)
 
         return withMdc(LogFields.USER_ID to user.id.toString(), LogFields.PROVIDER to request.provider.toString()) {
             logger.info(LogEvents.AUTH_LOGIN_SUCCESS)

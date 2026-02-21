@@ -23,6 +23,7 @@ class StripeCheckoutClient(
         val params = SessionCreateParams.builder()
             .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
             .setCustomer(stripeCustomerId)
+            .setSubscriptionData()
             .setSuccessUrl("$frontendUrl/subscription/success?session_id={CHECKOUT_SESSION_ID}")
             .setCancelUrl("$frontendUrl/subscription/cancel")
             .addLineItem(
