@@ -20,7 +20,7 @@ object PlanDefinitions {
     private val SUPPORTER = PlanConfig(
         limits = PlanLimits(
             monthlyAiCredits = 100,
-            maxProjects = 10
+            maxProjects = 30
         ),
         features = setOf(
             Feature.AI_ASSISTANT,
@@ -28,6 +28,7 @@ object PlanDefinitions {
             Feature.PUBLISH_PROJECTS,
             Feature.CODE_EDITOR,
             Feature.SKILL_PATHS,
+            Feature.PRIORITY_SUPPORT
         ),
         recommended = true
     )
