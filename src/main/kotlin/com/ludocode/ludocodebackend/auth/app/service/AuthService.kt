@@ -19,7 +19,6 @@ import jakarta.servlet.http.HttpServletResponse
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import java.util.*
@@ -37,9 +36,6 @@ class AuthService(
 ) {
 
     private val logger = LoggerFactory.getLogger(AuthService::class.java)
-
-    @Autowired
-    lateinit var self: AuthService
 
     internal fun loginWithFirebase(response: HttpServletResponse, token: String): UserLoginResponse {
 
@@ -60,7 +56,7 @@ class AuthService(
                 avatarUrl = decoded.picture,
                 role = decoded.role
             )
-            self.buildLoginResponse(request, response)
+            buildLoginResponse(request, response)
         } catch (e: Exception) {
             logger.warn(LogEvents.AUTH_FIREBASE_FAILED, e)
             throw e
@@ -79,7 +75,7 @@ class AuthService(
             avatarUrl = null,
             role = null
         )
-        return self.buildLoginResponse(request, response)
+        return buildLoginResponse(request, response)
     }
 
     @Transactional
