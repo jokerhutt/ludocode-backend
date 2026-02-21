@@ -15,7 +15,10 @@ class MonthlyCreditResetScheduler(
 
     private val logger = LoggerFactory.getLogger(MonthlyCreditResetScheduler::class.java)
 
-    @Scheduled(cron = "0 0 0 1 * *", zone = "UTC")
+    @Scheduled(
+        cron = "\${app.jobs.monthly-credit-reset.cron}",
+        zone = "\${app.jobs.monthly-credit-reset.zone}"
+    )
     fun runMonthlyCreditReset() {
 
         val jobName = JobNames.MONTHLY_CREDIT_RESET
