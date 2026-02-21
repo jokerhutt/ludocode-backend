@@ -118,7 +118,7 @@ class SubscriptionService(
     }
 
     @Transactional
-    fun ensureSubscriptionExists(userId: UUID) {
+    fun createCustomerId(userId: UUID) {
 
         val user = userRepository.findById(userId)
             .orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
@@ -128,6 +128,8 @@ class SubscriptionService(
         if (userEmail == null) {
             throw ApiException(ErrorCode.EMAIL_NOT_FOUND)
         }
+
+        val isExistingCustomer = user.stripeCustomerId != null
 
         val customerId : String = user.stripeCustomerId ?: run {
             val newCustomer = stripeSubscriptionCommandPort.createCustomer(
@@ -139,27 +141,14 @@ class SubscriptionService(
             newCustomer
         }
 
-        logger.info(
-            LogEvents.STRIPE_CUSTOMER_CREATED + " {} {}",
-            kv(LogFields.USER_ID, userId.toString()),
-            kv(LogFields.STRIPE_CUSTOMER_ID, customerId)
-        )
+        if (!isExistingCustomer) {
+            logger.info(
+                LogEvents.STRIPE_CUSTOMER_CREATED + " {} {}",
+                kv(LogFields.USER_ID, userId.toString()),
+                kv(LogFields.STRIPE_CUSTOMER_ID, customerId)
+            )
+        }
 
-        val freePlan = subscriptionPlanRepository
-            .findByPlanCodeAndIsActiveTrue(Plan.FREE)
-            ?: throw ApiException(ErrorCode.PLAN_NOT_FOUND)
-
-        stripeSubscriptionCommandPort.createSubscription(
-            customerId = customerId,
-            priceId = freePlan.stripePriceId,
-            userId = userId
-        )
-
-        logger.info(
-            LogEvents.FREE_SUBSCRIPTION_CREATED + " {} {}",
-            kv(LogFields.USER_ID, userId.toString()),
-            kv(LogFields.PLAN_CODE, Plan.FREE.name)
-        )
 
     }
 

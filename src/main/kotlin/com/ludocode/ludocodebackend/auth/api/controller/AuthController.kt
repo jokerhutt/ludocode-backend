@@ -50,7 +50,7 @@ class AuthController(
         }
 
         val userLoginResponse = authService.loginWithFirebase(response, token)
-        subscriptionService.ensureSubscriptionExists(userId = userLoginResponse.user.id)
+        subscriptionService.createCustomerId(userId = userLoginResponse.user.id)
 
         return ResponseEntity.ok(userLoginResponse)
 
