@@ -26,6 +26,9 @@ object LogFields {
     const val OLD_USERNAME = "oldUsername"
     const val NEW_USERNAME = "newUsername"
 
+    const val JOB_NAME = "jobName"
+    const val DURATION_MS = "durationMs"
+
     const val OLD_AVATAR_INDEX = "oldAvatarIndex"
     const val NEW_AVATAR_INDEX = "newAvatarIndex"
     const val OLD_AVATAR_VERSION = "oldAvatarVersion"

@@ -43,6 +43,11 @@ object LogEvents {
     const val COURSE_SNAPSHOT_APPLY = "course_snapshot_applied"
     const val COURSE_SNAPSHOT_BUILT = "course_snapshot_built"
 
+    const val JOB_STARTED = "job_started"
+    const val JOB_UNKNOWN = "job_unknown"
+    const val JOB_COMPLETED = "job_completed"
+    const val JOB_FAILED = "job_failed"
+
     const val LESSON_EXERCISES_LOADED = "lesson_exercises_loaded"
     const val COURSE_TREE_LOADED = "course_tree_loaded"
 
