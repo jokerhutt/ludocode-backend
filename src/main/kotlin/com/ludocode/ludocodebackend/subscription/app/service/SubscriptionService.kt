@@ -47,6 +47,9 @@ class SubscriptionService(
         local.status = "CANCELLED"
         local.cancelAtPeriodEnd = false
         local.updatedAt = OffsetDateTime.now()
+
+        setAiCredits(local.userId, Plan.FREE)
+
     }
 
     @Transactional
