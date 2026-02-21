@@ -6,10 +6,9 @@ import java.util.*
 
 data class UserSubscriptionResponse(
     val userId: UUID,
-    val planId: UUID,
     val planCode: Plan,
     val monthlyCreditAllowance: Int,
     val maxProjects: Int,
     val cancelAtPeriodEnd: Boolean,
-    val currentPeriodEnd: OffsetDateTime,
+    val currentPeriodEnd: OffsetDateTime?,
 )

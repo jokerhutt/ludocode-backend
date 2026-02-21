@@ -7,6 +7,11 @@ import java.util.*
 
 interface UserSubscriptionRepository : JpaRepository<UserSubscription, UUID> {
 
+    fun findByUserIdAndStatusIn(
+        userId: UUID,
+        statuses: Collection<String>
+    ): UserSubscription?
+
     fun findByUserId(userId: UUID): UserSubscription?
 
     @Query(

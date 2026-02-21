@@ -27,48 +27,24 @@ class StripeWebhookAdapter(
             stripeProperties.webhookSecret
         )
 
+        val sub = event.dataObjectDeserializer
+            .getObject()
+            .orElse(null) as? Subscription
+            ?: return
+
+        val snapshot = stripeSubscriptionPort.retrieveSnapshot(sub.id)
+
         when (event.type) {
 
-            "invoice.paid" -> {
-                val invoice = event.dataObjectDeserializer
-                    .getObject()
-                    .orElse(null) as? Invoice
-                    ?: return
-
-                val subscriptionId = invoice.parent
-                    ?.subscriptionDetails
-                    ?.subscription
-                    ?: return
-
-                val snapshot = stripeSubscriptionPort.retrieveSnapshot(subscriptionId)
-
-                subscriptionService.handleInvoicePaid(
-                    snapshot
-                )
-            }
-
             "customer.subscription.deleted" -> {
-                val sub = event.dataObjectDeserializer
-                    .getObject()
-                    .orElse(null) as? Subscription
-                    ?: return
-
                 subscriptionService.handleSubscriptionDeleted(sub.id)
             }
 
+            "customer.subscription.created",
             "customer.subscription.updated" -> {
-
-                val sub = event.dataObjectDeserializer
-                    .getObject()
-                    .orElse(null) as? Subscription
-                    ?: return
-
-                val snapshot = stripeSubscriptionPort.retrieveSnapshot(sub.id)
-
-                subscriptionService.handleSubscriptionUpdated(
+                subscriptionService.upsertFromStripe(
                     snapshot = snapshot,
                     cancelAtPeriodEnd = sub.cancelAtPeriodEnd || sub.cancelAt != null,
-                    isActive = sub.status == "active"
                 )
             }
         }

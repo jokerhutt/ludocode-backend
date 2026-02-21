@@ -7,5 +7,6 @@ data class StripeSubscriptionSnapshot(
     val customerId: String,
     val subscriptionId: String,
     val periodStart: OffsetDateTime,
-    val periodEnd: OffsetDateTime
+    val periodEnd: OffsetDateTime,
+    val status: String
 )
