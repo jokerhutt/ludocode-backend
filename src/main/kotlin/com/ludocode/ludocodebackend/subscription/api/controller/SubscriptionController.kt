@@ -99,10 +99,16 @@ class SubscriptionController(
                 throw ApiException(ErrorCode.PLAN_NOT_FOUND)
             }
 
+        val stripeCustomerUser = userRepository.findById(userId)
+            .orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
+
+        val stripeCustomerId = stripeCustomerUser.stripeCustomerId ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
+
         val url = stripeCheckoutPort.createCheckoutSession(
             planPriceId = plan.stripePriceId,
             planId = plan.id,
-            userId = userId
+            userId = userId,
+            stripeCustomerId = stripeCustomerId
         )
 
         logger.info("Stripe checkout session created {}", kv("userId", userId), kv("checkoutUrl", url))

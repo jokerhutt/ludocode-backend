@@ -30,6 +30,7 @@ logging:
     com.ludocode.ludocodebackend.commons.configuration.CorsLoggingFilter: ${CORS_LOGGING_LEVEL:WARN}
 
 stripe:
+  enabled: ${STRIPE_ENABLED:false}
   secret-key: ${STRIPE_SECRET_KEY}
   webhook-secret: ${STRIPE_WEBHOOK_SECRET}
 
