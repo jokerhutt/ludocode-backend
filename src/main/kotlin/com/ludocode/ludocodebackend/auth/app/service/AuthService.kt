@@ -10,6 +10,7 @@ import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserCoinsPortForAuth
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStreakPortForAuth
+import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
@@ -32,7 +33,8 @@ class AuthService(
     private val userStreakPortForAuth: UserStreakPortForAuth,
     private val demoConfig: DemoConfig,
     private val firebaseAuthPort: FirebaseAuthPort,
-    private val applicationEventPublisher: ApplicationEventPublisher
+    private val applicationEventPublisher: ApplicationEventPublisher,
+    private val subscriptionService: SubscriptionService
 ) {
 
     private val logger = LoggerFactory.getLogger(AuthService::class.java)
@@ -84,9 +86,7 @@ class AuthService(
         response: HttpServletResponse
     ): UserLoginResponse {
         val user = userPortForAuth.findOrCreate(request)
-        applicationEventPublisher.publishEvent(
-            UserRegisteredEvent(user.id)
-        )
+        subscriptionService.ensureSubscriptionExists(userId = user.id)
 
         return withMdc(LogFields.USER_ID to user.id.toString(), LogFields.PROVIDER to request.provider.toString()) {
             logger.info(LogEvents.AUTH_LOGIN_SUCCESS)
