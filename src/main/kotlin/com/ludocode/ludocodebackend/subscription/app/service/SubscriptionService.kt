@@ -40,8 +40,9 @@ class SubscriptionService(
     @Transactional
     fun handleInvoicePaid(snapshot: StripeSubscriptionSnapshot) {
 
-        val existing = userSubscriptionRepository
-            .findByStripeSubscriptionId(snapshot.subscriptionId)
+        val userId = resolveUserFromCustomer(snapshot.customerId)
+
+        var subscription = userSubscriptionRepository.findByUserId(userId)
 
         val plan = subscriptionPlanRepository
             .findByStripePriceId(snapshot.priceId)
@@ -49,18 +50,11 @@ class SubscriptionService(
 
         val now = OffsetDateTime.now()
 
-        if (existing == null) {
+        if (subscription == null) {
+            logger.warn("No local subscription found during invoice.paid - creating fallback",
+                kv("userId", userId), kv("stripeSubId", snapshot.subscriptionId))
 
-            val userId = resolveUserFromCustomer(snapshot.customerId)
-
-            logger.info(
-                LogEvents.SUBSCRIPTION_INVOICE_PAID + " {} {} {}",
-                kv(LogFields.USER_ID, userId.toString()),
-                kv(LogFields.PLAN_CODE, plan.planCode.name),
-                kv(LogFields.STRIPE_SUB_ID, snapshot.subscriptionId)
-            )
-
-            val newSub = UserSubscription(
+            subscription = UserSubscription(
                 id = UUID.randomUUID(),
                 userId = userId,
                 plan = plan,
@@ -72,23 +66,24 @@ class SubscriptionService(
                 createdAt = now,
                 updatedAt = now
             )
-
-            userSubscriptionRepository.save(newSub)
-
         } else {
+            subscription.plan = plan
+            subscription.stripeSubscriptionId = snapshot.subscriptionId
+            subscription.status = "ACTIVE"
+            subscription.currentPeriodStart = snapshot.periodStart
+            subscription.currentPeriodEnd = snapshot.periodEnd
+            subscription.cancelAtPeriodEnd = false
+            subscription.updatedAt = now
 
-            existing.plan = plan
-            existing.status = "ACTIVE"
-            existing.currentPeriodStart = snapshot.periodStart
-            existing.currentPeriodEnd = snapshot.periodEnd
-            existing.cancelAtPeriodEnd = false
-            existing.updatedAt = now
+            logger.info("Updated subscription from invoice.paid",
+                kv("userId", userId),
+                kv("newPlan", plan.planCode.name),
+                kv("stripeSubId", snapshot.subscriptionId))
         }
 
-        setAiCredits(
-            resolveUserFromCustomer(snapshot.customerId),
-            plan.planCode
-        )
+        userSubscriptionRepository.save(subscription)
+
+        setAiCredits(userId, plan.planCode)
     }
 
     @Transactional
