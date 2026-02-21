@@ -122,7 +122,7 @@ class SubscriptionController(
     ): Map<String, String> {
 
         val subscription = userSubscriptionRepository
-            .findByUserId(userId)
+            .findByUserIdAndStatusIn(userId, listOf("active", "trialing"))
             ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
 
         if (subscription.stripeSubscriptionId == null) {
