@@ -155,6 +155,14 @@ class SubscriptionService(
         val subscription = userSubscriptionRepository.findByUserId(userId)
             ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
 
+        if (subscription == null) {
+            logger.debug(
+                LogEvents.SUBSCRIPTION_NOT_FOUND + " {}",
+                kv(LogFields.USER_ID, userId.toString())
+            )
+            return
+        }
+
         val stripeId = subscription.stripeSubscriptionId
             ?: throw ApiException(ErrorCode.STRIPE_SUBSCRIPTION_INVALID)
 

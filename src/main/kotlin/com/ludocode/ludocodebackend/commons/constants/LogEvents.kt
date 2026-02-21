@@ -10,6 +10,8 @@ object LogEvents {
     const val AI_STREAM_COMPLETED = "ai_stream_completed"
     const val AI_STREAM_FAILED = "ai_stream_failed"
 
+    const val SUBSCRIPTION_NOT_FOUND = "subscription_not_found"
+
 
     const val AUTH_FIREBASE_VERIFIED = "auth_firebase_verified"
     const val AUTH_FIREBASE_FAILED = "auth_firebase_failed"
