@@ -18,6 +18,8 @@ import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.playground.app.port.`in`.ProjectsPlanPort
+import com.ludocode.ludocodebackend.playground.app.service.ProjectPlanEnforcer
+import com.ludocode.ludocodebackend.subscription.configuration.PlanLimits
 import net.logstash.logback.argument.StructuredArguments.kv
 import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
@@ -34,7 +36,7 @@ class SubscriptionService(
     private val aiCreditPortForSubscription: AiCreditPortForSubscription,
     private val stripeSubscriptionCommandPort: StripeSubscriptionCommandPort,
     private val subscriptionPlanOverviewMapper: SubscriptionPlanOverviewMapper,
-    private val projectsPlanPort: ProjectsPlanPort,
+    private val projectPlanEnforcer: ProjectPlanEnforcer,
 
     ) : SubscriptionPortForUser {
     private val logger = LoggerFactory.getLogger(SubscriptionService::class.java)
@@ -57,8 +59,13 @@ class SubscriptionService(
             .limits
             .maxProjects
 
-        projectsPlanPort.enforcePlanLimit(local.userId, freeLimit)
+        projectPlanEnforcer.enforcePlanLimit(local.userId, freeLimit)
 
+    }
+
+    fun getUserLimits (userId: UUID) : PlanLimits {
+        val userSubscription = getUserSubscriptionResponse(userId)
+        return PlanDefinitions.configFor(userSubscription.planCode).limits
     }
 
     fun isFreeUser(userId: UUID) : Boolean {
@@ -160,7 +167,7 @@ class SubscriptionService(
                 .limits
                 .maxProjects
 
-            projectsPlanPort.enforcePlanLimit(user.id, maxProjects)
+            projectPlanEnforcer.enforcePlanLimit(user.id, maxProjects)
 
         }
 

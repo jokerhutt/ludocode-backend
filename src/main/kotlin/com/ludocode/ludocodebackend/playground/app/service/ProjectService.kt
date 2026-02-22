@@ -14,7 +14,6 @@ import com.ludocode.ludocodebackend.playground.api.dto.request.RenameRequest
 import com.ludocode.ludocodebackend.playground.api.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.playground.api.dto.response.ProjectSnapshotDiff
 import com.ludocode.ludocodebackend.playground.app.mapper.ProjectMapper
-import com.ludocode.ludocodebackend.playground.app.port.`in`.ProjectsPlanPort
 import com.ludocode.ludocodebackend.playground.app.port.`in`.ProjectsPortForAI
 import com.ludocode.ludocodebackend.playground.app.util.ProjectSnapshotDiffer
 import com.ludocode.ludocodebackend.playground.app.util.ProjectSnapshotValidator
@@ -46,7 +45,7 @@ class ProjectService(
     private val storagePortForServices: StoragePortForServices,
     private val codeLanguagesRepository: CodeLanguagesRepository,
     private val subscriptionService: SubscriptionService,
-) : ProjectsPortForAI, ProjectsPlanPort {
+) : ProjectsPortForAI {
 
     private val logger = LoggerFactory.getLogger(ProjectService::class.java)
 
@@ -57,34 +56,6 @@ class ProjectService(
 
         return totalProjects < projectLimit
 
-    }
-
-    @Transactional
-    override fun enforcePlanLimit(userId: UUID, maxProjects: Int) {
-        val projects = userProjectRepository.findAllByUserIdOrderByUpdatedAtDesc(userId)
-
-        if (projects.size <= maxProjects) {
-            projects.forEach {
-                if (it.deleteAt != null) {
-                    it.deleteAt = null
-                }
-            }
-            return
-        }
-
-        val deleteAt = OffsetDateTime.now(clock).plusWeeks(2)
-
-        projects.forEachIndexed { index, project ->
-            if (index < maxProjects) {
-                if (project.deleteAt != null) {
-                    project.deleteAt = null
-                }
-            } else {
-                if (project.deleteAt == null) {
-                    project.deleteAt = deleteAt
-                }
-            }
-        }
     }
 
     @Transactional
