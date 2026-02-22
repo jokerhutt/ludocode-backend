@@ -37,6 +37,7 @@ class ProjectMapper(private val basicMapper: BasicMapper, private val languagesM
         projectName: String,
         projectLanguage: CodeLanguages,
         updatedAt: OffsetDateTime?,
+        deleteAt: OffsetDateTime?,
         projectFiles: List<ProjectFile>,
         fileContentMap: Map<String, String>
     ): ProjectSnapshot {
@@ -45,6 +46,7 @@ class ProjectMapper(private val basicMapper: BasicMapper, private val languagesM
             projectName,
             languagesMapper.toLanguageMetadata(language = projectLanguage),
             updatedAt,
+            deleteAt = deleteAt,
             toProjectFileSnapshotList(projectFiles, fileContentMap)
         )
     }

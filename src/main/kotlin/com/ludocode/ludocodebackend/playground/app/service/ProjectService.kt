@@ -209,6 +209,7 @@ class ProjectService(
             val project = userProjectRepository.findById(projectId).orElseThrow()
             val lastUpdated = project.updatedAt
             val projectName = project.name
+            val deleteAt = project.deleteAt
             val projectLanguage = project.codeLanguage
             val projectFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
             val fileContentUrls = StorageGetRequest(projectFiles.map { it -> it.contentUrl })
@@ -225,6 +226,7 @@ class ProjectService(
                 projectName,
                 projectLanguage,
                 lastUpdated,
+                deleteAt,
                 projectFiles,
                 fileContentsMap.content
             )
