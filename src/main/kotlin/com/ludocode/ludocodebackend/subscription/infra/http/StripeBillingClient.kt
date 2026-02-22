@@ -1,13 +1,10 @@
 package com.ludocode.ludocodebackend.subscription.infra.http
-
 import com.ludocode.ludocodebackend.commons.configuration.AppProps
 import com.ludocode.ludocodebackend.subscription.app.port.out.StripeBillingPort
 import com.stripe.model.billingportal.Session
 import com.stripe.param.billingportal.SessionCreateParams
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
 
-@Component
 class StripeBillingClient(
     private val appProperties: AppProps
 ) : StripeBillingPort {

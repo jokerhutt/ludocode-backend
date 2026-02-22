@@ -17,6 +17,9 @@ storage:
   local:
     bucket-name: ${LOCAL_BUCKET_NAME:/data/local-bucket}
 
+stripe:
+  enabled: true
+
 spring:
   cache:
     type: none

@@ -19,6 +19,7 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.playground.app.service.ProjectPlanEnforcer
 import com.ludocode.ludocodebackend.subscription.configuration.PlanLimits
+import com.ludocode.ludocodebackend.subscription.configuration.StripeProperties
 import net.logstash.logback.argument.StructuredArguments.kv
 import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
@@ -36,6 +37,7 @@ class SubscriptionService(
     private val stripeSubscriptionCommandPort: StripeSubscriptionCommandPort,
     private val subscriptionPlanOverviewMapper: SubscriptionPlanOverviewMapper,
     private val projectPlanEnforcer: ProjectPlanEnforcer,
+    private val stripeProperties: StripeProperties
 
     ) : SubscriptionPortForUser {
     private val logger = LoggerFactory.getLogger(SubscriptionService::class.java)
@@ -74,6 +76,10 @@ class SubscriptionService(
     @Transactional
     fun createCustomerId(userId: UUID) {
 
+        if (!stripeProperties.enabled) {
+            return
+        }
+
         val user = userRepository.findById(userId)
             .orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
 
@@ -82,6 +88,7 @@ class SubscriptionService(
         if (userEmail == null) {
             throw ApiException(ErrorCode.EMAIL_NOT_FOUND)
         }
+
 
         val isExistingCustomer = user.stripeCustomerId != null
 
@@ -107,6 +114,8 @@ class SubscriptionService(
 
     @Transactional
     fun upsertFromStripe(snapshot: StripeSubscriptionSnapshot, cancelAtPeriodEnd: Boolean) {
+
+
 
         val user = userRepository
             .findByStripeCustomerId(snapshot.customerId)
@@ -191,6 +200,16 @@ class SubscriptionService(
     }
 
     fun getUserSubscriptionResponse(userId: UUID): UserSubscriptionResponse {
+
+        if (!stripeProperties.enabled) {
+            return userSubscriptionMapper.toUserSubscriptionResponse(
+                userId = userId,
+                planCode = Plan.DEV,
+                cancelAtPeriodEnd = false,
+                renewalDate = null
+            )
+        }
+
         val userPlan = userSubscriptionRepository.findByUserIdAndStatusIn(
             userId,
             listOf("active", "trialing")
