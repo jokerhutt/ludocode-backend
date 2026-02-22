@@ -176,12 +176,12 @@ class SubscriptionService(
 
         val planCode = userPlan?.plan?.planCode ?: Plan.FREE
         val cancelAtPeriodEnd = userPlan?.cancelAtPeriodEnd ?: false
-        val currentPeriodEnd = userPlan?.currentPeriodEnd ?: null
+        val renewalDate = userPlan?.currentPeriodEnd
         val res = userSubscriptionMapper.toUserSubscriptionResponse(
             userId = userId,
             planCode = planCode,
             cancelAtPeriodEnd = cancelAtPeriodEnd,
-            currentPeriodEnd = currentPeriodEnd,
+            renewalDate = renewalDate
             )
         return res
     }
