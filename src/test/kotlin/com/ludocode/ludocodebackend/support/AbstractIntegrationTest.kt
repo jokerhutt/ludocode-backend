@@ -63,7 +63,7 @@ import java.util.*
 @ActiveProfiles("test")
 @Import(
     TestSecurityConfig::class, TestClockConfig::class, GcpTestConfig::class, GeminiTestConfig::class,
-    FirebaseAuthTestConfig::class, TestCacheConfig::class
+    FirebaseAuthTestConfig::class, TestCacheConfig::class, StripeTestConfig::class
 )
 abstract class AbstractIntegrationTest {
 
@@ -365,7 +365,7 @@ abstract class AbstractIntegrationTest {
 
     protected fun initializeUsers() {
         user1 = userRepository.save(
-            User(displayName = "John Doe", createdAt = OffsetDateTime.now(clock), email = "email@google.com")
+            User(displayName = "John Doe", createdAt = OffsetDateTime.now(clock), email = "email@google.com", stripeCustomerId = "cus_1")
         )
         user2 = userRepository.save(
             User(displayName = "Micheal Scott", createdAt = OffsetDateTime.now(clock), email = "mscott@google.com")
@@ -376,7 +376,8 @@ abstract class AbstractIntegrationTest {
                 id = UUID.fromString("47ad6daf-2433-4e76-b9c1-305614c5c033"),
                 displayName = "Demo User",
                 email = "demoUser",
-                createdAt = OffsetDateTime.now(clock)
+                createdAt = OffsetDateTime.now(clock),
+                stripeCustomerId = "cus_test"
             )
         )
 

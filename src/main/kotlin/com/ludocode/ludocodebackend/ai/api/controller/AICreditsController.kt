@@ -16,7 +16,6 @@ import java.util.*
     name = "AI Credits",
     description = "Operations related to user AI credits"
 )
-@ConditionalOnProperty(prefix = "ai", name = ["enabled"], havingValue = "true")
 @RestController
 @RequestMapping(ApiPaths.CREDITS.BASE)
 class AICreditsController(private val aICreditService: AICreditService) {
