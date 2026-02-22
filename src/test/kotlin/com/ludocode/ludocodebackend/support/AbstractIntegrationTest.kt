@@ -63,7 +63,7 @@ import java.util.*
 @ActiveProfiles("test")
 @Import(
     TestSecurityConfig::class, TestClockConfig::class, GcpTestConfig::class, GeminiTestConfig::class,
-    FirebaseAuthTestConfig::class, TestCacheConfig::class
+    FirebaseAuthTestConfig::class, TestCacheConfig::class, StripeTestConfig::class
 )
 abstract class AbstractIntegrationTest {
 
@@ -376,7 +376,8 @@ abstract class AbstractIntegrationTest {
                 id = UUID.fromString("47ad6daf-2433-4e76-b9c1-305614c5c033"),
                 displayName = "Demo User",
                 email = "demoUser",
-                createdAt = OffsetDateTime.now(clock)
+                createdAt = OffsetDateTime.now(clock),
+                stripeCustomerId = "cus_test"
             )
         )
 

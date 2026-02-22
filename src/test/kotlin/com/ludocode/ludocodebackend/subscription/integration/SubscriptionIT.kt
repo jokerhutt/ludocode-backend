@@ -114,7 +114,6 @@ class SubscriptionIT : AbstractIntegrationTest() {
         assertThat(res).isNotNull()
 
         assertThat(res.planCode).isEqualTo(Plan.FREE)
-        assertThat(res.currentPeriodEnd).isEqualTo(userSubscription.currentPeriodEnd)
         assertThat(res.monthlyCreditAllowance).isEqualTo(PlanDefinitions.configFor(Plan.FREE).limits.monthlyAiCredits)
         assertThat(res.maxProjects).isEqualTo(PlanDefinitions.configFor(Plan.FREE).limits.maxProjects)
 

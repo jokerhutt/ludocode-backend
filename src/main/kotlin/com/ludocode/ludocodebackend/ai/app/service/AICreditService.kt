@@ -16,7 +16,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import java.util.*
 
-@ConditionalOnProperty(prefix = "ai", name = ["enabled"], havingValue = "true")
 @Service
 class AICreditService(
     private val userAICreditsRepository: UserAICreditsRepository,
