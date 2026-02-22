@@ -4,6 +4,7 @@ import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
+import java.time.OffsetDateTime
 import java.util.*
 
 interface UserProjectRepository : JpaRepository<UserProject, UUID> {
@@ -20,6 +21,18 @@ interface UserProjectRepository : JpaRepository<UserProject, UUID> {
         nativeQuery = true
     )
     fun findProjectIdsByUserId(@Param("userId") userId: UUID): List<UUID>
+
+    @Query(
+        """
+    SELECT p
+    FROM UserProject p
+    WHERE p.deleteAt IS NOT NULL
+      AND p.deleteAt <= :now
+    """
+    )
+    fun findAllReadyForDeletion(
+        @Param("now") now: OffsetDateTime
+    ): List<UserProject>
 
     fun findAllByUserIdOrderByUpdatedAtDesc(userId: UUID): List<UserProject>
 
