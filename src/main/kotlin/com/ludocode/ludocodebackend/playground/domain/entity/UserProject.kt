@@ -25,7 +25,7 @@ class UserProject(
     val requestHash: UUID,
 
     @Column(name = "delete_at")
-    val deleteAt: OffsetDateTime? = null,
+    var deleteAt: OffsetDateTime? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "code_language_id", nullable = false)

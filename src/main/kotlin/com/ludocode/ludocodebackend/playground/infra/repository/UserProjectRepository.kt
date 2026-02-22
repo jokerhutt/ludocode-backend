@@ -21,6 +21,8 @@ interface UserProjectRepository : JpaRepository<UserProject, UUID> {
     )
     fun findProjectIdsByUserId(@Param("userId") userId: UUID): List<UUID>
 
+    fun findAllByUserIdOrderByUpdatedAtDesc(userId: UUID): List<UserProject>
+
     fun countByUserId(userId: UUID): Long
 
 }

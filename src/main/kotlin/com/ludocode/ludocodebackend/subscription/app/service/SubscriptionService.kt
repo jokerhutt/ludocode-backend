@@ -17,6 +17,7 @@ import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscripti
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
+import com.ludocode.ludocodebackend.playground.app.port.`in`.ProjectsPlanPort
 import net.logstash.logback.argument.StructuredArguments.kv
 import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
@@ -33,6 +34,7 @@ class SubscriptionService(
     private val aiCreditPortForSubscription: AiCreditPortForSubscription,
     private val stripeSubscriptionCommandPort: StripeSubscriptionCommandPort,
     private val subscriptionPlanOverviewMapper: SubscriptionPlanOverviewMapper,
+    private val projectsPlanPort: ProjectsPlanPort,
 
     ) : SubscriptionPortForUser {
     private val logger = LoggerFactory.getLogger(SubscriptionService::class.java)
@@ -49,6 +51,13 @@ class SubscriptionService(
         local.updatedAt = OffsetDateTime.now()
 
         setAiCredits(local.userId, Plan.FREE)
+
+        val freeLimit = PlanDefinitions
+            .configFor(Plan.FREE)
+            .limits
+            .maxProjects
+
+        projectsPlanPort.enforcePlanLimit(local.userId, freeLimit)
 
     }
 
@@ -87,7 +96,6 @@ class SubscriptionService(
                 kv(LogFields.STRIPE_CUSTOMER_ID, customerId)
             )
         }
-
 
     }
 
@@ -146,6 +154,14 @@ class SubscriptionService(
             )
 
             setAiCredits(user.id, plan.planCode)
+
+            val maxProjects = PlanDefinitions
+                .configFor(plan.planCode)
+                .limits
+                .maxProjects
+
+            projectsPlanPort.enforcePlanLimit(user.id, maxProjects)
+
         }
 
     }
