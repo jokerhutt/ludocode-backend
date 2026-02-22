@@ -9,5 +9,6 @@ data class ProjectSnapshot(
     val projectName: String,
     val projectLanguage: LanguageMetadata,
     val updatedAt: OffsetDateTime?,
+    val deleteAt: OffsetDateTime?,
     val files: List<ProjectFileSnapshot>,
 )

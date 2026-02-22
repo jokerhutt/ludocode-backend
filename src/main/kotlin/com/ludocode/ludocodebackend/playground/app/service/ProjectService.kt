@@ -26,6 +26,7 @@ import com.ludocode.ludocodebackend.storage.app.dto.request.StorageGetRequest
 import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequest
 import com.ludocode.ludocodebackend.storage.app.dto.request.StoragePutRequestList
 import com.ludocode.ludocodebackend.storage.app.port.`in`.StoragePortForServices
+import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
@@ -43,16 +44,31 @@ class ProjectService(
     private val clock: Clock,
     private val storagePortForServices: StoragePortForServices,
     private val codeLanguagesRepository: CodeLanguagesRepository,
+    private val subscriptionService: SubscriptionService,
 ) : ProjectsPortForAI {
 
     private val logger = LoggerFactory.getLogger(ProjectService::class.java)
 
+    private fun isBelowPlanLimit(userId: UUID): Boolean {
+
+        val totalProjects = userProjectRepository.countByUserId(userId)
+        val projectLimit = subscriptionService.getUserSubscriptionResponse(userId).maxProjects
+
+        return totalProjects < projectLimit
+
+    }
+
     @Transactional
     internal fun createProject(request: CreateProjectRequest, userId: UUID): ProjectListResponse {
+
+        if (!isBelowPlanLimit(userId)) {
+            throw ApiException(ErrorCode.PROJECT_LIMIT_EXCEEDED)
+        }
 
         val projectName = request.projectName
         val requestHash = request.requestHash
         val languageId = request.projectLanguageId
+
 
         val codeLanguage = codeLanguagesRepository.findById(languageId)
             .orElseThrow { ApiException(ErrorCode.LANGUAGE_NOT_FOUND) }
@@ -164,6 +180,7 @@ class ProjectService(
             val project = userProjectRepository.findById(projectId).orElseThrow()
             val lastUpdated = project.updatedAt
             val projectName = project.name
+            val deleteAt = project.deleteAt
             val projectLanguage = project.codeLanguage
             val projectFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
             val fileContentUrls = StorageGetRequest(projectFiles.map { it -> it.contentUrl })
@@ -180,6 +197,7 @@ class ProjectService(
                 projectName,
                 projectLanguage,
                 lastUpdated,
+                deleteAt,
                 projectFiles,
                 fileContentsMap.content
             )

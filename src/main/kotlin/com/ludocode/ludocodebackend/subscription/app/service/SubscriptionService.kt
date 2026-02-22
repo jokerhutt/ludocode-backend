@@ -17,6 +17,8 @@ import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscripti
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
+import com.ludocode.ludocodebackend.playground.app.service.ProjectPlanEnforcer
+import com.ludocode.ludocodebackend.subscription.configuration.PlanLimits
 import net.logstash.logback.argument.StructuredArguments.kv
 import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
@@ -33,6 +35,7 @@ class SubscriptionService(
     private val aiCreditPortForSubscription: AiCreditPortForSubscription,
     private val stripeSubscriptionCommandPort: StripeSubscriptionCommandPort,
     private val subscriptionPlanOverviewMapper: SubscriptionPlanOverviewMapper,
+    private val projectPlanEnforcer: ProjectPlanEnforcer,
 
     ) : SubscriptionPortForUser {
     private val logger = LoggerFactory.getLogger(SubscriptionService::class.java)
@@ -50,6 +53,18 @@ class SubscriptionService(
 
         setAiCredits(local.userId, Plan.FREE)
 
+        val freeLimit = PlanDefinitions
+            .configFor(Plan.FREE)
+            .limits
+            .maxProjects
+
+        projectPlanEnforcer.enforcePlanLimit(local.userId, freeLimit)
+
+    }
+
+    fun getUserLimits (userId: UUID) : PlanLimits {
+        val userSubscription = getUserSubscriptionResponse(userId)
+        return PlanDefinitions.configFor(userSubscription.planCode).limits
     }
 
     fun isFreeUser(userId: UUID) : Boolean {
@@ -87,7 +102,6 @@ class SubscriptionService(
                 kv(LogFields.STRIPE_CUSTOMER_ID, customerId)
             )
         }
-
 
     }
 
@@ -146,6 +160,14 @@ class SubscriptionService(
             )
 
             setAiCredits(user.id, plan.planCode)
+
+            val maxProjects = PlanDefinitions
+                .configFor(plan.planCode)
+                .limits
+                .maxProjects
+
+            projectPlanEnforcer.enforcePlanLimit(user.id, maxProjects)
+
         }
 
     }

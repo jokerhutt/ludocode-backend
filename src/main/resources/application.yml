@@ -73,6 +73,10 @@ app:
     monthly-credit-reset:
       cron: ${MONTHLY_CREDIT_RESET_CRON:0 0 0 1 * *}
       zone: ${MONTHLY_CREDIT_RESET_ZONE:UTC}
+    project-cleanup:
+      cron: ${PROJECT_CLEANUP_CRON:0 */5 * * * *}
+      zone: ${PROJECT_CLEANUP_ZONE:UTC}
+
   frontend-url: ${FRONTEND_URL}
   gcs-host:
 

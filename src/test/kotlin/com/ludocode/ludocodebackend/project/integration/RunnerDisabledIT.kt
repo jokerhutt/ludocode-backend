@@ -30,7 +30,8 @@ class RunnerDisabledIT : AbstractIntegrationTest() {
             projectName = "I Wont run",
             updatedAt = OffsetDateTime.now(clock),
             projectLanguage = languageMetadata,
-            files = listOf()
+            files = listOf(),
+            deleteAt = null
         )
 
         given()

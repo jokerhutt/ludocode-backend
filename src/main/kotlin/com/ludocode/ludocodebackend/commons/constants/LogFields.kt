@@ -29,6 +29,10 @@ object LogFields {
     const val JOB_NAME = "jobName"
     const val DURATION_MS = "durationMs"
 
+    const val DELETE_AT = "deleteAt"
+    const val DELETED_COUNT = "deletedCount"
+    const val SCHEDULED_AT = "scheduledAt"
+
     const val OLD_AVATAR_INDEX = "oldAvatarIndex"
     const val NEW_AVATAR_INDEX = "newAvatarIndex"
     const val OLD_AVATAR_VERSION = "oldAvatarVersion"

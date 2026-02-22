@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="021-add-delete-at-to-user-project" author="david">
+        <addColumn tableName="user_project">
+            <column name="delete_at" type="timestamp with time zone">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+
+    <changeSet id="022-add-index-on-delete-at" author="david">
+        <sql>
+            CREATE INDEX idx_user_project_delete_at
+                ON user_project (delete_at)
+                WHERE delete_at IS NOT NULL;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

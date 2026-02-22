@@ -33,6 +33,10 @@ object LogEvents {
     const val LESSON_COMPLETION_DUPLICATE = "lesson_completion_duplicate"
     const val LESSON_COMPLETION_SUBMITTED = "lesson_completion_submitted"
 
+    const val PROJECT_CLEANUP_STARTED = "project_cleanup_started"
+    const val PROJECT_CLEANUP_COMPLETED = "project_cleanup_completed"
+    const val PROJECT_CLEANUP_FAILED = "project_cleanup_failed"
+
 
     const val COURSE_CREATED = "course_created"
 
