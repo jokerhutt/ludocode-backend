@@ -6,10 +6,10 @@ import com.stripe.model.checkout.Session
 import com.stripe.param.checkout.SessionCreateParams
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 import java.util.*
 
-@Component
 class StripeCheckoutClient(
     private val appProperties: AppProps
 ) : StripeCheckoutPort {
