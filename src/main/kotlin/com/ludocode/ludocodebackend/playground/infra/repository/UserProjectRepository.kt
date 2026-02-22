@@ -21,4 +21,6 @@ interface UserProjectRepository : JpaRepository<UserProject, UUID> {
     )
     fun findProjectIdsByUserId(@Param("userId") userId: UUID): List<UUID>
 
+    fun countByUserId(userId: UUID): Long
+
 }

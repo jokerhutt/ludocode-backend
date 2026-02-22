@@ -20,6 +20,8 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
 
     PAID_PLAN_WITHOUT_RENEWAL(HttpStatus.BAD_REQUEST, "Paid plan has no renewal date"),
 
+    PROJECT_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "Project limit exceeded for the given plan"),
+
     PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "Selected plan does not exist"),
     PLAN_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "Plan is not active"),
     LIMITS_NOT_FOUND(HttpStatus.NOT_FOUND, "Could not find limits for selected plan"),
