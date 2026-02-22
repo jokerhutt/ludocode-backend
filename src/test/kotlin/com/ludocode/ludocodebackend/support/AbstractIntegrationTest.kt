@@ -365,7 +365,7 @@ abstract class AbstractIntegrationTest {
 
     protected fun initializeUsers() {
         user1 = userRepository.save(
-            User(displayName = "John Doe", createdAt = OffsetDateTime.now(clock), email = "email@google.com")
+            User(displayName = "John Doe", createdAt = OffsetDateTime.now(clock), email = "email@google.com", stripeCustomerId = "cus_1")
         )
         user2 = userRepository.save(
             User(displayName = "Micheal Scott", createdAt = OffsetDateTime.now(clock), email = "mscott@google.com")

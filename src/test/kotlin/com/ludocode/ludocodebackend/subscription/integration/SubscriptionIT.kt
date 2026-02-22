@@ -35,7 +35,7 @@ class SubscriptionIT : AbstractIntegrationTest() {
             )
         )
 
-        val SUPPORTERPlan = subscriptionPlanRepository.save(
+        val supporterPlan = subscriptionPlanRepository.save(
             SubscriptionPlan(
                 id = UUID.randomUUID(),
                 planCode = Plan.SUPPORTER,
@@ -67,7 +67,7 @@ class SubscriptionIT : AbstractIntegrationTest() {
 
         assertThat(free.features).doesNotContain(Feature.SKILL_PATHS)
 
-        assertThat(SUPPORTER.price).isEqualByComparingTo(SUPPORTERPlan.displayPrice)
+        assertThat(SUPPORTER.price).isEqualByComparingTo(supporterPlan.displayPrice)
         assertThat(SUPPORTER.recommended).isTrue()
 
         assertThat(SUPPORTER.limits.monthlyAiCredits).isEqualTo(PlanDefinitions.configFor(Plan.SUPPORTER).limits.monthlyAiCredits)

@@ -30,7 +30,7 @@ class StripeTestConfig {
     fun stripeSubscriptionCommandPort(): StripeSubscriptionCommandPort =
         object : StripeSubscriptionCommandPort {
             override fun cancelSubscription(subscriptionId: String) {}
-            override fun createCustomer(email: String, name: String?) = "cus_test"
+            override fun createCustomer(email: String, name: String?) = "cus_new_test"
             override fun createSubscription(customerId: String, priceId: String, userId: UUID) = "sub_test"
         }
 }
