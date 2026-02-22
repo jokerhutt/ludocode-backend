@@ -14,8 +14,7 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class StripeClientConfig {
 
-    // ---- Checkout ----
-
+    // ===== Checkout =====
     @Bean
     @ConditionalOnProperty(prefix = "stripe", name = ["enabled"], havingValue = "true")
     fun stripeCheckoutClient(appProps: AppProps): StripeCheckoutPort =
@@ -32,8 +31,7 @@ class StripeClientConfig {
         NoOpStripeCheckoutClient()
 
 
-    // ---- Billing ----
-
+    // ===== Billing =====
     @Bean
     @ConditionalOnProperty(prefix = "stripe", name = ["enabled"], havingValue = "true")
     fun stripeBillingClient(appProps: AppProps): StripeBillingPort =

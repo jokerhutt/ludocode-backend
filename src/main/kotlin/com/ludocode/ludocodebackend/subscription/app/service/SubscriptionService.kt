@@ -24,6 +24,7 @@ import net.logstash.logback.argument.StructuredArguments.kv
 import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.time.Clock
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -37,9 +38,10 @@ class SubscriptionService(
     private val stripeSubscriptionCommandPort: StripeSubscriptionCommandPort,
     private val subscriptionPlanOverviewMapper: SubscriptionPlanOverviewMapper,
     private val projectPlanEnforcer: ProjectPlanEnforcer,
-    private val stripeProperties: StripeProperties
+    private val stripeProperties: StripeProperties,
+    private val clock: Clock
 
-    ) : SubscriptionPortForUser {
+) : SubscriptionPortForUser {
     private val logger = LoggerFactory.getLogger(SubscriptionService::class.java)
 
     @Transactional
@@ -206,7 +208,7 @@ class SubscriptionService(
                 userId = userId,
                 planCode = Plan.DEV,
                 cancelAtPeriodEnd = false,
-                renewalDate = null
+                renewalDate = OffsetDateTime.now(clock)
             )
         }
 
