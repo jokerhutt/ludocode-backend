@@ -14,4 +14,14 @@
         </addColumn>
     </changeSet>
 
+
+    <changeSet id="022-add-index-on-delete-at" author="david">
+        <createIndex
+                indexName="idx_user_project_delete_at"
+                tableName="user_project">
+            <column name="delete_at"/>
+            <where>delete_at IS NOT NULL</where>
+        </createIndex>
+    </changeSet>
+
 </databaseChangeLog>
