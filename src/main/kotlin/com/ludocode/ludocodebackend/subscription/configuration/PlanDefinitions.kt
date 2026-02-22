@@ -35,7 +35,7 @@ object PlanDefinitions {
 
     private val DEV = PlanConfig(
         limits = PlanLimits(
-            monthlyAiCredits = 1000,
+            monthlyAiCredits = 10000,
             maxProjects = 300
         ),
         features = setOf(
