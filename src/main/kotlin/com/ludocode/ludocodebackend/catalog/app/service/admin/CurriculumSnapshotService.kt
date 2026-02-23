@@ -223,8 +223,8 @@ class CurriculumSnapshotService(
     internal fun createCourse(request: CreateCourseRequest): List<CourseResponse> {
         val newCourseName = request.courseTitle
         val newCourseHash = request.requestHash
-        val newCourseSubject = request.courseSubject
         val newCourseType = request.courseType
+        val newCourseSubjectId = request.courseSubjectId
 
         val newCourseId = UUID.randomUUID()
         val newModuleId = UUID.randomUUID()
@@ -237,14 +237,8 @@ class CurriculumSnapshotService(
                     ?: throw ApiException(ErrorCode.LANGUAGE_NOT_FOUND)
             }
 
-        val subject =
-            subjectRepository.findBySlugAndName(newCourseSubject.slug, newCourseSubject.name)
-                ?: subjectRepository.save(
-                    Subject(
-                        slug = newCourseSubject.slug,
-                        name = newCourseSubject.name,
-                    )
-                )
+        val subject = subjectRepository.findById(newCourseSubjectId)
+            .orElseThrow { ApiException(ErrorCode.SUBJECT_NOT_FOUND) }
 
         val newCourse = Course(
             id = newCourseId,

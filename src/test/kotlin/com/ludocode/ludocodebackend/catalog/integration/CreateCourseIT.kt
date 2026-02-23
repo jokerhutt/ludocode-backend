@@ -1,6 +1,5 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
-import com.ludocode.ludocodebackend.catalog.api.dto.request.CourseSubjectRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
@@ -16,17 +15,10 @@ class CreateCourseIT : AbstractIntegrationTest() {
     @Test
     fun createCourse_createsCourse_returnsNewCourses() {
 
-        val newCourseName = "Lua"
+        val newCourseName = "Python New"
         val requestHash = UUID.randomUUID()
 
-        val subjectReq = CourseSubjectRequest(
-            slug = "lua",
-            name = "Lua",
-        )
-
-        val languageId = luaLanguage.id
-
-        val req = CreateCourseRequest(newCourseName, requestHash, CourseType.COURSE, subjectReq, languageId)
+        val req = CreateCourseRequest(newCourseName, requestHash, CourseType.COURSE, pythonSubject.id, pythonLanguage.id)
 
         val res = submitPostCreateCourse(req)
 
@@ -37,9 +29,9 @@ class CreateCourseIT : AbstractIntegrationTest() {
 
         assertThat(created).isNotNull()
         assertThat(created.title).isEqualTo(newCourseName)
-        assertThat(created.subject.slug).isEqualTo(subjectReq.slug)
+        assertThat(created.subject.slug).isEqualTo(pythonSubject.slug)
         assertThat(created.language).isNotNull()
-        assertThat(created.language!!.languageId).isEqualTo(languageId)
+        assertThat(created.language!!.languageId).isEqualTo(pythonLanguage.id)
     }
 
     private fun submitPostCreateCourse(req: CreateCourseRequest): List<CourseResponse> =
