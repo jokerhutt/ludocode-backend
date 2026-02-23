@@ -1,8 +1,11 @@
 package com.ludocode.ludocodebackend.catalog.app.service
 
 import com.ludocode.ludocodebackend.catalog.api.dto.request.SubjectRequest
+import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseSubjectResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.SubjectMetadata
 import com.ludocode.ludocodebackend.catalog.app.mapper.CourseMapper
+import com.ludocode.ludocodebackend.catalog.app.mapper.SubjectMapper
 import com.ludocode.ludocodebackend.catalog.domain.entity.Subject
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.SubjectRepository
@@ -11,17 +14,17 @@ import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.languages.app.LanguagePort
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import java.util.UUID
 
 @Service
 class SubjectService(
     private val subjectRepository: SubjectRepository,
-    private val languagePort: LanguagePort,
-    private val courseMapper: CourseMapper,
+    private val  subjectMapper: SubjectMapper,
     private val courseRepository: CourseRepository
 ) {
 
     @Transactional
-    fun createSubject(req: SubjectRequest): List<CourseSubjectResponse> {
+    fun createSubject(req: SubjectMetadata): List<SubjectMetadata> {
 
         if (subjectRepository.existsBySlug(req.slug)) {
             throw ApiException(ErrorCode.SLUG_EXISTS)
@@ -37,13 +40,13 @@ class SubjectService(
         return getAllSubjects()
     }
 
-    fun getAllSubjects(): List<CourseSubjectResponse> {
+    fun getAllSubjects(): List<SubjectMetadata> {
         val subjects = subjectRepository.findAll()
-        return courseMapper.toCourseSubjectResponseList(subjects)
+        return subjectMapper.toSubjectMetadataList(subjects)
     }
 
     @Transactional
-    fun deleteSubject(id: Long): List<CourseSubjectResponse> {
+    fun deleteSubject(id: Long): List<SubjectMetadata> {
         if (courseRepository.existsBySubjectId(id)) {
             throw ApiException(ErrorCode.SUBJECT_IN_USE)
         }
@@ -53,7 +56,7 @@ class SubjectService(
     }
 
     @Transactional
-    fun updateSubject(id: Long, req: SubjectRequest): List<CourseSubjectResponse> {
+    fun updateSubject(id: Long, req: SubjectMetadata): List<SubjectMetadata> {
 
         if (subjectRepository.existsBySlugAndIdNot(req.slug, id)) {
             throw ApiException(ErrorCode.SLUG_EXISTS, "This slug already exists on another language")

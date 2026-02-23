@@ -7,11 +7,6 @@ data class CreateCourseRequest(
     val courseTitle: String,
     val requestHash: UUID,
     val courseType: CourseType,
-    val courseSubject: CourseSubjectRequest,
+    val courseSubjectId: Long,
     val languageId: Long?
-)
-
-data class CourseSubjectRequest(
-    val slug: String,
-    val name: String,
 )

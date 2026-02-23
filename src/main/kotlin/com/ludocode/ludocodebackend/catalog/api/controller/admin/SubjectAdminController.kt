@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.catalog.api.controller.admin
 
 import com.ludocode.ludocodebackend.catalog.api.dto.request.SubjectRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseSubjectResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.SubjectMetadata
 import com.ludocode.ludocodebackend.catalog.app.service.SubjectService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import io.swagger.v3.oas.annotations.Operation
@@ -33,8 +34,8 @@ class SubjectAdminController(
     @SecurityRequirement(name = "sessionAuth")
     @PostMapping
     fun createSubject(
-        @RequestBody req: SubjectRequest
-    ): ResponseEntity<List<CourseSubjectResponse>> {
+        @RequestBody req: SubjectMetadata
+    ): ResponseEntity<List<SubjectMetadata>> {
         return ResponseEntity.ok(subjectService.createSubject(req))
     }
 
@@ -49,8 +50,8 @@ class SubjectAdminController(
     @PutMapping(ApiPaths.SUBJECTS.BY_SUBJECT)
     fun updateSubject(
         @PathVariable subjectId: Long,
-        @RequestBody req: SubjectRequest
-    ): ResponseEntity<List<CourseSubjectResponse>> {
+        @RequestBody req: SubjectMetadata
+    ): ResponseEntity<List<SubjectMetadata>> {
         return ResponseEntity.ok(subjectService.updateSubject(subjectId, req))
     }
 
@@ -65,7 +66,7 @@ class SubjectAdminController(
     @DeleteMapping(ApiPaths.SUBJECTS.BY_SUBJECT)
     fun deleteSubject(
         @PathVariable subjectId: Long
-    ): ResponseEntity<List<CourseSubjectResponse>> {
+    ): ResponseEntity<List<SubjectMetadata>> {
         return ResponseEntity.ok(subjectService.deleteSubject(subjectId))
     }
 
