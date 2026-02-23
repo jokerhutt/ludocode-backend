@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.catalog.integration
 import com.ludocode.ludocodebackend.catalog.api.dto.request.SubjectRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseSubjectResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.SubjectMetadata
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
@@ -11,6 +12,7 @@ import io.restassured.response.ValidatableResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.fail
+import java.util.UUID
 import kotlin.test.Test
 
 
@@ -27,7 +29,7 @@ class SubjectsIT : AbstractIntegrationTest() {
             pythonSubject, swiftSubject
         )
         val res = submitGetAllSubjects()
-        assertThat(res.map { it.subjectId })
+        assertThat(res.map { it.id })
             .containsExactlyInAnyOrderElementsOf(
                 existingSubjects.map { it.id }
             )
@@ -42,14 +44,15 @@ class SubjectsIT : AbstractIntegrationTest() {
 
         val subjectToChange = swiftSubject
 
-        val req = SubjectRequest(
+        val req = SubjectMetadata(
             name = "DSA",
             slug = "dsa",
+            id = 0
         )
 
         val res = submitPutSubject(subjectToChange.id, req)
 
-        val updated = res.firstOrNull { it.subjectId == subjectToChange.id }
+        val updated = res.firstOrNull { it.id == subjectToChange.id }
             ?: fail("Updated subject not found in response")
 
         assertThat(updated.name).isEqualTo(req.name)
@@ -74,9 +77,10 @@ class SubjectsIT : AbstractIntegrationTest() {
             pythonSubject, swiftSubject
         )
 
-        val req = SubjectRequest(
+        val req = SubjectMetadata(
             name = "Some new subject",
             slug = pythonSubject.slug,
+            id = 0
         )
 
         assertPostSubjecterror(req, ErrorCode.SLUG_EXISTS)
@@ -92,9 +96,10 @@ class SubjectsIT : AbstractIntegrationTest() {
 
         val subjectToChange = pythonSubject
 
-        val req = SubjectRequest(
+        val req = SubjectMetadata(
             name = subjectToChange.name,
             slug = swiftSubject.slug,
+            id = 0
         )
 
         assertPutSubjectError(subjectToChange.id, req, ErrorCode.SLUG_EXISTS)
@@ -104,9 +109,10 @@ class SubjectsIT : AbstractIntegrationTest() {
     fun createSubject_createsSubject_returnsUpdatedList() {
 
         val existingSubjects = listOf(pythonSubject, swiftSubject)
-        val newSubjectReq = SubjectRequest(
+        val newSubjectReq = SubjectMetadata(
             name = "DSA",
             slug = "dsa",
+            id = 0
         )
 
         val res = submitPostSubject(newSubjectReq)
@@ -118,7 +124,8 @@ class SubjectsIT : AbstractIntegrationTest() {
 
     @Test
     fun deleteSubject_deletesSubject_returnsListExcludingDeleted() {
-        val newSubjectReq = SubjectRequest(
+        val newSubjectReq = SubjectMetadata(
+            id = 0,
             name = "DSA",
             slug = "dsa",
         )
@@ -126,12 +133,12 @@ class SubjectsIT : AbstractIntegrationTest() {
         val existingSubjects = submitPostSubject(newSubjectReq)
 
         val subjectToDeleteId = existingSubjects.firstOrNull { it.slug == newSubjectReq.slug }
-            ?.subjectId
+            ?.id
             ?: fail("Created subject not found in response")
 
         val res = submitDeleteSubject(subjectToDeleteId)
         assertThat(res.size).isEqualTo(existingSubjects.size - 1)
-        assertThat(res.map { it.subjectId })
+        assertThat(res.map { it.id })
             .doesNotContain(subjectToDeleteId)
     }
 
@@ -149,18 +156,18 @@ class SubjectsIT : AbstractIntegrationTest() {
             Array<CourseResponse>::class.java
         )
 
-    private fun submitGetAllSubjects(): Array<CourseSubjectResponse> =
-        TestRestClient.getOk(ApiPaths.SUBJECTS.BASE, userId = user1.id, Array<CourseSubjectResponse>::class.java)
+    private fun submitGetAllSubjects(): Array<SubjectMetadata> =
+        TestRestClient.getOk(ApiPaths.SUBJECTS.BASE, userId = user1.id, Array<SubjectMetadata>::class.java)
 
     private fun assertPutSubjectError(
         subjectId: Long,
-        req: SubjectRequest,
+        req: SubjectMetadata,
         statusCode: ErrorCode
     ): ValidatableResponse? {
         return TestRestClient.assertError("PUT", ApiPaths.SUBJECTS.bySubjectAdmin(subjectId), user1.id, req, statusCode)
     }
 
-    private fun assertPostSubjecterror(req: SubjectRequest, statusCode: ErrorCode): ValidatableResponse? {
+    private fun assertPostSubjecterror(req: SubjectMetadata, statusCode: ErrorCode): ValidatableResponse? {
         return TestRestClient.assertError("POST", ApiPaths.SUBJECTS.ADMIN_BASE, user1.id, req, statusCode)
     }
 
@@ -174,22 +181,22 @@ class SubjectsIT : AbstractIntegrationTest() {
         )
     }
 
-    private fun submitPutSubject(subjectId: Long, req: SubjectRequest): Array<CourseSubjectResponse> =
+    private fun submitPutSubject(subjectId: Long, req: SubjectMetadata): Array<SubjectMetadata> =
         TestRestClient.putOk(
             ApiPaths.SUBJECTS.bySubjectAdmin(subjectId),
             user1.id,
             req,
-            Array<CourseSubjectResponse>::class.java
+            Array<SubjectMetadata>::class.java
         )
 
-    private fun submitPostSubject(req: SubjectRequest): Array<CourseSubjectResponse> =
-        TestRestClient.postOk(ApiPaths.SUBJECTS.ADMIN_BASE, user1.id, req, Array<CourseSubjectResponse>::class.java)
+    private fun submitPostSubject(req: SubjectMetadata): Array<SubjectMetadata> =
+        TestRestClient.postOk(ApiPaths.SUBJECTS.ADMIN_BASE, user1.id, req, Array<SubjectMetadata>::class.java)
 
-    private fun submitDeleteSubject(subjectId: Long): Array<CourseSubjectResponse> =
+    private fun submitDeleteSubject(subjectId: Long): Array<SubjectMetadata> =
         TestRestClient.deleteOk(
             ApiPaths.SUBJECTS.bySubjectAdmin(subjectId),
             user1.id,
-            Array<CourseSubjectResponse>::class.java
+            Array<SubjectMetadata>::class.java
         )
 
 }
