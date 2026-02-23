@@ -75,6 +75,14 @@ class CurriculumSnapshotService(
     fun applyCurriculumDiffs(courseId: UUID, snapshot: CurriculumDraftSnapshot): CurriculumDraftSnapshot {
         courseRepository.findById(courseId).orElseThrow()
 
+        if (snapshot.modules.isEmpty()) {
+            throw ApiException(ErrorCode.EMPTY_MODULES)
+        }
+
+        snapshot.modules.forEach {moduleSnap ->
+            if (moduleSnap.lessons.isEmpty()) throw ApiException(ErrorCode.EMPTY_LESSONS)
+        }
+
         val oldModuleIds = moduleRepository.findActiveIdsByCourse(courseId)
         oldModuleIds.forEach { moduleId ->
             moduleLessonsRepository.deleteByModuleLessonsIdModuleId(moduleId)

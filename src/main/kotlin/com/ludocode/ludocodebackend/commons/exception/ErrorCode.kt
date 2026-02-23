@@ -18,6 +18,10 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     LESSON_NOT_FOUND_FOR_EXERCISE(HttpStatus.NOT_FOUND, "Lesson not found for given exercise"),
     COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Course not found"),
 
+    EMPTY_MODULES(HttpStatus.BAD_REQUEST, "Modules can not be empty"),
+    EMPTY_LESSONS(HttpStatus.BAD_REQUEST, "Lessons can not be empty"),
+    EMPTY_EXERCISES(HttpStatus.BAD_REQUEST, "Exercises can not be empty"),
+
     PAID_PLAN_WITHOUT_RENEWAL(HttpStatus.BAD_REQUEST, "Paid plan has no renewal date"),
 
     PROJECT_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "Project limit exceeded for the given plan"),

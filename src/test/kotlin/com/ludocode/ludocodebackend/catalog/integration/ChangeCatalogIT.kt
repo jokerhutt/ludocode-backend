@@ -1,8 +1,10 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
+import com.ludocode.ludocodebackend.catalog.api.dto.request.SubjectRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
@@ -12,6 +14,7 @@ import com.ludocode.ludocodebackend.support.snapshot.TestSnapshotService
 import com.ludocode.ludocodebackend.support.util.CatalogChangeTestUtil
 import com.ludocode.ludocodebackend.support.util.CourseProgressTestUtil
 import com.ludocode.ludocodebackend.support.util.LessonSubmissionTestUtil
+import io.restassured.response.ValidatableResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
@@ -57,6 +60,44 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         assertThat(result)
             .usingRecursiveComparison()
             .isEqualTo(pythonCurriculum)
+    }
+
+    @Test
+    fun submitCurriculumChangeWithEmptyCourse_throwsError() {
+        val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
+        val pythonCurriculum = CatalogChangeTestUtil.toCurriculumDraft(pythonSnap)
+
+        pythonCurriculum.modules = pythonCurriculum.modules - pythonCurriculum.modules
+
+        assertPutCurriculumError(pythonCurriculum, pythonId, ErrorCode.EMPTY_MODULES)
+    }
+
+    @Test
+    fun submitCurriculumChangeWithEmptyModule_throwsError() {
+        val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
+        val pythonCurriculum = CatalogChangeTestUtil.toCurriculumDraft(pythonSnap)
+
+        pythonCurriculum.modules[0].lessons = pythonCurriculum.modules[0].lessons - pythonCurriculum.modules[0].lessons
+
+        assertPutCurriculumError(pythonCurriculum, pythonId, ErrorCode.EMPTY_LESSONS)
+    }
+
+    @Test
+    fun submitLessonCurriculumChangeWithEmptyLesson_throwsError() {
+        val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
+        val lessonToChange = pythonSnap.modules[0].lessons[0]
+
+        val lessonCurriculum = LessonCurriculumDraftSnapshot(
+            exercises = lessonToChange.exercises.toMutableList()
+        )
+
+        lessonCurriculum.exercises = lessonCurriculum.exercises - lessonCurriculum.exercises
+
+        assertPutExerciseCatalogError(
+            lessonCurriculum,
+            lessonToChange.id,
+            ErrorCode.EMPTY_EXERCISES
+        )
     }
 
     @Test
@@ -396,6 +437,14 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             ApiPaths.SNAPSHOTS.byCourseCurriculumAdmin(courseId), user1.id, req,
             CurriculumDraftSnapshot::class.java
         )
+
+    private fun assertPutCurriculumError(req: CurriculumDraftSnapshot, courseId: UUID, statusCode: ErrorCode): ValidatableResponse? {
+        return TestRestClient.assertError("PUT", ApiPaths.SNAPSHOTS.byCourseCurriculumAdmin(courseId), user1.id, req, statusCode)
+    }
+
+    private fun assertPutExerciseCatalogError(req: LessonCurriculumDraftSnapshot, lessonId: UUID, statusCode: ErrorCode): ValidatableResponse? {
+        return TestRestClient.assertError("PUT", ApiPaths.LESSONS.byAdminId(lessonId), user1.id, req, statusCode)
+    }
 
     private fun submitPostUpdateExerciseCatalog(
         lessonId: UUID,
