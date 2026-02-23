@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.api.controller.admin
 
+import com.ludocode.ludocodebackend.catalog.api.dto.request.ChangeLanguageRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.request.ChangeSubjectRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
@@ -38,6 +39,16 @@ class CatalogAdminController(
     ): ResponseEntity<List<CourseResponse>> {
         val subjectId = req.subjectId
         catalogService.updateCourseSubject(courseId, subjectId)
+        return ResponseEntity.ok(catalogService.getAllCourses())
+    }
+
+    @PutMapping(ApiPaths.SNAPSHOTS.COURSE_LANGUAGE)
+    fun changeLanguage(
+        @RequestBody req: ChangeLanguageRequest,
+        @PathVariable courseId: UUID
+    ): ResponseEntity<List<CourseResponse>> {
+        val languageId = req.languageId
+        catalogService.updateCourseSubject(courseId, languageId)
         return ResponseEntity.ok(catalogService.getAllCourses())
     }
 

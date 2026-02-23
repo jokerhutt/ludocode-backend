@@ -16,6 +16,7 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
 import com.ludocode.ludocodebackend.lesson.infra.repository.LessonRepository
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
@@ -35,6 +36,7 @@ class CatalogService(
     private val lessonRepository: LessonRepository,
     private val flatCourseTreeMapper: FlatCourseTreeMapper,
     private val subjectRepository: SubjectRepository,
+    private val codeLanguagesRepository: CodeLanguagesRepository,
 ) : CatalogPortForProgress {
 
     private val logger = LoggerFactory.getLogger(CatalogService::class.java)
@@ -90,6 +92,27 @@ class CatalogService(
         }
 
         currentCourse.subject = chosenSubject
+    }
+
+    @Caching(
+        evict = [
+            CacheEvict(cacheNames = [CacheNames.COURSE_TREE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.COURSE_FIRST_MODULE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.COURSE_LIST], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.LESSON_MODULE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.LESSON_EXERCISES], allEntries = true)
+        ]
+    )
+    @Transactional
+    fun updateCourseLanguage(courseId: UUID, languageId: Long) {
+        val currentCourse = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
+        val chosenLanguage = codeLanguagesRepository.findById(languageId).orElseThrow { ApiException(ErrorCode.SUBJECT_NOT_FOUND) }
+
+        if (currentCourse.language?.id == chosenLanguage.id) {
+            return
+        }
+
+        currentCourse.language = chosenLanguage
     }
 
 
