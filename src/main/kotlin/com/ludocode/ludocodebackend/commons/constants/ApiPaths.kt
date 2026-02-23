@@ -122,7 +122,7 @@ object ApiPaths {
 
     object SUBJECTS {
         const val BASE = "$API_PREFIX/subjects"
-        const val ADMIN_BASE = "$API_PREFIX$ADMIN_PREFIX$BASE"
+        const val ADMIN_BASE = "$API_PREFIX$ADMIN_PREFIX/subjects"
         const val BY_SUBJECT = "/{subjectId}"
         fun bySubject(subjectId: Long): String = "$BASE/$subjectId"
         fun bySubjectAdmin(subjectId: Long): String = "$ADMIN_BASE/$subjectId"
