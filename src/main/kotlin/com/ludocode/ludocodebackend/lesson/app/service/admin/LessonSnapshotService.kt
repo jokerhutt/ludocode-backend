@@ -3,6 +3,8 @@ package com.ludocode.ludocodebackend.lesson.app.service.admin
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForAI
 import com.ludocode.ludocodebackend.commons.constants.CacheNames
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.OptionSnap
@@ -45,6 +47,7 @@ class LessonSnapshotService(
     fun applyExerciseDiffs(lessonId: UUID, lessonDraft: LessonCurriculumDraftSnapshot): LessonCurriculumDraftSnapshot {
 
         val exercises = lessonDraft.exercises
+        if (exercises.isEmpty()) throw ApiException(ErrorCode.EMPTY_EXERCISES)
         lessonExercisesRepository.deleteAllByLessonExercisesIdLessonId(lessonId)
 
         exercises.forEachIndexed { exerciseIndex, exercise ->
