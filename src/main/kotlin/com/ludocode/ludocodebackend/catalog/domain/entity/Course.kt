@@ -23,7 +23,7 @@ class Course(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subject_id", nullable = false)
-    val subject: Subject,
+    var subject: Subject,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "code_language_id", nullable = true)
