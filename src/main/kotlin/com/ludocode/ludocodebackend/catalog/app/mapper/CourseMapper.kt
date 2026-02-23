@@ -37,9 +37,4 @@ class CourseMapper(private val basicMapper: BasicMapper, private val languagesMa
         )
     }
 
-    fun toCourseSubjectResponseList(courseSubjects: List<Subject>): List<CourseSubjectResponse> {
-        return basicMapper.list(courseSubjects) { subject -> toCourseSubjectResponse(subject) }
-    }
-
-
 }

@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.catalog.api.controller
 
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseSubjectResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.SubjectMetadata
 import com.ludocode.ludocodebackend.catalog.app.service.SubjectService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import io.swagger.v3.oas.annotations.Operation
@@ -30,7 +31,7 @@ class SubjectController(
         """
     )
     @GetMapping
-    fun getSubjects(): ResponseEntity<List<CourseSubjectResponse>> {
+    fun getSubjects(): ResponseEntity<List<SubjectMetadata>> {
         return ResponseEntity.ok(subjectService.getAllSubjects())
     }
 
