@@ -219,6 +219,15 @@ class CurriculumSnapshotService(
 
     }
 
+    @Caching(
+        evict = [
+            CacheEvict(cacheNames = [CacheNames.COURSE_TREE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.COURSE_FIRST_MODULE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.COURSE_LIST], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.LESSON_MODULE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.LESSON_EXERCISES], allEntries = true)
+        ]
+    )
     @Transactional
     internal fun createCourse(request: CreateCourseRequest): List<CourseResponse> {
         val newCourseName = request.courseTitle
