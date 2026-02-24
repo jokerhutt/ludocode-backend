@@ -21,6 +21,9 @@ class Course(
     @Column(name = "course_type", nullable = false, unique = false)
     val courseType: CourseType,
 
+    @Column(name = "description")
+    val description: String,
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subject_id", nullable = false)
     var subject: Subject,

@@ -6,8 +6,8 @@ import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
 import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
-import com.ludocode.ludocodebackend.user.domain.entity.UserPreferences
-import com.ludocode.ludocodebackend.user.domain.enums.DesiredPath
+import com.ludocode.ludocodebackend.preferences.domain.entity.UserPreferences
+import com.ludocode.ludocodebackend.preferences.domain.enums.DesiredPath
 import org.assertj.core.api.Assertions.assertThat
 import java.util.*
 import kotlin.test.Test

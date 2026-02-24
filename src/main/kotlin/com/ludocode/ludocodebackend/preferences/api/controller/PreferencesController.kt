@@ -5,7 +5,7 @@ import com.ludocode.ludocodebackend.preferences.api.dto.TogglePreferencesRequest
 import com.ludocode.ludocodebackend.preferences.app.service.PreferencesService
 import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
 import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
-import com.ludocode.ludocodebackend.user.domain.entity.UserPreferences
+import com.ludocode.ludocodebackend.preferences.domain.entity.UserPreferences
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag

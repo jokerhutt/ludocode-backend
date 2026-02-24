@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.preferences.api.infra.repository
 
-import com.ludocode.ludocodebackend.user.domain.entity.UserPreferences
+import com.ludocode.ludocodebackend.preferences.domain.entity.UserPreferences
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 

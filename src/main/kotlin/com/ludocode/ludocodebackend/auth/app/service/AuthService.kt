@@ -15,7 +15,6 @@ import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
 import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
-import com.ludocode.ludocodebackend.user.domain.event.UserRegisteredEvent
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
