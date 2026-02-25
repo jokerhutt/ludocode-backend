@@ -186,7 +186,7 @@
     </changeSet>
 
     <!-- ===================== PREFS ===================== -->
-    <changeSet id="005-11-01--user-preferences" author="dave" context="dev" dbms="postgresql">
+    <changeSet id="005-11-01-career-preferences" author="dave" context="dev" dbms="postgresql">
         <sql>
             INSERT INTO career_preferences (id, choice, title, description, course_id)
             VALUES (
@@ -196,7 +196,7 @@
                         'Explore data science and artificial intelligence',
                         '75975805-3f02-43c2-9106-c990d944dfd2'
                    )
-            ON CONFLICT (user_id) DO NOTHING;
+            ON CONFLICT (choice) DO NOTHING;
         </sql>
     </changeSet>
 
@@ -210,7 +210,7 @@
                        'd5a7e3b9-8c41-4f2d-b6a9-3e1c7f92a4d6',
                         '75975805-3f02-43c2-9106-c990d944dfd2'
                    )
-            ON CONFLICT (choice) DO NOTHING;
+            ON CONFLICT (user_id) DO NOTHING;
         </sql>
     </changeSet>
 
