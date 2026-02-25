@@ -67,7 +67,7 @@
                 baseTableName="user_preferences"
                 baseColumnNames="chosen_path_id"
                 constraintName="fk_user_preferences_career"
-                referencedTableName="career_prefences"
+                referencedTableName="career_preferences"
                 referencedColumnNames="id"
                 onDelete="RESTRICT"/>
 
