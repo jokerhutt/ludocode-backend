@@ -40,6 +40,15 @@ class PreferencesController(private val preferencesService: PreferencesService) 
         return ResponseEntity.ok(preferencesService.createPreferences(req, userId))
     }
 
+
+    @Operation(
+        summary = "Get all available careers",
+        description = """
+        Returns a list of all available career preferences.
+        Includes basic career metadata such as ID and title. 
+        """
+    )
+    @SecurityRequirement(name = "sessionAuth")
     @GetMapping(ApiPaths.PREFERENCES.CAREERS)
     fun getCareerChoices() : ResponseEntity<List<CareerResponse>> {
         return ResponseEntity.ok(preferencesService.getCareerPreferences())

@@ -71,7 +71,7 @@ class PreferencesService(
     fun getCareerPreferences(): List<CareerResponse> {
         return careerPreferencesRepository.findAll().map {
             CareerResponse(
-                id = it.id!!,
+                id = it.id,
                 title = it.title,
                 description = it.description,
                 defaultCourseId = it.courseId,
