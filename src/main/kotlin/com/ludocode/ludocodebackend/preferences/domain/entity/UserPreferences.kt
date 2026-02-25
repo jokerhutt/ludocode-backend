@@ -20,7 +20,7 @@ class UserPreferences(
     @Column(name = "has_experience")
     val hasExperience: Boolean,
 
-    @Column(name = "chosen_path")
+    @Column(name = "chosen_path_id")
     val chosenPathId: UUID,
 
     @Column(name = "audio_enabled")

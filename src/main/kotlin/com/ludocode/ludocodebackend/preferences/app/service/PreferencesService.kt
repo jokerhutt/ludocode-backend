@@ -5,11 +5,8 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
-import com.ludocode.ludocodebackend.preferences.api.dto.CareerOption
-import com.ludocode.ludocodebackend.preferences.api.dto.CourseOption
-import com.ludocode.ludocodebackend.preferences.api.dto.ExperienceOption
-import com.ludocode.ludocodebackend.preferences.api.dto.OnboardingDraftResponse
-import com.ludocode.ludocodebackend.preferences.api.dto.OnboardingFormResponse
+import com.ludocode.ludocodebackend.preferences.api.dto.CareerResponse
+
 import com.ludocode.ludocodebackend.preferences.api.dto.TogglePreferencesRequest
 import com.ludocode.ludocodebackend.preferences.api.infra.repository.CareerPreferencesRepository
 import com.ludocode.ludocodebackend.preferences.api.infra.repository.UserPreferencesRepository
@@ -19,6 +16,7 @@ import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForOnboarding
 import com.ludocode.ludocodebackend.preferences.domain.entity.UserPreferences
+import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
@@ -32,7 +30,8 @@ class PreferencesService(
     private val courseProgressPortForUser: CourseProgressPortForUser,
     private val userPortForAuth: UserPortForAuth,
     private val careerPreferencesRepository: CareerPreferencesRepository,
-    private val courseRepository: CourseRepository
+    private val courseRepository: CourseRepository,
+    private val userRepository: UserRepository
 ) {
 
     private val logger = LoggerFactory.getLogger(PreferencesService::class.java)
@@ -69,32 +68,15 @@ class PreferencesService(
         )
     }
 
-    fun getOnboardingForm(): OnboardingFormResponse {
-        val careers = careerPreferencesRepository.findAll().map {
-            CareerOption(
+    fun getCareerPreferences(): List<CareerResponse> {
+        return careerPreferencesRepository.findAll().map {
+            CareerResponse(
                 id = it.id!!,
                 title = it.title,
                 description = it.description,
                 defaultCourseId = it.courseId
             )
         }
-
-        val courses = courseRepository.findAll().map {
-            CourseOption(
-                courseId = it.id,
-                title = it.title,
-                description = it.description
-            )
-        }
-
-        return OnboardingFormResponse(
-            courses = courses,
-            careers = careers,
-            experienceOptions = listOf(
-                ExperienceOption(false, "No, I've never programmed before"),
-                ExperienceOption(true, "Yes, I have programmed before")
-            )
-        )
     }
 
     @Transactional

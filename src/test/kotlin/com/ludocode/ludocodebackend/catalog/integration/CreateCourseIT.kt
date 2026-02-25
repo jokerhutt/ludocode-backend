@@ -18,7 +18,7 @@ class CreateCourseIT : AbstractIntegrationTest() {
         val newCourseName = "Python New"
         val requestHash = UUID.randomUUID()
 
-        val req = CreateCourseRequest(newCourseName, requestHash, CourseType.COURSE, pythonSubject.id, pythonLanguage.id)
+        val req = CreateCourseRequest(newCourseName, requestHash, "New python course that is awesome", CourseType.COURSE, pythonSubject.id, pythonLanguage.id)
 
         val res = submitPostCreateCourse(req)
 

@@ -19,7 +19,7 @@ class OnboardingIT : AbstractIntegrationTest() {
 
         user1
         val submission = OnboardingSubmission(
-            chosenPath = DesiredPath.DATA,
+            chosenPath = "DATA",
             chosenCourse = pythonId,
             hasProgrammingExperience = false,
             selectedUsername = "John Doe"
@@ -34,7 +34,7 @@ class OnboardingIT : AbstractIntegrationTest() {
         assertThat(res.courseProgressResponse.courseProgress.moduleId).isEqualTo(pyMod1Id)
         assertThat(res.refreshedUser.displayName).isEqualTo(submission.selectedUsername)
 
-        assertThat(res.preferences.chosenPath).isEqualTo(DesiredPath.DATA)
+        assertThat(res.preferences.chosenPathId).isEqualTo(dataPath.id)
 
     }
 
@@ -90,7 +90,7 @@ class OnboardingIT : AbstractIntegrationTest() {
 
     private fun initializePreferences(userId: UUID) {
         val submission = OnboardingSubmission(
-            chosenPath = DesiredPath.DATA,
+            chosenPath = "DATA",
             chosenCourse = pythonId,
             hasProgrammingExperience = false,
             selectedUsername = "John Doe"

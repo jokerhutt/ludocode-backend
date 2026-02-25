@@ -9,7 +9,8 @@ data class CourseResponse(
     val title: String,
     val courseType: CourseType,
     val subject: CourseSubjectResponse,
-    val language: LanguageMetadata?
+    val language: LanguageMetadata?,
+    val description: String
 )
 
 data class CourseSubjectResponse(

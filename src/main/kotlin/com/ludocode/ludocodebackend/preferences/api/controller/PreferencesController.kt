@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.preferences.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.preferences.api.dto.CareerResponse
 import com.ludocode.ludocodebackend.preferences.api.dto.TogglePreferencesRequest
 import com.ludocode.ludocodebackend.preferences.app.service.PreferencesService
 import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
@@ -37,6 +38,11 @@ class PreferencesController(private val preferencesService: PreferencesService) 
         @AuthenticationPrincipal(expression = "userId") userId: UUID
     ): ResponseEntity<OnboardingResponse> {
         return ResponseEntity.ok(preferencesService.createPreferences(req, userId))
+    }
+
+    @GetMapping(ApiPaths.PREFERENCES.CAREERS)
+    fun getCareerChoices() : ResponseEntity<List<CareerResponse>> {
+        return ResponseEntity.ok(preferencesService.getCareerPreferences())
     }
 
     @Operation(
