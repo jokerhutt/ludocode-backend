@@ -244,6 +244,7 @@ abstract class AbstractIntegrationTest {
         initializeLanguages()
         initializeSubjects()
         initializeCatalog()
+        initializeCareerPaths()
         initializeUsers()
 
     }
