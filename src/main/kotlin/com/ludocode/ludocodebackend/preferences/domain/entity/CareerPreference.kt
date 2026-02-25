@@ -6,7 +6,7 @@ import jakarta.persistence.Table
 import java.util.UUID
 
 @Entity
-@Table(name = "career_prefences")
+@Table(name = "career_preferences")
 class CareerPreference (
 
     @Id
