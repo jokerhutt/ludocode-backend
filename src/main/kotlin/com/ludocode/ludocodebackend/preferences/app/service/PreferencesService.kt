@@ -74,7 +74,8 @@ class PreferencesService(
                 id = it.id!!,
                 title = it.title,
                 description = it.description,
-                defaultCourseId = it.courseId
+                defaultCourseId = it.courseId,
+                choice = it.choice
             )
         }
     }
