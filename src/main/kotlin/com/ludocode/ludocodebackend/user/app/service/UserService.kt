@@ -82,12 +82,14 @@ class UserService(
             return getById(existingUser.userId)
         }
 
+        val displayName = req.displayName ?: null
+
         val assignedAvatar = assignAvatar()
 
         var newUser = userRepository.save(
             User(
                 email = req.email ?: "",
-                displayName = req.displayName,
+                displayName = displayName,
                 avatarIndex = assignedAvatar.index,
                 avatarVersion = assignedAvatar.version,
                 createdAt = OffsetDateTime.now(clock)
