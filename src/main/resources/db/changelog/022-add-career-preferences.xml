@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+        <changeSet id="022-001-create-career-preferences-table" author="david">
+
+            <createTable tableName="career_preferences">
+                <column name="id" type="UUID">
+                    <constraints primaryKey="true" nullable="false"/>
+                </column>
+
+                <column name="choice" type="VARCHAR(50)">
+                    <constraints nullable="false" unique="true"/>
+                </column>
+
+                <column name="title" type="VARCHAR(255)">
+                    <constraints nullable="false"/>
+                </column>
+
+                <column name="description" type="TEXT">
+                    <constraints nullable="false"/>
+                </column>
+
+                <column name="course_id" type="UUID">
+                    <constraints nullable="false"/>
+                </column>
+            </createTable>
+
+            <addForeignKeyConstraint
+                    baseTableName="career_preferences"
+                    baseColumnNames="course_id"
+                    constraintName="fk_career_preferences_course"
+                    referencedTableName="course"
+                    referencedColumnNames="id"
+                    onDelete="CASCADE"/>
+
+        </changeSet>
+
+    <changeSet id="022-002-add-description-to-course" author="david">
+
+        <addColumn tableName="course">
+            <column name="description" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+    </changeSet>
+
+
+    <changeSet id="022-003-replace-chosen-path-with-fk" author="david">
+
+        <dropColumn
+                tableName="user_preferences"
+                columnName="chosen_path"/>
+
+        <addColumn tableName="user_preferences">
+            <column name="chosen_path_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addForeignKeyConstraint
+                baseTableName="user_preferences"
+                baseColumnNames="chosen_path_id"
+                constraintName="fk_user_preferences_career"
+                referencedTableName="career_prefences"
+                referencedColumnNames="id"
+                onDelete="RESTRICT"/>
+
+    </changeSet>
+
+    <changeSet id="022-004-add-chosen-path-id" author="david">
+
+        <addColumn tableName="user_preferences">
+            <column name="chosen_course_id" type="UUID"/>
+        </addColumn>
+
+        <!-- FK: chosen_course_id → course(id) -->
+        <addForeignKeyConstraint
+                baseTableName="user_preferences"
+                baseColumnNames="chosen_course_id"
+                referencedTableName="course"
+                referencedColumnNames="id"
+                constraintName="fk_user_pref_chosen_course"
+                onDelete="SET NULL"/>
+
+    </changeSet>
+
+</databaseChangeLog>

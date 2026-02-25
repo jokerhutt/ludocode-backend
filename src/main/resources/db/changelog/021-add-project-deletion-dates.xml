@@ -6,7 +6,7 @@
           http://www.liquibase.org/xml/ns/dbchangelog
           http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
 
-    <changeSet id="021-add-delete-at-to-user-project" author="david">
+    <changeSet id="021-001-add-delete-at-to-user-project" author="david">
         <addColumn tableName="user_project">
             <column name="delete_at" type="timestamp with time zone">
                 <constraints nullable="true"/>
@@ -15,7 +15,7 @@
     </changeSet>
 
 
-    <changeSet id="022-add-index-on-delete-at" author="david">
+    <changeSet id="021-002-add-index-on-delete-at" author="david">
         <sql>
             CREATE INDEX idx_user_project_delete_at
                 ON user_project (delete_at)
