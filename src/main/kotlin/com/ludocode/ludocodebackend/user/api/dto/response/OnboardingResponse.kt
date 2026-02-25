@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.user.api.dto.response
 
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
-import com.ludocode.ludocodebackend.user.domain.entity.UserPreferences
+import com.ludocode.ludocodebackend.preferences.domain.entity.UserPreferences
 
 data class OnboardingResponse(
     val refreshedUser: UserResponse,

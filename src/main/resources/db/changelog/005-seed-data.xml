@@ -58,10 +58,11 @@
     <!-- ===================== COURSE STRUCTURE ===================== -->
     <changeSet id="005-03-course" author="dave" context="dev" dbms="postgresql">
         <sql>
-            INSERT INTO course (id, title, img_src, request_hash, course_type, subject_id, code_language_id)
+            INSERT INTO course (id, title, description, img_src, request_hash, course_type, subject_id, code_language_id)
             SELECT
                 '75975805-3f02-43c2-9106-c990d944dfd2',
                 'Python',
+                'Simple and Versatile language',
                 NULL,
                 '6873b087-9f85-4f1d-8bc9-04a84e704a29',
                 'COURSE',
@@ -184,14 +185,30 @@
         </sql>
     </changeSet>
 
-    <!-- ===================== USER PROGRESS / PREFS ===================== -->
-    <changeSet id="005-11-user-preferences" author="dave" context="dev" dbms="postgresql">
+    <!-- ===================== PREFS ===================== -->
+    <changeSet id="005-11-01-career-preferences" author="dave" context="dev" dbms="postgresql">
         <sql>
-            INSERT INTO user_preferences (user_id, has_experience, chosen_path)
+            INSERT INTO career_preferences (id, choice, title, description, course_id)
+            VALUES (
+                       'd5a7e3b9-8c41-4f2d-b6a9-3e1c7f92a4d6',
+                       'DATA',
+                        'Data Science',
+                        'Explore data science and artificial intelligence',
+                        '75975805-3f02-43c2-9106-c990d944dfd2'
+                   )
+            ON CONFLICT (choice) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <!-- ===================== USER PROGRESS / PREFS ===================== -->
+    <changeSet id="005-11-02-user-preferences" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO user_preferences (user_id, has_experience, chosen_path_id, chosen_course_id)
             VALUES (
                        '598ccbea-4957-4569-81cb-ea901b62c329',
                        false,
-                       'DATA'
+                       'd5a7e3b9-8c41-4f2d-b6a9-3e1c7f92a4d6',
+                        '75975805-3f02-43c2-9106-c990d944dfd2'
                    )
             ON CONFLICT (user_id) DO NOTHING;
         </sql>

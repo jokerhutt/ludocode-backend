@@ -1,11 +1,12 @@
 package com.ludocode.ludocodebackend.preferences.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.preferences.api.dto.CareerResponse
 import com.ludocode.ludocodebackend.preferences.api.dto.TogglePreferencesRequest
 import com.ludocode.ludocodebackend.preferences.app.service.PreferencesService
 import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
 import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
-import com.ludocode.ludocodebackend.user.domain.entity.UserPreferences
+import com.ludocode.ludocodebackend.preferences.domain.entity.UserPreferences
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -37,6 +38,20 @@ class PreferencesController(private val preferencesService: PreferencesService) 
         @AuthenticationPrincipal(expression = "userId") userId: UUID
     ): ResponseEntity<OnboardingResponse> {
         return ResponseEntity.ok(preferencesService.createPreferences(req, userId))
+    }
+
+
+    @Operation(
+        summary = "Get all available careers",
+        description = """
+        Returns a list of all available career preferences.
+        Includes basic career metadata such as ID and title. 
+        """
+    )
+    @SecurityRequirement(name = "sessionAuth")
+    @GetMapping(ApiPaths.PREFERENCES.CAREERS)
+    fun getCareerChoices() : ResponseEntity<List<CareerResponse>> {
+        return ResponseEntity.ok(preferencesService.getCareerPreferences())
     }
 
     @Operation(

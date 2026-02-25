@@ -242,6 +242,7 @@ class CurriculumSnapshotService(
         val newCourseHash = request.requestHash
         val newCourseType = request.courseType
         val newCourseSubjectId = request.courseSubjectId
+        val newCourseDescription = request.description ?: "No description"
 
         val newCourseId = UUID.randomUUID()
         val newModuleId = UUID.randomUUID()
@@ -263,8 +264,8 @@ class CurriculumSnapshotService(
             requestHash = newCourseHash,
             courseType = newCourseType,
             subject = subject,
-            language = codeLanguage
-
+            language = codeLanguage,
+            description = newCourseDescription
         )
 
         courseRepository.save(newCourse)

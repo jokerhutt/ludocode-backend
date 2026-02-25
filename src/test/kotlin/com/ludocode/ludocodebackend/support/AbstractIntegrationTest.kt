@@ -30,6 +30,9 @@ import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.lesson.infra.repository.*
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
+import com.ludocode.ludocodebackend.preferences.api.infra.repository.CareerPreferencesRepository
+import com.ludocode.ludocodebackend.preferences.domain.entity.CareerPreference
+import com.ludocode.ludocodebackend.preferences.domain.entity.UserPreferences
 import com.ludocode.ludocodebackend.progress.infra.repository.*
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
 import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
@@ -67,6 +70,9 @@ import java.util.*
 )
 abstract class AbstractIntegrationTest {
 
+
+    @Autowired
+    private lateinit var careerPreferencesRepository: CareerPreferencesRepository
 
     @Autowired
     private lateinit var languagesMapper: LanguagesMapper
@@ -113,6 +119,8 @@ abstract class AbstractIntegrationTest {
 
     lateinit var pythonSubject: Subject
     lateinit var swiftSubject: Subject
+
+    lateinit var dataPath: CareerPreference
 
 
     init {
@@ -187,6 +195,7 @@ abstract class AbstractIntegrationTest {
     @Autowired
     lateinit var userSubscriptionRepository: UserSubscriptionRepository
 
+
     @Autowired
     lateinit var storage: Storage
 
@@ -226,7 +235,8 @@ abstract class AbstractIntegrationTest {
           course,
           subjects,
           code_languages,
-          subscription_plan
+          subscription_plan,
+          user_preferences
         RESTART IDENTITY CASCADE
         """.trimIndent()
         )
@@ -234,6 +244,7 @@ abstract class AbstractIntegrationTest {
         initializeLanguages()
         initializeSubjects()
         initializeCatalog()
+        initializeCareerPaths()
         initializeUsers()
 
     }
@@ -274,7 +285,8 @@ abstract class AbstractIntegrationTest {
                     title = cs.title,
                     courseType = cs.courseType,
                     subject = subject!!,
-                    language = language
+                    language = language,
+                    description = "cool course"
                 )
             )
 
@@ -400,6 +412,12 @@ abstract class AbstractIntegrationTest {
         )
 
 
+    }
+
+    protected fun initializeCareerPaths() {
+        dataPath = careerPreferencesRepository.save(
+            CareerPreference(choice = "DATA", title = "Data Science", description =  "Data science and stuff", courseId = pythonId)
+        )
     }
 
     @Transactional

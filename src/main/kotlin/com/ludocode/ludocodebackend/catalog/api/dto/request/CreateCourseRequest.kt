@@ -6,6 +6,7 @@ import java.util.*
 data class CreateCourseRequest(
     val courseTitle: String,
     val requestHash: UUID,
+    val description: String?,
     val courseType: CourseType,
     val courseSubjectId: Long,
     val languageId: Long?

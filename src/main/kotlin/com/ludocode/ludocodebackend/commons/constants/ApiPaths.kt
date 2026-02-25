@@ -132,6 +132,7 @@ object ApiPaths {
 
     object PREFERENCES {
         const val BASE = "$API_PREFIX/preferences"
+        const val CAREERS = "/careers"
     }
 
     object USERS {

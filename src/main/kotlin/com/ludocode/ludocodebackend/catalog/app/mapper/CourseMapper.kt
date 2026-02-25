@@ -20,7 +20,8 @@ class CourseMapper(private val basicMapper: BasicMapper, private val languagesMa
                 subject = toCourseSubjectResponse(it.subject),
                 language = it.language?.let { lang ->
                     languagesMapper.toLanguageMetadata(lang)
-                }
+                },
+                description = it.description
             )
         }
 
