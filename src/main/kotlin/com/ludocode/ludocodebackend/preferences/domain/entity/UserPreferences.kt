@@ -29,7 +29,7 @@ class UserPreferences(
     @Column(name = "ai_enabled")
     var aiEnabled: Boolean? = true,
 
-    @Column(name = "chosen_course")
+    @Column(name = "chosen_course_id")
     val chosenCourseId: UUID
 
 )

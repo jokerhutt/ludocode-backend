@@ -73,13 +73,12 @@
 
     </changeSet>
 
-    <changeSet id="022-004-add-chosen-path-id" author="david">
+    <changeSet id="022-004-add-chosen-course-id" author="david">
 
         <addColumn tableName="user_preferences">
             <column name="chosen_course_id" type="UUID"/>
         </addColumn>
 
-        <!-- FK: chosen_course_id → course(id) -->
         <addForeignKeyConstraint
                 baseTableName="user_preferences"
                 baseColumnNames="chosen_course_id"
