@@ -9,12 +9,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     property = "type"
 )
 @JsonSubTypes(
-    JsonSubTypes.Type(value = MCQAnswer::class, name = "MCQ"),
+    JsonSubTypes.Type(value = SelectAnswer::class, name = "SELECT"),
     JsonSubTypes.Type(value = ClozeAnswer::class, name = "CLOZE")
 )
 sealed interface ExerciseAnswer
 
-data class MCQAnswer(
+data class SelectAnswer(
     val pickedValue: String
 ) : ExerciseAnswer
 

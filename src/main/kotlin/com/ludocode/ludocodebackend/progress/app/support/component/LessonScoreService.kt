@@ -3,7 +3,7 @@ package com.ludocode.ludocodebackend.progress.app.support.component
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeAnswer
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExerciseAnswer
-import com.ludocode.ludocodebackend.lesson.domain.jsonb.MCQAnswer
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectAnswer
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
 import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseRepository
@@ -109,6 +109,7 @@ import java.util.*
         }
     }
 
+    //TODO ignore info
     private fun grade(exercise: Exercise, answer: ExerciseAnswer): Boolean {
         val interaction = exercise.interaction ?: return true
 
@@ -118,7 +119,7 @@ import java.util.*
                 val correct = interaction.items
                     .first { it == interaction.correctValue }
 
-                (answer as MCQAnswer).pickedValue == correct
+                (answer as SelectAnswer).pickedValue == correct
             }
 
             is ClozeInteraction -> {

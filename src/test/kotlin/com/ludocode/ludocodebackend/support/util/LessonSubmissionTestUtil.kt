@@ -4,7 +4,7 @@ import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeAnswer
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
-import com.ludocode.ludocodebackend.lesson.domain.jsonb.MCQAnswer
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectAnswer
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.LessonSnap
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseAttemptRequest
@@ -68,7 +68,7 @@ object LessonSubmissionTestUtil {
                 // INFO exercise
                 null -> listOf(
                     ExerciseAttemptRequest(
-                        answer = MCQAnswer("INFO")
+                        answer = SelectAnswer("INFO")
                     )
                 )
 
@@ -77,7 +77,7 @@ object LessonSubmissionTestUtil {
                     if (allCorrect) {
                         listOf(
                             ExerciseAttemptRequest(
-                                answer = MCQAnswer(interaction.correctValue)
+                                answer = SelectAnswer(interaction.correctValue)
                             )
                         )
                     } else {
@@ -85,10 +85,10 @@ object LessonSubmissionTestUtil {
 
                         listOf(
                             ExerciseAttemptRequest(
-                                answer = MCQAnswer(wrong)
+                                answer = SelectAnswer(wrong)
                             ),
                             ExerciseAttemptRequest(
-                                answer = MCQAnswer(interaction.correctValue)
+                                answer = SelectAnswer(interaction.correctValue)
                             )
                         )
                     }
