@@ -45,7 +45,7 @@ import java.util.*
             for (submission in request.exercises) {
 
                 val exercise = exerciseRepository
-                    .findTopByExerciseId_IdOrderByExerciseId_VersionDesc(submission.exerciseId)
+                    .findTopByExerciseId_IdAndIsDeletedFalseOrderByExerciseId_VersionNumberDesc(submission.exerciseId)
                     ?: continue
 
                 val attemptsSize = submission.attempts.size
@@ -116,8 +116,7 @@ import java.util.*
 
             is SelectInteraction -> {
                 val correct = interaction.items
-                    .first { it.id == interaction.correctItemId }
-                    .content
+                    .first { it == interaction.correctValue }
 
                 (answer as MCQAnswer).pickedValue == correct
             }

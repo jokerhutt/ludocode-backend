@@ -7,8 +7,6 @@ import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.exercise.LExercise
 import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseResponse
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.lesson.app.service.LessonService
 import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
 import com.ludocode.ludocodebackend.lesson.domain.entity.LessonExercise
@@ -48,15 +46,20 @@ class LessonSnapshotService(
 
         exerciseSnaps.forEachIndexed { exerciseIndex, exercise ->
 
-            val existing = exerciseRepository.findTopByExerciseId_IdOrderByExerciseId_VersionDesc(exercise.exerciseId)
+            val existing = exerciseRepository.findTopByExerciseId_IdAndIsDeletedFalseOrderByExerciseId_VersionNumberDesc(exercise.exerciseId)
 
             val version = if (existing != null) existing.exerciseId.versionNumber + 1 else 1
+
+            if (existing != null) {
+                existing.isDeleted = true
+            }
 
             val exerciseEntity = exerciseRepository.save(
                 Exercise(
                     ExerciseId(exercise.exerciseId, version),
                     blocks = exercise.blocks,
                     interaction = exercise.interaction,
+                    isDeleted = false
                 )
             )
 
@@ -85,32 +88,19 @@ class LessonSnapshotService(
 
     }
 
-    internal fun buildExerciseSnapshot(exerciseResponse: ExerciseResponse): ExerciseSnap {
-        return ExerciseSnap(
-            id = exerciseResponse.id,
-            title = exerciseResponse.title,
-            subtitle = exerciseResponse.subtitle,
-            prompt = exerciseResponse.prompt,
-            exerciseType = exerciseResponse.exerciseType,
-            media = exerciseResponse.exerciseMedia,
-            correctOptions = exerciseResponse.correctOptions.map { opt ->
-                OptionSnap(
-                    content = opt.content,
-                    answerOrder = opt.answerOrder,
-                    exerciseOptionId = (opt.id)
-                )
-            },
-            distractors = exerciseResponse.distractors.map { opt ->
-                OptionSnap(
-                    content = opt.content,
-                    answerOrder = opt.answerOrder,
-                    exerciseOptionId = opt.id
-                )
-            }
+    internal fun buildExerciseSnapshot(
+        exerciseResponse: ExerciseResponse
+    ): LExercise {
+
+        return LExercise(
+            exerciseId = exerciseResponse.id,
+            exerciseVersion = exerciseResponse.version,
+            blocks = exerciseResponse.blocks,
+            interaction = exerciseResponse.interaction
         )
     }
 
-    override fun findExerciseSnapshotById(exerciseId: UUID): ExerciseSnap {
+    override fun findExerciseSnapshotById(exerciseId: UUID): LExercise {
         val exerciseResponse = lessonService.getExerciseByExerciseId(exerciseId)
         return buildExerciseSnapshot(exerciseResponse)
     }

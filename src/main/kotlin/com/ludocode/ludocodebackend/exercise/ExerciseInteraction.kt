@@ -15,8 +15,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 sealed interface ExerciseInteraction
 
 data class SelectInteraction(
-    val items: List<ExerciseOption>,
-    val correctItemId: String
+    val items: List<String>,
+    val correctValue: String
 ) : ExerciseInteraction
 
 data class ClozeInteraction(
@@ -32,10 +32,5 @@ data class InteractionBlank(
 
 data class InteractionFile(
     val language: String,
-    val content: String
-)
-
-data class ExerciseOption(
-    val id: String,
     val content: String
 )

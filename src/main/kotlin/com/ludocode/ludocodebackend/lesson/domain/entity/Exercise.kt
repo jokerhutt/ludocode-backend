@@ -13,7 +13,7 @@ import org.hibernate.type.SqlTypes
 import java.util.*
 
 @Entity
-@Table(name = "exercie")
+@Table(name = "exercise")
 class Exercise(
 
     @EmbeddedId
@@ -25,6 +25,12 @@ class Exercise(
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "interaction", columnDefinition = "jsonb")
-    val interaction: ExerciseInteraction? = null
+    val interaction: ExerciseInteraction? = null,
 
-    )
+    @Column(name = "is_deleted")
+    var isDeleted: Boolean? = false
+
+)
+
+
+

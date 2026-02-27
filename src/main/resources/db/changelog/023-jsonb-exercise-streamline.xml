@@ -47,7 +47,6 @@
         <dropColumn tableName="exercise" columnName="prompt"/>
         <dropColumn tableName="exercise" columnName="subtitle"/>
         <dropColumn tableName="exercise" columnName="exercise_type"/>
-        <dropColumn tableName="exercise" columnName="is_deleted"/>
         <dropColumn tableName="exercise" columnName="exercise_media"/>
 
         <addColumn tableName="exercise">

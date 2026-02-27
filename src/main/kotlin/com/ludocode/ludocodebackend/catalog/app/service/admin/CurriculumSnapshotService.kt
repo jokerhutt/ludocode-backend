@@ -23,15 +23,11 @@ import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.exercise.HeaderBlock
 import com.ludocode.ludocodebackend.exercise.ParagraphBlock
 import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.OptionSnap
-import com.ludocode.ludocodebackend.lesson.app.service.admin.LessonSnapshotService
 import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
-import com.ludocode.ludocodebackend.lesson.domain.entity.ExerciseOption
 import com.ludocode.ludocodebackend.lesson.domain.entity.Lesson
 import com.ludocode.ludocodebackend.lesson.domain.entity.LessonExercise
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.LessonExercisesId
-import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.lesson.infra.repository.*
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import jakarta.transaction.Transactional
@@ -49,14 +45,11 @@ class CurriculumSnapshotService(
     private val courseRepository: CourseRepository,
     private val moduleRepository: ModuleRepository,
     private val moduleLessonsRepository: ModuleLessonsRepository,
-    private val lessonSnapshotService: LessonSnapshotService,
     private val exerciseRepository: ExerciseRepository,
     private val lessonExercisesRepository: LessonExercisesRepository,
     private val courseMapper: CourseMapper,
     private val lessonRepository: LessonRepository,
     private val courseProgressRepository: CourseProgressRepository,
-    private val optionContentRepository: OptionContentRepository,
-    private val exerciseOptionRepository: ExerciseOptionRepository,
     private val codeLanguagesRepository: CodeLanguagesRepository,
     private val subjectRepository: SubjectRepository
 ) {

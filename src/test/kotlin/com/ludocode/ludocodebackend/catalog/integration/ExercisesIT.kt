@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.exercise.ClozeInteraction
 import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
@@ -23,26 +24,26 @@ class ExercisesIT : AbstractIntegrationTest() {
         val lesson1Id = py1L1
         val lesson2Id = py1L2
 
-        val response: List<ExerciseResponse> = submitGetExercisesByLessonId(lesson1Id)
-        val response2: List<ExerciseResponse> = submitGetExercisesByLessonId(lesson2Id)
+        val response = submitGetExercisesByLessonId(lesson1Id)
+        val response2 = submitGetExercisesByLessonId(lesson2Id)
 
         assertThat(response).isNotEmpty()
         assertThat(response2).isNotEmpty()
 
-        for (res: ExerciseResponse in response) {
-            assertThat(res.correctOptions.size).isGreaterThanOrEqualTo(1)
-            assertThat(res.lessonId).isEqualTo(lesson1Id)
-            assertThat(res.title).isNotNull()
-            assertThat(res.prompt).isNotNull()
-            assertThat(res.exerciseType).isEqualTo(ExerciseType.CLOZE)
+        response.forEach { res ->
+            assertThat(res.blocks).isNotEmpty()
+            assertThat(res.orderIndex).isGreaterThan(0)
+            assertThat(res.interaction).isInstanceOf(ClozeInteraction::class.java)
         }
 
-        for (res: ExerciseResponse in response2) {
-            assertThat(res.correctOptions.size).isGreaterThanOrEqualTo(1)
-            assertThat(res.exerciseType).isNotEqualTo(ExerciseType.CLOZE)
-            assertThat(res.lessonId).isEqualTo(lesson2Id)
-        }
+        response2.forEach { res ->
+            assertThat(res.blocks).isNotEmpty()
+            assertThat(res.orderIndex).isGreaterThan(0)
 
+            if (res.interaction != null) {
+                assertThat(res.interaction).isNotInstanceOf(ClozeInteraction::class.java)
+            }
+        }
     }
 
     private fun submitGetExercisesByLessonId(

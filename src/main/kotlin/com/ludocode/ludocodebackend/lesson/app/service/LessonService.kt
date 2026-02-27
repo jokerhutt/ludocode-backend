@@ -50,7 +50,7 @@ class LessonService(
 
     @Cacheable(CacheNames.EXERCISE_SINGLE, key = "#exerciseId")
     fun getExerciseByExerciseId(exerciseId: UUID): ExerciseResponse {
-        val exercise = exerciseRepository.findTopByExerciseId_IdOrderByExerciseId_VersionDesc(exerciseId) ?: throw ApiException(ErrorCode.EXERCISE_NOT_FOUND)
+        val exercise = exerciseRepository.findTopByExerciseId_IdAndIsDeletedFalseOrderByExerciseId_VersionNumberDesc(exerciseId) ?: throw ApiException(ErrorCode.EXERCISE_NOT_FOUND)
         val lessonExercise = lessonExercisesRepository.findByExerciseId(exerciseId) ?: throw ApiException(ErrorCode.LESSON_EXERCISE_NOT_FOUND)
         return exerciseMapper.toExerciseResponse(exercise, lessonExercise.lessonExercisesId.orderIndex)
     }

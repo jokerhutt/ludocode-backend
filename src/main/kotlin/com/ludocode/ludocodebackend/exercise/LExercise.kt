@@ -10,5 +10,5 @@ data class LExercise (
 
     val blocks: List<Block>,
 
-    val interaction: ExerciseInteraction? = null
+    var interaction: ExerciseInteraction? = null
 )

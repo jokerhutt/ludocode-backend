@@ -17,22 +17,26 @@ import com.ludocode.ludocodebackend.config.*
 import com.ludocode.ludocodebackend.config.security.TestSecurityConfig
 import com.ludocode.ludocodebackend.config.time.MutableClock
 import com.ludocode.ludocodebackend.config.time.TestClockConfig
+import com.ludocode.ludocodebackend.exercise.ClozeInteraction
+import com.ludocode.ludocodebackend.exercise.CodeBlock
+import com.ludocode.ludocodebackend.exercise.HeaderBlock
+import com.ludocode.ludocodebackend.exercise.InteractionBlank
+import com.ludocode.ludocodebackend.exercise.InteractionFile
+import com.ludocode.ludocodebackend.exercise.LExercise
+import com.ludocode.ludocodebackend.exercise.ParagraphBlock
+import com.ludocode.ludocodebackend.exercise.SelectInteraction
 import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.LessonSnap
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.lesson.domain.entity.*
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.LessonExercisesId
-import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.lesson.infra.repository.*
 import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
 import com.ludocode.ludocodebackend.preferences.api.infra.repository.CareerPreferencesRepository
 import com.ludocode.ludocodebackend.preferences.domain.entity.CareerPreference
-import com.ludocode.ludocodebackend.preferences.domain.entity.UserPreferences
 import com.ludocode.ludocodebackend.progress.infra.repository.*
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository
 import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
@@ -173,15 +177,7 @@ abstract class AbstractIntegrationTest {
     @Autowired
     lateinit var lessonExercisesRepository: LessonExercisesRepository
     @Autowired
-    lateinit var exerciseOptionRepository: ExerciseOptionRepository
-    @Autowired
-    lateinit var optionContentRepository: OptionContentRepository
-    @Autowired
     lateinit var userCoinsRepository: UserCoinsRepository
-    @Autowired
-    lateinit var exerciseAttemptRepository: ExerciseAttemptRepository
-    @Autowired
-    lateinit var attemptOptionRepository: AttemptOptionRepository
     @Autowired
     lateinit var userStreakRepository: UserStreakRepository
     @Autowired
@@ -215,7 +211,6 @@ abstract class AbstractIntegrationTest {
         TRUNCATE TABLE 
           project_file,
           user_project,
-          attempt_option,
           exercise_attempt,
           user_daily_goal,
           user_streak,
@@ -225,8 +220,6 @@ abstract class AbstractIntegrationTest {
           external_account,
           user_subscription,
           ludo_user,
-          option_content,
-          exercise_option,
           lesson_exercises,
           module_lessons,
           lesson,
@@ -252,27 +245,12 @@ abstract class AbstractIntegrationTest {
     @Transactional
     fun importSnapshots(snaps: List<CourseSnap>, defaultVersion: Int = 1) {
 
-
-        val allContents = snaps.flatMap { it.modules }
-            .flatMap { it.lessons }
-            .flatMap { it.exercises }
-            .flatMap { ex -> ex.correctOptions.map { it.content } + ex.distractors.map { it.content } }
-            .toSet()
-
-        val existing = optionContentRepository.findAllByContentIn(allContents)
-        val contentIdByText = existing.associate { it.content to it.id }.toMutableMap()
-
-        val missing = allContents - contentIdByText.keys
-        if (missing.isNotEmpty()) {
-            val toSave = missing.map { OptionContent(id = UUID.randomUUID(), content = it) }
-            optionContentRepository.saveAll(toSave)
-            toSave.forEach { contentIdByText[it.content] = it.id }
-        }
-
-        // 2) Upsert courses, modules, lessons, exercises
         snaps.forEach { cs ->
 
-            val subject = subjectRepository.findBySlugAndName(cs.courseSubject.slug, cs.courseSubject.name)
+            val subject = subjectRepository
+                .findBySlugAndName(cs.courseSubject.slug, cs.courseSubject.name)
+                ?: throw ApiException(ErrorCode.SUBJECT_NOT_FOUND)
+
             val language =
                 cs.language?.languageId?.let { id ->
                     codeLanguagesRepository.findByIdOrNull(id)
@@ -284,13 +262,14 @@ abstract class AbstractIntegrationTest {
                     id = cs.courseId,
                     title = cs.title,
                     courseType = cs.courseType,
-                    subject = subject!!,
+                    subject = subject,
                     language = language,
                     description = "cool course"
                 )
             )
 
             cs.modules.forEachIndexed { mIdx, ms ->
+
                 moduleRepository.save(
                     Module(
                         id = ms.moduleId,
@@ -302,9 +281,15 @@ abstract class AbstractIntegrationTest {
                 )
 
                 ms.lessons.forEach { ls ->
-                    lessonRepository.save(Lesson(id = ls.id, title = ls.title, isDeleted = false))
 
-                    // module ↔ lesson join
+                    lessonRepository.save(
+                        Lesson(
+                            id = ls.id,
+                            title = ls.title,
+                            isDeleted = false
+                        )
+                    )
+
                     moduleLessonsRepository.save(
                         ModuleLesson(
                             moduleLessonsId = ModuleLessonsId(
@@ -315,60 +300,28 @@ abstract class AbstractIntegrationTest {
                         )
                     )
 
-                    // exercises
                     ls.exercises.forEachIndexed { exIdx, ex ->
-                        val exId = ExerciseId(ex.id, defaultVersion)
+
+                        val exId = ExerciseId(ex.exerciseId, defaultVersion)
+
                         exerciseRepository.save(
                             Exercise(
                                 exerciseId = exId,
-                                title = ex.title,
-                                subtitle = ex.subtitle,
-                                prompt = ex.prompt,
-                                exerciseMedia = ex.media,
-                                exerciseType = ex.exerciseType,
-                                isDeleted = false
+                                blocks = ex.blocks,
+                                interaction = ex.interaction
                             )
                         )
 
-                        // lesson ↔ lesson join (order = list index)
                         lessonExercisesRepository.save(
                             LessonExercise(
-                                LessonExercisesId(lessonId = ls.id, orderIndex = exIdx + 1),
-                                exerciseId = ex.id,
+                                LessonExercisesId(
+                                    lessonId = ls.id,
+                                    orderIndex = exIdx + 1
+                                ),
+                                exerciseId = ex.exerciseId,
                                 exerciseVersion = defaultVersion
                             )
                         )
-                    }
-                }
-            }
-        }
-
-        snaps.forEach { cs ->
-            cs.modules.forEach { ms ->
-                ms.lessons.forEach { ls ->
-                    ls.exercises.forEach { ex ->
-                        ex.correctOptions.forEachIndexed { i, opt ->
-                            exerciseOptionRepository.save(
-                                ExerciseOption(
-                                    id = opt.exerciseOptionId,
-                                    exerciseId = ex.id,
-                                    exerciseVersion = defaultVersion,
-                                    optionId = contentIdByText.getValue(opt.content),
-                                    answerOrder = opt.answerOrder ?: (i + 1)
-                                )
-                            )
-                        }
-                        ex.distractors.forEach { opt ->
-                            exerciseOptionRepository.save(
-                                ExerciseOption(
-                                    id = opt.exerciseOptionId,
-                                    exerciseId = ex.id,
-                                    exerciseVersion = defaultVersion,
-                                    optionId = contentIdByText.getValue(opt.content),
-                                    answerOrder = null
-                                )
-                            )
-                        }
                     }
                 }
             }
@@ -493,156 +446,151 @@ abstract class AbstractIntegrationTest {
     @Transactional
     fun initializeCatalog() {
 
-        val ex1 = ExerciseSnap(
-            id = UUID.randomUUID(),
-            title = "Complete the expression",
-            subtitle = null,
-            prompt = "let sum = ___ + 4",
-            media = null,
-            exerciseType = ExerciseType.CLOZE,
-            correctOptions = listOf(
-                OptionSnap(content = "4", answerOrder = 1, UUID.randomUUID())
+        val ex1 = LExercise(
+            exerciseId = UUID.randomUUID(),
+            exerciseVersion = 1,
+            blocks = listOf(
+                HeaderBlock("Complete the expression")
             ),
-            distractors = listOf(
-                OptionSnap(content = "let", answerOrder = null, UUID.randomUUID())
+            interaction = ClozeInteraction(
+                file = InteractionFile(
+                    language = "javascript",
+                    content = "let sum = ___ + 4"
+                ),
+                blanks = listOf(
+                    InteractionBlank(index = 0, correctOptions = listOf("4"))
+                ),
+                options = listOf("4", "let")
             )
         )
 
-        val ex2 = ExerciseSnap(
-            id = UUID.randomUUID(),
-            title = "Create a variable with a value of 'House'",
-            subtitle = null,
-            prompt = "const ___ = ___",
-            media = null,
-            exerciseType = ExerciseType.CLOZE,
-            correctOptions = listOf(
-                OptionSnap(content = "house", answerOrder = 1, UUID.randomUUID()),
-                OptionSnap(content = "'house'", answerOrder = 2, UUID.randomUUID())
+        val ex2 = LExercise(
+            exerciseId = UUID.randomUUID(),
+            exerciseVersion = 1,
+            blocks = listOf(
+                HeaderBlock("Create a variable with a value of 'House'")
             ),
-            distractors = emptyList()
-        )
-
-        val ex3 = ExerciseSnap(
-            id = UUID.randomUUID(),
-            title = "What will the following code return",
-            subtitle = null,
-            prompt = "const score = 4 + 4;",
-            media = null,
-            exerciseType = ExerciseType.ANALYZE,
-            correctOptions = listOf(
-                OptionSnap(content = "8", answerOrder = 1, UUID.randomUUID())
-            ),
-            distractors = listOf(
-                OptionSnap(content = "undefined", answerOrder = null, UUID.randomUUID())
+            interaction = ClozeInteraction(
+                file = InteractionFile(
+                    language = "javascript",
+                    content = "const ___ = ___"
+                ),
+                blanks = listOf(
+                    InteractionBlank(0, listOf("house")),
+                    InteractionBlank(1, listOf("'house'"))
+                ),
+                options = listOf("house", "'house'")
             )
         )
 
-        val ex4 = ExerciseSnap(
-            id = UUID.randomUUID(),
-            title = "Which of the following declares a variable that can not be reassigned",
-            subtitle = null,
-            prompt = null,
-            media = null,
-            exerciseType = ExerciseType.TRIVIA,
-            correctOptions = listOf(
-                OptionSnap(content = "const", answerOrder = 1, UUID.randomUUID())
+        val ex3 = LExercise(
+            exerciseId = UUID.randomUUID(),
+            exerciseVersion = 1,
+            blocks = listOf(
+                HeaderBlock("What will the following code return"),
+                CodeBlock("javascript", "const score = 4 + 4;")
             ),
-            distractors = listOf(
-                OptionSnap(content = "let", answerOrder = null, UUID.randomUUID())
+            interaction = SelectInteraction(
+                items = listOf("8", "undefined"),
+                correctValue = "8"
             )
         )
 
-        val ex5 = ExerciseSnap(
-            id = UUID.randomUUID(),
-            title = "What will this print?",
-            subtitle = null,
-            prompt = "print(2 == 2)",
-            media = null,
-            exerciseType = ExerciseType.ANALYZE,
-            correctOptions = listOf(
-                OptionSnap(content = "True", answerOrder = 1, UUID.randomUUID())
+        val ex4 = LExercise(
+            exerciseId = UUID.randomUUID(),
+            exerciseVersion = 1,
+            blocks = listOf(
+                HeaderBlock("Which of the following declares a variable that can not be reassigned")
             ),
-            distractors = listOf(
-                OptionSnap(content = "False", answerOrder = null, UUID.randomUUID())
+            interaction = SelectInteraction(
+                items = listOf("const", "let"),
+                correctValue = "const"
             )
         )
 
-        val ex6 = ExerciseSnap(
-            id = UUID.randomUUID(),
-            title = "Complete the expression",
-            subtitle = null,
-            prompt = "___ i == 5",
-            media = null,
-            exerciseType = ExerciseType.CLOZE,
-            correctOptions = listOf(
-                OptionSnap(content = "if", answerOrder = 1, UUID.randomUUID())
+        val ex5 = LExercise(
+            exerciseId = UUID.randomUUID(),
+            exerciseVersion = 1,
+            blocks = listOf(
+                HeaderBlock("What will this print?"),
+                CodeBlock("python", "print(2 == 2)")
             ),
-            distractors = listOf(
-                OptionSnap(content = "let", answerOrder = null, UUID.randomUUID())
+            interaction = SelectInteraction(
+                items = listOf("True", "False"),
+                correctValue = "True"
             )
         )
 
-        val ex7 = ExerciseSnap(
-            id = UUID.randomUUID(),
-            title = "Complete the expression",
-            subtitle = null,
-            prompt = "if i ___ 4",
-            media = null,
-            exerciseType = ExerciseType.CLOZE,
-            correctOptions = listOf(
-                OptionSnap(content = "==", answerOrder = 1, UUID.randomUUID())
+        val ex6 = LExercise(
+            exerciseId = UUID.randomUUID(),
+            exerciseVersion = 1,
+            blocks = listOf(
+                HeaderBlock("Complete the expression")
             ),
-            distractors = listOf(
-                OptionSnap(content = "===", answerOrder = null, UUID.randomUUID())
+            interaction = ClozeInteraction(
+                file = InteractionFile("python", "___ i == 5"),
+                blanks = listOf(
+                    InteractionBlank(0, listOf("if"))
+                ),
+                options = listOf("if", "let")
             )
         )
 
-        val ex8 = ExerciseSnap(
-            id = UUID.randomUUID(),
-            title = "Complete the expression",
-            subtitle = null,
-            prompt = "for i ___ points",
-            media = null,
-            exerciseType = ExerciseType.CLOZE,
-            correctOptions = listOf(
-                OptionSnap(content = "in", answerOrder = 1, UUID.randomUUID())
+        val ex7 = LExercise(
+            exerciseId = UUID.randomUUID(),
+            exerciseVersion = 1,
+            blocks = listOf(
+                HeaderBlock("Complete the expression")
             ),
-            distractors = listOf(
-                OptionSnap(content = "while", answerOrder = null, UUID.randomUUID())
+            interaction = ClozeInteraction(
+                file = InteractionFile("python", "if i ___ 4"),
+                blanks = listOf(
+                    InteractionBlank(0, listOf("=="))
+                ),
+                options = listOf("==", "===")
             )
         )
 
-        val ex9INFO = ExerciseSnap(
-            id = UUID.randomUUID(),
-            title = "If statements run if a condition is true",
-            subtitle = null,
-            prompt = null,
-            media = null,
-            exerciseType = ExerciseType.INFO,
-            correctOptions = emptyList(),
-            distractors = emptyList()
+        val ex8 = LExercise(
+            exerciseId = UUID.randomUUID(),
+            exerciseVersion = 1,
+            blocks = listOf(
+                HeaderBlock("Complete the expression")
+            ),
+            interaction = ClozeInteraction(
+                file = InteractionFile("python", "for i ___ points"),
+                blanks = listOf(
+                    InteractionBlank(0, listOf("in"))
+                ),
+                options = listOf("in", "while")
+            )
         )
 
-        val ex10INFO = ExerciseSnap(
-            id = UUID.randomUUID(),
-            title = "They are very powerful",
-            subtitle = null,
-            prompt = null,
-            media = null,
-            exerciseType = ExerciseType.INFO,
-            correctOptions = emptyList(),
-            distractors = emptyList()
+        val ex9INFO = LExercise(
+            exerciseId = UUID.randomUUID(),
+            exerciseVersion = 1,
+            blocks = listOf(
+                ParagraphBlock("If statements run if a condition is true")
+            ),
+            interaction = null
         )
 
-        val ex11INFO = ExerciseSnap(
-            id = UUID.randomUUID(),
-            title = "Else statements run if none of the if statement conditions were true",
-            subtitle = null,
-            prompt = null,
-            media = null,
-            exerciseType = ExerciseType.INFO,
-            correctOptions = emptyList(),
-            distractors = emptyList()
+        val ex10INFO = LExercise(
+            exerciseId = UUID.randomUUID(),
+            exerciseVersion = 1,
+            blocks = listOf(
+                ParagraphBlock("They are very powerful")
+            ),
+            interaction = null
+        )
+
+        val ex11INFO = LExercise(
+            exerciseId = UUID.randomUUID(),
+            exerciseVersion = 1,
+            blocks = listOf(
+                ParagraphBlock("Else statements run if none of the if statement conditions were true")
+            ),
+            interaction = null
         )
 
         val pyMod1Lessons = listOf(

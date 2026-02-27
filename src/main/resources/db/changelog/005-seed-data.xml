@@ -116,27 +116,58 @@
     <!-- ===================== EXERCISES ===================== -->
     <changeSet id="005-07-exercises" author="dave" context="dev" dbms="postgresql">
         <sql>
-            INSERT INTO exercise (id, version_number, exercise_type, title, subtitle, prompt, is_deleted, exercise_media)
+            INSERT INTO exercise (
+                id,
+                version_number,
+                is_deleted,
+                blocks,
+                interaction
+            )
             VALUES
                 (
                     'fd00de96-49ef-4bed-8bd7-2a05ff1b1393',
                     1,
-                    'INFO',
-                    'Welcome to the Ludocode Python course!',
-                    'It appears you have used the docker postgres. To edit this and other courses, check out the builder!',
-                    '',
                     false,
+                    '[
+                        {
+                            "type": "HEADER",
+                            "content": "Welcome to the Ludocode Python course!"
+                        },
+                        {
+                            "type": "PARAGRAPH",
+                            "content": "It appears you have used the docker postgres. To edit this and other courses, check out the builder!"
+                        }
+                    ]'::jsonb,
                     NULL
                 ),
                 (
                     'c8229944-d5f1-4e67-b9b3-87b9c9e90852',
                     1,
-                    'CLOZE',
-                    'Here is an example exercise!',
-                    'Complete the code below',
-                    'print(2 ___ 2)',
                     false,
-                    NULL
+                    '[
+                        {
+                            "type": "HEADER",
+                            "content": "Here is an example exercise!"
+                        },
+                        {
+                            "type": "PARAGRAPH",
+                            "content": "Complete the code below"
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "CLOZE",
+                        "file": {
+                            "language": "python",
+                            "content": "print(2 ___ 2)"
+                        },
+                        "blanks": [
+                            {
+                                "index": 0,
+                                "correctOptions": ["+"]
+                            }
+                        ],
+                        "options": ["+", "="]
+                    }'::jsonb
                 )
             ON CONFLICT DO NOTHING;
         </sql>
