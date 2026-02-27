@@ -1,5 +1,4 @@
 package com.ludocode.ludocodebackend.lesson.app.service
-
 import com.ludocode.ludocodebackend.commons.constants.CacheNames
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
@@ -10,7 +9,7 @@ import com.ludocode.ludocodebackend.lesson.api.dto.response.LessonResponse
 import com.ludocode.ludocodebackend.lesson.app.mapper.ExerciseMapper
 import com.ludocode.ludocodebackend.lesson.app.mapper.LessonMapper
 import com.ludocode.ludocodebackend.lesson.app.port.`in`.LessonPortForProgress
-import com.ludocode.ludocodebackend.lesson.infra.projection.ExerciseFlatProjection
+import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseRepository
 import com.ludocode.ludocodebackend.lesson.infra.repository.LessonExercisesRepository
 import com.ludocode.ludocodebackend.lesson.infra.repository.LessonRepository
 import com.ludocode.ludocodebackend.lesson.infra.repository.UserLessonProjection
@@ -25,6 +24,7 @@ class LessonService(
     private val exerciseMapper: ExerciseMapper,
     private val lessonExercisesRepository: LessonExercisesRepository,
     private val lessonMapper: LessonMapper,
+    private val exerciseRepository: ExerciseRepository,
     private val lessonRepository: LessonRepository
 ) : LessonPortForProgress {
 
@@ -40,19 +40,19 @@ class LessonService(
 
     @Cacheable(CacheNames.LESSON_EXERCISES, key = "#lessonId")
     fun getExercisesByLessonId(lessonId: UUID): List<ExerciseResponse> {
-        val exercisesWithOptionsFlat: List<ExerciseFlatProjection> =
-            lessonExercisesRepository.getFlatExercisesWithOptions(lessonId)
+        val exercises = lessonExercisesRepository.findExercisesByLesson(lessonId)
         logger.info(
             LogEvents.LESSON_EXERCISES_LOADED + " {}",
-            StructuredArguments.kv(LogFields.EXERCISE_COUNT, exercisesWithOptionsFlat.size)
+            StructuredArguments.kv(LogFields.EXERCISE_COUNT, exercises.size)
         )
-        return exerciseMapper.toLessonExercises(exercisesWithOptionsFlat)
+        return exerciseMapper.toLessonExercises(exercises)
     }
 
     @Cacheable(CacheNames.EXERCISE_SINGLE, key = "#exerciseId")
     fun getExerciseByExerciseId(exerciseId: UUID): ExerciseResponse {
-        val exerciseWithOptions = lessonExercisesRepository.getSingleExerciseNewestFlat(exerciseId)
-        return exerciseMapper.toExerciseResponse(exerciseWithOptions)
+        val exercise = exerciseRepository.findTopByExerciseId_IdOrderByExerciseId_VersionDesc(exerciseId) ?: throw ApiException(ErrorCode.EXERCISE_NOT_FOUND)
+        val lessonExercise = lessonExercisesRepository.findByExerciseId(exerciseId) ?: throw ApiException(ErrorCode.LESSON_EXERCISE_NOT_FOUND)
+        return exerciseMapper.toExerciseResponse(exercise, lessonExercise.lessonExercisesId.orderIndex)
     }
 
     internal fun getLessonsByIds(lessonIds: List<UUID>, userId: UUID): List<LessonResponse> {

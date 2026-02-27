@@ -21,6 +21,7 @@ spring:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.xml
     contexts: ${LIQUIBASE_CONTEXT:dev}
+    #profiles: admin, dev, devadmin, prod, test, devtestadmin
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:prod}
 
@@ -28,6 +29,9 @@ logging:
   level:
     root: ${LOGGING_LEVEL:INFO}
     com.ludocode.ludocodebackend.commons.configuration.CorsLoggingFilter: ${CORS_LOGGING_LEVEL:WARN}
+
+payments:
+  enabled: ${PAYMENTS_ENABLED:false}
 
 stripe:
   enabled: ${STRIPE_ENABLED:false}

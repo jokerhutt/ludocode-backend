@@ -4,6 +4,6 @@ import java.util.*
 
 data class ExerciseSubmissionRequest(
     val exerciseId: UUID,
-    val attempts: List<ExerciseAttemptRequest>,
-    val version: Int
+    val version: Int,
+    val attempts: List<ExerciseAttemptRequest>
 )

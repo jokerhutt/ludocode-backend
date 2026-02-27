@@ -6,5 +6,5 @@ data class LessonSubmissionRequest(
     val submissionId: UUID,
     val lessonId: UUID,
     val courseId: UUID,
-    val submissions: List<ExerciseSubmissionRequest>
+    val exercises: List<ExerciseSubmissionRequest>
 )

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <!-- 023 - JSONB Exercise Refactor -->
+
+    <changeSet id="023-01-drop-option-tables" author="dave">
+        <dropTable tableName="attempt_option"/>
+        <dropTable tableName="exercise_option"/>
+        <dropTable tableName="option_content"/>
+    </changeSet>
+
+    <!-- Modify exercise_attempt -->
+
+    <changeSet id="023-02-modify-exercise-attempt" author="dave">
+
+        <addColumn tableName="exercise_attempt">
+            <column name="answer" type="jsonb">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="exercise_attempt">
+            <column name="is_correct" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="exercise_attempt">
+            <column name="submitted_at" type="timestamptz"
+                    defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+    </changeSet>
+
+    <!-- Modify exercise -->
+
+    <changeSet id="023-03-modify-exercise" author="dave">
+
+        <dropColumn tableName="exercise" columnName="title"/>
+        <dropColumn tableName="exercise" columnName="prompt"/>
+        <dropColumn tableName="exercise" columnName="subtitle"/>
+        <dropColumn tableName="exercise" columnName="exercise_type"/>
+        <dropColumn tableName="exercise" columnName="is_deleted"/>
+        <dropColumn tableName="exercise" columnName="exercise_media"/>
+
+        <addColumn tableName="exercise">
+            <column name="blocks" type="jsonb">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="exercise">
+            <column name="interaction" type="jsonb"/>
+        </addColumn>
+
+    </changeSet>
+
+</databaseChangeLog>

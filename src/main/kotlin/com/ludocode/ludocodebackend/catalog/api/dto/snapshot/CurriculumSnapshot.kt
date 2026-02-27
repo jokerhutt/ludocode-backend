@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.api.dto.snapshot
 
+import com.ludocode.ludocodebackend.exercise.LExercise
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import java.util.*
 
@@ -19,5 +20,5 @@ data class LessonDraftSnapshot(
 )
 
 data class LessonCurriculumDraftSnapshot(
-    var exercises: List<ExerciseSnap>
+    var exercises: List<LExercise>
 )

@@ -5,19 +5,17 @@ import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForAI
 import com.ludocode.ludocodebackend.commons.constants.CacheNames
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.exercise.LExercise
 import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.OptionSnap
 import com.ludocode.ludocodebackend.lesson.app.service.LessonService
 import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
-import com.ludocode.ludocodebackend.lesson.domain.entity.ExerciseOption
 import com.ludocode.ludocodebackend.lesson.domain.entity.LessonExercise
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.LessonExercisesId
-import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseOptionRepository
 import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseRepository
 import com.ludocode.ludocodebackend.lesson.infra.repository.LessonExercisesRepository
-import com.ludocode.ludocodebackend.lesson.infra.repository.OptionContentRepository
 import jakarta.transaction.Transactional
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Caching
@@ -27,12 +25,9 @@ import java.util.*
 @Service
 class LessonSnapshotService(
     private val lessonExercisesRepository: LessonExercisesRepository,
-    private val exerciseRepository: ExerciseRepository,
-    private val optionContentRepository: OptionContentRepository,
-    private val exerciseOptionRepository: ExerciseOptionRepository,
-    private val lessonService: LessonService
+    private val lessonService: LessonService,
+    private val exerciseRepository: ExerciseRepository
 ) : CatalogPortForAI {
-
 
     @Caching(
         evict = [
@@ -44,31 +39,24 @@ class LessonSnapshotService(
         ]
     )
     @Transactional
-    fun applyExerciseDiffs(lessonId: UUID, lessonDraft: LessonCurriculumDraftSnapshot): LessonCurriculumDraftSnapshot {
+    fun applyExercises(lessonId: UUID, snap: LessonCurriculumDraftSnapshot) : LessonCurriculumDraftSnapshot {
 
-        val exercises = lessonDraft.exercises
-        if (exercises.isEmpty()) throw ApiException(ErrorCode.EMPTY_EXERCISES)
+        val exerciseSnaps = snap.exercises
+
+        if (exerciseSnaps.isEmpty()) throw ApiException(ErrorCode.EMPTY_EXERCISES)
         lessonExercisesRepository.deleteAllByLessonExercisesIdLessonId(lessonId)
 
-        exercises.forEachIndexed { exerciseIndex, exercise ->
+        exerciseSnaps.forEachIndexed { exerciseIndex, exercise ->
 
-            val existing = exerciseRepository.findLatestActiveById(exercise.id)
-
-            if (existing != null) {
-                existing.isDeleted = true
-            }
+            val existing = exerciseRepository.findTopByExerciseId_IdOrderByExerciseId_VersionDesc(exercise.exerciseId)
 
             val version = if (existing != null) existing.exerciseId.versionNumber + 1 else 1
 
             val exerciseEntity = exerciseRepository.save(
                 Exercise(
-                    exerciseId = ExerciseId(exercise.id, versionNumber = version),
-                    title = exercise.title,
-                    subtitle = exercise.subtitle,
-                    prompt = exercise.prompt,
-                    exerciseType = exercise.exerciseType,
-                    exerciseMedia = exercise.media,
-                    isDeleted = false
+                    ExerciseId(exercise.exerciseId, version),
+                    blocks = exercise.blocks,
+                    interaction = exercise.interaction,
                 )
             )
 
@@ -80,34 +68,11 @@ class LessonSnapshotService(
                 )
             )
 
-            val options = exercise.correctOptions + exercise.distractors
-            applyOptionDiffs(options, exerciseEntity.exerciseId.id, exerciseEntity.exerciseId.versionNumber)
-
         }
 
         return buildLessonCurriculumSnapshot(lessonId)
-
     }
 
-    fun applyOptionDiffs(options: List<OptionSnap>, exerciseId: UUID, exerciseVersion: Int) {
-
-        for (option in options) {
-            optionContentRepository.upsertOption(id = UUID.randomUUID(), option.content)
-            val dbOption = optionContentRepository.findByContent(option.content)
-            exerciseOptionRepository.save(
-                ExerciseOption(
-                    id = UUID.randomUUID(),
-                    exerciseId = exerciseId,
-                    exerciseVersion = exerciseVersion,
-                    optionId = dbOption!!.id,
-                    answerOrder = option.answerOrder,
-                )
-            )
-
-
-        }
-
-    }
 
     fun buildLessonCurriculumSnapshot(lessonId: UUID): LessonCurriculumDraftSnapshot {
 
@@ -119,7 +84,6 @@ class LessonSnapshotService(
         return LessonCurriculumDraftSnapshot(exerciseSnapshots)
 
     }
-
 
     internal fun buildExerciseSnapshot(exerciseResponse: ExerciseResponse): ExerciseSnap {
         return ExerciseSnap(

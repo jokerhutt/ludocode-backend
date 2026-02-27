@@ -9,17 +9,8 @@ import java.util.*
 
 interface ExerciseRepository : JpaRepository<Exercise, ExerciseId> {
 
-    @Query(
-        value = """
-        SELECT *
-        FROM exercise
-        WHERE id = :id
-          AND is_deleted = false
-        ORDER BY version_number DESC
-        LIMIT 1
-        """,
-        nativeQuery = true
-    )
-    fun findLatestActiveById(@Param("id") id: UUID): Exercise?
+    fun findTopByExerciseId_IdOrderByExerciseId_VersionDesc(
+        id: UUID
+    ): Exercise?
 
 }
