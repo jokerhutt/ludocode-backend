@@ -1,10 +1,10 @@
 package com.ludocode.ludocodebackend.progress.app.support.component
 
-import com.ludocode.ludocodebackend.exercise.ClozeAnswer
-import com.ludocode.ludocodebackend.exercise.ClozeInteraction
-import com.ludocode.ludocodebackend.exercise.ExerciseAnswer
-import com.ludocode.ludocodebackend.exercise.MCQAnswer
-import com.ludocode.ludocodebackend.exercise.SelectInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeAnswer
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExerciseAnswer
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.MCQAnswer
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
 import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseRepository
 import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionRequest

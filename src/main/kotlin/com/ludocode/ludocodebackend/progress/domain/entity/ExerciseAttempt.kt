@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.progress.domain.entity
 
-import com.ludocode.ludocodebackend.exercise.ExerciseAnswer
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExerciseAnswer
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id

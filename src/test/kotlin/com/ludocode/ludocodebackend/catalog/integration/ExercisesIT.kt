@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.exercise.ClozeInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
 import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest

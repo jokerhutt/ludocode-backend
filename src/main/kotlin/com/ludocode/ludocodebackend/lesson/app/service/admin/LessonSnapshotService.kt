@@ -5,7 +5,7 @@ import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForAI
 import com.ludocode.ludocodebackend.commons.constants.CacheNames
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
-import com.ludocode.ludocodebackend.exercise.LExercise
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseResponse
 import com.ludocode.ludocodebackend.lesson.app.service.LessonService
 import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
@@ -90,9 +90,9 @@ class LessonSnapshotService(
 
     internal fun buildExerciseSnapshot(
         exerciseResponse: ExerciseResponse
-    ): LExercise {
+    ): ExerciseSnap {
 
-        return LExercise(
+        return ExerciseSnap(
             exerciseId = exerciseResponse.id,
             exerciseVersion = exerciseResponse.version,
             blocks = exerciseResponse.blocks,
@@ -100,7 +100,7 @@ class LessonSnapshotService(
         )
     }
 
-    override fun findExerciseSnapshotById(exerciseId: UUID): LExercise {
+    override fun findExerciseSnapshotById(exerciseId: UUID): ExerciseSnap {
         val exerciseResponse = lessonService.getExerciseByExerciseId(exerciseId)
         return buildExerciseSnapshot(exerciseResponse)
     }

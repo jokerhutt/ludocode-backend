@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.lesson.domain.entity
 
-import com.ludocode.ludocodebackend.exercise.Block
-import com.ludocode.ludocodebackend.exercise.ExerciseInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.Block
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExerciseInteraction
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
 import jakarta.persistence.Column

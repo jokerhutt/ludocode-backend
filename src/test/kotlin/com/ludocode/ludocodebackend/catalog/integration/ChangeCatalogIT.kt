@@ -1,17 +1,16 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
-import com.ludocode.ludocodebackend.catalog.api.dto.request.SubjectRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
-import com.ludocode.ludocodebackend.exercise.ClozeInteraction
-import com.ludocode.ludocodebackend.exercise.HeaderBlock
-import com.ludocode.ludocodebackend.exercise.InteractionBlank
-import com.ludocode.ludocodebackend.exercise.InteractionFile
-import com.ludocode.ludocodebackend.exercise.LExercise
-import com.ludocode.ludocodebackend.exercise.ParagraphBlock
-import com.ludocode.ludocodebackend.exercise.SelectInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.HeaderBlock
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionBlank
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionFile
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ParagraphBlock
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
@@ -166,7 +165,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         exercises.removeAt(0)
 
         // ADD new INFO
-        exercises += LExercise(
+        exercises += ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
@@ -176,7 +175,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         )
 
         // ADD new CLOZE
-        exercises += LExercise(
+        exercises += ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
@@ -257,7 +256,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         exercises.removeAt(0)
 
         // ADD INFO
-        exercises += LExercise(
+        exercises += ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
@@ -267,7 +266,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         )
 
         // ADD CLOZE
-        exercises += LExercise(
+        exercises += ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(

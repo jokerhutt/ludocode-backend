@@ -17,14 +17,14 @@ import com.ludocode.ludocodebackend.config.*
 import com.ludocode.ludocodebackend.config.security.TestSecurityConfig
 import com.ludocode.ludocodebackend.config.time.MutableClock
 import com.ludocode.ludocodebackend.config.time.TestClockConfig
-import com.ludocode.ludocodebackend.exercise.ClozeInteraction
-import com.ludocode.ludocodebackend.exercise.CodeBlock
-import com.ludocode.ludocodebackend.exercise.HeaderBlock
-import com.ludocode.ludocodebackend.exercise.InteractionBlank
-import com.ludocode.ludocodebackend.exercise.InteractionFile
-import com.ludocode.ludocodebackend.exercise.LExercise
-import com.ludocode.ludocodebackend.exercise.ParagraphBlock
-import com.ludocode.ludocodebackend.exercise.SelectInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.CodeBlock
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.HeaderBlock
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionBlank
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionFile
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ParagraphBlock
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
@@ -446,7 +446,7 @@ abstract class AbstractIntegrationTest {
     @Transactional
     fun initializeCatalog() {
 
-        val ex1 = LExercise(
+        val ex1 = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
@@ -464,7 +464,7 @@ abstract class AbstractIntegrationTest {
             )
         )
 
-        val ex2 = LExercise(
+        val ex2 = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
@@ -483,7 +483,7 @@ abstract class AbstractIntegrationTest {
             )
         )
 
-        val ex3 = LExercise(
+        val ex3 = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
@@ -496,7 +496,7 @@ abstract class AbstractIntegrationTest {
             )
         )
 
-        val ex4 = LExercise(
+        val ex4 = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
@@ -508,7 +508,7 @@ abstract class AbstractIntegrationTest {
             )
         )
 
-        val ex5 = LExercise(
+        val ex5 = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
@@ -521,7 +521,7 @@ abstract class AbstractIntegrationTest {
             )
         )
 
-        val ex6 = LExercise(
+        val ex6 = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
@@ -536,7 +536,7 @@ abstract class AbstractIntegrationTest {
             )
         )
 
-        val ex7 = LExercise(
+        val ex7 = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
@@ -551,7 +551,7 @@ abstract class AbstractIntegrationTest {
             )
         )
 
-        val ex8 = LExercise(
+        val ex8 = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
@@ -566,7 +566,7 @@ abstract class AbstractIntegrationTest {
             )
         )
 
-        val ex9INFO = LExercise(
+        val ex9INFO = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
@@ -575,7 +575,7 @@ abstract class AbstractIntegrationTest {
             interaction = null
         )
 
-        val ex10INFO = LExercise(
+        val ex10INFO = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
@@ -584,7 +584,7 @@ abstract class AbstractIntegrationTest {
             interaction = null
         )
 
-        val ex11INFO = LExercise(
+        val ex11INFO = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(

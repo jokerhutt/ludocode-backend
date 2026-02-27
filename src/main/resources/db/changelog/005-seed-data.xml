@@ -173,39 +173,6 @@
         </sql>
     </changeSet>
 
-    <!-- ===================== OPTIONS ===================== -->
-    <changeSet id="005-08-option-content" author="dave" context="dev" dbms="postgresql">
-        <sql>
-            INSERT INTO option_content (id, content)
-            VALUES
-                ('6b44be8f-da0b-43be-8bfd-1230e25b8476', '+'),
-                ('10012de8-3869-4c57-bcb9-bccba11de2e3', '=')
-            ON CONFLICT (id) DO NOTHING;
-        </sql>
-    </changeSet>
-
-    <changeSet id="005-09-exercise-options" author="dave" context="dev" dbms="postgresql">
-        <sql>
-            INSERT INTO exercise_option (id, exercise_id, exercise_version, option_id, answer_order)
-            VALUES
-                (
-                    '2288b789-9ff4-4c68-8ca8-b33defc74b3a',
-                    'c8229944-d5f1-4e67-b9b3-87b9c9e90852',
-                    1,
-                    '6b44be8f-da0b-43be-8bfd-1230e25b8476',
-                    1
-                ),
-                (
-                    '9ccac67a-dc70-49bd-bfcd-5eeca95d61ad',
-                    'c8229944-d5f1-4e67-b9b3-87b9c9e90852',
-                    1,
-                    '10012de8-3869-4c57-bcb9-bccba11de2e3',
-                    NULL
-                )
-            ON CONFLICT (id) DO NOTHING;
-        </sql>
-    </changeSet>
-
     <changeSet id="005-10-lesson-exercises" author="dave" context="dev" dbms="postgresql">
         <sql>
             INSERT INTO lesson_exercises (lesson_id, exercise_id, exercise_version, order_index)

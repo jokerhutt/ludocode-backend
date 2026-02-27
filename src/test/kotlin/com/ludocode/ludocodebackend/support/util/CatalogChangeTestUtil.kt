@@ -3,16 +3,16 @@ package com.ludocode.ludocodebackend.support.util
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleDraftSnapshot
-import com.ludocode.ludocodebackend.exercise.Block
-import com.ludocode.ludocodebackend.exercise.ClozeInteraction
-import com.ludocode.ludocodebackend.exercise.CodeBlock
-import com.ludocode.ludocodebackend.exercise.ExerciseInteraction
-import com.ludocode.ludocodebackend.exercise.HeaderBlock
-import com.ludocode.ludocodebackend.exercise.InteractionBlank
-import com.ludocode.ludocodebackend.exercise.InteractionFile
-import com.ludocode.ludocodebackend.exercise.LExercise
-import com.ludocode.ludocodebackend.exercise.ParagraphBlock
-import com.ludocode.ludocodebackend.exercise.SelectInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.Block
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.CodeBlock
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExerciseInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.HeaderBlock
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionBlank
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionFile
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ParagraphBlock
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.support.snapshot.CourseSnap
 
 import java.util.UUID
@@ -50,8 +50,8 @@ object CatalogChangeTestUtil {
         )
 
 
-    fun createInfoExercise(text: String): LExercise =
-        LExercise(
+    fun createInfoExercise(text: String): ExerciseSnap =
+        ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(ParagraphBlock(text)),
@@ -64,7 +64,7 @@ object CatalogChangeTestUtil {
         code: CodeBlock? = null,
         correctValue: String,
         vararg distractors: String
-    ): LExercise {
+    ): ExerciseSnap {
         val blocks = buildList<Block> {
             add(HeaderBlock(title))
             if (!subtitle.isNullOrBlank()) add(ParagraphBlock(subtitle))
@@ -73,7 +73,7 @@ object CatalogChangeTestUtil {
 
         val items = (listOf(correctValue) + distractors.toList()).shuffled()
 
-        return LExercise(
+        return ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = blocks,
@@ -93,14 +93,14 @@ object CatalogChangeTestUtil {
         correctValuesByBlank: List<List<String>>,
         options: List<String>,
         codeBlockInBlocks: CodeBlock? = null
-    ): LExercise {
+    ): ExerciseSnap {
         val blocks = buildList<Block> {
             add(HeaderBlock(title))
             if (!subtitle.isNullOrBlank()) add(ParagraphBlock(subtitle))
             if (codeBlockInBlocks != null) add(codeBlockInBlocks)
         }
 
-        return LExercise(
+        return ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = blocks,
@@ -115,7 +115,7 @@ object CatalogChangeTestUtil {
     }
 
     // “update options” now means: replace the interaction
-    fun updateExerciseInteraction(exercise: LExercise, newInteraction: ExerciseInteraction?) {
+    fun updateExerciseInteraction(exercise: ExerciseSnap, newInteraction: ExerciseInteraction?) {
         exercise.interaction = newInteraction
     }
 
@@ -249,9 +249,9 @@ object CatalogChangeTestUtil {
     // -------------------------
 
     fun generateRandomExerciseChanges(
-        exercises: List<LExercise>,
+        exercises: List<ExerciseSnap>,
         seed: Long? = null
-    ): MutableList<LExercise> {
+    ): MutableList<ExerciseSnap> {
         val random = seed?.let { Random(it) } ?: Random.Default
         val list = exercises.toMutableList()
 

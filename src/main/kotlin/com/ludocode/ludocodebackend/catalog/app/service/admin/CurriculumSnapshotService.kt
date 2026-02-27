@@ -20,8 +20,8 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
-import com.ludocode.ludocodebackend.exercise.HeaderBlock
-import com.ludocode.ludocodebackend.exercise.ParagraphBlock
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.HeaderBlock
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ParagraphBlock
 import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
 import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
 import com.ludocode.ludocodebackend.lesson.domain.entity.Lesson

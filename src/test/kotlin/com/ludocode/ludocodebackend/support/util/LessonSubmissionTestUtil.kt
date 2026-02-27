@@ -1,11 +1,11 @@
 package com.ludocode.ludocodebackend.support.util
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.exercise.ClozeAnswer
-import com.ludocode.ludocodebackend.exercise.ClozeInteraction
-import com.ludocode.ludocodebackend.exercise.LExercise
-import com.ludocode.ludocodebackend.exercise.MCQAnswer
-import com.ludocode.ludocodebackend.exercise.SelectInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeAnswer
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.MCQAnswer
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.LessonSnap
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseAttemptRequest
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseSubmissionRequest
@@ -52,13 +52,13 @@ object LessonSubmissionTestUtil {
         }
 
     fun createRandomExerciseSubmission(
-        exercise: LExercise,
+        exercise: ExerciseSnap,
         random: Random
     ): ExerciseSubmissionRequest =
         createExerciseSubmission(exercise, random.nextBoolean())
 
     private fun createExerciseSubmission(
-        exercise: LExercise,
+        exercise: ExerciseSnap,
         allCorrect: Boolean
     ): ExerciseSubmissionRequest {
 

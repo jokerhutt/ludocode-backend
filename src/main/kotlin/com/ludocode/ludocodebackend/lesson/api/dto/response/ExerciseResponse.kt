@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.lesson.api.dto.response
 
-import com.ludocode.ludocodebackend.exercise.Block
-import com.ludocode.ludocodebackend.exercise.ExerciseInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.Block
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExerciseInteraction
 import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
 import java.util.*
 

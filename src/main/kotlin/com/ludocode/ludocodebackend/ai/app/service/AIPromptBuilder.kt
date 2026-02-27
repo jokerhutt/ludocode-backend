@@ -1,8 +1,8 @@
 package com.ludocode.ludocodebackend.ai.app.service
 
-import com.ludocode.ludocodebackend.exercise.ClozeInteraction
-import com.ludocode.ludocodebackend.exercise.LExercise
-import com.ludocode.ludocodebackend.exercise.SelectInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import org.springframework.stereotype.Component
 
 @Component
@@ -13,7 +13,7 @@ class AIPromptBuilder {
 
     internal fun buildLessonPrompt(
         req: String,
-        exercise: LExercise,
+        exercise: ExerciseSnap,
         chatHistory: List<String>
     ): String {
 
@@ -83,7 +83,7 @@ class AIPromptBuilder {
         )
     }
 
-    private fun buildExerciseAnswerString(exercise: LExercise): String {
+    private fun buildExerciseAnswerString(exercise: ExerciseSnap): String {
 
         return when (val interaction = exercise.interaction) {
 

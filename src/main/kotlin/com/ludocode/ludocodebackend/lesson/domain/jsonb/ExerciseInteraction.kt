@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.exercise
+package com.ludocode.ludocodebackend.lesson.domain.jsonb
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
