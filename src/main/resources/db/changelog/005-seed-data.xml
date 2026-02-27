@@ -130,11 +130,11 @@
                     false,
                     '[
                         {
-                            "type": "HEADER",
+                            "type": "header",
                             "content": "Welcome to the Ludocode Python course!"
                         },
                         {
-                            "type": "PARAGRAPH",
+                            "type": "paragraph",
                             "content": "It appears you have used the docker postgres. To edit this and other courses, check out the builder!"
                         }
                     ]'::jsonb,
@@ -146,11 +146,11 @@
                     false,
                     '[
                         {
-                            "type": "HEADER",
+                            "type": "header",
                             "content": "Here is an example exercise!"
                         },
                         {
-                            "type": "PARAGRAPH",
+                            "type": "paragraph",
                             "content": "Complete the code below"
                         }
                     ]'::jsonb,
