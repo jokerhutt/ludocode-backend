@@ -3,6 +3,8 @@ package com.ludocode.ludocodebackend.lesson.domain.jsonb
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
+import java.util.UUID
+
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
@@ -14,8 +16,28 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     JsonSubTypes.Type(value = CodeBlock::class, name = "code"),
     JsonSubTypes.Type(value = MediaBlock::class, name = "media")
 )
-sealed interface Block
-data class HeaderBlock(val content: String) : Block
-data class ParagraphBlock(val content: String) : Block
-data class CodeBlock(val language: String, val content: String) : Block
-data class MediaBlock(val src: String, val alt: String? = null) : Block
+sealed interface Block {
+    val clientId: UUID
+}
+
+data class HeaderBlock(
+    val content: String,
+    override val clientId: UUID = UUID.randomUUID()
+) : Block
+
+data class ParagraphBlock(
+    val content: String,
+    override val clientId: UUID = UUID.randomUUID()
+) : Block
+
+data class CodeBlock(
+    val language: String,
+    val content: String,
+    override val clientId: UUID = UUID.randomUUID()
+) : Block
+
+data class MediaBlock(
+    val src: String,
+    val alt: String? = null,
+    override val clientId: UUID = UUID.randomUUID()
+) : Block
