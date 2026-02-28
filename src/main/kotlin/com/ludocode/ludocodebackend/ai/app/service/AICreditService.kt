@@ -8,12 +8,12 @@ import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.subscription.configuration.PlanDefinitions
+import com.ludocode.ludocodebackend.subscription.configuration.StripeMode
 import com.ludocode.ludocodebackend.subscription.configuration.StripeProperties
 import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -102,8 +102,13 @@ class AICreditService(
         val existing = userAICreditsRepository.findById(userId).orElse(null)
         if (existing != null) return existing
 
-        val isStripeEnabled = stripeProperties.enabled
-        val initialPlan = if (isStripeEnabled) Plan.FREE else Plan.DEV
+        val stripeMode = stripeProperties.mode
+
+        val initialPlan = when (stripeMode) {
+            StripeMode.DEV_UNLIMITED -> Plan.DEV
+            StripeMode.PROD -> Plan.FREE
+            StripeMode.FREE_ONLY -> Plan.FREE
+        }
 
         val allowance = PlanDefinitions.configFor(initialPlan).limits.monthlyAiCredits
 

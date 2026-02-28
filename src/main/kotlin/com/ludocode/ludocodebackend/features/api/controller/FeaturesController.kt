@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.features.api.dto.response.ActiveFeaturesResponse
 import com.ludocode.ludocodebackend.playground.config.PistonFeatureConfig
 import com.ludocode.ludocodebackend.storage.configuration.StorageProperties
+import com.ludocode.ludocodebackend.subscription.configuration.StripeProperties
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.core.env.Environment
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping(ApiPaths.FEATURES.BASE)
 class FeaturesController(
     private val storageProps: StorageProperties,
+    private val stripeProps: StripeProperties,
     private val aiConfig: AIFeatureConfig,
     private val pistonConfig: PistonFeatureConfig,
     private val demoConfig: DemoConfig,
@@ -42,6 +44,8 @@ class FeaturesController(
                 storageMode = storageProps.mode,
                 isAIEnabled = aiConfig.enabled,
                 isPistonEnabled = pistonConfig.enabled,
+                stripeMode = stripeProps.mode,
+                paymentsEnabled = stripeProps.enabled,
                 isDemoEnabled = demoConfig.enabled,
                 isAdminEnabled = isAdminEnabled()
             )
