@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.catalog.api.dto.snapshot
 
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.Block
 import java.util.*
 
 data class CurriculumDraftSnapshot(

@@ -10,7 +10,17 @@ data class ExerciseSnap (
 
     val exerciseVersion: Int,
 
-    val blocks: List<Block>,
+    val blocks: List<BlockSnap>,
 
-    var interaction: ExerciseInteraction? = null
+    var interaction: InteractionSnap? = null
+)
+
+data class BlockSnap(
+    val clientId: UUID = UUID.randomUUID(),
+    val block: Block
+)
+
+data class InteractionSnap(
+    val clientId: UUID = UUID.randomUUID(),
+    val interaction: ExerciseInteraction
 )

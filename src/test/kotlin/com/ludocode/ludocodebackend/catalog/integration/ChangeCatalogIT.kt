@@ -4,11 +4,13 @@ import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.BlockSnap
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.HeaderBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionBlank
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionFile
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.InteractionSnap
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ParagraphBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
@@ -154,11 +156,13 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         val original = exercises[1]
         exercises[1] = original.copy(
             blocks = listOf(
-                HeaderBlock("Changed title")
+                BlockSnap(block = HeaderBlock("Changed title"))
             ),
-            interaction = SelectInteraction(
-                items = listOf("mouse", "'mouse'"),
-                correctValue = "mouse"
+            interaction = InteractionSnap(
+                interaction = SelectInteraction(
+                    items = listOf("mouse", "'mouse'"),
+                    correctValue = "mouse"
+                )
             )
         )
 
@@ -169,7 +173,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
-                ParagraphBlock("New INFO lesson")
+                BlockSnap(block = ParagraphBlock("New INFO lesson"))
             ),
             interaction = null
         )
@@ -179,19 +183,21 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
-                HeaderBlock("New CLOZE lesson"),
-                ParagraphBlock("You must wrap text in quotes")
+                BlockSnap(block = HeaderBlock("New CLOZE lesson")),
+                BlockSnap(block = ParagraphBlock("You must wrap text in quotes"))
             ),
-            interaction = ClozeInteraction(
-                file = InteractionFile(
-                    language = "python",
-                    content = "print(___i love python___)"
-                ),
-                blanks = listOf(
-                    InteractionBlank(0, listOf("'")),
-                    InteractionBlank(1, listOf("'"))
-                ),
-                options = listOf("'", "+")
+            interaction = InteractionSnap(
+                interaction = ClozeInteraction(
+                    file = InteractionFile(
+                        language = "python",
+                        content = "print(___i love python___)"
+                    ),
+                    blanks = listOf(
+                        InteractionBlank(0, listOf("'")),
+                        InteractionBlank(1, listOf("'"))
+                    ),
+                    options = listOf("'", "+")
+                )
             )
         )
 
@@ -240,49 +246,49 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         )
         lessonCompletionRepository.saveAll(completeProgress)
 
-        // MODIFY second exercise
         val original = exercises[1]
         exercises[1] = original.copy(
             blocks = listOf(
-                HeaderBlock("Changed title")
+                BlockSnap(block = HeaderBlock("Changed title"))
             ),
-            interaction = SelectInteraction(
-                items = listOf("mouse", "'mouse'"),
-                correctValue = "mouse"
+            interaction = InteractionSnap(
+                interaction = SelectInteraction(
+                    items = listOf("mouse", "'mouse'"),
+                    correctValue = "mouse"
+                )
             )
         )
 
-        // DELETE first
         exercises.removeAt(0)
 
-        // ADD INFO
         exercises += ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
-                ParagraphBlock("New INFO lesson")
+                BlockSnap(block = ParagraphBlock("New INFO lesson"))
             ),
             interaction = null
         )
 
-        // ADD CLOZE
         exercises += ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
-                HeaderBlock("New CLOZE lesson"),
-                ParagraphBlock("You must wrap text in quotes")
+                BlockSnap(block = HeaderBlock("New CLOZE lesson")),
+                BlockSnap(block = ParagraphBlock("You must wrap text in quotes"))
             ),
-            interaction = ClozeInteraction(
-                file = InteractionFile(
-                    language = "python",
-                    content = "print(___i love python___)"
-                ),
-                blanks = listOf(
-                    InteractionBlank(0, listOf("'")),
-                    InteractionBlank(1, listOf("'"))
-                ),
-                options = listOf("'", "+")
+            interaction = InteractionSnap(
+                interaction = ClozeInteraction(
+                    file = InteractionFile(
+                        language = "python",
+                        content = "print(___i love python___)"
+                    ),
+                    blanks = listOf(
+                        InteractionBlank(0, listOf("'")),
+                        InteractionBlank(1, listOf("'"))
+                    ),
+                    options = listOf("'", "+")
+                )
             )
         )
 

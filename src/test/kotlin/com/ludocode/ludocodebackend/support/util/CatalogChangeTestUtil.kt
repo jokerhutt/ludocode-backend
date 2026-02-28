@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.support.util
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleDraftSnapshot
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.BlockSnap
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.Block
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.CodeBlock
@@ -11,6 +12,7 @@ import com.ludocode.ludocodebackend.lesson.domain.jsonb.HeaderBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionBlank
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionFile
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.InteractionSnap
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ParagraphBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.support.snapshot.CourseSnap
@@ -54,7 +56,9 @@ object CatalogChangeTestUtil {
         ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
-            blocks = listOf(ParagraphBlock(text)),
+            blocks = listOf(
+                BlockSnap(block = ParagraphBlock(text))
+            ),
             interaction = null
         )
 
@@ -65,10 +69,13 @@ object CatalogChangeTestUtil {
         correctValue: String,
         vararg distractors: String
     ): ExerciseSnap {
-        val blocks = buildList<Block> {
-            add(HeaderBlock(title))
-            if (!subtitle.isNullOrBlank()) add(ParagraphBlock(subtitle))
-            if (code != null) add(code)
+
+        val blocks = buildList {
+            add(BlockSnap(block = HeaderBlock(title)))
+            if (!subtitle.isNullOrBlank())
+                add(BlockSnap(block = ParagraphBlock(subtitle)))
+            if (code != null)
+                add(BlockSnap(block = code))
         }
 
         val items = (listOf(correctValue) + distractors.toList()).shuffled()
@@ -77,9 +84,11 @@ object CatalogChangeTestUtil {
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = blocks,
-            interaction = SelectInteraction(
-                items = items,
-                correctValue = correctValue
+            interaction = InteractionSnap(
+                interaction = SelectInteraction(
+                    items = items,
+                    correctValue = correctValue
+                )
             )
         )
     }
@@ -89,34 +98,33 @@ object CatalogChangeTestUtil {
         subtitle: String? = null,
         language: String,
         content: String,
-        // each blank can have multiple allowed values
         correctValuesByBlank: List<List<String>>,
         options: List<String>,
         codeBlockInBlocks: CodeBlock? = null
     ): ExerciseSnap {
-        val blocks = buildList<Block> {
-            add(HeaderBlock(title))
-            if (!subtitle.isNullOrBlank()) add(ParagraphBlock(subtitle))
-            if (codeBlockInBlocks != null) add(codeBlockInBlocks)
+
+        val blocks = buildList {
+            add(BlockSnap(block = HeaderBlock(title)))
+            if (!subtitle.isNullOrBlank())
+                add(BlockSnap(block = ParagraphBlock(subtitle)))
+            if (codeBlockInBlocks != null)
+                add(BlockSnap(block = codeBlockInBlocks))
         }
 
         return ExerciseSnap(
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = blocks,
-            interaction = ClozeInteraction(
-                file = InteractionFile(language = language, content = content),
-                blanks = correctValuesByBlank.mapIndexed { idx, allowed ->
-                    InteractionBlank(index = idx, correctOptions = allowed)
-                },
-                options = options
+            interaction = InteractionSnap(
+                interaction = ClozeInteraction(
+                    file = InteractionFile(language = language, content = content),
+                    blanks = correctValuesByBlank.mapIndexed { idx, allowed ->
+                        InteractionBlank(index = idx, correctOptions = allowed)
+                    },
+                    options = options
+                )
             )
         )
-    }
-
-    // “update options” now means: replace the interaction
-    fun updateExerciseInteraction(exercise: ExerciseSnap, newInteraction: ExerciseInteraction?) {
-        exercise.interaction = newInteraction
     }
 
     // -------------------------
@@ -274,9 +282,15 @@ object CatalogChangeTestUtil {
                 "CHANGE_TITLE_BLOCK" -> {
                     if (list.isNotEmpty()) {
                         val i = random.nextInt(list.size)
+
                         list[i] = list[i].copy(
-                            blocks = list[i].blocks.map {
-                                if (it is HeaderBlock) HeaderBlock("Modified ${randomString(random, 10)}") else it
+                            blocks = list[i].blocks.map { snap ->
+                                val block = snap.block
+                                if (block is HeaderBlock) {
+                                    snap.copy(
+                                        block = HeaderBlock("Modified ${randomString(random, 10)}")
+                                    )
+                                } else snap
                             }
                         )
                     }
@@ -287,32 +301,47 @@ object CatalogChangeTestUtil {
                         val i = random.nextInt(list.size)
                         val ex = list[i]
 
-                        val interaction = ex.interaction
-
-                        val newInteraction: ExerciseInteraction? = when (interaction) {
-                            is SelectInteraction -> {
-                                val correct = randomString(random, 6)
-                                val d1 = randomString(random, 6)
-                                val d2 = randomString(random, 6)
-                                SelectInteraction(
-                                    items = listOf(correct, d1, d2).shuffled(random),
-                                    correctValue = correct
-                                )
-                            }
-
-                            is ClozeInteraction -> {
-                                val correct0 = randomString(random, 5)
-                                ClozeInteraction(
-                                    file = interaction.file,
-                                    blanks = listOf(InteractionBlank(0, listOf(correct0))),
-                                    options = listOf(correct0, randomString(random, 5))
-                                )
-                            }
+                        val newInteractionSnap = when (val snap = ex.interaction) {
 
                             null -> null
+
+                            else -> {
+                                val interaction = snap.interaction
+
+                                val newInteraction = when (interaction) {
+
+                                    is SelectInteraction -> {
+                                        val correct = randomString(random, 6)
+                                        val d1 = randomString(random, 6)
+                                        val d2 = randomString(random, 6)
+
+                                        SelectInteraction(
+                                            items = listOf(correct, d1, d2).shuffled(random),
+                                            correctValue = correct
+                                        )
+                                    }
+
+                                    is ClozeInteraction -> {
+                                        val correct0 = randomString(random, 5)
+
+                                        ClozeInteraction(
+                                            file = interaction.file,
+                                            blanks = listOf(
+                                                InteractionBlank(0, listOf(correct0))
+                                            ),
+                                            options = listOf(
+                                                correct0,
+                                                randomString(random, 5)
+                                            )
+                                        )
+                                    }
+                                }
+
+                                InteractionSnap(interaction = newInteraction)
+                            }
                         }
 
-                        list[i] = ex.copy(interaction = newInteraction)
+                        list[i] = ex.copy(interaction = newInteractionSnap)
                     }
                 }
 

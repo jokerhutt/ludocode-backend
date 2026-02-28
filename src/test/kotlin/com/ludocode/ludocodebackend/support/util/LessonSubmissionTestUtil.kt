@@ -63,9 +63,8 @@ object LessonSubmissionTestUtil {
     ): ExerciseSubmissionRequest {
 
         val attempts: List<ExerciseAttemptRequest> =
-            when (val interaction = exercise.interaction) {
+            when (val interaction = exercise.interaction?.interaction) {
 
-                // INFO exercise
                 null -> listOf(
                     ExerciseAttemptRequest(
                         answer = SelectAnswer("INFO")
@@ -73,7 +72,6 @@ object LessonSubmissionTestUtil {
                 )
 
                 is SelectInteraction -> {
-
                     if (allCorrect) {
                         listOf(
                             ExerciseAttemptRequest(
@@ -95,7 +93,6 @@ object LessonSubmissionTestUtil {
                 }
 
                 is ClozeInteraction -> {
-
                     val correctValues =
                         interaction.blanks.map { it.correctOptions.first() }
 
@@ -106,7 +103,6 @@ object LessonSubmissionTestUtil {
                             )
                         )
                     } else {
-
                         val wrongValues =
                             interaction.blanks.map { blank ->
                                 interaction.options.first { it !in blank.correctOptions }
