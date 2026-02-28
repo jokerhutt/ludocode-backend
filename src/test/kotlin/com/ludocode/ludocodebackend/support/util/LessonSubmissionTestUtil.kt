@@ -7,7 +7,7 @@ import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectAnswer
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.LessonSnap
-import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseAttemptRequest
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExerciseAnswer
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseSubmissionRequest
 import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionRequest
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionPacket
@@ -62,34 +62,27 @@ object LessonSubmissionTestUtil {
         allCorrect: Boolean
     ): ExerciseSubmissionRequest {
 
-        val attempts: List<ExerciseAttemptRequest> =
+        val attempts: List<ExerciseAnswer> =
             when (val interaction = exercise.interaction) {
 
                 // INFO exercise
                 null -> listOf(
-                    ExerciseAttemptRequest(
-                        answer = SelectAnswer("INFO")
-                    )
+                    SelectAnswer("INFO")
                 )
 
                 is SelectInteraction -> {
 
                     if (allCorrect) {
                         listOf(
-                            ExerciseAttemptRequest(
-                                answer = SelectAnswer(interaction.correctValue)
-                            )
+                            SelectAnswer(interaction.correctValue)
                         )
                     } else {
-                        val wrong = interaction.items.first { it != interaction.correctValue }
+                        val wrong =
+                            interaction.items.first { it != interaction.correctValue }
 
                         listOf(
-                            ExerciseAttemptRequest(
-                                answer = SelectAnswer(wrong)
-                            ),
-                            ExerciseAttemptRequest(
-                                answer = SelectAnswer(interaction.correctValue)
-                            )
+                            SelectAnswer(wrong),
+                            SelectAnswer(interaction.correctValue)
                         )
                     }
                 }
@@ -101,24 +94,20 @@ object LessonSubmissionTestUtil {
 
                     if (allCorrect) {
                         listOf(
-                            ExerciseAttemptRequest(
-                                answer = ClozeAnswer(correctValues)
-                            )
+                            ClozeAnswer(correctValues)
                         )
                     } else {
 
                         val wrongValues =
                             interaction.blanks.map { blank ->
-                                interaction.options.first { it !in blank.correctOptions }
+                                interaction.options.first {
+                                    it !in blank.correctOptions
+                                }
                             }
 
                         listOf(
-                            ExerciseAttemptRequest(
-                                answer = ClozeAnswer(wrongValues)
-                            ),
-                            ExerciseAttemptRequest(
-                                answer = ClozeAnswer(correctValues)
-                            )
+                            ClozeAnswer(wrongValues),
+                            ClozeAnswer(correctValues)
                         )
                     }
                 }

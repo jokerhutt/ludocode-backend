@@ -56,7 +56,7 @@ import java.util.*
 
                 for (attempt in submission.attempts) {
 
-                    val isCorrect = grade(exercise, attempt.answer)
+                    val isCorrect = grade(exercise, attempt)
 
                     if (isCorrect) correctAttempts++
 
@@ -68,7 +68,7 @@ import java.util.*
                             userId = userId,
                             exerciseId = exercise.exerciseId.id,
                             exerciseVersion = exercise.exerciseId.versionNumber,
-                            answer = attempt.answer,
+                            answer = attempt,
                             isCorrect = isCorrect
                         )
                     )
