@@ -19,6 +19,7 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.playground.app.service.ProjectPlanEnforcer
 import com.ludocode.ludocodebackend.subscription.configuration.PlanLimits
+import com.ludocode.ludocodebackend.subscription.configuration.StripeMode
 import com.ludocode.ludocodebackend.subscription.configuration.StripeProperties
 import net.logstash.logback.argument.StructuredArguments.kv
 import jakarta.transaction.Transactional
@@ -203,31 +204,42 @@ class SubscriptionService(
 
     fun getUserSubscriptionResponse(userId: UUID): UserSubscriptionResponse {
 
-        if (!stripeProperties.enabled) {
-            return userSubscriptionMapper.toUserSubscriptionResponse(
-                userId = userId,
-                planCode = Plan.DEV,
-                cancelAtPeriodEnd = false,
-                renewalDate = OffsetDateTime.now(clock)
-            )
+        when (stripeProperties.mode) {
+            StripeMode.PROD -> {
+
+                val userPlan = userSubscriptionRepository.findByUserIdAndStatusIn(
+                    userId,
+                    listOf("active", "trialing")
+                )
+
+                val planCode = userPlan?.plan?.planCode ?: Plan.FREE
+                val cancelAtPeriodEnd = userPlan?.cancelAtPeriodEnd ?: false
+                val renewalDate = userPlan?.currentPeriodEnd
+
+                return userSubscriptionMapper.toUserSubscriptionResponse(
+                    userId = userId,
+                    planCode = planCode,
+                    cancelAtPeriodEnd = cancelAtPeriodEnd,
+                    renewalDate = renewalDate
+                )
+            }
+            StripeMode.DEV_UNLIMITED -> {
+                return userSubscriptionMapper.toUserSubscriptionResponse(
+                    userId = userId,
+                    planCode = Plan.DEV,
+                    cancelAtPeriodEnd = false,
+                    renewalDate = null
+                )
+            }
+            StripeMode.FREE_ONLY -> {
+                return userSubscriptionMapper.toUserSubscriptionResponse(
+                    userId = userId,
+                    planCode = Plan.FREE,
+                    cancelAtPeriodEnd = false,
+                    renewalDate = null
+                )
+            }
         }
-
-        val userPlan = userSubscriptionRepository.findByUserIdAndStatusIn(
-            userId,
-            listOf("active", "trialing")
-        )
-
-        val planCode = userPlan?.plan?.planCode ?: Plan.FREE
-        val cancelAtPeriodEnd = userPlan?.cancelAtPeriodEnd ?: false
-        val renewalDate = userPlan?.currentPeriodEnd
-
-        val res = userSubscriptionMapper.toUserSubscriptionResponse(
-            userId = userId,
-            planCode = planCode,
-            cancelAtPeriodEnd = cancelAtPeriodEnd,
-            renewalDate = renewalDate
-            )
-        return res
     }
 
     fun getActivePlanOverviews(): List<SubscriptionPlanOverviewResponse> {
