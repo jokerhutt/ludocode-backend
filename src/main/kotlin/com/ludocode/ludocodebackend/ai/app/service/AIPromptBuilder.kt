@@ -85,7 +85,7 @@ class AIPromptBuilder {
 
     private fun buildExerciseAnswerString(exercise: ExerciseSnap): String {
 
-        return when (val interaction = exercise.interaction?.interaction) {
+        return when (val interaction = exercise.interaction) {
 
             null -> buildInfoAnswer()
 

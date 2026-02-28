@@ -7,14 +7,11 @@ import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseResponse
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.BlockSnap
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.InteractionSnap
 import com.ludocode.ludocodebackend.lesson.app.service.LessonService
 import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
 import com.ludocode.ludocodebackend.lesson.domain.entity.LessonExercise
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.LessonExercisesId
-import com.ludocode.ludocodebackend.lesson.domain.jsonb.Block
 import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseRepository
 import com.ludocode.ludocodebackend.lesson.infra.repository.LessonExercisesRepository
 import jakarta.transaction.Transactional
@@ -60,8 +57,8 @@ class LessonSnapshotService(
             val exerciseEntity = exerciseRepository.save(
                 Exercise(
                     ExerciseId(exercise.exerciseId, version),
-                    blocks = exercise.blocks.map { it.block },
-                    interaction = exercise.interaction?.interaction,
+                    blocks = exercise.blocks,
+                    interaction = exercise.interaction,
                     isDeleted = false
                 )
             )
@@ -98,18 +95,8 @@ class LessonSnapshotService(
         return ExerciseSnap(
             exerciseId = exerciseResponse.id,
             exerciseVersion = exerciseResponse.version,
-            blocks = exerciseResponse.blocks.map { block ->
-                BlockSnap(
-                    clientId = UUID.randomUUID(),
-                    block = block
-                )
-            },
-            interaction = exerciseResponse.interaction?.let {
-                InteractionSnap(
-                    clientId = UUID.randomUUID(),
-                    interaction = it
-                )
-            }
+            blocks = exerciseResponse.blocks,
+            interaction = exerciseResponse.interaction
         )
     }
 

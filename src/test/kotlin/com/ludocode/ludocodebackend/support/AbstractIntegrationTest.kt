@@ -28,8 +28,6 @@ import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.BlockSnap
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.InteractionSnap
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.LessonSnap
 import com.ludocode.ludocodebackend.lesson.domain.entity.*
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
@@ -309,8 +307,8 @@ abstract class AbstractIntegrationTest {
                         exerciseRepository.save(
                             Exercise(
                                 exerciseId = exId,
-                                blocks = ex.blocks.map { it.block },
-                                interaction = ex.interaction?.interaction
+                                blocks = ex.blocks,
+                                interaction = ex.interaction
                             )
                         )
 
@@ -452,20 +450,17 @@ abstract class AbstractIntegrationTest {
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
-                BlockSnap(UUID.randomUUID(), HeaderBlock("Complete the expression"))
+                HeaderBlock("Complete the expression")
             ),
-            interaction = InteractionSnap(
-                UUID.randomUUID(),
-                ClozeInteraction(
-                    file = InteractionFile(
-                        language = "javascript",
-                        content = "let sum = ___ + 4"
-                    ),
-                    blanks = listOf(
-                        InteractionBlank(index = 0, correctOptions = listOf("4"))
-                    ),
-                    options = listOf("4", "let")
-                )
+            interaction = ClozeInteraction(
+                file = InteractionFile(
+                    language = "javascript",
+                    content = "let sum = ___ + 4"
+                ),
+                blanks = listOf(
+                    InteractionBlank(index = 0, correctOptions = listOf("4"))
+                ),
+                options = listOf("4", "let")
             )
         )
 
@@ -473,21 +468,18 @@ abstract class AbstractIntegrationTest {
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
-                BlockSnap(UUID.randomUUID(), HeaderBlock("Create a variable with a value of 'House'"))
+                HeaderBlock("Create a variable with a value of 'House'")
             ),
-            interaction = InteractionSnap(
-                UUID.randomUUID(),
-                ClozeInteraction(
-                    file = InteractionFile(
-                        language = "javascript",
-                        content = "const ___ = ___"
-                    ),
-                    blanks = listOf(
-                        InteractionBlank(0, listOf("house")),
-                        InteractionBlank(1, listOf("'house'"))
-                    ),
-                    options = listOf("house", "'house'")
-                )
+            interaction = ClozeInteraction(
+                file = InteractionFile(
+                    language = "javascript",
+                    content = "const ___ = ___"
+                ),
+                blanks = listOf(
+                    InteractionBlank(0, listOf("house")),
+                    InteractionBlank(1, listOf("'house'"))
+                ),
+                options = listOf("house", "'house'")
             )
         )
 
@@ -495,15 +487,12 @@ abstract class AbstractIntegrationTest {
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
-                BlockSnap(UUID.randomUUID(), HeaderBlock("What will the following code return")),
-                BlockSnap(UUID.randomUUID(), CodeBlock("javascript", "const score = 4 + 4;"))
+                HeaderBlock("What will the following code return"),
+                CodeBlock("javascript", "const score = 4 + 4;")
             ),
-            interaction = InteractionSnap(
-                UUID.randomUUID(),
-                SelectInteraction(
-                    items = listOf("8", "undefined"),
-                    correctValue = "8"
-                )
+            interaction = SelectInteraction(
+                items = listOf("8", "undefined"),
+                correctValue = "8"
             )
         )
 
@@ -511,14 +500,11 @@ abstract class AbstractIntegrationTest {
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
-                BlockSnap(UUID.randomUUID(), HeaderBlock("Which of the following declares a variable that can not be reassigned"))
+                HeaderBlock("Which of the following declares a variable that can not be reassigned")
             ),
-            interaction = InteractionSnap(
-                UUID.randomUUID(),
-                SelectInteraction(
-                    items = listOf("const", "let"),
-                    correctValue = "const"
-                )
+            interaction = SelectInteraction(
+                items = listOf("const", "let"),
+                correctValue = "const"
             )
         )
 
@@ -526,15 +512,12 @@ abstract class AbstractIntegrationTest {
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
-                BlockSnap(UUID.randomUUID(), HeaderBlock("What will this print?")),
-                BlockSnap(UUID.randomUUID(), CodeBlock("python", "print(2 == 2)"))
+                HeaderBlock("What will this print?"),
+                CodeBlock("python", "print(2 == 2)")
             ),
-            interaction = InteractionSnap(
-                UUID.randomUUID(),
-                SelectInteraction(
-                    items = listOf("True", "False"),
-                    correctValue = "True"
-                )
+            interaction = SelectInteraction(
+                items = listOf("True", "False"),
+                correctValue = "True"
             )
         )
 
@@ -542,17 +525,14 @@ abstract class AbstractIntegrationTest {
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
-                BlockSnap(UUID.randomUUID(), HeaderBlock("Complete the expression"))
+                HeaderBlock("Complete the expression")
             ),
-            interaction = InteractionSnap(
-                UUID.randomUUID(),
-                ClozeInteraction(
-                    file = InteractionFile("python", "___ i == 5"),
-                    blanks = listOf(
-                        InteractionBlank(0, listOf("if"))
-                    ),
-                    options = listOf("if", "let")
-                )
+            interaction = ClozeInteraction(
+                file = InteractionFile("python", "___ i == 5"),
+                blanks = listOf(
+                    InteractionBlank(0, listOf("if"))
+                ),
+                options = listOf("if", "let")
             )
         )
 
@@ -560,17 +540,14 @@ abstract class AbstractIntegrationTest {
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
-                BlockSnap(UUID.randomUUID(), HeaderBlock("Complete the expression"))
+                HeaderBlock("Complete the expression")
             ),
-            interaction = InteractionSnap(
-                UUID.randomUUID(),
-                ClozeInteraction(
-                    file = InteractionFile("python", "if i ___ 4"),
-                    blanks = listOf(
-                        InteractionBlank(0, listOf("=="))
-                    ),
-                    options = listOf("==", "===")
-                )
+            interaction = ClozeInteraction(
+                file = InteractionFile("python", "if i ___ 4"),
+                blanks = listOf(
+                    InteractionBlank(0, listOf("=="))
+                ),
+                options = listOf("==", "===")
             )
         )
 
@@ -578,17 +555,14 @@ abstract class AbstractIntegrationTest {
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
-                BlockSnap(UUID.randomUUID(), HeaderBlock("Complete the expression"))
+                HeaderBlock("Complete the expression")
             ),
-            interaction = InteractionSnap(
-                UUID.randomUUID(),
-                ClozeInteraction(
-                    file = InteractionFile("python", "for i ___ points"),
-                    blanks = listOf(
-                        InteractionBlank(0, listOf("in"))
-                    ),
-                    options = listOf("in", "while")
-                )
+            interaction = ClozeInteraction(
+                file = InteractionFile("python", "for i ___ points"),
+                blanks = listOf(
+                    InteractionBlank(0, listOf("in"))
+                ),
+                options = listOf("in", "while")
             )
         )
 
@@ -596,7 +570,7 @@ abstract class AbstractIntegrationTest {
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
-                BlockSnap(UUID.randomUUID(), ParagraphBlock("If statements run if a condition is true"))
+                ParagraphBlock("If statements run if a condition is true")
             ),
             interaction = null
         )
@@ -605,7 +579,7 @@ abstract class AbstractIntegrationTest {
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
-                BlockSnap(UUID.randomUUID(), ParagraphBlock("They are very powerful"))
+                ParagraphBlock("They are very powerful")
             ),
             interaction = null
         )
@@ -614,7 +588,7 @@ abstract class AbstractIntegrationTest {
             exerciseId = UUID.randomUUID(),
             exerciseVersion = 1,
             blocks = listOf(
-                BlockSnap(UUID.randomUUID(), ParagraphBlock("Else statements run if none of the if statement conditions were true"))
+                ParagraphBlock("Else statements run if none of the if statement conditions were true")
             ),
             interaction = null
         )
