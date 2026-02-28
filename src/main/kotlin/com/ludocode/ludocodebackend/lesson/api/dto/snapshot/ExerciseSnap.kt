@@ -1,15 +1,16 @@
 package com.ludocode.ludocodebackend.lesson.api.dto.snapshot
 
-import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
-import java.util.*
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.Block
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExerciseInteraction
+import java.util.UUID
 
-data class ExerciseSnap(
-    val id: UUID,
-    var title: String,
-    var subtitle: String?,
-    val prompt: String?,
-    val media: String? = null,
-    val exerciseType: ExerciseType,
-    var correctOptions: List<OptionSnap>,
-    var distractors: List<OptionSnap>
+data class ExerciseSnap (
+
+    val exerciseId: UUID,
+
+    val exerciseVersion: Int,
+
+    val blocks: List<Block>,
+
+    var interaction: ExerciseInteraction? = null
 )

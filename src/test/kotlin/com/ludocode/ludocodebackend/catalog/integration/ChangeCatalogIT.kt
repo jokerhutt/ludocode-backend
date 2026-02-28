@@ -1,10 +1,16 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
-import com.ludocode.ludocodebackend.catalog.api.dto.request.SubjectRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.HeaderBlock
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionBlank
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionFile
+import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ParagraphBlock
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
@@ -131,6 +137,10 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         assertThat(result).isNotNull()
         assertThat(result)
             .usingRecursiveComparison()
+            .ignoringFieldsMatchingRegexes(
+                ".*exerciseOptionId",
+                ".*exerciseVersion"
+            )
             .isEqualTo(pythonCurriculum)
     }
 
@@ -139,37 +149,63 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
         val lessonToChange = pythonSnap.modules[0].lessons[0]
 
-        val lessonCurriculum = LessonCurriculumDraftSnapshot(
-            exercises = lessonToChange.exercises
+        val exercises = lessonToChange.exercises.toMutableList()
+
+        val original = exercises[1]
+        exercises[1] = original.copy(
+            blocks = listOf(
+                HeaderBlock("Changed title")
+            ),
+            interaction = SelectInteraction(
+                items = listOf("mouse", "'mouse'"),
+                correctValue = "mouse"
+            )
         )
 
-        val exerciseToChange = lessonCurriculum.exercises[1]
-        exerciseToChange.title = "Changed title"
-        CatalogChangeTestUtil.updateExerciseOptions(
-            exerciseToChange,
-            correctAnswers = listOf("mouse"),
-            distractors = listOf("'mouse'")
+        exercises.removeAt(0)
+
+        // ADD new INFO
+        exercises += ExerciseSnap(
+            exerciseId = UUID.randomUUID(),
+            exerciseVersion = 1,
+            blocks = listOf(
+                ParagraphBlock("New INFO lesson")
+            ),
+            interaction = null
         )
 
-        val exerciseToDelete = lessonCurriculum.exercises[0]
-        lessonCurriculum.exercises -= exerciseToDelete
-
-        lessonCurriculum.exercises += CatalogChangeTestUtil.createInfoExercise("New INFO lesson")
-        lessonCurriculum.exercises += CatalogChangeTestUtil.createClozeExercise(
-            title = "New CLOZE lesson",
-            subtitle = "You must wrap text in quotes",
-            prompt = "print(___i love python___)",
-            correctAnswers = listOf("'", "'"),
-            distractors = listOf("+"),
-            media = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIbjxOIxdHAylWUgy-LqVNWa9ID3VmUy8Lxg&s"
+        // ADD new CLOZE
+        exercises += ExerciseSnap(
+            exerciseId = UUID.randomUUID(),
+            exerciseVersion = 1,
+            blocks = listOf(
+                HeaderBlock("New CLOZE lesson"),
+                ParagraphBlock("You must wrap text in quotes")
+            ),
+            interaction = ClozeInteraction(
+                file = InteractionFile(
+                    language = "python",
+                    content = "print(___i love python___)"
+                ),
+                blanks = listOf(
+                    InteractionBlank(0, listOf("'")),
+                    InteractionBlank(1, listOf("'"))
+                ),
+                options = listOf("'", "+")
+            )
         )
+
+        val lessonCurriculum = LessonCurriculumDraftSnapshot(exercises = exercises)
 
         val result = submitPostUpdateExerciseCatalog(lessonToChange.id, lessonCurriculum)
 
         assertThat(result).isNotNull()
         assertThat(result)
             .usingRecursiveComparison()
-            .ignoringFieldsMatchingRegexes(".*exerciseOptionId")
+            .ignoringFieldsMatchingRegexes(
+                ".*exerciseOptionId",
+                ".*exerciseVersion"
+            )
             .isEqualTo(lessonCurriculum)
     }
 
@@ -178,9 +214,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
         val lessonToChange = pythonSnap.modules[0].lessons[0]
 
-        val lessonCurriculum = LessonCurriculumDraftSnapshot(
-            exercises = lessonToChange.exercises
-        )
+        val exercises = lessonToChange.exercises.toMutableList()
 
         courseProgressRepository.saveAll(
             listOf(
@@ -204,36 +238,65 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
                 user1.id, pythonId, pythonLessons
             )
         )
-
         lessonCompletionRepository.saveAll(completeProgress)
 
-        val exerciseToChange = lessonCurriculum.exercises[1]
-        exerciseToChange.title = "Changed title"
-        CatalogChangeTestUtil.updateExerciseOptions(
-            exerciseToChange,
-            correctAnswers = listOf("mouse"),
-            distractors = listOf("'mouse'")
+        // MODIFY second exercise
+        val original = exercises[1]
+        exercises[1] = original.copy(
+            blocks = listOf(
+                HeaderBlock("Changed title")
+            ),
+            interaction = SelectInteraction(
+                items = listOf("mouse", "'mouse'"),
+                correctValue = "mouse"
+            )
         )
 
-        val exerciseToDelete = lessonCurriculum.exercises[0]
-        lessonCurriculum.exercises -= exerciseToDelete
+        // DELETE first
+        exercises.removeAt(0)
 
-        lessonCurriculum.exercises += CatalogChangeTestUtil.createInfoExercise("New INFO lesson")
-        lessonCurriculum.exercises += CatalogChangeTestUtil.createClozeExercise(
-            title = "New CLOZE lesson",
-            subtitle = "You must wrap text in quotes",
-            prompt = "print(___i love python___)",
-            correctAnswers = listOf("'", "'"),
-            distractors = listOf("+"),
-            media = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIbjxOIxdHAylWUgy-LqVNWa9ID3VmUy8Lxg&s"
+        // ADD INFO
+        exercises += ExerciseSnap(
+            exerciseId = UUID.randomUUID(),
+            exerciseVersion = 1,
+            blocks = listOf(
+                ParagraphBlock("New INFO lesson")
+            ),
+            interaction = null
         )
+
+        // ADD CLOZE
+        exercises += ExerciseSnap(
+            exerciseId = UUID.randomUUID(),
+            exerciseVersion = 1,
+            blocks = listOf(
+                HeaderBlock("New CLOZE lesson"),
+                ParagraphBlock("You must wrap text in quotes")
+            ),
+            interaction = ClozeInteraction(
+                file = InteractionFile(
+                    language = "python",
+                    content = "print(___i love python___)"
+                ),
+                blanks = listOf(
+                    InteractionBlank(0, listOf("'")),
+                    InteractionBlank(1, listOf("'"))
+                ),
+                options = listOf("'", "+")
+            )
+        )
+
+        val lessonCurriculum = LessonCurriculumDraftSnapshot(exercises = exercises)
 
         val result = submitPostUpdateExerciseCatalog(lessonToChange.id, lessonCurriculum)
 
         assertThat(result).isNotNull()
         assertThat(result)
             .usingRecursiveComparison()
-            .ignoringFieldsMatchingRegexes(".*exerciseOptionId")
+            .ignoringFieldsMatchingRegexes(
+                ".*exerciseOptionId",
+                ".*exerciseVersion"
+            )
             .isEqualTo(lessonCurriculum)
 
         val response =
@@ -358,7 +421,10 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
         assertThat(result)
             .usingRecursiveComparison()
-            .ignoringFieldsMatchingRegexes(".*exerciseOptionId")
+            .ignoringFieldsMatchingRegexes(
+                ".*exerciseOptionId",
+                ".*exerciseVersion"
+            )
             .isEqualTo(lessonCurriculum)
     }
 

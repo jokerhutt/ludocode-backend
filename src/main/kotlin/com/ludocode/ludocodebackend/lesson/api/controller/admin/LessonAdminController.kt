@@ -23,7 +23,7 @@ class LessonAdminController(
         @RequestBody snapshot: LessonCurriculumDraftSnapshot,
         @PathVariable lessonId: UUID
     ): ResponseEntity<LessonCurriculumDraftSnapshot> {
-        return ResponseEntity.ok(lessonSnapshotService.applyExerciseDiffs(lessonId, snapshot))
+        return ResponseEntity.ok(lessonSnapshotService.applyExercises(lessonId, snapshot))
     }
 
 }

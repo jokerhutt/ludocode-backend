@@ -116,62 +116,65 @@
     <!-- ===================== EXERCISES ===================== -->
     <changeSet id="005-07-exercises" author="dave" context="dev" dbms="postgresql">
         <sql>
-            INSERT INTO exercise (id, version_number, exercise_type, title, subtitle, prompt, is_deleted, exercise_media)
+            INSERT INTO exercise (
+                id,
+                version_number,
+                is_deleted,
+                blocks,
+                interaction
+            )
             VALUES
                 (
                     'fd00de96-49ef-4bed-8bd7-2a05ff1b1393',
                     1,
-                    'INFO',
-                    'Welcome to the Ludocode Python course!',
-                    'It appears you have used the docker postgres. To edit this and other courses, check out the builder!',
-                    '',
                     false,
+                    '[
+                        {
+                            "clientId": "2c7f5e91-6a4b-4d3e-8c2a-5b9f1e7d4a63",
+                            "type": "header",
+                            "content": "Welcome to the Ludocode Python course!"
+                        },
+                        {
+                            "clientId": "a8d4c1f9-3b7e-4a2d-9f6c-1e5b8a3d7c42",
+                            "type": "paragraph",
+                            "content": "It appears you have used the docker postgres. To edit this and other courses, check out the builder!"
+                        }
+                    ]'::jsonb,
                     NULL
                 ),
                 (
                     'c8229944-d5f1-4e67-b9b3-87b9c9e90852',
                     1,
-                    'CLOZE',
-                    'Here is an example exercise!',
-                    'Complete the code below',
-                    'print(2 ___ 2)',
                     false,
-                    NULL
+                    '[
+                        {
+                            "clientId": "f3b9a7c2-4c6d-4e9a-b2f1-8a6c3d2e7f10",
+                            "type": "header",
+                            "content": "Here is an example exercise!"
+                        },
+                        {
+                            "clientId": "9e1d2c4b-7a3f-4b8e-91c5-2f6a8d3b0c77",
+                            "type": "paragraph",
+                            "content": "Complete the code below"
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "CLOZE",
+                        "clientId": "b4e2f9a7-6c3d-4f8a-9b21-5d7e3c1a8f42",
+                        "file": {
+                            "language": "python",
+                            "content": "print(2 ___ 2)"
+                        },
+                        "blanks": [
+                            {
+                                "index": 0,
+                                "correctOptions": ["+"]
+                            }
+                        ],
+                        "options": ["+", "="]
+                    }'::jsonb
                 )
             ON CONFLICT DO NOTHING;
-        </sql>
-    </changeSet>
-
-    <!-- ===================== OPTIONS ===================== -->
-    <changeSet id="005-08-option-content" author="dave" context="dev" dbms="postgresql">
-        <sql>
-            INSERT INTO option_content (id, content)
-            VALUES
-                ('6b44be8f-da0b-43be-8bfd-1230e25b8476', '+'),
-                ('10012de8-3869-4c57-bcb9-bccba11de2e3', '=')
-            ON CONFLICT (id) DO NOTHING;
-        </sql>
-    </changeSet>
-
-    <changeSet id="005-09-exercise-options" author="dave" context="dev" dbms="postgresql">
-        <sql>
-            INSERT INTO exercise_option (id, exercise_id, exercise_version, option_id, answer_order)
-            VALUES
-                (
-                    '2288b789-9ff4-4c68-8ca8-b33defc74b3a',
-                    'c8229944-d5f1-4e67-b9b3-87b9c9e90852',
-                    1,
-                    '6b44be8f-da0b-43be-8bfd-1230e25b8476',
-                    1
-                ),
-                (
-                    '9ccac67a-dc70-49bd-bfcd-5eeca95d61ad',
-                    'c8229944-d5f1-4e67-b9b3-87b9c9e90852',
-                    1,
-                    '10012de8-3869-4c57-bcb9-bccba11de2e3',
-                    NULL
-                )
-            ON CONFLICT (id) DO NOTHING;
         </sql>
     </changeSet>
 

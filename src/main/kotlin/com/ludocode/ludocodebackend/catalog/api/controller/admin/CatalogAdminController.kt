@@ -19,7 +19,7 @@ import java.util.*
     name = "Admin Catalog",
     description = "Admin Operations related to creating & modifying course structure"
 )
-@Profile("admin", "devadmin", "test")
+@Profile("admin", "devadmin", "test", "devtestadmin")
 @RestController
 @RequestMapping(ApiPaths.SNAPSHOTS.ADMIN_BASE)
 class CatalogAdminController(

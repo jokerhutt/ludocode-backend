@@ -1,9 +1,7 @@
 package com.ludocode.ludocodebackend.progress.api.dto.request
 
-import java.util.*
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExerciseAnswer
 
 data class ExerciseAttemptRequest(
-    val exerciseId: UUID,
-    val isCorrect: Boolean,
-    val answer: List<AttemptToken>,
+    val answer: ExerciseAnswer
 )

@@ -1,14 +1,15 @@
 package com.ludocode.ludocodebackend.progress.app.support.component
 
-import com.ludocode.ludocodebackend.progress.api.dto.request.AttemptToken
-import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseAttemptRequest
-import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseSubmissionRequest
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeAnswer
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExerciseAnswer
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectAnswer
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
+import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
+import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseRepository
 import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionRequest
-import com.ludocode.ludocodebackend.progress.domain.entity.AttemptOption
 import com.ludocode.ludocodebackend.progress.domain.entity.ExerciseAttempt
 import com.ludocode.ludocodebackend.progress.domain.entity.LessonCompletion
-import com.ludocode.ludocodebackend.progress.domain.entity.embedded.AttemptOptionId
-import com.ludocode.ludocodebackend.progress.infra.repository.AttemptOptionRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.ExerciseAttemptRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
 import jakarta.transaction.Transactional
@@ -19,112 +20,116 @@ import java.time.Clock
 import java.time.OffsetDateTime
 import java.util.*
 
-@Component
-class LessonScoreService(
-    private val lessonCompletionRepository: LessonCompletionRepository,
-    private val exerciseAttemptRepository: ExerciseAttemptRepository,
-    private val clock: Clock,
-    private val attemptOptionRepository: AttemptOptionRepository
-) {
+    @Component
+    class LessonScoreService(
+        private val lessonCompletionRepository: LessonCompletionRepository,
+        private val exerciseAttemptRepository: ExerciseAttemptRepository,
+        private val exerciseRepository: ExerciseRepository,
+        private val clock: Clock
+    ) {
 
-    @Transactional
-    internal fun addPointsAndCommitSubmission(
-        request: LessonSubmissionRequest,
-        userId: UUID,
-        courseId: UUID
-    ): LessonCompletion {
+        @Transactional
+        internal fun addPointsAndCommitSubmission(
+            request: LessonSubmissionRequest,
+            userId: UUID,
+            courseId: UUID
+        ): LessonCompletion {
 
-        val currentLessonId = request.lessonId
+            var scoreForLesson = 0
+            var isPerfectLesson = true
+            var totalAttempts = 0
+            var correctAttempts = 0
 
-        var scoreForLesson = 0
-        var isPerfectLesson = true
+            val attemptsToPersist = mutableListOf<ExerciseAttempt>()
 
-        var total = 0
-        var correct = 0
+            for (submission in request.exercises) {
 
-        val exerciseAttempts: MutableList<ExerciseAttempt> = mutableListOf()
-        val attemptOptions: MutableList<AttemptOption> = mutableListOf()
+                val exercise = exerciseRepository
+                    .findTopByExerciseId_IdAndIsDeletedFalseOrderByExerciseId_VersionNumberDesc(submission.exerciseId)
+                    ?: continue
 
-        for (submission: ExerciseSubmissionRequest in request.submissions) {
+                val attemptsSize = submission.attempts.size
+                totalAttempts += attemptsSize
 
-            if (submission.attempts[0].answer[0].value == "I") {
-                continue
-            }
+                val isPerfect = attemptsSize == 1
+                if (!isPerfect) isPerfectLesson = false
 
-            val version = submission.version
+                for (attempt in submission.attempts) {
 
-            var scoreForSubmission: Int = 0
-            val attemptsSize = submission.attempts.size
-            total += attemptsSize
-            var isPerfect: Boolean = attemptsSize == 1
-            if (!isPerfect) isPerfectLesson = false
+                    val isCorrect = grade(exercise, attempt.answer)
 
-            for (attempt: ExerciseAttemptRequest in submission.attempts) {
+                    if (isCorrect) correctAttempts++
 
-                if (attempt.isCorrect) correct += 1
+                    val score = computeScore(isCorrect, isPerfect)
+                    scoreForLesson += score
 
-                val scoreForAttempt = computeScoreForAttempt(attempt, isPerfect)
-                scoreForSubmission += scoreForAttempt
-                val attemptId: UUID = UUID.randomUUID()
-                val exerciseAttempt = ExerciseAttempt(
-                    id = attemptId,
-                    userId = userId,
-                    exerciseId = attempt.exerciseId,
-                    exerciseVersion = version
-                )
-                exerciseAttempts.add(exerciseAttempt)
-
-                for (token: AttemptToken in attempt.answer) {
-                    attemptOptions.add(
-                        AttemptOption(
-                            attemptOptionId = AttemptOptionId(
-                                attemptId = attemptId,
-                                exerciseOptionId = token.id
-                            )
+                    attemptsToPersist.add(
+                        ExerciseAttempt(
+                            userId = userId,
+                            exerciseId = exercise.exerciseId.id,
+                            exerciseVersion = exercise.exerciseId.versionNumber,
+                            answer = attempt.answer,
+                            isCorrect = isCorrect
                         )
                     )
                 }
-
             }
-            scoreForLesson += scoreForSubmission
+
+            if (isPerfectLesson) scoreForLesson += 10
+
+            val accuracy = computeAccuracy(correctAttempts, totalAttempts)
+
+            val completion = LessonCompletion(
+                submissionId = request.submissionId,
+                userId = userId,
+                lessonId = request.lessonId,
+                courseId = courseId,
+                score = scoreForLesson,
+                accuracy = accuracy,
+                completedAt = OffsetDateTime.now(clock)
+            )
+
+            lessonCompletionRepository.save(completion)
+            exerciseAttemptRepository.saveAll(attemptsToPersist)
+
+            return completion
         }
 
-        if (isPerfectLesson) scoreForLesson += 10
+        private fun computeScore(isCorrect: Boolean, isPerfect: Boolean): Int =
+            when {
+                isPerfect && isCorrect -> 5
+                isCorrect -> 2
+                else -> 0
+            }
 
-        val accuracy = computeAccuracy(correct, total)
-
-        val completion = LessonCompletion(
-            submissionId = request.submissionId,
-            userId = userId,
-            score = scoreForLesson,
-            completedAt = OffsetDateTime.now(clock),
-            lessonId = currentLessonId,
-            accuracy = accuracy,
-            courseId = courseId
-        )
-        lessonCompletionRepository.save(completion)
-        exerciseAttemptRepository.saveAll(exerciseAttempts)
-        attemptOptionRepository.saveAll(attemptOptions)
-
-        return completion
-    }
-
-    private fun computeScoreForAttempt(attempt: ExerciseAttemptRequest, isPerfect: Boolean): Int {
-        if (isPerfect) {
-            return 5
-        } else if (attempt.isCorrect) {
-            return 2
-        } else {
-            return 0
+        private fun computeAccuracy(correct: Int, total: Int): BigDecimal {
+            if (total == 0) return BigDecimal.ONE
+            return BigDecimal(correct)
+                .divide(BigDecimal(total), 2, RoundingMode.HALF_UP)
         }
     }
 
-    private fun computeAccuracy(correct: Int, total: Int): BigDecimal {
-        if (total == 0) return BigDecimal(1) //Entire exercise is INFO
-        return BigDecimal(correct)
-            .divide(BigDecimal(total), 2, RoundingMode.HALF_UP)
+    //TODO ignore info
+    private fun grade(exercise: Exercise, answer: ExerciseAnswer): Boolean {
+        val interaction = exercise.interaction ?: return true
 
+        return when (interaction) {
+
+            is SelectInteraction -> {
+                val correct = interaction.items
+                    .first { it == interaction.correctValue }
+
+                (answer as SelectAnswer).pickedValue == correct
+            }
+
+            is ClozeInteraction -> {
+                val values = (answer as ClozeAnswer).valuesByBlank
+
+                interaction.blanks.all { blank ->
+                    val userValue = values.getOrNull(blank.index) ?: return false
+                    userValue in blank.correctOptions
+                }
+            }
+        }
     }
 
-
-}

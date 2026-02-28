@@ -29,7 +29,7 @@ class FeaturesController(
 ) {
 
     fun isAdminEnabled(): Boolean =
-        env.activeProfiles.contains("admin") || env.activeProfiles.contains("devadmin")
+        env.activeProfiles.contains("admin") || env.activeProfiles.contains("devadmin") || env.activeProfiles.contains("devtestadmin")
 
     @Operation(
         summary = "Get feature toggle status",

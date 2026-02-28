@@ -27,6 +27,7 @@
     <include file="/db/changelog/020-allow-multiple-subscriptions-enforce-single-active.xml"/>
     <include file="/db/changelog/021-add-project-deletion-dates.xml"/>
     <include file="/db/changelog/022-add-career-preferences.xml"/>
+    <include file="/db/changelog/023-jsonb-exercise-streamline.xml"/>
 
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>

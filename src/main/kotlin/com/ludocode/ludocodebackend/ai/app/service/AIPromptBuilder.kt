@@ -1,8 +1,8 @@
 package com.ludocode.ludocodebackend.ai.app.service
 
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.OptionSnap
-import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import org.springframework.stereotype.Component
 
 @Component
@@ -20,22 +20,23 @@ class AIPromptBuilder {
         val filled = buildExerciseAnswerString(exercise)
 
         val extra = """
-        Exercise title: ${exercise.title}
+        Exercise context:
+        ${exercise.blocks.joinToString("\n")}
 
-        Here is the correct answer (for your own reasoning only—never reveal directly):
+        Here is the correct answer (for reasoning only — never reveal directly):
         $filled
     """.trimIndent()
 
         return buildBasePrompt(
             systemRole = """
-                You are Ludo, a direct and concise coding assistant inside a structured lesson.
-                
-                - Never reveal full solutions unless explicitly requested.
-                - No filler language.
-                - If incorrect: state exactly what is wrong.
-                - If correct: add one short conceptual insight.
-                - Keep responses under 3 sentences unless code is necessary.
-            """.trimIndent(),
+            You are Ludo, a direct and concise coding assistant inside a structured lesson.
+
+            - Never reveal full solutions unless explicitly requested.
+            - No filler language.
+            - If incorrect: state exactly what is wrong.
+            - If correct: add one short conceptual insight.
+            - Keep responses under 3 sentences unless code is necessary.
+        """.trimIndent(),
             req = req,
             chatHistory = chatHistory,
             extra = extra
@@ -82,28 +83,18 @@ class AIPromptBuilder {
         )
     }
 
-    private fun buildExerciseAnswerString(exerciseSnap: ExerciseSnap): String {
-        val hasPrompt = exerciseSnap.prompt != null
-        val hasCorrectOptions = exerciseSnap.correctOptions != null
+    private fun buildExerciseAnswerString(exercise: ExerciseSnap): String {
 
-        when (exerciseSnap.exerciseType) {
-            ExerciseType.INFO -> return buildInfoAnswer()
-            ExerciseType.TRIVIA -> {
-                if (!hasCorrectOptions) return ""
-                return buildTriviaAnswer(exerciseSnap)
-            }
+        return when (val interaction = exercise.interaction) {
 
-            ExerciseType.ANALYZE -> {
-                if (!hasPrompt || !hasCorrectOptions) return ""
-                return buildAnalyzeAnswer(exerciseSnap)
-            }
+            null -> buildInfoAnswer()
 
-            ExerciseType.CLOZE -> {
-                if (!hasPrompt || !hasCorrectOptions) return ""
-                return buildClozeAnswer(exerciseSnap)
-            }
+            is SelectInteraction ->
+                buildSelectAnswer(interaction)
+
+            is ClozeInteraction ->
+                buildClozeAnswer(interaction)
         }
-
     }
 
     private fun buildBasePrompt(
@@ -132,24 +123,33 @@ class AIPromptBuilder {
         return "This is an informational exercise with no answers. If the user is confused about what to do, instruct them to simply press continue. If the user asks about the content, refer to the title"
     }
 
-    private fun buildClozeAnswer(exerciseSnap: ExerciseSnap): String {
-        println("BLANKS: " + fillBlanks(exerciseSnap.prompt!!, exerciseSnap.correctOptions!!))
-        return "The exercise's correct solution is: " + fillBlanks(exerciseSnap.prompt!!, exerciseSnap.correctOptions!!)
+    private fun buildClozeAnswer(interaction: ClozeInteraction): String {
+
+        val correctValues = interaction.blanks.map { it.correctOptions.first() }
+
+        val filled = fillBlanks(
+            interaction.file.content,
+            correctValues
+        )
+
+        return "Correct solution: $filled"
     }
 
-    private fun buildTriviaAnswer(exerciseSnap: ExerciseSnap): String {
-        return "The correct answer is: ${exerciseSnap.correctOptions[0].content}"
+    private fun buildSelectAnswer(interaction: SelectInteraction): String {
+        return "Correct answer: ${interaction.correctValue}"
     }
 
-    private fun buildAnalyzeAnswer(exerciseSnap: ExerciseSnap): String {
-        return "The exercise asks the user to analyse the code: ${exerciseSnap.prompt}. The answer is ${exerciseSnap.correctOptions[0]}"
-    }
+    private fun fillBlanks(
+        prompt: String,
+        correct: List<String>
+    ): String {
 
-    private fun fillBlanks(prompt: String, correct: List<OptionSnap>): String {
         var result = prompt
-        correct.forEach { answer ->
-            result = result.replaceFirst("___", answer.content)
+
+        correct.forEach { value ->
+            result = result.replaceFirst("___", value)
         }
+
         return result
     }
 
