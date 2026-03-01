@@ -27,37 +27,37 @@ The project is made so that you can run it without providing any external creden
 
 ## Features
 
-### Learning & Content Management
+### Learning & Content Management 📚
 - Course, module, lesson, and exercise management
 - Versioned course authoring with diff-based change tracking
 - Dynamic language and subject configuration
 - Lesson submission and completion workflows
 
-### User Progress & Engagement
+### User Progress & Engagement 🎯
 - Timezone-aware streak tracking
 - Virtual coin reward system
 - Per-course and per-lesson progress tracking
 - User onboarding and preference management
 
-### Authentication & Access
+### Projects & Code Execution ▶️
+- Project creation and modification with file snapshot diffing
+- Code execution via Piston runtime
+
+### Authentication & Access 🔒
 - Firebase-based authentication (optional)
 - Demo user authentication mode
 - JWT-based session management
 
-### Projects & Code Execution
-- Project creation and modification with file snapshot diffing
-- Code execution via Piston runtime
-
-### AI & Code Execution
+### AI Chatbot & Credits ✨
 - AI chatbot integration with server-side streaming (SSR)
 - Credit-based AI usage limits (optional)
 
-### Storage & Infrastructure
+### Storage & Infrastructure 🏗️
 - Pluggable blob storage (Local, GCS, S3)
 - Redis-based caching (optional)
 - Subscription plans with Stripe integration (optional)
 
-### Testing
+### Testing	 📝
 - Integration test suite with 100+ tests
 
 ---
@@ -71,10 +71,10 @@ The project is made so that you can run it without providing any external creden
 The application runs without external credentials. If not provided, the corresponding features are disabled or fall back to development-safe defaults.
 
 - **AI Features**  
-  Requires a Gemini API key.
+  Requires a Gemini API key. See [Enabling AI features](#enabling-ai-features-optional)
 
 - **Authentication (OAuth)**  
-  Requires a Firebase service account JSON.  
+  Requires a Firebase service account JSON. See [Setting up Firebase](#setting-up-firebase-optional)
   If omitted, authentication falls back to demo mode.
 
 - **Code Execution**  
@@ -95,7 +95,7 @@ These integrations are optional. If not configured, local storage is used by def
   Requires region, bucket name, access key ID, and secret access key.
 
 - **Google Cloud Storage (GCS)**  
-  Requires bucket name and project ID.
+  Requires bucket name and project ID. (Might not work, please go with AWS for now)
 
 ---
 
