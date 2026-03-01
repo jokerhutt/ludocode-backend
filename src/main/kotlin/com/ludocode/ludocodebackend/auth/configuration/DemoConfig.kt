@@ -8,6 +8,7 @@ import java.util.*
 @Component
 class DemoConfig {
     var enabled: Boolean = false
+    var grantAdmin: Boolean = false
     lateinit var token: String
     lateinit var userId: UUID
 }

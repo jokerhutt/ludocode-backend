@@ -64,13 +64,14 @@ class AuthService(
 
     fun loginWithDemo(response: HttpServletResponse): UserLoginResponse {
         logger.info(LogEvents.AUTH_DEMO_LOGIN_REQUESTED)
+        val role = if (demoConfig.grantAdmin) "admin" else null
         val request = FindOrCreateUserRequest(
             provider = AuthProvider.DEMO,
             providerUserId = demoConfig.userId.toString(),
             email = "demo@ludocode.app",
             displayName = "Demo User",
             avatarUrl = null,
-            role = "admin"
+            role = role
         )
         return buildLoginResponse(request, response)
     }
