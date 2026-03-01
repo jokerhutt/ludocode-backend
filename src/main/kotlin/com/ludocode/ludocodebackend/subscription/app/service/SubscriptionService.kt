@@ -184,6 +184,7 @@ class SubscriptionService(
 
     }
 
+    @Transactional
     override fun cancelSubscription(userId: UUID) {
 
         val subscription = userSubscriptionRepository.findByUserIdAndStatusIn(userId, listOf("active", "trialing"))
@@ -200,6 +201,8 @@ class SubscriptionService(
             ?: throw ApiException(ErrorCode.STRIPE_SUBSCRIPTION_INVALID)
 
         stripeSubscriptionCommandPort.cancelSubscription(stripeId)
+
+        userSubscriptionRepository.delete(subscription)
     }
 
     fun getUserSubscriptionResponse(userId: UUID): UserSubscriptionResponse {

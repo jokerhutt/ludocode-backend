@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.user.app.service
 
+import com.ludocode.ludocodebackend.auth.app.port.out.FirebaseAuthPort
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
@@ -18,6 +19,7 @@ import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForProgress
 import com.ludocode.ludocodebackend.user.configuration.AvatarConfig
 import com.ludocode.ludocodebackend.user.domain.entity.ExternalAccount
 import com.ludocode.ludocodebackend.user.domain.entity.User
+import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
 import com.ludocode.ludocodebackend.user.infra.repository.ExternalAccountRepository
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import jakarta.transaction.Transactional
@@ -39,6 +41,7 @@ class UserService(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val courseProgressPortForUser: CourseProgressPortForUser,
     private val subscriptionPortForUser: SubscriptionPortForUser,
+    private val firebaseAuthPort: FirebaseAuthPort,
 ) : UserPortForProgress, UserPortForAuth, UserPortForOnboarding {
 
     private val logger = LoggerFactory.getLogger(UserService::class.java)
@@ -55,13 +58,18 @@ class UserService(
     internal fun deleteUser(userId: UUID) {
         var existingUser = userRepository.findById(userId).orElseThrow()
         subscriptionPortForUser.cancelSubscription(userId)
-        val userExternalAccount = externalAccountRepository.findByUserId(userId) ?: throw ApiException(
-            ErrorCode.USER_NOT_FOUND,
-            "Could not find external account for user"
-        )
-        externalAccountRepository.delete(userExternalAccount)
+        val ext = externalAccountRepository.findByUserId(userId)
+            ?: throw ApiException(ErrorCode.USER_NOT_FOUND, "Could not find external account for user")
+
+        if (ext.provider == AuthProvider.FIREBASE) {
+            firebaseAuthPort.deleteUser(ext.providerUserId)
+        }
         logger.warn(LogEvents.USER_DELETED)
+        existingUser.email = null
+        existingUser.displayName = null
         existingUser.isDeleted = true
+
+
     }
 
     @Transactional
