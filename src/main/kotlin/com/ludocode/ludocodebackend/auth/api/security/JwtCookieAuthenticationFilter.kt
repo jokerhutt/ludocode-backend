@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.auth.api.security
 import com.ludocode.ludocodebackend.auth.api.security.principal.AuthUser
 import com.ludocode.ludocodebackend.auth.app.service.AuthCookieService
 import com.ludocode.ludocodebackend.auth.app.service.JwtService
+import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
@@ -26,7 +27,8 @@ import java.util.*
 class JwtCookieAuthenticationFilter(
     private val authCookieService: AuthCookieService,
     private val jwtService: JwtService,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val demoConfig: DemoConfig
 ) : OncePerRequestFilter() {
 
     private val log = LoggerFactory.getLogger(JwtCookieAuthenticationFilter::class.java)
@@ -72,8 +74,12 @@ class JwtCookieAuthenticationFilter(
 
                 val principal = AuthUser(userId, role)
 
+                val isDemoAdmin = demoConfig.enabled
+                        && demoConfig.grantAdmin
+                        && userId == demoConfig.userId
+
                 val authorities =
-                    if (role == "admin")
+                    if (role == "admin" || isDemoAdmin)
                         listOf(SimpleGrantedAuthority("ROLE_ADMIN"))
                     else
                         emptyList()
