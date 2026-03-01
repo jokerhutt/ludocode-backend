@@ -1,17 +1,15 @@
 package com.ludocode.ludocodebackend.subscription.infra.http
 
-import com.ludocode.ludocodebackend.commons.configuration.AppProps
+import com.ludocode.ludocodebackend.commons.configuration.app.AppProperties
 import com.ludocode.ludocodebackend.subscription.app.port.out.StripeCheckoutPort
 import com.stripe.model.checkout.Session
 import com.stripe.param.checkout.SessionCreateParams
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.stereotype.Component
 import java.util.*
 
 class StripeCheckoutClient(
-    private val appProperties: AppProps
+    private val appProperties: AppProperties
 ) : StripeCheckoutPort {
 
     private val logger = LoggerFactory.getLogger(StripeCheckoutPort::class.java)

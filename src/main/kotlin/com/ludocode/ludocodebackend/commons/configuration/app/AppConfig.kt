@@ -1,8 +1,8 @@
-package com.ludocode.ludocodebackend.commons.configuration
+package com.ludocode.ludocodebackend.commons.configuration.app
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-@EnableConfigurationProperties(AppProps::class)
+@EnableConfigurationProperties(AppProperties::class)
 class AppConfig

@@ -2,7 +2,7 @@ package com.ludocode.ludocodebackend.auth.app.service
 
 import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.app.port.out.FirebaseAuthPort
-import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
+import com.ludocode.ludocodebackend.auth.configuration.demo.DemoProperties
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
@@ -28,7 +28,7 @@ class AuthService(
     private val authCookieService: AuthCookieService,
     private val userCoinsPortForAuth: UserCoinsPortForAuth,
     private val userStreakPortForAuth: UserStreakPortForAuth,
-    private val demoConfig: DemoConfig,
+    private val demoProperties: DemoProperties,
     private val firebaseAuthPort: FirebaseAuthPort,
 ) {
 
@@ -64,10 +64,10 @@ class AuthService(
 
     fun loginWithDemo(response: HttpServletResponse): UserLoginResponse {
         logger.info(LogEvents.AUTH_DEMO_LOGIN_REQUESTED)
-        val role = if (demoConfig.grantAdmin) "admin" else null
+        val role = if (demoProperties.grantAdmin) "admin" else null
         val request = FindOrCreateUserRequest(
             provider = AuthProvider.DEMO,
-            providerUserId = demoConfig.userId.toString(),
+            providerUserId = demoProperties.userId.toString(),
             email = "demo@ludocode.app",
             displayName = "Demo User",
             avatarUrl = null,

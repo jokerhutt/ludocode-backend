@@ -1,9 +1,8 @@
 package com.ludocode.ludocodebackend.auth.integration.demo
 
 import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
-import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
+import com.ludocode.ludocodebackend.auth.configuration.demo.DemoProperties
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured
 import org.assertj.core.api.Assertions
@@ -18,12 +17,12 @@ import kotlin.test.Test
 class DemoAuthIT : AbstractIntegrationTest() {
 
     @Autowired
-    private lateinit var demoConfig: DemoConfig
+    private lateinit var demoProperties: DemoProperties
 
     @Test
     fun loginWithDemo_returnsDemoUser() {
 
-        val id = demoConfig.userId ?: error("demo.user-id must be set for test")
+        val id = demoProperties.userId ?: error("demo.user-id must be set for test")
 
         Assertions.assertThat(id == demoUser1.id)
 

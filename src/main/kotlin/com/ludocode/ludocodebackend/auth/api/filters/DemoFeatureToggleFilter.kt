@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.auth.api.filters
 
-import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
+import com.ludocode.ludocodebackend.auth.configuration.demo.DemoProperties
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -10,7 +10,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class DemoFeatureToggleFilter(
-    private val demoConfig: DemoConfig
+    private val demoProperties: DemoProperties
 ) : OncePerRequestFilter() {
 
     override fun doFilterInternal(
@@ -24,7 +24,7 @@ class DemoFeatureToggleFilter(
             return
         }
 
-        if (!demoConfig.enabled) {
+        if (!demoProperties.enabled) {
             response.sendError(
                 HttpServletResponse.SC_FORBIDDEN,
                 "Demo disabled, to enable it edit the demo.enabled flag in application-yml"

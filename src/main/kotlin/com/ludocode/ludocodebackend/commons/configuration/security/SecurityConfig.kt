@@ -1,6 +1,7 @@
-package com.ludocode.ludocodebackend.commons.configuration
+package com.ludocode.ludocodebackend.commons.configuration.security
 
-import com.ludocode.ludocodebackend.auth.api.security.JwtCookieAuthenticationFilter
+import com.ludocode.ludocodebackend.auth.api.security.filter.JwtCookieAuthenticationFilter
+import com.ludocode.ludocodebackend.auth.api.security.filter.CorsLoggingFilter
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.constants.AuthRoleEndpointConstants
 import com.ludocode.ludocodebackend.commons.constants.PublicEndpointConstants

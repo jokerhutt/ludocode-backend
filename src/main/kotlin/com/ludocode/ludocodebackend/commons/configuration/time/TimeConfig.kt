@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.commons.configuration
+package com.ludocode.ludocodebackend.commons.configuration.time
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
