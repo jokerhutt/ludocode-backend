@@ -69,6 +69,7 @@ class UserService(
         existingUser.email = null
         existingUser.displayName = null
         existingUser.isDeleted = true
+        existingUser.deletedAt = OffsetDateTime.now(clock)
 
 
     }
