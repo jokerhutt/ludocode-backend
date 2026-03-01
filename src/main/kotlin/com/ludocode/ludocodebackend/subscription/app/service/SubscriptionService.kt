@@ -17,7 +17,7 @@ import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscripti
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
-import com.ludocode.ludocodebackend.playground.app.service.ProjectPlanEnforcer
+import com.ludocode.ludocodebackend.projects.app.service.ProjectPlanEnforcer
 import com.ludocode.ludocodebackend.subscription.configuration.PlanLimits
 import com.ludocode.ludocodebackend.subscription.configuration.StripeMode
 import com.ludocode.ludocodebackend.subscription.configuration.StripeProperties

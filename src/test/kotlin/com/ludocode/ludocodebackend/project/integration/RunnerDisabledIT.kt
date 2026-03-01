@@ -2,7 +2,7 @@ package com.ludocode.ludocodebackend.project.integration
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
-import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
+import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType

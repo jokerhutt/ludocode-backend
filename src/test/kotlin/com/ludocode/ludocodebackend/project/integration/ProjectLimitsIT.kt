@@ -3,10 +3,10 @@ import com.google.cloud.storage.BucketInfo
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.jobs.ProjectCleanupJob
-import com.ludocode.ludocodebackend.playground.api.dto.request.CreateProjectRequest
-import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
-import com.ludocode.ludocodebackend.playground.api.dto.response.ProjectListResponse
-import com.ludocode.ludocodebackend.playground.app.service.ProjectPlanEnforcer
+import com.ludocode.ludocodebackend.projects.api.dto.request.CreateProjectRequest
+import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
+import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectListResponse
+import com.ludocode.ludocodebackend.projects.app.service.ProjectPlanEnforcer
 import com.ludocode.ludocodebackend.subscription.configuration.PlanDefinitions
 import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest

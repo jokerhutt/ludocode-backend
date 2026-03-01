@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.support.util
 
 import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
-import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
+import com.ludocode.ludocodebackend.projects.domain.entity.UserProject
 import java.time.Clock
 import java.time.OffsetDateTime
 import java.util.UUID

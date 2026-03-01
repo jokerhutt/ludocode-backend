@@ -24,7 +24,6 @@ regardless of language or runtime constraints.
 The Code Runner Service does **not**:
 
 - store or persist project files ([Project Service](project-service-docs.md) owns that)
-- determine correctness of output or grade user code
 - manage project versioning or file diffs
 - expose or manage language-specific compilers directly
 

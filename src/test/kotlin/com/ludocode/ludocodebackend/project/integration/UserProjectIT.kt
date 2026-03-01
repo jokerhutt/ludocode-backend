@@ -6,13 +6,13 @@ import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.util.sha256
 import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
-import com.ludocode.ludocodebackend.playground.api.dto.request.CreateProjectRequest
-import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectFileSnapshot
-import com.ludocode.ludocodebackend.playground.api.dto.request.ProjectSnapshot
-import com.ludocode.ludocodebackend.playground.api.dto.request.RenameRequest
-import com.ludocode.ludocodebackend.playground.api.dto.response.ProjectListResponse
-import com.ludocode.ludocodebackend.playground.domain.entity.ProjectFile
-import com.ludocode.ludocodebackend.playground.domain.entity.UserProject
+import com.ludocode.ludocodebackend.projects.api.dto.request.CreateProjectRequest
+import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
+import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
+import com.ludocode.ludocodebackend.projects.api.dto.request.RenameProjectRequest
+import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectListResponse
+import com.ludocode.ludocodebackend.projects.domain.entity.ProjectFile
+import com.ludocode.ludocodebackend.projects.domain.entity.UserProject
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import io.restassured.response.ValidatableResponse
@@ -159,7 +159,7 @@ class UserProjectIT : AbstractIntegrationTest() {
 
         val projectId = existingProject.id
         val newName = "Test Project Name"
-        val request = RenameRequest(targetId = projectId, newName = newName)
+        val request = RenameProjectRequest(targetId = projectId, newName = newName)
         val res = submitPatchRenameProject(request, user1.id!!)
         assertThat(res).isNotNull()
         assertThat(res.projects.size).isEqualTo(1)
@@ -182,7 +182,7 @@ class UserProjectIT : AbstractIntegrationTest() {
         assertThat(newProjectToModify).isNotNull()
         val newProjectName = "Second Project Updated"
 
-        val request = RenameRequest(targetId = newProjectToModify!!.projectId, newProjectName)
+        val request = RenameProjectRequest(targetId = newProjectToModify!!.projectId, newProjectName)
         val res = submitPatchRenameProject(request, user1.id!!)
         println(res.projects.joinToString("\n") { p ->
             "projectId=${p.projectId}, name=${p.projectName}"
@@ -336,7 +336,7 @@ class UserProjectIT : AbstractIntegrationTest() {
     private fun submitDeleteProject(pid: UUID, userId: UUID): ProjectListResponse =
         TestRestClient.deleteOk(ApiPaths.PROJECTS.byId(pid), userId, ProjectListResponse::class.java)
 
-    private fun submitPatchRenameProject(request: RenameRequest, userId: UUID): ProjectListResponse =
+    private fun submitPatchRenameProject(request: RenameProjectRequest, userId: UUID): ProjectListResponse =
         TestRestClient.patchOk(
             ApiPaths.PROJECTS.name(request.targetId),
             userId,
