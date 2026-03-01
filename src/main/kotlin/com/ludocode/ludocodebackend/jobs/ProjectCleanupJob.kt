@@ -2,8 +2,8 @@ package com.ludocode.ludocodebackend.jobs
 
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
-import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
-import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
+import com.ludocode.ludocodebackend.projects.infra.repository.ProjectFileRepository
+import com.ludocode.ludocodebackend.projects.infra.repository.UserProjectRepository
 import com.ludocode.ludocodebackend.storage.app.dto.request.StorageDeleteRequest
 import com.ludocode.ludocodebackend.storage.app.port.`in`.StoragePortForServices
 import jakarta.transaction.Transactional

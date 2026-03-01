@@ -33,8 +33,8 @@ import com.ludocode.ludocodebackend.lesson.domain.entity.*
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.LessonExercisesId
 import com.ludocode.ludocodebackend.lesson.infra.repository.*
-import com.ludocode.ludocodebackend.playground.infra.repository.ProjectFileRepository
-import com.ludocode.ludocodebackend.playground.infra.repository.UserProjectRepository
+import com.ludocode.ludocodebackend.projects.infra.repository.ProjectFileRepository
+import com.ludocode.ludocodebackend.projects.infra.repository.UserProjectRepository
 import com.ludocode.ludocodebackend.preferences.api.infra.repository.CareerPreferencesRepository
 import com.ludocode.ludocodebackend.preferences.domain.entity.CareerPreference
 import com.ludocode.ludocodebackend.progress.infra.repository.*
