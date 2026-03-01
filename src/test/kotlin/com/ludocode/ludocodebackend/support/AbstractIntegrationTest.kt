@@ -70,7 +70,7 @@ import java.util.*
 @ActiveProfiles("test")
 @Import(
     TestSecurityConfig::class, TestClockConfig::class, GcpTestConfig::class, GeminiTestConfig::class,
-    FirebaseAuthTestConfig::class, TestCacheConfig::class, StripeTestConfig::class
+    FirebaseAuthTestConfig::class, StripeTestConfig::class
 )
 abstract class AbstractIntegrationTest {
 

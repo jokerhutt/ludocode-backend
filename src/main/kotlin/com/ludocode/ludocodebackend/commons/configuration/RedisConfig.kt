@@ -7,6 +7,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.response.tree.FlatCourseTree
 import com.ludocode.ludocodebackend.commons.constants.CacheNames
 import com.ludocode.ludocodebackend.lesson.api.dto.response.ExerciseResponse
 import io.lettuce.core.ClientOptions
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
@@ -29,7 +30,11 @@ import java.util.*
 @Configuration
 @EnableCaching
 @EnableConfigurationProperties(RedisProps::class)
-@Profile("!test")
+@ConditionalOnProperty(
+    prefix = "spring.data.redis",
+    name = ["enabled"],
+    havingValue = "true"
+)
 class RedisConfig(private val redisProps: RedisProps) {
 
     @Bean

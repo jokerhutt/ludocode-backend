@@ -2,11 +2,16 @@ package com.ludocode.ludocodebackend.auth.infra.http.firebase
 
 import com.google.firebase.auth.FirebaseAuth
 import com.ludocode.ludocodebackend.auth.app.port.out.FirebaseAuthPort
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 
-@Profile("!test")
 @Component
+@ConditionalOnProperty(
+    prefix = "firebase",
+    name = ["enabled"],
+    havingValue = "true"
+)
 class FirebaseAuthAdapter(
     private val firebaseAuth: FirebaseAuth
 ) : FirebaseAuthPort {

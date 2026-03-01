@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*
     name = "Admin Languages",
     description = "Admin operations related to managing programming languages available on the platform"
 )
-@Profile("admin", "devadmin", "test", "devtestadmin")
+@Profile("admin", "dev", "test", "devtestadmin")
 @RestController
 @RequestMapping(ApiPaths.LANGUAGES.ADMIN_BASE)
 class LanguagesAdminController(

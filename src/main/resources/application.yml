@@ -9,21 +9,27 @@ spring:
       maximum-pool-size: 3
       minimum-idle: 1
   cache:
-    type: redis
+    type: ${CACHE_TYPE:none}
   data:
     redis:
+      enabled: ${REDIS_ENABLED:false}
       repositories:
         enabled: false
       host: ${REDIS_HOST}
       port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
+      password: ${REDIS_PASSWORD}
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.xml
     contexts: ${LIQUIBASE_CONTEXT:dev}
     #profiles: admin, dev, devadmin, prod, test, devtestadmin
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE:prod}
+    active: ${SPRING_PROFILES_ACTIVE:devadmin}
+
+management:
+  health:
+    redis:
+      enabled: ${REDIS_ENABLED:false}
 
 logging:
   level:
@@ -48,12 +54,12 @@ springdoc:
     enabled: true
 
 firebase:
+  enabled: ${FIREBASE_ENABLED:false}
   service:
     json: ${FIREBASE_SERVICE_ACCOUNT_JSON}
-    path: ${FIREBASE_SERVICE_ACCOUNT_PATH:firebase-service-account.json}
 
 ai:
-  enabled: ${AI_ENABLED:true}
+  enabled: ${AI_ENABLED:false}
   api:
     key: ${GEMINI_API_KEY}
   model: ${GEMINI_MODEL:gemini-2.5-flash-lite}
@@ -61,13 +67,8 @@ ai:
 jwt:
   secret: ${JWT_SECRET}
 
-google:
-  client-id: ${GOOGLE_CLIENT_ID}
-  client-secret: ${GOOGLE_CLIENT_SECRET}
-  redirect-uri: postmessage
-
 cors:
-  origins: ${FRONTEND_ORIGINS}
+  origins: ${FRONTEND_ORIGINS:http://localhost:5173}
 
 avatar:
   version: v1
@@ -102,7 +103,7 @@ storage:
     bucket-name: ${LOCAL_BUCKET_NAME:/data/local-bucket}
 
 piston:
-  enabled: ${PISTON_ENABLED:true}
+  enabled: ${PISTON_ENABLED:false}
   public: https://emkc.org/api/v2/piston
   base: ${PISTON_BASE}
 

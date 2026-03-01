@@ -5,12 +5,18 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import jakarta.annotation.PostConstruct
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import java.io.ByteArrayInputStream
 
-@Profile("!test")
+
 @Configuration
+@ConditionalOnProperty(
+    prefix = "firebase",
+    name = ["enabled"],
+    havingValue = "true"
+)
 class FirebaseConfig(
     @Value("\${firebase.service.json}")
     private val serviceAccountJson: String

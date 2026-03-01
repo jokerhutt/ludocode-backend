@@ -37,7 +37,7 @@ class UserSubscriptionMapper (
         val planDefinitions = PlanDefinitions.configFor(planCode)
 
         val currentPeriodEnd =
-            if (planCode == Plan.FREE)
+            if (planCode == Plan.FREE || planCode == Plan.DEV)
                 nextMonthFirstDayUtc()
             else
                 renewalDate ?: throw ApiException(ErrorCode.PAID_PLAN_WITHOUT_RENEWAL)
