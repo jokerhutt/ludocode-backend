@@ -70,7 +70,7 @@ class AuthService(
             email = "demo@ludocode.app",
             displayName = "Demo User",
             avatarUrl = null,
-            role = null
+            role = "admin"
         )
         return buildLoginResponse(request, response)
     }

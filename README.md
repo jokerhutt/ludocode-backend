@@ -9,39 +9,88 @@
 4. [Services](#services)
 
 ## Overview
-This repository contains the backend code for Ludocode, a code learning website.
 
-The project is written using Kotlin 1.9.25 and Java 21. It uses PostgreSQL as a database.
+This repository contains the backend for **Ludocode**, a modular code-learning platform.
 
-For in depth documentation of each feature, see the [documentation](docs/index.md).
+The application is built with **Kotlin 1.9.25** (running on **Java 21**) and uses **PostgreSQL** as its primary datastore.
 
-This repository includes docker compose files for running the project locally with core functionality without needing to provide any external credentials. The only parts that require (optional) credentials are AI features & OAuth features, both of which disable gracefully if not enabled.
+Comprehensive, feature-level documentation is available in the [documentation](docs/index.md).
+
+Docker Compose configurations are included to run the core system locally without external credentials. Optional integrations — such as AI features and OAuth providers — are fully feature-toggled and degrade gracefully when disabled.
+
+---
 
 ## Features
-- Spring Authentication
-- Demo users
-- Optional Google OAuth Authentication
-- Blob Storage with local & GCS option.
-- Ports and adapters style architecture
-- Timezone based streak system
-- AI chatbot assistant with credits system using Gemini API
-- Ability to create and modify coding projects with files
-- Diffing system for saving files
-- Code execution using Piston API
-- Diffing and versioning system for modifying courses and their contents
-- Coins system for users
-- Attempts are stored in an analytics friendly way
-- Deduplication with request hashes
 
-## Planned Features
-- Analytics System
-- Backend caching
-- 
+### Learning & Content Management
+- Course, module, lesson, and exercise management
+- Versioned course authoring with diff-based change tracking
+- Dynamic language and subject configuration
+- Lesson submission and completion workflows
+
+### User Progress & Engagement
+- Timezone-aware streak tracking
+- Virtual coin reward system
+- Per-course and per-lesson progress tracking
+- User onboarding and preference management
+
+### Authentication & Access
+- Firebase-based authentication (optional)
+- Demo user authentication mode
+- JWT-based session management
+
+### AI & Code Execution
+- AI chatbot integration with server-side streaming (SSR)
+- Credit-based AI usage limits (optional)
+- Code execution via Piston runtime
+- Project creation and modification with file snapshot diffing
+
+### Storage & Infrastructure
+- Pluggable blob storage (Local, GCS, S3)
+- Redis-based caching (optional)
+- Subscription plans with Stripe integration (optional)
+
+### Quality & Testing
+- Integration test suite with 100+ tests
+
+---
 
 ## Requirements
-- Docker
-- A Gemini API key (Optional, for AI)
-- A Google OAuth Client ID & Credentials (Optional, for auth)
+
+- **Docker**
+
+### Feature-Specific Configuration
+
+The application runs without external credentials. If not provided, the corresponding features are disabled or fall back to development-safe defaults.
+
+- **AI Features**  
+  Requires a Gemini API key.
+
+- **Authentication (OAuth)**  
+  Requires a Firebase service account JSON.  
+  If omitted, authentication falls back to demo mode.
+
+- **Code Execution**  
+  Requires a self-hosted Piston runtime.  
+  The previously available public API is no longer maintained.
+
+- **Stripe Payments**  
+  Requires a Stripe secret key and webhook secret.  
+  If disabled, the application operates in development plan mode.
+
+---
+
+### Optional Storage Providers
+
+These integrations are optional. If not configured, local storage is used by default.
+
+- **AWS S3**  
+  Requires region, bucket name, access key ID, and secret access key.
+
+- **Google Cloud Storage (GCS)**  
+  Requires bucket name and project ID.
+
+---
 
 ## Project Setup
 
@@ -51,13 +100,16 @@ If you are only interested in running the project locally, I have provided a set
 
 1. Clone the project
 ```
-git@github.com:jokerhutt/ludocode-backend.git
+git clone git@github.com:jokerhutt/ludocode-backend.git
 ```
 2. Navigate to project directory
 ```
-cd /path/to/ludocode-backend
+cd ludocode-backend
 ```
-3. Copy & Paste the `example.env` into a `.env` file in the project directory
+3. Create the env file from the example env
+```
+cp .env.example .env
+```
 
 4. Run the PostgreSQL Container
 ```
@@ -69,28 +121,58 @@ docker compose -f docker-compose.ludocode.yml build ludocode-backend
 docker compose -f docker-compose.ludocode.yml up -d ludocode-backend
 ```
 
-After you have your Postgres & Application containers running, you will have a pre-seeded demo user. On the frontend, simply visit `your-frontend-url/demo` to bypass the google authentication stage.
+After you have your Postgres & Application containers running, you will have a pre-seeded demo user & lessons. On the frontend, simply visit `your-frontend-url/demo` to bypass the google authentication stage.
 
-### Enabling AI features
+For example, `http://localhost:5173/demo`
+
+### Enabling AI features (Optional)
 To enable AI features, you need a Gemini API Key & enable the feature in the environment variables.
 
 1. Go to https://aistudio.google.com/ -> Sign in with Google -> Get API Key.
 2. Set `AI_ENABLED=true` in your environment variables.
 3. Set `GEMINI_API_KEY` to your Gemini API Key
 
-### Setting up Google OAuth (Optional)
-**This only affects authentication. Leaving the `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` blank means you will need to use the demo user authentication.**
-1. Create a Google Cloud account
-2. Create a Google Cloud project
-3. Go to Google Cloud Console → APIs & Services → Credentials
-4. Create OAuth 2.0 Client (type: Web application)
-   Required fields:
-- Authorized JavaScript origins:
-  https://your-frontend-domain.com
-- Authorized redirect URIs:
-  http://your-frontend-domain.com/auth/google/callback
-5. Set `GOOGLE_CLIENT_ID` to your Google client ID and `GOOGLE_CLIENT_SECRET` to your Google client secret.
-6. Generate a JWT secret and set `JWT_SECRET` to its value in your environment variables
+## Setting up Firebase (Optional)
+
+**This only affects authentication.**  
+If `FIREBASE_SERVICE_ACCOUNT_JSON` is not provided, Firebase login will be disabled and you must use the demo account.
+
+---
+
+### 1. Create a Firebase Project
+
+1. Go to https://console.firebase.google.com
+2. Click **Create Project**
+3. Navigate to **Authentication → Sign-in method**
+4. Enable **Google** (or any provider you plan to use)
+
+---
+
+### 2. Generate a Service Account Key (Backend)
+
+1. Go to **Project Settings → Service Accounts**
+2. Click **Generate new private key**
+3. Download the JSON file
+
+---
+
+### 3. Set Environment Variable
+
+Set the following environment variable:
+
+```bash
+FIREBASE_SERVICE_ACCOUNT_JSON={...full service account JSON...}
+```
+
+The value must contain the entire contents of the downloaded service account file.
+
+If using Docker or `.env`, ensure it is either:
+
+• A properly escaped single-line JSON string  
+or  
+• Injected as a multiline environment variable (recommended for Docker secrets)
+
+If omitted or invalid, Firebase authentication will be disabled.
 
 
 ### Setting the environment variables (Optional)
