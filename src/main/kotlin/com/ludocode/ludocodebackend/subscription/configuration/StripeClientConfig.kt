@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.subscription.configuration
 
-import com.ludocode.ludocodebackend.commons.configuration.AppProps
+import com.ludocode.ludocodebackend.commons.configuration.app.AppProperties
 import com.ludocode.ludocodebackend.subscription.app.port.out.StripeBillingPort
 import com.ludocode.ludocodebackend.subscription.app.port.out.StripeCheckoutPort
 import com.ludocode.ludocodebackend.subscription.infra.http.NoOpStripeBillingClient
@@ -17,8 +17,8 @@ class StripeClientConfig {
     // ===== Checkout =====
     @Bean
     @ConditionalOnProperty(prefix = "stripe", name = ["enabled"], havingValue = "true")
-    fun stripeCheckoutClient(appProps: AppProps): StripeCheckoutPort =
-        StripeCheckoutClient(appProps)
+    fun stripeCheckoutClient(appProperties: AppProperties): StripeCheckoutPort =
+        StripeCheckoutClient(appProperties)
 
     @Bean
     @ConditionalOnProperty(
@@ -34,8 +34,8 @@ class StripeClientConfig {
     // ===== Billing =====
     @Bean
     @ConditionalOnProperty(prefix = "stripe", name = ["enabled"], havingValue = "true")
-    fun stripeBillingClient(appProps: AppProps): StripeBillingPort =
-        StripeBillingClient(appProps)
+    fun stripeBillingClient(appProperties: AppProperties): StripeBillingPort =
+        StripeBillingClient(appProperties)
 
     @Bean
     @ConditionalOnProperty(

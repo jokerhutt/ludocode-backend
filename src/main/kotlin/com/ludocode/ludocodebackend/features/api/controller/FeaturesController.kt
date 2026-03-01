@@ -1,10 +1,10 @@
 package com.ludocode.ludocodebackend.features.api.controller
 
 import com.ludocode.ludocodebackend.ai.configuration.AIFeatureConfig
-import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
+import com.ludocode.ludocodebackend.auth.configuration.demo.DemoProperties
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.features.api.dto.response.ActiveFeaturesResponse
-import com.ludocode.ludocodebackend.playground.config.PistonFeatureConfig
+import com.ludocode.ludocodebackend.playground.configuration.PistonProperties
 import com.ludocode.ludocodebackend.storage.configuration.StorageProperties
 import com.ludocode.ludocodebackend.subscription.configuration.StripeProperties
 import io.swagger.v3.oas.annotations.Operation
@@ -25,8 +25,8 @@ class FeaturesController(
     private val storageProps: StorageProperties,
     private val stripeProps: StripeProperties,
     private val aiConfig: AIFeatureConfig,
-    private val pistonConfig: PistonFeatureConfig,
-    private val demoConfig: DemoConfig,
+    private val pistonConfig: PistonProperties,
+    private val demoProperties: DemoProperties,
     private val env: Environment
 ) {
 
@@ -46,7 +46,7 @@ class FeaturesController(
                 isPistonEnabled = pistonConfig.enabled,
                 stripeMode = stripeProps.mode,
                 paymentsEnabled = stripeProps.enabled,
-                isDemoEnabled = demoConfig.enabled,
+                isDemoEnabled = demoProperties.enabled,
                 isAdminEnabled = isAdminEnabled()
             )
         )

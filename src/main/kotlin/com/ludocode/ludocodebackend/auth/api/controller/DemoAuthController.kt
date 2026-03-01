@@ -2,7 +2,7 @@ package com.ludocode.ludocodebackend.auth.api.controller
 
 import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.app.service.AuthService
-import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
+import com.ludocode.ludocodebackend.auth.configuration.demo.DemoProperties
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping(ApiPaths.AUTH.BASE)
 class DemoAuthController(
-    private val demoConfig: DemoConfig,
+    private val demoProperties: DemoProperties,
     private val authService: AuthService
 ) {
 
@@ -38,7 +38,7 @@ class DemoAuthController(
         response: HttpServletResponse
     ): ResponseEntity<UserLoginResponse> {
 
-        if (token != demoConfig.token) {
+        if (token != demoProperties.token) {
             return ResponseEntity.status(403).body(null)
         }
 

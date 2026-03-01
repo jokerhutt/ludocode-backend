@@ -1,5 +1,6 @@
-package com.ludocode.ludocodebackend.commons.configuration
+package com.ludocode.ludocodebackend.auth.api.security.filter
 
+import com.ludocode.ludocodebackend.commons.configuration.web.CorsProperties
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
-class CorsLoggingFilter(private val corsProps: CorsProps) : OncePerRequestFilter() {
+class CorsLoggingFilter(private val corsProperties: CorsProperties) : OncePerRequestFilter() {
 
     private val log = LoggerFactory.getLogger(CorsLoggingFilter::class.java)
 
@@ -20,20 +21,20 @@ class CorsLoggingFilter(private val corsProps: CorsProps) : OncePerRequestFilter
         val origin = request.getHeader("Origin")
 
         if (origin != null) {
-            val isAllowed = corsProps.origins.any { pattern ->
+            val isAllowed = corsProperties.origins.any { pattern ->
                 matchesPattern(origin, pattern)
             }
 
             if (isAllowed) {
                 log.debug(
                     "CORS request allowed - Origin: {} matches allowed patterns: {}",
-                    origin, corsProps.origins
+                    origin, corsProperties.origins
                 )
             } else {
                 log.warn(
                     "CORS request REJECTED - Origin: '{}' does not match any allowed patterns: {}. " +
                             "Request method: {}, Request URI: {}",
-                    origin, corsProps.origins, request.method, request.requestURI
+                    origin, corsProperties.origins, request.method, request.requestURI
                 )
             }
         }

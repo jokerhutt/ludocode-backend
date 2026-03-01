@@ -1,11 +1,11 @@
-package com.ludocode.ludocodebackend.auth.configuration
+package com.ludocode.ludocodebackend.auth.configuration.cookie
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
 
 @ConfigurationProperties(prefix = "auth.cookie")
 @Component
-class AuthCookieConfig {
+class AuthCookieProperties {
 
     lateinit var name: String
     lateinit var path: String

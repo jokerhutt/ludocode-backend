@@ -34,7 +34,7 @@ management:
 logging:
   level:
     root: ${LOGGING_LEVEL:INFO}
-    com.ludocode.ludocodebackend.commons.configuration.CorsLoggingFilter: ${CORS_LOGGING_LEVEL:WARN}
+    com.ludocode.ludocodebackend.commons.configuration.com.ludocode.ludocodebackend.commons.configuration.web.CorsLoggingFilter: ${CORS_LOGGING_LEVEL:WARN}
 
 payments:
   enabled: ${PAYMENTS_ENABLED:false}

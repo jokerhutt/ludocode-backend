@@ -1,9 +1,9 @@
-package com.ludocode.ludocodebackend.auth.api.security
+package com.ludocode.ludocodebackend.auth.api.security.filter
 
 import com.ludocode.ludocodebackend.auth.api.security.principal.AuthUser
 import com.ludocode.ludocodebackend.auth.app.service.AuthCookieService
 import com.ludocode.ludocodebackend.auth.app.service.JwtService
-import com.ludocode.ludocodebackend.auth.configuration.DemoConfig
+import com.ludocode.ludocodebackend.auth.configuration.demo.DemoProperties
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
@@ -11,7 +11,7 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import net.logstash.logback.argument.StructuredArguments.kv
+import net.logstash.logback.argument.StructuredArguments
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -21,14 +21,14 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import java.io.IOException
-import java.util.*
+import java.util.UUID
 
 @Component
 class JwtCookieAuthenticationFilter(
     private val authCookieService: AuthCookieService,
     private val jwtService: JwtService,
     private val userRepository: UserRepository,
-    private val demoConfig: DemoConfig
+    private val demoProperties: DemoProperties
 ) : OncePerRequestFilter() {
 
     private val log = LoggerFactory.getLogger(JwtCookieAuthenticationFilter::class.java)
@@ -74,9 +74,9 @@ class JwtCookieAuthenticationFilter(
 
                 val principal = AuthUser(userId, role)
 
-                val isDemoAdmin = demoConfig.enabled
-                        && demoConfig.grantAdmin
-                        && userId == demoConfig.userId
+                val isDemoAdmin = demoProperties.enabled
+                        && demoProperties.grantAdmin
+                        && userId == demoProperties.userId
 
                 val authorities =
                     if (role == "admin" || isDemoAdmin)
@@ -92,8 +92,8 @@ class JwtCookieAuthenticationFilter(
                 SecurityContextHolder.clearContext()
                 log.warn(
                     LogEvents.AUTH_JWT_INVALID + " {} {}",
-                    kv(LogFields.URI_PATH, req.requestURI),
-                    kv(LogFields.AUTH_FAILURE_REASON, e.javaClass.simpleName)
+                    StructuredArguments.kv(LogFields.URI_PATH, req.requestURI),
+                    StructuredArguments.kv(LogFields.AUTH_FAILURE_REASON, e.javaClass.simpleName)
                 )
             }
         }

@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.commons.configuration
+package com.ludocode.ludocodebackend.commons.configuration.cache
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -14,7 +14,6 @@ import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
-import org.springframework.context.annotation.Profile
 import org.springframework.data.redis.cache.RedisCacheConfiguration
 import org.springframework.data.redis.cache.RedisCacheManager
 import org.springframework.data.redis.connection.RedisConnectionFactory
@@ -25,17 +24,17 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer
 import org.springframework.data.redis.serializer.RedisSerializationContext
 import org.springframework.data.redis.serializer.StringRedisSerializer
 import java.time.Duration
-import java.util.*
+import java.util.UUID
 
 @Configuration
 @EnableCaching
-@EnableConfigurationProperties(RedisProps::class)
+@EnableConfigurationProperties(RedisProperties::class)
 @ConditionalOnProperty(
     prefix = "spring.data.redis",
     name = ["enabled"],
     havingValue = "true"
 )
-class RedisConfig(private val redisProps: RedisProps) {
+class RedisConfig(private val redisProperties: RedisProperties) {
 
     @Bean
     @Primary
@@ -46,9 +45,9 @@ class RedisConfig(private val redisProps: RedisProps) {
 
     @Bean
     fun redisConnectionFactory(): RedisConnectionFactory {
-        val config = RedisStandaloneConfiguration(redisProps.host, redisProps.port)
-        if (redisProps.password.isNotBlank()) {
-            config.setPassword(redisProps.password)
+        val config = RedisStandaloneConfiguration(redisProperties.host, redisProperties.port)
+        if (redisProperties.password.isNotBlank()) {
+            config.setPassword(redisProperties.password)
         }
 
         val clientConfig = LettuceClientConfiguration.builder()

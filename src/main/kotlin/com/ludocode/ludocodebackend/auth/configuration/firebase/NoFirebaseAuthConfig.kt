@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.auth.configuration
+package com.ludocode.ludocodebackend.auth.configuration.firebase
 
 import com.ludocode.ludocodebackend.auth.app.port.out.FirebaseAuthPort
 import com.ludocode.ludocodebackend.auth.infra.http.firebase.FirebaseUser

@@ -1,8 +1,8 @@
-package com.ludocode.ludocodebackend.commons.configuration
+package com.ludocode.ludocodebackend.commons.configuration.app
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "app")
-data class AppProps(
+data class AppProperties(
     val frontendUrl: String
 )

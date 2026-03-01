@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.playground.api.filters
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.playground.config.PistonFeatureConfig
+import com.ludocode.ludocodebackend.playground.configuration.PistonProperties
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -10,7 +10,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class PistonFeatureToggleFilter(
-    private val pistonFeatureConfig: PistonFeatureConfig
+    private val pistonProperties: PistonProperties
 ) : OncePerRequestFilter() {
 
     override fun doFilterInternal(req: HttpServletRequest, res: HttpServletResponse, chain: FilterChain) {
@@ -19,7 +19,7 @@ class PistonFeatureToggleFilter(
             return
         }
 
-        if (!pistonFeatureConfig.enabled) {
+        if (!pistonProperties.enabled) {
             res.sendError(403, "Piston disabled — toggle piston.enabled=true to enable")
             return
         }
