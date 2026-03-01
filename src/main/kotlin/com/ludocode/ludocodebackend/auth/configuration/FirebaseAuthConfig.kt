@@ -1,13 +1,18 @@
 package com.ludocode.ludocodebackend.auth.configuration
 
 import com.google.firebase.auth.FirebaseAuth
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.Profile
 
-@Profile("!test")
 @Configuration
+@ConditionalOnProperty(
+    prefix = "firebase",
+    name = ["enabled"],
+    havingValue = "true"
+)
 @DependsOn("firebaseConfig")
 class FirebaseAuthConfig(
     firebaseConfig: FirebaseConfig

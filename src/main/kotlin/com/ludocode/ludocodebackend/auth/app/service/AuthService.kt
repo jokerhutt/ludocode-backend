@@ -10,7 +10,6 @@ import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserCoinsPortForAuth
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStreakPortForAuth
-import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
@@ -19,7 +18,6 @@ import jakarta.servlet.http.HttpServletResponse
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
-import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -32,8 +30,6 @@ class AuthService(
     private val userStreakPortForAuth: UserStreakPortForAuth,
     private val demoConfig: DemoConfig,
     private val firebaseAuthPort: FirebaseAuthPort,
-    private val applicationEventPublisher: ApplicationEventPublisher,
-    private val subscriptionService: SubscriptionService
 ) {
 
     private val logger = LoggerFactory.getLogger(AuthService::class.java)

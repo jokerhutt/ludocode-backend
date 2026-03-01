@@ -35,7 +35,7 @@ local-storage/*
 .env*
 
 # But keep this one
-!example.env
+!.env.example
 
 docker-compose.*
 

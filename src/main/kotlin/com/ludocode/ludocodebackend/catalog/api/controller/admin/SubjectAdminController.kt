@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*
     name = "Admin Subjects",
     description = "Admin operations related to creating and modifying course subjects"
 )
-@Profile("admin", "devadmin", "test", "devtestadmin")
+@Profile("admin", "dev", "test", "devtestadmin")
 @RestController
 @RequestMapping(ApiPaths.SUBJECTS.ADMIN_BASE)
 class SubjectAdminController(
