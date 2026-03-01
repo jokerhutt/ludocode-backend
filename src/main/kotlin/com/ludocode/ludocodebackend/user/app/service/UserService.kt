@@ -64,6 +64,7 @@ class UserService(
         if (ext.provider == AuthProvider.FIREBASE) {
             firebaseAuthPort.deleteUser(ext.providerUserId)
         }
+        externalAccountRepository.delete(ext)
         logger.warn(LogEvents.USER_DELETED)
         existingUser.email = null
         existingUser.displayName = null
