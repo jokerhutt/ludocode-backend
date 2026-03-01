@@ -42,6 +42,9 @@ class User(
     val timeZone: String = "UTC",
 
     @Column(name = "is_deleted")
-    var isDeleted: Boolean = false
+    var isDeleted: Boolean = false,
+
+    @Column(name = "deleted_at")
+    var deletedAt: OffsetDateTime? = null
 
 )

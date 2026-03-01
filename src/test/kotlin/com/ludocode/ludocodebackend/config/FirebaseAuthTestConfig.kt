@@ -21,5 +21,10 @@ class FirebaseAuthTestConfig {
                     role = null
                 )
             }
+
+
+            override fun deleteUser(uid: String) {
+            }
+
         }
 }

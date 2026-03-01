@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <!-- allow email to be null for deleted users -->
+    <changeSet id="024-01-user-email-nullable" author="dave">
+        <dropNotNullConstraint tableName="ludo_user"
+                               columnName="email"
+                               columnDataType="text"/>
+
+        <sql dbms="postgresql">
+            ALTER TABLE ludo_user
+                ADD CONSTRAINT ludo_user_email_required_unless_deleted
+                    CHECK (is_deleted OR email IS NOT NULL);
+        </sql>
+
+    </changeSet>
+
+    <changeSet id="024-02-user-deleted-at" author="dave">
+        <addColumn tableName="ludo_user">
+            <column name="deleted_at" type="timestamptz"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

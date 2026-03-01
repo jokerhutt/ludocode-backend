@@ -22,4 +22,9 @@ class FirebaseAuthAdapter(
             role = role
         )
     }
+
+    override fun deleteUser(uid: String) {
+        firebaseAuth.deleteUser(uid)
+    }
+
 }
