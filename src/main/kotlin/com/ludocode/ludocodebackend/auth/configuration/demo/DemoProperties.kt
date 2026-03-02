@@ -7,8 +7,5 @@ import java.util.UUID
 @ConfigurationProperties(prefix = "demo")
 @Component
 class DemoProperties {
-    var enabled: Boolean = false
-    var grantAdmin: Boolean = false
-    lateinit var token: String
     lateinit var userId: UUID
 }

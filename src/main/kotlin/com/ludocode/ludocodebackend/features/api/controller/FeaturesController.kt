@@ -1,9 +1,10 @@
 package com.ludocode.ludocodebackend.features.api.controller
 
 import com.ludocode.ludocodebackend.ai.configuration.AIFeatureConfig
-import com.ludocode.ludocodebackend.auth.configuration.demo.DemoProperties
+import com.ludocode.ludocodebackend.auth.configuration.firebase.FirebaseProperties
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.features.api.dto.response.ActiveFeaturesResponse
+import com.ludocode.ludocodebackend.features.app.enums.AuthMode
 import com.ludocode.ludocodebackend.runner.configuration.PistonProperties
 import com.ludocode.ludocodebackend.storage.configuration.StorageProperties
 import com.ludocode.ludocodebackend.subscription.configuration.StripeProperties
@@ -26,7 +27,7 @@ class FeaturesController(
     private val stripeProps: StripeProperties,
     private val aiConfig: AIFeatureConfig,
     private val pistonConfig: PistonProperties,
-    private val demoProperties: DemoProperties,
+    private val firebaseProperties: FirebaseProperties,
     private val env: Environment
 ) {
 
@@ -39,6 +40,9 @@ class FeaturesController(
     )
     @GetMapping
     fun getActiveFeatures(): ResponseEntity<ActiveFeaturesResponse> {
+
+        val authMode = if (firebaseProperties.enabled) AuthMode.FIREBASE else AuthMode.DEMO
+
         return ResponseEntity.ok(
             ActiveFeaturesResponse(
                 storageMode = storageProps.mode,
@@ -46,7 +50,7 @@ class FeaturesController(
                 isPistonEnabled = pistonConfig.enabled,
                 stripeMode = stripeProps.mode,
                 paymentsEnabled = stripeProps.enabled,
-                isDemoEnabled = demoProperties.enabled,
+                authMode = authMode,
                 isAdminEnabled = isAdminEnabled()
             )
         )

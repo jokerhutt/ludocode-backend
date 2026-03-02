@@ -5,7 +5,6 @@ object PublicEndpointConstants {
     @JvmField
     val PUBLIC_ENDPOINTS = arrayOf(
         "/actuator/**",
-        "${ApiPaths.AUTH.BASE}${ApiPaths.AUTH.DEMO}",
         "${ApiPaths.AUTH.BASE}${ApiPaths.AUTH.FIREBASE}",
         ApiPaths.FEATURES.BASE,
         "${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.MODULES}",

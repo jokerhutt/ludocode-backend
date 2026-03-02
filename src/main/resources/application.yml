@@ -108,10 +108,7 @@ piston:
   base: ${PISTON_BASE}
 
 demo:
-  enabled: ${DEMO_ENABLED:true}
-  grant-admin: ${DEMO_GRANT_ADMIN:true}
-  token: ${DEMO_TOKEN}
-  user-id: ${DEMO_USER_ID}
+  user-id: ${DEMO_USER_ID:598ccbea-4957-4569-81cb-ea901b62c329}
 
 auth:
   cookie:

@@ -39,6 +39,9 @@ class UserProjectIT : AbstractIntegrationTest() {
     @BeforeEach
     fun seed() {
 
+        val f1Id = UUID.randomUUID()
+        val f2Id = UUID.randomUUID()
+
         existingProject = userProjectRepository.save(
             UserProject(
                 id = UUID.randomUUID(),
@@ -47,16 +50,15 @@ class UserProjectIT : AbstractIntegrationTest() {
                 codeLanguage = pythonLanguage,
                 createdAt = OffsetDateTime.now(clock).minusDays(2),
                 updatedAt = OffsetDateTime.now(clock).minusDays(1),
-                requestHash = UUID.randomUUID()
+                requestHash = UUID.randomUUID(),
+                entryFileId = null
             )
         )
 
         val projectId = existingProject.id
 
-        val f1Id = UUID.randomUUID()
         val f1Url = "$projectId/${f1Id}"
         val f1Content = "print(hello world!)"
-        val f2Id = UUID.randomUUID()
         val f2Url = "$projectId/${f2Id}"
         val f2Content = "print(bye world!)"
 
@@ -80,6 +82,9 @@ class UserProjectIT : AbstractIntegrationTest() {
                 )
             )
         )
+
+        existingProject.entryFileId = f1Id
+        existingProject = userProjectRepository.save(existingProject)
 
         try {
             storage.create(BucketInfo.of("lumo-file-content"))

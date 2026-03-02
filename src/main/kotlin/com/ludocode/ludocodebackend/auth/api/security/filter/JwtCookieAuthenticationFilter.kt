@@ -2,8 +2,9 @@ package com.ludocode.ludocodebackend.auth.api.security.filter
 
 import com.ludocode.ludocodebackend.auth.api.security.principal.AuthUser
 import com.ludocode.ludocodebackend.auth.app.service.AuthCookieService
+import com.ludocode.ludocodebackend.auth.app.service.AuthService
 import com.ludocode.ludocodebackend.auth.app.service.JwtService
-import com.ludocode.ludocodebackend.auth.configuration.demo.DemoProperties
+import com.ludocode.ludocodebackend.auth.configuration.firebase.FirebaseProperties
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse
 import net.logstash.logback.argument.StructuredArguments
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
+import org.springframework.context.annotation.Lazy
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
@@ -28,7 +30,8 @@ class JwtCookieAuthenticationFilter(
     private val authCookieService: AuthCookieService,
     private val jwtService: JwtService,
     private val userRepository: UserRepository,
-    private val demoProperties: DemoProperties
+    private val firebaseProperties: FirebaseProperties,
+    @Lazy private val authService: AuthService
 ) : OncePerRequestFilter() {
 
     private val log = LoggerFactory.getLogger(JwtCookieAuthenticationFilter::class.java)
@@ -54,7 +57,22 @@ class JwtCookieAuthenticationFilter(
         res: HttpServletResponse,
         chain: FilterChain
     ) {
-        val token = authCookieService.readJwt(req)
+        var token = authCookieService.readJwt(req)
+
+        // FIREBASE DISABLED = AUTO LOGIN USER AS DEMO
+        if (token == null && !firebaseProperties.enabled) {
+            try {
+                authService.loginWithDemo(res)
+                token = res.getHeaders("Set-Cookie")
+                    .firstOrNull { it.startsWith("jwt=") }
+                    ?.let { header ->
+                        val cookieValue = header.removePrefix("jwt=").substringBefore(";")
+                        cookieValue.takeIf { it.isNotBlank() }
+                    }
+            } catch (e: Exception) {
+                log.warn("Demo auto-login failed: ${e.message}")
+            }
+        }
 
         if (token != null) {
             try {
@@ -71,15 +89,10 @@ class JwtCookieAuthenticationFilter(
 
                 MDC.put(LogFields.USER_ID, userId.toString())
 
-
                 val principal = AuthUser(userId, role)
 
-                val isDemoAdmin = demoProperties.enabled
-                        && demoProperties.grantAdmin
-                        && userId == demoProperties.userId
-
                 val authorities =
-                    if (role == "admin" || isDemoAdmin)
+                    if (role == "admin")
                         listOf(SimpleGrantedAuthority("ROLE_ADMIN"))
                     else
                         emptyList()

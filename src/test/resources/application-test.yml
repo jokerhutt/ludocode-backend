@@ -37,8 +37,8 @@ spring:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     contexts: test
 
-demo:
+firebase:
   enabled: true
-  grant-admin: true
-  token: 9d495788fdc9fe95627f04ab32cc839e
+
+demo:
   user-id: 47ad6daf-2433-4e76-b9c1-305614c5c033
