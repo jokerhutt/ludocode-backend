@@ -1,46 +1,31 @@
 package com.ludocode.ludocodebackend.auth.integration.demo
 
-import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.configuration.demo.DemoProperties
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
-import io.restassured.RestAssured
-import org.assertj.core.api.Assertions
+import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
+import io.restassured.RestAssured.given
+import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.junit.jupiter.EnabledIf
 import kotlin.test.Test
 
-@EnabledIf(
-    expression = "\${demo.enabled}",
-    loadContext = true
-)
 class DemoAuthIT : AbstractIntegrationTest() {
 
     @Autowired
     private lateinit var demoProperties: DemoProperties
 
     @Test
-    fun loginWithDemo_returnsDemoUser() {
-
-        val id = demoProperties.userId ?: error("demo.user-id must be set for test")
-
-        Assertions.assertThat(id == demoUser1.id)
-
-        val res = submitGetDemoUser(demoToken)
-        Assertions.assertThat(res).isNotNull()
-        Assertions.assertThat(res.user.id).isEqualTo(id)
-        Assertions.assertThat(res.user.displayName).isEqualTo(demoUser1.displayName)
-    }
-
-    private fun submitGetDemoUser(token: String): UserLoginResponse {
-        return RestAssured.given()
-            .queryParam("token", token)
+    fun getMe_returnsDemoUser_whenFirebaseDisabled() {
+        val response = given()
             .`when`()
-            .get("${ApiPaths.AUTH.BASE}${ApiPaths.AUTH.DEMO}")
+            .get("${ApiPaths.AUTH.BASE}${ApiPaths.AUTH.ME}")
             .then()
             .statusCode(200)
             .extract()
-            .`as`(UserLoginResponse::class.java)
-    }
+            .`as`(UserResponse::class.java)
 
+        assertThat(response).isNotNull()
+        assertThat(response.id).isEqualTo(demoProperties.userId)
+        assertThat(response.displayName).isEqualTo("Demo User")
+    }
 }
