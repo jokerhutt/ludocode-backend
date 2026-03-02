@@ -75,7 +75,6 @@ avatar:
   count: 10
 
 app:
-  open-to-public: ${OPEN_TO_PUBLIC:false}
   jobs:
     monthly-credit-reset:
       cron: ${MONTHLY_CREDIT_RESET_CRON:0 0 0 1 * *}
