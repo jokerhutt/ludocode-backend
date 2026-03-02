@@ -7,9 +7,11 @@ import jakarta.annotation.PostConstruct
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import java.io.ByteArrayInputStream
 
 @Configuration
+@Profile("!test")
 @ConditionalOnProperty(
     prefix = "firebase",
     name = ["enabled"],

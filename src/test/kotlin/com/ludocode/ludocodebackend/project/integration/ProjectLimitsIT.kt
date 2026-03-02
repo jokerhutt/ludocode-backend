@@ -47,8 +47,9 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
     @Test
     fun overPlanLimit_attemptCreateProject_throwsError () {
-
-        userProjectRepository.saveAll(ProjectTestUtil.spawnProjects(4, user1.id, pythonLanguage, clock, 2))
+        val (projects, files) = ProjectTestUtil.spawnProjects(4, user1.id, pythonLanguage, clock, storage, bucketName, 2)
+        projectFileRepository.saveAll(files)
+        userProjectRepository.saveAll(projects)
 
         val newProjectRequest = CreateProjectRequest(
             projectName = "Second Project",
@@ -62,8 +63,9 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
     @Test
     fun createTwoProjects_firstUnderPlanLimit_secondOverLimit_firstSucceeds_secondThrows () {
-
-        userProjectRepository.saveAll(ProjectTestUtil.spawnProjects(2, user1.id, pythonLanguage, clock, 2))
+        val (projects, files) = ProjectTestUtil.spawnProjects(2, user1.id, pythonLanguage, clock, storage, bucketName, 2)
+        projectFileRepository.saveAll(files)
+        userProjectRepository.saveAll(projects)
 
         val newProjectRequest = CreateProjectRequest(
             projectName = "Second Project",
@@ -89,8 +91,9 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
     @Test
     fun downGraded_marksDeletedAt() {
-
-        userProjectRepository.saveAll(ProjectTestUtil.spawnProjects(4, user1.id, pythonLanguage, clock, 2))
+        val (projects, files) = ProjectTestUtil.spawnProjects(4, user1.id, pythonLanguage, clock, storage, bucketName, 2)
+        projectFileRepository.saveAll(files)
+        userProjectRepository.saveAll(projects)
 
         val freeLimit = PlanDefinitions.configFor(Plan.FREE).limits.maxProjects
         projectPlanEnforcer.enforcePlanLimit(user1.id, freeLimit)
@@ -117,7 +120,9 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
         val now = OffsetDateTime.now(clock)
 
-        userProjectRepository.saveAll(ProjectTestUtil.spawnProjects(4, user1.id, pythonLanguage, clock, 2))
+        val (projects, files) = ProjectTestUtil.spawnProjects(4, user1.id, pythonLanguage, clock, storage, bucketName, 2)
+        projectFileRepository.saveAll(files)
+        userProjectRepository.saveAll(projects)
 
         val freeLimit = PlanDefinitions.configFor(Plan.FREE).limits.maxProjects
         projectPlanEnforcer.enforcePlanLimit(user1.id, freeLimit)
@@ -155,7 +160,9 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
         val now = OffsetDateTime.now(clock)
 
-        userProjectRepository.saveAll(ProjectTestUtil.spawnProjects(4, user1.id, pythonLanguage, clock, 2))
+        val (projects, files) = ProjectTestUtil.spawnProjects(4, user1.id, pythonLanguage, clock, storage, bucketName, 2)
+        projectFileRepository.saveAll(files)
+        userProjectRepository.saveAll(projects)
 
         val freeLimit = PlanDefinitions.configFor(Plan.FREE).limits.maxProjects
         projectPlanEnforcer.enforcePlanLimit(user1.id, freeLimit)
