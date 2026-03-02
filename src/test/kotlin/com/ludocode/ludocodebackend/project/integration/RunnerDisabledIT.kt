@@ -31,7 +31,8 @@ class RunnerDisabledIT : AbstractIntegrationTest() {
             updatedAt = OffsetDateTime.now(clock),
             projectLanguage = languageMetadata,
             files = listOf(),
-            deleteAt = null
+            deleteAt = null,
+            entryFileId = UUID.randomUUID()
         )
 
         given()

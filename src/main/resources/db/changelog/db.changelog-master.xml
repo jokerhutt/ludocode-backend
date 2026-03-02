@@ -29,6 +29,7 @@
     <include file="/db/changelog/022-add-career-preferences.xml"/>
     <include file="/db/changelog/023-jsonb-exercise-streamline.xml"/>
     <include file="/db/changelog/024-user-deletion-changes.xml"/>
+    <include file="/db/changelog/025-project-entry-file-id.xml"/>
 
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>

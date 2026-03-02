@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="025-001-add-entry-file-id-to-user-project" author="david">
+
+        <addColumn tableName="user_project">
+            <column name="entry_file_id" type="UUID"/>
+        </addColumn>
+
+        <addForeignKeyConstraint
+                baseTableName="user_project"
+                baseColumnNames="entry_file_id"
+                constraintName="fk_user_project_entry_file"
+                referencedTableName="project_file"
+                referencedColumnNames="id"
+                onDelete="SET NULL"/>
+
+        <createIndex
+                tableName="user_project"
+                indexName="idx_user_project_entry_file_id">
+            <column name="entry_file_id"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>
