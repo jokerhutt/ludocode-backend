@@ -102,6 +102,8 @@ class ProjectService(
                 )
             )
 
+            newProject.entryFileId = firstFileId
+
             try {
                 storagePortForServices.uploadList(
                     StoragePutRequestList(
@@ -185,6 +187,7 @@ class ProjectService(
             val projectFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
             val fileContentUrls = StorageGetRequest(projectFiles.map { it -> it.contentUrl })
             val fileContentsMap = storagePortForServices.getList(fileContentUrls)
+            val entryFileId = project.entryFileId ?: throw ApiException(ErrorCode.ENTRY_FILE_NOT_FOUND)
 
             logger.info(
                 "${LogEvents.PROJECT_SNAPSHOT_LOADED} {} {}",
@@ -199,7 +202,8 @@ class ProjectService(
                 lastUpdated,
                 deleteAt,
                 projectFiles,
-                fileContentsMap.content
+                fileContentsMap.content,
+                entryFileId
             )
         }
     }

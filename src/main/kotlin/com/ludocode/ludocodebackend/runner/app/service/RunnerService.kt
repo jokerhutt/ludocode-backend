@@ -23,9 +23,19 @@ class RunnerService(private val pistonOutboundPort: PistonOutboundPort) {
         val runtime = project.projectLanguage.pistonId
         val fileNames = project.files.map { it.path }
 
+        val orderedFiles =
+            if (project.entryFileId != null) {
+                val (entry, rest) = project.files.partition { it.id == project.entryFileId }
+                entry + rest
+            } else {
+                project.files
+            }
+
         val req = PistonRequest(
             language = runtime,
-            files = project.files.map { PistonFile(name = it.path, content = it.content) },
+            files = orderedFiles.map {
+                PistonFile(name = it.path, content = it.content)
+            },
             stdin = "",
             args = emptyList(),
             run_timeout = 3000

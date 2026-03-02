@@ -31,6 +31,9 @@ class UserProject(
     @JoinColumn(name = "code_language_id", nullable = false)
     val codeLanguage: CodeLanguages,
 
+    @Column(name = "entry_file_id")
+    var entryFileId: UUID? = null,
+
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "project_visibility")
     val projectVisibility: Visibility? = Visibility.PRIVATE,
