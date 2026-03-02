@@ -184,10 +184,14 @@ class ProjectService(
             val projectName = project.name
             val deleteAt = project.deleteAt
             val projectLanguage = project.codeLanguage
-            val projectFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
+            val entryFileId = project.entryFileId
+                ?: throw ApiException(ErrorCode.ENTRY_FILE_NOT_FOUND)
+
+            val projectFiles = projectFileRepository
+                .findAllProjectFilesByProjectId(projectId)
+                .sortedWith(compareByDescending { it.id == entryFileId })
             val fileContentUrls = StorageGetRequest(projectFiles.map { it -> it.contentUrl })
             val fileContentsMap = storagePortForServices.getList(fileContentUrls)
-            val entryFileId = project.entryFileId ?: throw ApiException(ErrorCode.ENTRY_FILE_NOT_FOUND)
 
             logger.info(
                 "${LogEvents.PROJECT_SNAPSHOT_LOADED} {} {}",
