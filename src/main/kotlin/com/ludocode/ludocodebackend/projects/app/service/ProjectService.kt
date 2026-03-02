@@ -270,8 +270,9 @@ class ProjectService(
             )
 
             val submittedFiles = projectSnapshot.files
+            val entryFileId = projectSnapshot.entryFileId
 
-            ProjectSnapshotValidator.validateSnapshotRequest(submittedFiles)
+            ProjectSnapshotValidator.validateSnapshotRequest(entryFileId, submittedFiles)
 
             val existingFiles: List<ProjectFile> = projectFileRepository.findAllProjectFilesByProjectId(projectId)
 
