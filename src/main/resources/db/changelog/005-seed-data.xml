@@ -271,4 +271,20 @@
         </sql>
     </changeSet>
 
+    <changeSet id="005-13-demo-user-coins" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO user_coins (user_id, coins)
+            VALUES ('598ccbea-4957-4569-81cb-ea901b62c329', 0)
+            ON CONFLICT (user_id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-14-demo-user-streak" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO user_streak (user_id, current_streak_days, best_streak_days)
+            VALUES ('598ccbea-4957-4569-81cb-ea901b62c329', 0, 0)
+            ON CONFLICT (user_id) DO NOTHING;
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>

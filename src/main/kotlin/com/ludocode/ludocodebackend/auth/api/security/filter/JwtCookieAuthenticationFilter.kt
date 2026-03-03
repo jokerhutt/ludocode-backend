@@ -59,16 +59,11 @@ class JwtCookieAuthenticationFilter(
     ) {
         var token = authCookieService.readJwt(req)
 
-        // FIREBASE DISABLED = AUTO LOGIN USER AS DEMO
+        // When Firebase is disabled, auto-login as the demo user if there's no active session
         if (token == null && !firebaseProperties.enabled) {
             try {
-                authService.loginWithDemo(res)
-                token = res.getHeaders("Set-Cookie")
-                    .firstOrNull { it.startsWith("jwt=") }
-                    ?.let { header ->
-                        val cookieValue = header.removePrefix("jwt=").substringBefore(";")
-                        cookieValue.takeIf { it.isNotBlank() }
-                    }
+                val loginResponse = authService.loginWithDemo(res)
+                token = jwtService.createToken(loginResponse.user.id, role = "admin")
             } catch (e: Exception) {
                 log.warn("Demo auto-login failed: ${e.message}")
             }

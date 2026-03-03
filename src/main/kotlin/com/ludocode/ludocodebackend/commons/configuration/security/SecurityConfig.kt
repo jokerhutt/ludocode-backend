@@ -5,6 +5,7 @@ import com.ludocode.ludocodebackend.auth.api.security.filter.CorsLoggingFilter
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.constants.AuthRoleEndpointConstants
 import com.ludocode.ludocodebackend.commons.constants.PublicEndpointConstants
+import com.ludocode.ludocodebackend.auth.configuration.firebase.FirebaseProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
@@ -17,7 +18,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Profile("!test")
 class SecurityConfig(
     private val jwtFilter: JwtCookieAuthenticationFilter,
-    private val corsLoggingFilter: CorsLoggingFilter
+    private val corsLoggingFilter: CorsLoggingFilter,
+    private val firebaseProperties: FirebaseProperties
 ) {
 
     @Bean
@@ -39,8 +41,11 @@ class SecurityConfig(
                     .permitAll()
                 it.requestMatchers(*PublicEndpointConstants.PUBLIC_ENDPOINTS).permitAll()
                 it.requestMatchers("${ApiPaths.USERS.BASE}/**").authenticated()
-                it.requestMatchers(*AuthRoleEndpointConstants.ADMIN_REQUIRED)
-                    .hasRole("ADMIN")
+                if (firebaseProperties.enabled) {
+                    it.requestMatchers(*AuthRoleEndpointConstants.ADMIN_REQUIRED).hasRole("ADMIN")
+                } else {
+                    it.requestMatchers(*AuthRoleEndpointConstants.ADMIN_REQUIRED).authenticated()
+                }
                 it.requestMatchers("/media/**").permitAll()
                 it.requestMatchers("/internal/**", "/internal/v1/**").permitAll()
                 it.requestMatchers("/actuator/**").permitAll()
