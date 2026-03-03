@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController
 class AuthAdminController {
 
     @GetMapping(ApiPaths.AUTH.CHECK)
-    fun checkAdminAuthentication(): ResponseEntity<Void> {
-        return ResponseEntity.ok().build()
+    fun checkAdminAuthentication(): ResponseEntity<Map<String, Boolean>> {
+        return ResponseEntity.ok(mapOf("ok" to true))
     }
 
 }
