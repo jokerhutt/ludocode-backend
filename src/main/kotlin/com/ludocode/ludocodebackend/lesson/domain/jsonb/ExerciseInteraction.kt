@@ -28,7 +28,8 @@ data class ClozeInteraction(
     override val clientId: UUID = UUID.randomUUID(),
     val file: InteractionFile,
     val blanks: List<InteractionBlank>,
-    val options: List<String>
+    val options: List<String>,
+    val output: String?
 ) : ExerciseInteraction
 
 data class InteractionBlank(
