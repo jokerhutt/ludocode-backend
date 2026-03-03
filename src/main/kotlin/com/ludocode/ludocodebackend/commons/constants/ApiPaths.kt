@@ -14,6 +14,8 @@ object ApiPaths {
 
     object AUTH {
         const val BASE = "$API_PREFIX/auth"
+        const val ADMIN_BASE = "$API_PREFIX$ADMIN_PREFIX/auth"
+        const val CHECK = "/check"
         const val FIREBASE = "/firebase"
         const val ME = "/me"
         const val LOGOUT = "/logout"
