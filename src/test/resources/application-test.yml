@@ -1,28 +1,11 @@
-server:
-  port: 18080
-
-jwt:
-  secret: 4f714869e9768d05e466fc7470cb001c977dde52ce407ea3dba6d660f8b75781
-
-piston:
-  enabled: false
-  base: ${PISTON_BASE}
-
-storage:
-  mode: gcs
-  gcs:
-    bucket: ${GCS_BUCKET_NAME}
-    project:
-      id: ${GCS_PROJECT_ID}
-  local:
-    bucket-name: ${LOCAL_BUCKET_NAME:/data/local-bucket}
-
-stripe:
-  enabled: true
-
 spring:
-  cache:
-    type: none
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ludocode
+    username: postgres
+    password: password
+    hikari:
+      maximum-pool-size: 3
+      minimum-idle: 1
   jpa:
     hibernate:
       ddl-auto: none
@@ -33,12 +16,46 @@ spring:
   sql:
     init:
       mode: never
+  cache:
+    type: none
+  data:
+    redis:
+      enabled: ${REDIS_ENABLED:false}
+      repositories:
+        enabled: false
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     contexts: test
 
-firebase:
+server:
+  port: 18080
+
+jwt:
+  secret: 4f714869e9768d05e466fc7470cb001c977dde52ce407ea3dba6d660f8b75781
+
+piston:
+  enabled: false
+  base:
+
+app:
+  gcs:
+    host: http://localhost:4443
+
+storage:
+  mode: gcs
+  gcs:
+    bucket: lumo-file-content
+    project:
+      id: lumo-test
+  local:
+    bucket-name: ${LOCAL_BUCKET_NAME:/data/local-bucket}
+
+stripe:
   enabled: true
 
-demo:
-  user-id: 47ad6daf-2433-4e76-b9c1-305614c5c033
+
+firebase:
+  enabled: true
