@@ -8,8 +8,6 @@ data class ExerciseSnap (
 
     val exerciseId: UUID? = null,
 
-    val exerciseVersion: Int,
-
     val blocks: List<Block>,
 
     var interaction: ExerciseInteraction? = null

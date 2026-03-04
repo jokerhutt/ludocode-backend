@@ -96,7 +96,6 @@ class LessonSnapshotService(
 
         return ExerciseSnap(
             exerciseId = exerciseResponse.id,
-            exerciseVersion = exerciseResponse.version,
             blocks = exerciseResponse.blocks,
             interaction = exerciseResponse.interaction
         )
