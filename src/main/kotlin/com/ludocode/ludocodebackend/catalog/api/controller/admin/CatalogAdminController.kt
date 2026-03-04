@@ -65,7 +65,10 @@ class CatalogAdminController(
         )
     }
 
-    @PutMapping(ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM, params = ["mode=yaml"])
+    @PutMapping(
+        ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM,
+        params = ["mode=yaml"],
+        consumes = ["application/x-yaml", "text/yaml", "application/yaml"])
     fun applyCurriculumYaml(
         @RequestBody yaml: CurriculumYamlRoot,
         @PathVariable courseId: UUID
