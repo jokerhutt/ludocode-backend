@@ -13,6 +13,7 @@ import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.context.annotation.Profile
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -30,9 +31,26 @@ class CatalogAdminController(
     private val curriculumYamlService: CurriculumYamlService
 ) {
 
-    @GetMapping(ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM)
+    @GetMapping(ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM, params = ["mode!=yaml"])
     fun getCourseCurriculumByCourseId(@PathVariable courseId: UUID): ResponseEntity<CurriculumDraftSnapshot> {
         return ResponseEntity.ok(curriculumSnapshotService.buildCurriculumSnapshot(courseId))
+    }
+
+    @GetMapping(
+        ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM,
+        params = ["mode=yaml"],
+        produces = ["application/x-yaml"]
+    )
+    fun getYamlCourseCurriculumByCourseId(
+        @PathVariable courseId: UUID
+    ): ResponseEntity<String> {
+
+        val yaml = curriculumYamlService.exportYaml(courseId)
+
+        return ResponseEntity
+            .ok()
+            .contentType(MediaType("application", "x-yaml"))
+            .body(yaml)
     }
 
     @PutMapping(ApiPaths.SNAPSHOTS.COURSE_SUBJECT)
