@@ -14,7 +14,6 @@ import com.ludocode.ludocodebackend.projects.api.dto.request.RenameProjectReques
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectSnapshotDiff
 import com.ludocode.ludocodebackend.projects.app.mapper.ProjectMapper
-import com.ludocode.ludocodebackend.projects.app.port.`in`.ProjectsPortForAI
 import com.ludocode.ludocodebackend.projects.app.util.ProjectSnapshotDiffer
 import com.ludocode.ludocodebackend.projects.app.util.ProjectSnapshotValidator
 import com.ludocode.ludocodebackend.projects.domain.entity.ProjectFile
@@ -45,7 +44,7 @@ class ProjectService(
     private val storagePortForServices: StoragePortForServices,
     private val codeLanguagesRepository: CodeLanguagesRepository,
     private val subscriptionService: SubscriptionService,
-) : ProjectsPortForAI {
+) {
 
     private val logger = LoggerFactory.getLogger(ProjectService::class.java)
 
@@ -152,19 +151,6 @@ class ProjectService(
             projectSnapshots.add(getProjectSnapshotForUserByProjectId(projectId, userId))
         }
         return ProjectListResponse(projectSnapshots)
-    }
-
-    override fun getFileContentById(fileId: UUID): String {
-        return withMdc(LogFields.FILE_ID to fileId.toString()) {
-            val file = projectFileRepository.findById(fileId)
-                .orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
-            try {
-                storagePortForServices.get(file.contentUrl)
-            } catch (e: Exception) {
-                logger.error(LogEvents.GCS_GET_FAILED, e)
-                throw ApiException(ErrorCode.GCS_GET_FAILED, "Failed to get files from GCS: ${e.message}")
-            }
-        }
     }
 
     internal fun getProjectSnapshotForUserByProjectId(projectId: UUID, userId: UUID): ProjectSnapshot {

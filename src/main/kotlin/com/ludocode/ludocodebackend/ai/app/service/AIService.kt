@@ -5,15 +5,11 @@ import com.ludocode.ludocodebackend.ai.api.dto.request.UIMessageRequest
 import com.ludocode.ludocodebackend.ai.api.dto.response.AIMessagePart
 import com.ludocode.ludocodebackend.ai.app.mapper.GeminiMapper
 import com.ludocode.ludocodebackend.ai.app.port.out.AIPort
-import com.ludocode.ludocodebackend.ai.domain.enums.ChatType
-import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForAI
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
-import com.ludocode.ludocodebackend.projects.app.port.`in`.ProjectsPortForAI
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -26,10 +22,7 @@ import java.util.*
 class AIService(
     private val geminiMapper: GeminiMapper,
     private val aICreditService: AICreditService,
-    private val aIPromptBuilder: AIPromptBuilder,
     private val aIPort: AIPort,
-    private val projectsPortForAI: ProjectsPortForAI,
-    private val catalogPortForAI: CatalogPortForAI,
 ) {
 
     private val logger = LoggerFactory.getLogger(AIService::class.java)
@@ -37,17 +30,14 @@ class AIService(
 
     fun streamTokens(
         messageHistory: List<UIMessageRequest>,
-        chatType: ChatType?,
-        targetId: UUID?,
+        systemPrompt: String,
+        promptWrapper: String?,
         userId: UUID
     ): Flux<AIMessagePart> {
 
-        val resolvedType = chatType ?: ChatType.DEFAULT
 
         return withMdc(
             LogFields.USER_ID to userId.toString(),
-            LogFields.CHAT_TYPE to resolvedType.toString(),
-            LogFields.AI_TARGET_ID to targetId.toString()
         ) {
             val credits = aICreditService.initializeOrGetCredits(userId)
             if (credits.credits <= 0) {
@@ -58,11 +48,29 @@ class AIService(
 
             val chatTuple = getHistoryAndLast(messageHistory)
             val userMessage = chatTuple.last
+            val finalUserMessage =
+                promptWrapper?.replace("{question}", userMessage) ?: userMessage
+
             val chatHistory = chatTuple.history
 
-            val prompt = getPrompt(userMessage, chatHistory, targetId, resolvedType)
+            val finalPrompt = buildString {
+                append(systemPrompt)
+                append("\n\n")
 
-            val geminiRequest = geminiMapper.mapToGemini(prompt)
+                if (chatHistory.isNotEmpty()) {
+                    append("Conversation history:\n")
+                    chatHistory.forEach {
+                        append(it)
+                        append("\n")
+                    }
+                    append("\n")
+                }
+
+                append("User message:\n")
+                append(finalUserMessage)
+            }
+
+            val geminiRequest = geminiMapper.mapToGemini(finalPrompt)
 
             logger.info(
                 LogEvents.AI_STREAM_STARTED + " {} {}",
@@ -105,30 +113,6 @@ class AIService(
         val last = roleTaggedTexts.last()
 
         return ChatPartsTuple(history, last)
-    }
-
-    private fun getPrompt(userPrompt: String, chatHistory: List<String>, targetId: UUID?, chatType: ChatType): String {
-        when (chatType) {
-            ChatType.DEFAULT -> return aIPromptBuilder.buildGenericPrompt(userPrompt, chatHistory)
-            ChatType.LESSON -> {
-                if (targetId == null) return aIPromptBuilder.buildGenericPrompt(userPrompt, chatHistory)
-                val exerciseContent = getExerciseContent(exerciseId = targetId)
-                return aIPromptBuilder.buildLessonPrompt(userPrompt, exerciseContent, chatHistory)
-            }
-
-            ChatType.PROJECT -> {
-                val fileContent = targetId?.let { getFileContent(it) } ?: ""
-                return aIPromptBuilder.buildProjectPrompt(userPrompt, fileContent, chatHistory)
-            }
-        }
-    }
-
-    private fun getFileContent(fileId: UUID): String {
-        return projectsPortForAI?.getFileContentById(fileId) ?: ""
-    }
-
-    private fun getExerciseContent(exerciseId: UUID): ExerciseSnap {
-        return catalogPortForAI.findExerciseSnapshotById(exerciseId)
     }
 
 

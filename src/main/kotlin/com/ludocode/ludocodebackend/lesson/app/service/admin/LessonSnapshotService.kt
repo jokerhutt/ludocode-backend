@@ -1,7 +1,6 @@
 package com.ludocode.ludocodebackend.lesson.app.service.admin
 
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
-import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForAI
 import com.ludocode.ludocodebackend.commons.constants.CacheNames
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
@@ -25,7 +24,7 @@ class LessonSnapshotService(
     private val lessonExercisesRepository: LessonExercisesRepository,
     private val lessonService: LessonService,
     private val exerciseRepository: ExerciseRepository
-) : CatalogPortForAI {
+) {
 
     @Caching(
         evict = [
@@ -99,11 +98,5 @@ class LessonSnapshotService(
             interaction = exerciseResponse.interaction
         )
     }
-
-    override fun findExerciseSnapshotById(exerciseId: UUID): ExerciseSnap {
-        val exerciseResponse = lessonService.getExerciseByExerciseId(exerciseId)
-        return buildExerciseSnapshot(exerciseResponse)
-    }
-
 
 }
