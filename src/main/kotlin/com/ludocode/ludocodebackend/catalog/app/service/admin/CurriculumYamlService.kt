@@ -7,9 +7,6 @@ import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlLesson
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlRoot
-import com.ludocode.ludocodebackend.catalog.domain.entity.Course
-import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
-import com.ludocode.ludocodebackend.catalog.infra.repository.SubjectRepository
 import com.ludocode.ludocodebackend.lesson.app.service.admin.LessonSnapshotService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -23,7 +20,7 @@ class CurriculumYamlService(
 
 
     @Transactional
-    fun editCourse(courseId: UUID? = null, root: CurriculumYamlRoot) {
+    fun importYaml(courseId: UUID? = null, root: CurriculumYamlRoot) {
 
         val resolvedCourseId = courseId ?:
             curriculumSnapshotService.createCourse(CreateCourseRequest(

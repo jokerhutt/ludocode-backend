@@ -5,6 +5,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDra
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlLesson
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlModule
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlRoot
+import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
@@ -80,6 +81,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             title = "Python",
             subjectId = pythonSubject.id,
             languageId = pythonLanguage.id,
+            description = "Cool Python Stuff",
+            courseType = CourseType.COURSE,
             modules = listOf(
                 CurriculumYamlModule(
                     id = null,
@@ -134,7 +137,7 @@ ___("Hello world")
             )
         )
 
-        val res = submitPutUpdateCurriculumWithYaml(yamlReq, courseToChangeId)
+        submitPutUpdateCurriculumWithYaml(yamlReq, courseToChangeId)
 
         val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
 

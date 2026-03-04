@@ -73,7 +73,7 @@ class CatalogAdminController(
         @RequestBody yaml: CurriculumYamlRoot,
         @PathVariable courseId: UUID
     ): ResponseEntity<Void> {
-        curriculumYamlService.editCourse(courseId, yaml)
+        curriculumYamlService.importYaml(courseId, yaml)
         return ResponseEntity.noContent().build()
     }
 
@@ -87,7 +87,7 @@ class CatalogAdminController(
         params = ["mode=yaml"],
         consumes = ["application/x-yaml", "text/yaml", "application/yaml"])
     fun createCourseYaml(@RequestBody request: CurriculumYamlRoot): ResponseEntity<Void> {
-        curriculumYamlService.editCourse( root = request)
+        curriculumYamlService.importYaml( root = request)
         return ResponseEntity.noContent().build()
     }
 
