@@ -4,16 +4,21 @@
   "description": "Schema for Ludocode curriculum YAML",
 
   "type": "object",
-  "required": ["title", "subjectId", "modules"],
+  "required": ["title", "courseType", "subjectId", "modules"],
 
   "properties": {
-    "id": {
-      "type": "string",
-      "format": "uuid"
-    },
 
     "title": {
       "type": "string"
+    },
+
+    "description": {
+      "type": ["string", "null"]
+    },
+
+    "courseType": {
+      "type": "string",
+      "enum": ["COURSE", "SKILL_PATH"]
     },
 
     "subjectId": {

@@ -73,7 +73,21 @@ class CatalogAdminController(
         @RequestBody yaml: CurriculumYamlRoot,
         @PathVariable courseId: UUID
     ): ResponseEntity<Void> {
-        curriculumYamlService.importYaml(courseId, yaml)
+        curriculumYamlService.editCourse(courseId, yaml)
+        return ResponseEntity.noContent().build()
+    }
+
+    @Operation(
+        summary = "Create course",
+        description = """
+        Creates a new course from a given yaml file.
+        """
+    )
+    @PostMapping(ApiPaths.SNAPSHOTS.COURSE,
+        params = ["mode=yaml"],
+        consumes = ["application/x-yaml", "text/yaml", "application/yaml"])
+    fun createCourseYaml(@RequestBody request: CurriculumYamlRoot): ResponseEntity<Void> {
+        curriculumYamlService.editCourse( root = request)
         return ResponseEntity.noContent().build()
     }
 
@@ -88,7 +102,7 @@ class CatalogAdminController(
     )
     @PostMapping(ApiPaths.SNAPSHOTS.COURSE)
     fun createCourse(@RequestBody request: CreateCourseRequest): ResponseEntity<List<CourseResponse>> {
-        return ResponseEntity.ok(curriculumSnapshotService.createCourse(request))
+        return ResponseEntity.ok(curriculumSnapshotService.createCourseReturningList(request))
     }
 
 
