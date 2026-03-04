@@ -51,10 +51,12 @@ class AIController(private val aIService: AIService) {
             ?: return Flux.just("Error: No messages\n")
 
         val systemPrompt = last.metadata?.systemPrompt ?: throw ApiException(ErrorCode.SYSTEM_PROMPT_MISSING)
+        val promptWrapper = last.metadata?.promptWrapper
 
         return aIService.streamTokens(
             messageHistory = body.messages,
             systemPrompt = systemPrompt,
+            promptWrapper = promptWrapper,
             userId = userId
         )
             .map { it.text }

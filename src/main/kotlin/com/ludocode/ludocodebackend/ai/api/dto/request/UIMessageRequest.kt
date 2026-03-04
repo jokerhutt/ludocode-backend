@@ -14,7 +14,8 @@ data class UIMessagePart(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UIMessageRequestMetadata(
-    val systemPrompt: String
+    val systemPrompt: String,
+    val promptWrapper: String?
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

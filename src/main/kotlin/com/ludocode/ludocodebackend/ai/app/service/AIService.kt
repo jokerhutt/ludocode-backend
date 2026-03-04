@@ -35,6 +35,7 @@ class AIService(
     fun streamTokens(
         messageHistory: List<UIMessageRequest>,
         systemPrompt: String,
+        promptWrapper: String?,
         userId: UUID
     ): Flux<AIMessagePart> {
 
@@ -51,9 +52,29 @@ class AIService(
 
             val chatTuple = getHistoryAndLast(messageHistory)
             val userMessage = chatTuple.last
+            val finalUserMessage =
+                promptWrapper?.replace("{question}", userMessage) ?: userMessage
+
             val chatHistory = chatTuple.history
 
-            val geminiRequest = geminiMapper.mapToGemini(systemPrompt)
+            val finalPrompt = buildString {
+                append(systemPrompt)
+                append("\n\n")
+
+                if (chatHistory.isNotEmpty()) {
+                    append("Conversation history:\n")
+                    chatHistory.forEach {
+                        append(it)
+                        append("\n")
+                    }
+                    append("\n")
+                }
+
+                append("User message:\n")
+                append(finalUserMessage)
+            }
+
+            val geminiRequest = geminiMapper.mapToGemini(finalPrompt)
 
             logger.info(
                 LogEvents.AI_STREAM_STARTED + " {} {}",
