@@ -23,6 +23,6 @@ class YamlConfig : WebMvcConfigurer {
             MediaType("text", "yaml")
         )
 
-        converters.add(0, converter)
+        converters.add(converter)
     }
 }

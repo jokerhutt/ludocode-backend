@@ -18,6 +18,7 @@ import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.support.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.support.snapshot.TestSnapshotService
+import io.restassured.http.ContentType
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
 import java.util.*
@@ -116,6 +117,8 @@ ___("Hello world")
 
         val pythonSnap = buildCourseSnapshotByTitle("Python YAML Course")
 
+        assertThat(pythonSnap.title).isEqualTo("Python YAML Course")
+
         assertThat(pythonSnap.modules.size).isEqualTo(1)
         assertThat(pythonSnap.modules[0].lessons.size).isEqualTo(1)
         assertThat(pythonSnap.modules[0].lessons[0].exercises.size).isEqualTo(2)
@@ -142,7 +145,8 @@ ___("Hello world")
         TestRestClient.postNoContent(
             "${ApiPaths.SNAPSHOTS.ADMIN_BASE}${ApiPaths.SNAPSHOTS.COURSE}?mode=yaml",
             user1.id,
-            req
+            req,
+            ContentType.fromContentType("application/x-yaml")
         )
     }
 

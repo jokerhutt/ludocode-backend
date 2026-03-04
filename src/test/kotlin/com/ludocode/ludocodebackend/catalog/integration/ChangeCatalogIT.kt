@@ -24,6 +24,7 @@ import com.ludocode.ludocodebackend.support.snapshot.TestSnapshotService
 import com.ludocode.ludocodebackend.support.util.CatalogChangeTestUtil
 import com.ludocode.ludocodebackend.support.util.CourseProgressTestUtil
 import com.ludocode.ludocodebackend.support.util.LessonSubmissionTestUtil
+import io.restassured.http.ContentType
 import io.restassured.response.ValidatableResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -595,7 +596,8 @@ ___("Hello world")
         TestRestClient.putNoContent(
             ApiPaths.SNAPSHOTS.byCourseCurriculumAdmin(courseId) + "?mode=yaml",
             user1.id,
-            req
+            req,
+            ContentType.fromContentType("application/x-yaml")
         )
     }
 

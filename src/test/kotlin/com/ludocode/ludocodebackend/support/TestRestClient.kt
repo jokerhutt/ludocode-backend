@@ -111,10 +111,11 @@ object TestRestClient {
         url: String,
         userId: UUID,
         body: Any? = null,
+        contentType: ContentType = ContentType.JSON
     ) {
         val req = given()
             .header("X-Test-User-Id", userId.toString())
-            .contentType(ContentType.JSON)
+            .contentType(contentType)
 
         if (body != null) {
             req.body(body)
@@ -177,11 +178,12 @@ object TestRestClient {
     fun putNoContent(
         url: String,
         userId: UUID,
-        body: Any? = null
+        body: Any? = null,
+        contentType: ContentType = ContentType.JSON
     ) {
         val req = given()
             .header("X-Test-User-Id", userId.toString())
-            .contentType(ContentType.JSON)
+            .contentType(contentType)
 
         if (body != null) {
             req.body(body)
