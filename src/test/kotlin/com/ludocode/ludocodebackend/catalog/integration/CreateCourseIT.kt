@@ -146,7 +146,7 @@ ___("Hello world")
             "${ApiPaths.SNAPSHOTS.ADMIN_BASE}${ApiPaths.SNAPSHOTS.COURSE}?mode=yaml",
             user1.id,
             req,
-            ContentType.fromContentType("application/x-yaml")
+            "application/x-yaml"
         )
     }
 

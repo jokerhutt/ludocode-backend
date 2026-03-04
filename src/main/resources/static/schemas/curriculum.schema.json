@@ -97,7 +97,15 @@
         },
 
         "blocks": {
-          "type": "array"
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "$ref": "#/$defs/headerBlock" },
+              { "$ref": "#/$defs/paragraphBlock" },
+              { "$ref": "#/$defs/codeBlock" },
+              { "$ref": "#/$defs/mediaBlock" }
+            ]
+          }
         },
 
         "interaction": {
@@ -110,13 +118,56 @@
       }
     },
 
+    "headerBlock": {
+      "type": "object",
+      "required": ["type", "content"],
+      "properties": {
+        "type": { "const": "header" },
+        "content": { "type": "string" },
+        "clientId": { "type": "string", "format": "uuid" }
+      }
+    },
+
+    "paragraphBlock": {
+      "type": "object",
+      "required": ["type", "content"],
+      "properties": {
+        "type": { "const": "paragraph" },
+        "content": { "type": "string" },
+        "clientId": { "type": "string", "format": "uuid" }
+      }
+    },
+
+    "codeBlock": {
+      "type": "object",
+      "required": ["type", "language", "content"],
+      "properties": {
+        "type": { "const": "code" },
+        "language": { "type": "string" },
+        "content": { "type": "string" },
+        "output": { "type": ["string", "null"] },
+        "clientId": { "type": "string", "format": "uuid" }
+      }
+    },
+
+    "mediaBlock": {
+      "type": "object",
+      "required": ["type", "src"],
+      "properties": {
+        "type": { "const": "media" },
+        "src": { "type": "string" },
+        "alt": { "type": ["string", "null"] },
+        "clientId": { "type": "string", "format": "uuid" }
+      }
+    },
+
     "selectInteraction": {
       "type": "object",
       "required": ["type", "items", "correctValue"],
       "properties": {
 
         "type": {
-          "const": "SELECT"
+          "const": "select"
         },
 
         "clientId": {
@@ -141,7 +192,7 @@
       "properties": {
 
         "type": {
-          "const": "CLOZE"
+          "const": "cloze"
         },
 
         "clientId": {

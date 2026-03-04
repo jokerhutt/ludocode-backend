@@ -111,7 +111,7 @@ object TestRestClient {
         url: String,
         userId: UUID,
         body: Any? = null,
-        contentType: ContentType = ContentType.JSON
+        contentType: String = ContentType.JSON.toString()
     ) {
         val req = given()
             .header("X-Test-User-Id", userId.toString())
@@ -175,25 +175,25 @@ object TestRestClient {
             .`as`(responseType)
     }
 
-    fun putNoContent(
-        url: String,
-        userId: UUID,
-        body: Any? = null,
-        contentType: ContentType = ContentType.JSON
-    ) {
-        val req = given()
-            .header("X-Test-User-Id", userId.toString())
-            .contentType(contentType)
+fun putNoContent(
+    url: String,
+    userId: UUID,
+    body: Any? = null,
+    contentType: String = ContentType.JSON.toString()
+) {
+    val req = given()
+        .header("X-Test-User-Id", userId.toString())
+        .contentType(contentType)
 
-        if (body != null) {
-            req.body(body)
-        }
-
-        req.`when`()
-            .put(url)
-            .then()
-            .statusCode(204)
+    if (body != null) {
+        req.body(body)
     }
+
+    req.`when`()
+        .put(url)
+        .then()
+        .statusCode(204)
+}
 
     fun assertError(
         method: String,

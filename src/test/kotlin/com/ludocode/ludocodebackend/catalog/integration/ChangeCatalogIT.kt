@@ -597,7 +597,7 @@ ___("Hello world")
             ApiPaths.SNAPSHOTS.byCourseCurriculumAdmin(courseId) + "?mode=yaml",
             user1.id,
             req,
-            ContentType.fromContentType("application/x-yaml")
+            "application/x-yaml"
         )
     }
 
