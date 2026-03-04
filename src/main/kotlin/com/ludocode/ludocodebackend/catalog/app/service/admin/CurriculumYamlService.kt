@@ -1,12 +1,15 @@
 package com.ludocode.ludocodebackend.catalog.app.service.admin
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlLesson
+import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlModule
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlRoot
+import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.lesson.app.service.admin.LessonSnapshotService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -16,6 +19,8 @@ import java.util.UUID
 class CurriculumYamlService(
     private val curriculumSnapshotService: CurriculumSnapshotService,
     private val lessonSnapshotService: LessonSnapshotService,
+    private val courseRepository: CourseRepository,
+    private val yamlMapper: ObjectMapper,
 ) {
 
 
@@ -70,6 +75,46 @@ class CurriculumYamlService(
                 )
             }
         }
+    }
+
+    fun exportYaml(courseId: UUID): String {
+
+        val course = courseRepository.findById(courseId)
+            .orElseThrow()
+
+        val curriculum = curriculumSnapshotService.buildCurriculumSnapshot(courseId)
+
+        val modules = curriculum.modules.map { module ->
+
+            val lessons = module.lessons.map { lesson ->
+
+                val lessonSnap =
+                    lessonSnapshotService.buildLessonCurriculumSnapshot(lesson.id)
+
+                CurriculumYamlLesson(
+                    id = lesson.id,
+                    title = lesson.title,
+                    exercises = lessonSnap.exercises
+                )
+            }
+
+            CurriculumYamlModule(
+                id = module.id,
+                title = module.title,
+                lessons = lessons
+            )
+        }
+
+        val root = CurriculumYamlRoot(
+            title = course.title,
+            description = course.description,
+            courseType = course.courseType,
+            subjectId = course.subject.id,
+            languageId = course.language?.id,
+            modules = modules
+        )
+
+        return yamlMapper.writeValueAsString(root)
     }
 
 }

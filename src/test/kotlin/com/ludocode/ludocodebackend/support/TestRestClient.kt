@@ -9,6 +9,8 @@ import java.util.*
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.restassured.RestAssured
+import io.restassured.config.EncoderConfig.encoderConfig
 
 object TestRestClient {
 
@@ -121,6 +123,11 @@ object TestRestClient {
         contentType: String = ContentType.JSON.toString()
     ) {
         val req = given()
+            .config(
+                RestAssured.config().encoderConfig(
+                    encoderConfig().encodeContentTypeAs("application/x-yaml", ContentType.TEXT)
+                )
+            )
             .header("X-Test-User-Id", userId.toString())
             .contentType(contentType)
 
@@ -188,6 +195,7 @@ object TestRestClient {
             .`as`(responseType)
     }
 
+
     fun putNoContent(
         url: String,
         userId: UUID,
@@ -195,6 +203,11 @@ object TestRestClient {
         contentType: String = ContentType.JSON.toString()
     ) {
         val req = given()
+            .config(
+                RestAssured.config().encoderConfig(
+                    encoderConfig().encodeContentTypeAs("application/x-yaml", ContentType.TEXT)
+                )
+            )
             .header("X-Test-User-Id", userId.toString())
             .contentType(contentType)
 
