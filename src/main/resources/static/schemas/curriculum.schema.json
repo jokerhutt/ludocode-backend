@@ -112,7 +112,7 @@
             {
               "if": {
                 "properties": {
-                  "type": { "const": "select" }
+                  "type": { "const": "SELECT" }
                 }
               },
               "then": { "$ref": "#/$defs/selectInteraction" }
@@ -120,7 +120,7 @@
             {
               "if": {
                 "properties": {
-                  "type": { "const": "cloze" }
+                  "type": { "const": "CLOZE" }
                 }
               },
               "then": { "$ref": "#/$defs/clozeInteraction" }
@@ -179,7 +179,7 @@
       "properties": {
 
         "type": {
-          "const": "select"
+          "const": "SELECT"
         },
 
         "clientId": {
@@ -204,7 +204,7 @@
       "properties": {
 
         "type": {
-          "const": "cloze"
+          "const": "CLOZE"
         },
 
         "clientId": {

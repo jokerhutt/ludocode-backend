@@ -125,7 +125,13 @@ object TestRestClient {
             .contentType(contentType)
 
         if (body != null) {
-            req.body(body)
+            val serializedBody =
+                if (contentType.contains("yaml", ignoreCase = true))
+                    yamlMapper.writeValueAsString(body)
+                else
+                    body
+
+            req.body(serializedBody)
         }
 
         req.`when`()
