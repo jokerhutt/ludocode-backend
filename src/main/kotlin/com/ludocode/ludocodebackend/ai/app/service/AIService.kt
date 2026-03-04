@@ -5,15 +5,11 @@ import com.ludocode.ludocodebackend.ai.api.dto.request.UIMessageRequest
 import com.ludocode.ludocodebackend.ai.api.dto.response.AIMessagePart
 import com.ludocode.ludocodebackend.ai.app.mapper.GeminiMapper
 import com.ludocode.ludocodebackend.ai.app.port.out.AIPort
-import com.ludocode.ludocodebackend.ai.domain.enums.ChatType
-import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForAI
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
-import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
-import com.ludocode.ludocodebackend.projects.app.port.`in`.ProjectsPortForAI
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
