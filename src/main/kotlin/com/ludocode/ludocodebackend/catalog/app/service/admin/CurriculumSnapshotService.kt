@@ -148,7 +148,6 @@ class CurriculumSnapshotService(
         return snapshot
     }
 
-    @Transactional
     internal fun createCourseReturningList(request: CreateCourseRequest): List<CourseResponse> {
         createCourse(request)
         return courseMapper.toCourseResponseList(courseRepository.findAll())
