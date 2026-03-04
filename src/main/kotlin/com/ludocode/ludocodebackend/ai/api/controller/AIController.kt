@@ -3,6 +3,8 @@ package com.ludocode.ludocodebackend.ai.api.controller
 import com.ludocode.ludocodebackend.ai.api.dto.request.ChatRequestBody
 import com.ludocode.ludocodebackend.ai.app.service.AIService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -48,13 +50,11 @@ class AIController(private val aIService: AIService) {
         val last = body.messages.lastOrNull()
             ?: return Flux.just("Error: No messages\n")
 
-        val chatType = last.metadata?.chatType
-        val targetId = last.metadata?.targetId
+        val systemPrompt = last.metadata?.systemPrompt ?: throw ApiException(ErrorCode.SYSTEM_PROMPT_MISSING)
 
         return aIService.streamTokens(
             messageHistory = body.messages,
-            chatType = chatType,
-            targetId = targetId,
+            systemPrompt = systemPrompt,
             userId = userId
         )
             .map { it.text }

@@ -14,8 +14,7 @@ data class UIMessagePart(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UIMessageRequestMetadata(
-    val chatType: ChatType,
-    val targetId: UUID?
+    val systemPrompt: String
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
