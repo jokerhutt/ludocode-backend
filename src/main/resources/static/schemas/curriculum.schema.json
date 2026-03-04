@@ -1,0 +1,267 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ludocode.dev/schemas/curriculum.schema.json",
+  "description": "Schema for Ludocode curriculum YAML",
+
+  "type": "object",
+  "required": ["title", "courseType", "subjectId", "modules"],
+
+  "properties": {
+    "title": { "type": "string" },
+
+    "description": {
+      "type": ["string", "null"]
+    },
+
+    "courseType": {
+      "type": "string",
+      "enum": ["COURSE", "SKILL_PATH"]
+    },
+
+    "subjectId": {
+      "type": "integer"
+    },
+
+    "languageId": {
+      "type": ["integer", "null"]
+    },
+
+    "modules": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/module" }
+    }
+  },
+
+  "$defs": {
+
+    "module": {
+      "type": "object",
+      "required": ["title", "lessons"],
+      "properties": {
+
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+
+        "title": {
+          "type": "string"
+        },
+
+        "lessons": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/lesson" }
+        }
+      }
+    },
+
+    "lesson": {
+      "type": "object",
+      "required": ["title", "exercises"],
+      "properties": {
+
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+
+        "title": {
+          "type": "string"
+        },
+
+        "exercises": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/exercise" }
+        }
+      }
+    },
+
+    "exercise": {
+      "type": "object",
+      "required": ["blocks"],
+      "properties": {
+
+        "exerciseId": {
+          "type": "string",
+          "format": "uuid"
+        },
+
+        "exerciseVersion": {
+          "type": "integer"
+        },
+
+        "blocks": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "$ref": "#/$defs/headerBlock" },
+              { "$ref": "#/$defs/paragraphBlock" },
+              { "$ref": "#/$defs/codeBlock" },
+              { "$ref": "#/$defs/mediaBlock" }
+            ]
+          }
+        },
+
+        "interaction": {
+          "type": ["object", "null"],
+          "required": ["type"],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "type": { "const": "SELECT" }
+                }
+              },
+              "then": { "$ref": "#/$defs/selectInteraction" }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": { "const": "CLOZE" }
+                }
+              },
+              "then": { "$ref": "#/$defs/clozeInteraction" }
+            }
+          ]
+        }
+      }
+    },
+
+    "headerBlock": {
+      "type": "object",
+      "required": ["type", "content"],
+      "properties": {
+        "type": { "const": "header" },
+        "content": { "type": "string" },
+        "clientId": { "type": "string", "format": "uuid" }
+      }
+    },
+
+    "paragraphBlock": {
+      "type": "object",
+      "required": ["type", "content"],
+      "properties": {
+        "type": { "const": "paragraph" },
+        "content": { "type": "string" },
+        "clientId": { "type": "string", "format": "uuid" }
+      }
+    },
+
+    "codeBlock": {
+      "type": "object",
+      "required": ["type", "language", "content"],
+      "properties": {
+        "type": { "const": "code" },
+        "language": { "type": "string" },
+        "content": { "type": "string" },
+        "output": { "type": ["string", "null"] },
+        "clientId": { "type": "string", "format": "uuid" }
+      }
+    },
+
+    "mediaBlock": {
+      "type": "object",
+      "required": ["type", "src"],
+      "properties": {
+        "type": { "const": "media" },
+        "src": { "type": "string" },
+        "alt": { "type": ["string", "null"] },
+        "clientId": { "type": "string", "format": "uuid" }
+      }
+    },
+
+    "selectInteraction": {
+      "type": "object",
+      "required": ["type", "items", "correctValue"],
+      "properties": {
+
+        "type": {
+          "const": "SELECT"
+        },
+
+        "clientId": {
+          "type": "string",
+          "format": "uuid"
+        },
+
+        "items": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+
+        "correctValue": {
+          "type": "string"
+        }
+      }
+    },
+
+    "clozeInteraction": {
+      "type": "object",
+      "required": ["type", "file", "blanks", "options"],
+      "properties": {
+
+        "type": {
+          "const": "CLOZE"
+        },
+
+        "clientId": {
+          "type": "string",
+          "format": "uuid"
+        },
+
+        "file": {
+          "$ref": "#/$defs/file"
+        },
+
+        "blanks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/blank" }
+        },
+
+        "options": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+
+        "output": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+
+    "blank": {
+      "type": "object",
+      "required": ["index", "correctOptions"],
+      "properties": {
+
+        "index": {
+          "type": "integer"
+        },
+
+        "correctOptions": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+
+    "file": {
+      "type": "object",
+      "required": ["language", "content"],
+      "properties": {
+
+        "language": {
+          "type": "string"
+        },
+
+        "content": {
+          "type": "string"
+        }
+      }
+    }
+
+  }
+}

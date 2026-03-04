@@ -19,5 +19,7 @@ interface CourseRepository : JpaRepository<Course, UUID> {
 
     fun existsBySubjectId(subjectId: Long): Boolean
 
+    fun findByTitle(title: String): Course?
+
 
 }

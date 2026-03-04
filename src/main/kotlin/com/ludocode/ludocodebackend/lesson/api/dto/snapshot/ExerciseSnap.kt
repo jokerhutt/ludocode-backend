@@ -6,9 +6,7 @@ import java.util.UUID
 
 data class ExerciseSnap (
 
-    val exerciseId: UUID,
-
-    val exerciseVersion: Int,
+    val exerciseId: UUID? = null,
 
     val blocks: List<Block>,
 

@@ -6,8 +6,17 @@ import io.restassured.http.ContentType
 import io.restassured.response.ValidatableResponse
 import org.hamcrest.CoreMatchers.equalTo
 import java.util.*
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.restassured.RestAssured
+import io.restassured.config.EncoderConfig.encoderConfig
 
 object TestRestClient {
+
+
+    private val yamlMapper =
+        ObjectMapper(YAMLFactory()).registerKotlinModule()
 
     fun <T : Any?> postOk(
         url: String,
@@ -111,13 +120,25 @@ object TestRestClient {
         url: String,
         userId: UUID,
         body: Any? = null,
+        contentType: String = ContentType.JSON.toString()
     ) {
         val req = given()
+            .config(
+                RestAssured.config().encoderConfig(
+                    encoderConfig().encodeContentTypeAs("application/x-yaml", ContentType.TEXT)
+                )
+            )
             .header("X-Test-User-Id", userId.toString())
-            .contentType(ContentType.JSON)
+            .contentType(contentType)
 
         if (body != null) {
-            req.body(body)
+            val serializedBody =
+                if (contentType.contains("yaml", ignoreCase = true))
+                    yamlMapper.writeValueAsString(body)
+                else
+                    body
+
+            req.body(serializedBody)
         }
 
         req.`when`()
@@ -172,6 +193,38 @@ object TestRestClient {
             .statusCode(200)
             .extract()
             .`as`(responseType)
+    }
+
+
+    fun putNoContent(
+        url: String,
+        userId: UUID,
+        body: Any? = null,
+        contentType: String = ContentType.JSON.toString()
+    ) {
+        val req = given()
+            .config(
+                RestAssured.config().encoderConfig(
+                    encoderConfig().encodeContentTypeAs("application/x-yaml", ContentType.TEXT)
+                )
+            )
+            .header("X-Test-User-Id", userId.toString())
+            .contentType(contentType)
+
+        if (body != null) {
+            val serializedBody =
+                if (contentType.contains("yaml", ignoreCase = true))
+                    yamlMapper.writeValueAsString(body)
+                else
+                    body
+
+            req.body(serializedBody)
+        }
+
+        req.`when`()
+            .put(url)
+            .then()
+            .statusCode(204)
     }
 
     fun assertError(

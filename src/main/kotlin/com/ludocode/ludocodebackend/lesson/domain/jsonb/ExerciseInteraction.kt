@@ -29,7 +29,7 @@ data class ClozeInteraction(
     val file: InteractionFile,
     val blanks: List<InteractionBlank>,
     val options: List<String>,
-    val output: String?
+    val output: String? = null
 ) : ExerciseInteraction
 
 data class InteractionBlank(

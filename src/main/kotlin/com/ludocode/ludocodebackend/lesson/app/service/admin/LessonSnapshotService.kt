@@ -45,7 +45,11 @@ class LessonSnapshotService(
 
         exerciseSnaps.forEachIndexed { exerciseIndex, exercise ->
 
-            val existing = exerciseRepository.findTopByExerciseId_IdAndIsDeletedFalseOrderByExerciseId_VersionNumberDesc(exercise.exerciseId)
+            val exerciseId = exercise.exerciseId ?: UUID.randomUUID()
+
+            val existing =
+                exerciseRepository
+                    .findTopByExerciseId_IdAndIsDeletedFalseOrderByExerciseId_VersionNumberDesc(exerciseId)
 
             val version = if (existing != null) existing.exerciseId.versionNumber + 1 else 1
 
@@ -55,7 +59,7 @@ class LessonSnapshotService(
 
             val exerciseEntity = exerciseRepository.save(
                 Exercise(
-                    ExerciseId(exercise.exerciseId, version),
+                    ExerciseId(exerciseId, version),
                     blocks = exercise.blocks,
                     interaction = exercise.interaction,
                     isDeleted = false
@@ -69,7 +73,6 @@ class LessonSnapshotService(
                     exerciseVersion = exerciseEntity.exerciseId.versionNumber
                 )
             )
-
         }
 
         return buildLessonCurriculumSnapshot(lessonId)
@@ -93,7 +96,6 @@ class LessonSnapshotService(
 
         return ExerciseSnap(
             exerciseId = exerciseResponse.id,
-            exerciseVersion = exerciseResponse.version,
             blocks = exerciseResponse.blocks,
             interaction = exerciseResponse.interaction
         )

@@ -33,7 +33,7 @@ data class ParagraphBlock(
 data class CodeBlock(
     val language: String,
     val content: String,
-    val output: String?,
+    val output: String? = null,
     override val clientId: UUID = UUID.randomUUID()
 ) : Block
 

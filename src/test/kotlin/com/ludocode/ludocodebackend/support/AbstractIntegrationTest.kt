@@ -302,7 +302,7 @@ abstract class AbstractIntegrationTest {
 
                     ls.exercises.forEachIndexed { exIdx, ex ->
 
-                        val exId = ExerciseId(ex.exerciseId, defaultVersion)
+                        val exId = ExerciseId(ex.exerciseId!!, defaultVersion)
 
                         exerciseRepository.save(
                             Exercise(
@@ -312,13 +312,15 @@ abstract class AbstractIntegrationTest {
                             )
                         )
 
+                        val exerciseId = ex.exerciseId ?: UUID.randomUUID()
+
                         lessonExercisesRepository.save(
                             LessonExercise(
                                 LessonExercisesId(
                                     lessonId = ls.id,
                                     orderIndex = exIdx + 1
                                 ),
-                                exerciseId = ex.exerciseId,
+                                exerciseId = exerciseId,
                                 exerciseVersion = defaultVersion
                             )
                         )

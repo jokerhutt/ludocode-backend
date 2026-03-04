@@ -148,6 +148,11 @@ class CurriculumSnapshotService(
         return snapshot
     }
 
+    internal fun createCourseReturningList(request: CreateCourseRequest): List<CourseResponse> {
+        createCourse(request)
+        return courseMapper.toCourseResponseList(courseRepository.findAll())
+    }
+
     @Caching(
         evict = [
             CacheEvict(cacheNames = [CacheNames.COURSE_TREE], allEntries = true),
@@ -158,7 +163,7 @@ class CurriculumSnapshotService(
         ]
     )
     @Transactional
-    internal fun createCourse(request: CreateCourseRequest): List<CourseResponse> {
+    internal fun createCourse(request: CreateCourseRequest): UUID {
         val newCourseName = request.courseTitle
         val newCourseHash = request.requestHash
         val newCourseType = request.courseType
@@ -244,7 +249,7 @@ class CurriculumSnapshotService(
             kv(LogFields.EXERCISE_COUNT, 1)
         )
 
-        return courseMapper.toCourseResponseList(courseRepository.findAll())
+        return newCourse.id
 
     }
 
