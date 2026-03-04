@@ -7,10 +7,7 @@
   "required": ["title", "courseType", "subjectId", "modules"],
 
   "properties": {
-
-    "title": {
-      "type": "string"
-    },
+    "title": { "type": "string" },
 
     "description": {
       "type": ["string", "null"]
@@ -109,10 +106,25 @@
         },
 
         "interaction": {
-          "oneOf": [
-            { "$ref": "#/$defs/selectInteraction" },
-            { "$ref": "#/$defs/clozeInteraction" },
-            { "type": "null" }
+          "type": ["object", "null"],
+          "required": ["type"],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "type": { "const": "select" }
+                }
+              },
+              "then": { "$ref": "#/$defs/selectInteraction" }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": { "const": "cloze" }
+                }
+              },
+              "then": { "$ref": "#/$defs/clozeInteraction" }
+            }
           ]
         }
       }

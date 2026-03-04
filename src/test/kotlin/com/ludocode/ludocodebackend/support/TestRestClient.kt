@@ -6,8 +6,15 @@ import io.restassured.http.ContentType
 import io.restassured.response.ValidatableResponse
 import org.hamcrest.CoreMatchers.equalTo
 import java.util.*
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 
 object TestRestClient {
+
+
+    private val yamlMapper =
+        ObjectMapper(YAMLFactory()).registerKotlinModule()
 
     fun <T : Any?> postOk(
         url: String,
@@ -175,25 +182,31 @@ object TestRestClient {
             .`as`(responseType)
     }
 
-fun putNoContent(
-    url: String,
-    userId: UUID,
-    body: Any? = null,
-    contentType: String = ContentType.JSON.toString()
-) {
-    val req = given()
-        .header("X-Test-User-Id", userId.toString())
-        .contentType(contentType)
+    fun putNoContent(
+        url: String,
+        userId: UUID,
+        body: Any? = null,
+        contentType: String = ContentType.JSON.toString()
+    ) {
+        val req = given()
+            .header("X-Test-User-Id", userId.toString())
+            .contentType(contentType)
 
-    if (body != null) {
-        req.body(body)
+        if (body != null) {
+            val serializedBody =
+                if (contentType.contains("yaml", ignoreCase = true))
+                    yamlMapper.writeValueAsString(body)
+                else
+                    body
+
+            req.body(serializedBody)
+        }
+
+        req.`when`()
+            .put(url)
+            .then()
+            .statusCode(204)
     }
-
-    req.`when`()
-        .put(url)
-        .then()
-        .statusCode(204)
-}
 
     fun assertError(
         method: String,
