@@ -57,9 +57,16 @@ class CurriculumYamlService(
 
         root.modules.forEach { module ->
             module.lessons.forEach { lesson ->
+                val normalizedExercises = lesson.exercises.map { ex ->
+                    ex.copy(
+                        exerciseId = ex.exerciseId ?: UUID.randomUUID(),
+                        exerciseVersion = ex.exerciseVersion ?: 1
+                    )
+                }
+
                 lessonSnapshotService.applyExercises(
                     lessonIdMap[lesson]!!,
-                    LessonCurriculumDraftSnapshot(lesson.exercises)
+                    LessonCurriculumDraftSnapshot(normalizedExercises)
                 )
             }
         }
