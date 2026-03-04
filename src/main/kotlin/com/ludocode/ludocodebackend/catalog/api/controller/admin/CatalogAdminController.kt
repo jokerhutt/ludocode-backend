@@ -5,8 +5,10 @@ import com.ludocode.ludocodebackend.catalog.api.dto.request.ChangeSubjectRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
+import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlRoot
 import com.ludocode.ludocodebackend.catalog.app.service.CatalogService
 import com.ludocode.ludocodebackend.catalog.app.service.admin.CurriculumSnapshotService
+import com.ludocode.ludocodebackend.catalog.app.service.admin.CurriculumYamlService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -24,7 +26,8 @@ import java.util.*
 @RequestMapping(ApiPaths.SNAPSHOTS.ADMIN_BASE)
 class CatalogAdminController(
     private val curriculumSnapshotService: CurriculumSnapshotService,
-    private val catalogService: CatalogService
+    private val catalogService: CatalogService,
+    private val curriculumYamlService: CurriculumYamlService
 ) {
 
     @GetMapping(ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM)
@@ -52,12 +55,23 @@ class CatalogAdminController(
         return ResponseEntity.ok(catalogService.getAllCourses())
     }
 
-    @PutMapping(ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM)
+    @PutMapping(ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM, params = ["mode!=yaml"])
     fun applyCurriculumSnapshot(
         @RequestBody snapshot: CurriculumDraftSnapshot,
         @PathVariable courseId: UUID
     ): ResponseEntity<CurriculumDraftSnapshot> {
-        return ResponseEntity.ok(curriculumSnapshotService.applyCurriculumDiffs(courseId, snapshot))
+        return ResponseEntity.ok(
+            curriculumSnapshotService.applyCurriculumDiffs(courseId, snapshot)
+        )
+    }
+
+    @PutMapping(ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM, params = ["mode=yaml"])
+    fun applyCurriculumYaml(
+        @RequestBody yaml: CurriculumYamlRoot,
+        @PathVariable courseId: UUID
+    ): ResponseEntity<Void> {
+        curriculumYamlService.importYaml(courseId, yaml)
+        return ResponseEntity.noContent().build()
     }
 
 

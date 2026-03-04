@@ -2,6 +2,9 @@ package com.ludocode.ludocodebackend.catalog.integration
 
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
+import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlLesson
+import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlModule
+import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlRoot
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
@@ -60,12 +63,88 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             "New Module Lesson Two"
         )
 
-        val result = submitPostUpdateCurriculum(pythonCurriculum, pythonId)
+        val result = submitPutUpdateCurriculum(pythonCurriculum, pythonId)
 
         assertThat(result).isNotNull()
         assertThat(result)
             .usingRecursiveComparison()
             .isEqualTo(pythonCurriculum)
+    }
+
+    @Test
+    fun submitYamlChangeCourse_changesCourse() {
+
+        val courseToChangeId = pythonId
+
+        val yamlReq = CurriculumYamlRoot(
+            title = "Python",
+            subjectId = pythonSubject.id,
+            languageId = pythonLanguage.id,
+            modules = listOf(
+                CurriculumYamlModule(
+                    id = null,
+                    title = "Printing stuff to the console",
+                    lessons = listOf(
+                        CurriculumYamlLesson(
+                            id = null,
+                            title = "Print Statements",
+                            exercises = listOf(
+
+                                // INFO exercise
+                                ExerciseSnap(
+                                    exerciseId = UUID.randomUUID(),
+                                    exerciseVersion = 1,
+                                    blocks = listOf(
+                                        HeaderBlock("Printing in Python"),
+                                        ParagraphBlock("Use the print() function to output text to the console.")
+                                    ),
+                                    interaction = null
+                                ),
+
+                                // CLOZE exercise
+                                ExerciseSnap(
+                                    exerciseId = UUID.randomUUID(),
+                                    exerciseVersion = 1,
+                                    blocks = listOf(
+                                        HeaderBlock("Fill in the missing function"),
+                                        ParagraphBlock("Complete the code below.")
+                                    ),
+                                    interaction = ClozeInteraction(
+                                        file = InteractionFile(
+                                            language = "python",
+                                            content = """
+___("Hello world")
+""".trimIndent()
+                                        ),
+                                        blanks = listOf(
+                                            InteractionBlank(
+                                                index = 0,
+                                                correctOptions = listOf("print")
+                                            )
+                                        ),
+                                        options = listOf("print", "echo", "log"),
+                                        output = "Hello world"
+                                    )
+                                )
+
+                            )
+                        )
+                    )
+                )
+            )
+        )
+
+        val res = submitPutUpdateCurriculumWithYaml(yamlReq, courseToChangeId)
+
+        val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
+
+        assertThat(pythonSnap.modules.size).isEqualTo(1)
+        assertThat(pythonSnap.modules[0].lessons.size).isEqualTo(1)
+        assertThat(pythonSnap.modules[0].lessons[0].exercises.size).isEqualTo(2)
+        assertThat(pythonSnap.modules[0].lessons[0].exercises[0].blocks.size).isEqualTo(2)
+        assertThat(pythonSnap.modules[0].lessons[0].exercises[1].blocks.size).isEqualTo(2)
+        assertThat(pythonSnap.modules[0].lessons[0].exercises[1].interaction).isNotNull()
+
     }
 
     @Test
@@ -132,7 +211,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         pythonCurriculum.modules[0].lessons -= lessonToDelete
         pythonCurriculum.modules -= moduleToDelete
 
-        val result = submitPostUpdateCurriculum(pythonCurriculum, pythonId)
+        val result = submitPutUpdateCurriculum(pythonCurriculum, pythonId)
 
         assertThat(result).isNotNull()
         assertThat(result)
@@ -191,7 +270,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
                     InteractionBlank(0, listOf("'")),
                     InteractionBlank(1, listOf("'"))
                 ),
-                options = listOf("'", "+")
+                options = listOf("'", "+"),
+                output = "I love python"
             )
         )
 
@@ -282,7 +362,8 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
                     InteractionBlank(0, listOf("'")),
                     InteractionBlank(1, listOf("'"))
                 ),
-                options = listOf("'", "+")
+                options = listOf("'", "+"),
+                output = "I love python"
             )
         )
 
@@ -359,7 +440,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
             "New Module Lesson Two"
         )
 
-        val result = submitPostUpdateCurriculum(pythonCurriculum, pythonId)
+        val result = submitPutUpdateCurriculum(pythonCurriculum, pythonId)
 
         assertThat(result).isNotNull()
         assertThat(result)
@@ -386,7 +467,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
         val pythonCurriculum = CatalogChangeTestUtil.generateRandomCurriculumChanges(pythonSnap, seed)
 
-        val result = submitPostUpdateCurriculum(pythonCurriculum, pythonId)
+        val result = submitPutUpdateCurriculum(pythonCurriculum, pythonId)
 
         assertThat(result).isNotNull()
         assertThat(result.modules.size).isGreaterThan(0)
@@ -447,7 +528,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
 
         val pythonCurriculum = CatalogChangeTestUtil.generateRandomCurriculumChanges(pythonSnap, seed)
-        val curriculumResult = submitPostUpdateCurriculum(pythonCurriculum, pythonId)
+        val curriculumResult = submitPutUpdateCurriculum(pythonCurriculum, pythonId)
 
         assertThat(curriculumResult).isNotNull()
         assertThat(curriculumResult.modules.size).isGreaterThan(0)
@@ -498,11 +579,22 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         }
     }
 
-    private fun submitPostUpdateCurriculum(req: CurriculumDraftSnapshot, courseId: UUID): CurriculumDraftSnapshot =
+    private fun submitPutUpdateCurriculum(req: CurriculumDraftSnapshot, courseId: UUID): CurriculumDraftSnapshot =
         TestRestClient.putOk(
             ApiPaths.SNAPSHOTS.byCourseCurriculumAdmin(courseId), user1.id, req,
             CurriculumDraftSnapshot::class.java
         )
+
+    private fun submitPutUpdateCurriculumWithYaml(
+        req: CurriculumYamlRoot,
+        courseId: UUID
+    ) {
+        TestRestClient.putNoContent(
+            ApiPaths.SNAPSHOTS.byCourseCurriculumAdmin(courseId) + "?mode=yaml",
+            user1.id,
+            req
+        )
+    }
 
     private fun assertPutCurriculumError(req: CurriculumDraftSnapshot, courseId: UUID, statusCode: ErrorCode): ValidatableResponse? {
         return TestRestClient.assertError("PUT", ApiPaths.SNAPSHOTS.byCourseCurriculumAdmin(courseId), user1.id, req, statusCode)

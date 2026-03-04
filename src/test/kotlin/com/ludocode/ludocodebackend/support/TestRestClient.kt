@@ -174,6 +174,25 @@ object TestRestClient {
             .`as`(responseType)
     }
 
+    fun putNoContent(
+        url: String,
+        userId: UUID,
+        body: Any? = null
+    ) {
+        val req = given()
+            .header("X-Test-User-Id", userId.toString())
+            .contentType(ContentType.JSON)
+
+        if (body != null) {
+            req.body(body)
+        }
+
+        req.`when`()
+            .put(url)
+            .then()
+            .statusCode(204)
+    }
+
     fun assertError(
         method: String,
         url: String,
