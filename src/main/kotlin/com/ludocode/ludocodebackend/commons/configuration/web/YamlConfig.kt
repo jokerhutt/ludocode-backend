@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.commons.configuration.web
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
@@ -11,6 +12,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
+@EnableConfigurationProperties(YamlProperties::class)
 class YamlConfig : WebMvcConfigurer {
 
     @Bean

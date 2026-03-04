@@ -31,6 +31,10 @@ management:
     redis:
       enabled: ${REDIS_ENABLED:false}
 
+yaml:
+  schemas:
+    curriculum: ${CURRICULUM_SCHEMA_SERVER:http://localhost:8080}
+
 logging:
   level:
     root: ${LOGGING_LEVEL:INFO}

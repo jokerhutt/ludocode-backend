@@ -10,6 +10,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlLesson
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlModule
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlRoot
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
+import com.ludocode.ludocodebackend.commons.configuration.web.YamlProperties
 import com.ludocode.ludocodebackend.lesson.app.service.admin.LessonSnapshotService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -21,8 +22,10 @@ class CurriculumYamlService(
     private val lessonSnapshotService: LessonSnapshotService,
     private val courseRepository: CourseRepository,
     private val yamlMapper: ObjectMapper,
+    private val yamlProperties: YamlProperties,
+    properties: YamlProperties,
+    yamlProperties1: YamlProperties,
 ) {
-
 
     @Transactional
     fun importYaml(courseId: UUID? = null, root: CurriculumYamlRoot) {
@@ -64,8 +67,7 @@ class CurriculumYamlService(
             module.lessons.forEach { lesson ->
                 val normalizedExercises = lesson.exercises.map { ex ->
                     ex.copy(
-                        exerciseId = ex.exerciseId ?: UUID.randomUUID(),
-                        exerciseVersion = ex.exerciseVersion ?: 1
+                        exerciseId = ex.exerciseId ?: UUID.randomUUID()
                     )
                 }
 
@@ -114,7 +116,10 @@ class CurriculumYamlService(
             modules = modules
         )
 
-        return yamlMapper.writeValueAsString(root)
+        val yaml = yamlMapper.writeValueAsString(root)
+        val yamlSchemaServer = yamlProperties.curriculum
+
+        return "# yaml-language-server: \$schema=$yamlSchemaServer/schemas/curriculum.schema.json\n\n$yaml"
     }
 
 }
