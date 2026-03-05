@@ -97,7 +97,6 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
                                 // INFO exercise
                                 ExerciseSnap(
                                     exerciseId = UUID.randomUUID(),
-                                    exerciseVersion = 1,
                                     blocks = listOf(
                                         HeaderBlock("Printing in Python"),
                                         ParagraphBlock("Use the print() function to output text to the console.")
@@ -108,7 +107,6 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
                                 // CLOZE exercise
                                 ExerciseSnap(
                                     exerciseId = UUID.randomUUID(),
-                                    exerciseVersion = 1,
                                     blocks = listOf(
                                         HeaderBlock("Fill in the missing function"),
                                         ParagraphBlock("Complete the code below.")
@@ -250,7 +248,6 @@ ___("Hello world")
         // ADD new INFO
         exercises += ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = listOf(
                 ParagraphBlock("New INFO lesson")
             ),
@@ -260,7 +257,6 @@ ___("Hello world")
         // ADD new CLOZE
         exercises += ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = listOf(
                 HeaderBlock("New CLOZE lesson"),
                 ParagraphBlock("You must wrap text in quotes")
@@ -342,7 +338,6 @@ ___("Hello world")
         // ADD INFO
         exercises += ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = listOf(
                 ParagraphBlock("New INFO lesson")
             ),
@@ -352,7 +347,6 @@ ___("Hello world")
         // ADD CLOZE
         exercises += ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = listOf(
                 HeaderBlock("New CLOZE lesson"),
                 ParagraphBlock("You must wrap text in quotes")

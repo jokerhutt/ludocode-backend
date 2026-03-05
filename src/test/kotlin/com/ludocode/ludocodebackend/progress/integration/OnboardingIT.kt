@@ -1,13 +1,13 @@
 package com.ludocode.ludocodebackend.progress.integration
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.preferences.api.dto.PreferenceRequestKey
 import com.ludocode.ludocodebackend.preferences.api.dto.TogglePreferencesRequest
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
 import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
 import com.ludocode.ludocodebackend.preferences.domain.entity.UserPreferences
-import com.ludocode.ludocodebackend.preferences.domain.enums.DesiredPath
 import org.assertj.core.api.Assertions.assertThat
 import java.util.*
 import kotlin.test.Test
@@ -53,39 +53,43 @@ class OnboardingIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun submitPreferences_updatesPreferences() {
-
+    fun submitPreferences_EnablesAI() {
         val userId = user1.id
-
         initializePreferences(userId)
-
-        val audioEnabled = false
-        val aiEnabled = false
-        val req = TogglePreferencesRequest(audioEnabled, aiEnabled)
-
+        val req = TogglePreferencesRequest(true, PreferenceRequestKey.AUDIO)
         val res = submitPatchForPreferences(userId, req)
         assertThat(res).isNotNull()
-        assertThat(res.aiEnabled).isFalse()
-        assertThat(res.audioEnabled).isFalse()
-
+        assertThat(res.aiEnabled).isTrue()
     }
 
     @Test
-    fun submitPreferences_updatesOnePreferences_updatesOnlyOne() {
+    fun submitPreferences_DisablesAI() {
         val userId = user1.id
-
         initializePreferences(userId)
-
-        val audioEnabled = true
-        val aiEnabled = false
-
-        val req = TogglePreferencesRequest(audioEnabled, aiEnabled)
-
+        val req = TogglePreferencesRequest(false, PreferenceRequestKey.AUDIO)
         val res = submitPatchForPreferences(userId, req)
         assertThat(res).isNotNull()
         assertThat(res.aiEnabled).isFalse()
-        assertThat(res.audioEnabled).isTrue()
+    }
 
+    @Test
+    fun submitPreferences_EnablesAudio() {
+        val userId = user1.id
+        initializePreferences(userId)
+        val req = TogglePreferencesRequest(true, PreferenceRequestKey.AUDIO)
+        val res = submitPatchForPreferences(userId, req)
+        assertThat(res).isNotNull()
+        assertThat(res.audioEnabled).isTrue()
+    }
+
+    @Test
+    fun submitPreferences_DisablesAudio() {
+        val userId = user1.id
+        initializePreferences(userId)
+        val req = TogglePreferencesRequest(false, PreferenceRequestKey.AUDIO)
+        val res = submitPatchForPreferences(userId, req)
+        assertThat(res).isNotNull()
+        assertThat(res.audioEnabled).isFalse()
     }
 
     private fun initializePreferences(userId: UUID) {

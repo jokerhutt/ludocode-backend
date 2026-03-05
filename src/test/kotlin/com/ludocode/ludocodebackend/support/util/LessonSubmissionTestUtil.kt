@@ -115,7 +115,7 @@ object LessonSubmissionTestUtil {
 
         return ExerciseSubmissionRequest(
             exerciseId = exercise.exerciseId!!,
-            version = exercise.exerciseVersion,
+            version = 1,
             attempts = attempts
         )
     }

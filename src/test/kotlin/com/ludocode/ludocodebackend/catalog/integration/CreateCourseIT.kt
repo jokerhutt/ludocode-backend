@@ -73,7 +73,6 @@ class CreateCourseIT : AbstractIntegrationTest() {
                                 // INFO
                                 ExerciseSnap(
                                     exerciseId = UUID.randomUUID(),
-                                    exerciseVersion = 1,
                                     blocks = listOf(
                                         HeaderBlock("Printing in Python"),
                                         ParagraphBlock("Use print() to output text.")
@@ -84,7 +83,6 @@ class CreateCourseIT : AbstractIntegrationTest() {
                                 // CLOZE
                                 ExerciseSnap(
                                     exerciseId = UUID.randomUUID(),
-                                    exerciseVersion = 1,
                                     blocks = listOf(
                                         HeaderBlock("Fill in the missing function"),
                                         ParagraphBlock("Complete the code.")
