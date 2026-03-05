@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.preferences.api.dto.CareerResponse
+import com.ludocode.ludocodebackend.preferences.api.dto.PreferenceRequestKey
 
 import com.ludocode.ludocodebackend.preferences.api.dto.TogglePreferencesRequest
 import com.ludocode.ludocodebackend.preferences.api.infra.repository.CareerPreferencesRepository
@@ -30,8 +31,6 @@ class PreferencesService(
     private val courseProgressPortForUser: CourseProgressPortForUser,
     private val userPortForAuth: UserPortForAuth,
     private val careerPreferencesRepository: CareerPreferencesRepository,
-    private val courseRepository: CourseRepository,
-    private val userRepository: UserRepository
 ) {
 
     private val logger = LoggerFactory.getLogger(PreferencesService::class.java)
@@ -81,14 +80,21 @@ class PreferencesService(
     }
 
     @Transactional
-    internal fun updateTogglePreferences(userId: UUID, req: TogglePreferencesRequest): UserPreferences {
-        val currentPreferences = getPreferences(userId)
+    internal fun updatePreference(
+        userId: UUID,
+        req: TogglePreferencesRequest
+    ): UserPreferences {
 
-        currentPreferences.audioEnabled = req.audioEnabled
-        currentPreferences.aiEnabled = req.aiEnabled
+        val prefs = getPreferences(userId)
 
-        return currentPreferences
+        when (req.key) {
+            PreferenceRequestKey.AI -> prefs.aiEnabled = req.value
+            PreferenceRequestKey.AUDIO -> prefs.audioEnabled = req.value
+        }
+
+        return prefs
     }
+
 
     internal fun getPreferences(userId: UUID): UserPreferences {
         val preferences = userPreferencesRepository.findById(userId).orElseThrow()

@@ -1,3 +1,5 @@
 package com.ludocode.ludocodebackend.preferences.api.dto
 
-data class TogglePreferencesRequest(val audioEnabled: Boolean, val aiEnabled: Boolean)
+data class TogglePreferencesRequest(val value: Boolean, val key: PreferenceRequestKey)
+
+enum class PreferenceRequestKey {AI, AUDIO}

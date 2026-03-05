@@ -68,7 +68,7 @@ class PreferencesController(private val preferencesService: PreferencesService) 
         @RequestBody req: TogglePreferencesRequest,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
     ): ResponseEntity<UserPreferences> {
-        return ResponseEntity.ok(preferencesService.updateTogglePreferences(userId, req))
+        return ResponseEntity.ok(preferencesService.updatePreference(userId, req))
     }
 
     @Operation(

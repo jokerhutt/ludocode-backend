@@ -450,7 +450,6 @@ abstract class AbstractIntegrationTest {
 
         val ex1 = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = listOf(
                 HeaderBlock("Complete the expression")
             ),
@@ -468,7 +467,6 @@ abstract class AbstractIntegrationTest {
 
         val ex2 = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = listOf(
                 HeaderBlock("Create a variable with a value of 'House'")
             ),
@@ -487,7 +485,6 @@ abstract class AbstractIntegrationTest {
 
         val ex3 = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = listOf(
                 HeaderBlock("What will the following code return"),
                 CodeBlock("javascript", "const score = 4 + 4;")
@@ -500,7 +497,6 @@ abstract class AbstractIntegrationTest {
 
         val ex4 = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = listOf(
                 HeaderBlock("Which of the following declares a variable that can not be reassigned")
             ),
@@ -512,7 +508,6 @@ abstract class AbstractIntegrationTest {
 
         val ex5 = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = listOf(
                 HeaderBlock("What will this print?"),
                 CodeBlock("python", "print(2 == 2)")
@@ -525,7 +520,6 @@ abstract class AbstractIntegrationTest {
 
         val ex6 = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = listOf(
                 HeaderBlock("Complete the expression")
             ),
@@ -540,7 +534,6 @@ abstract class AbstractIntegrationTest {
 
         val ex7 = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = listOf(
                 HeaderBlock("Complete the expression")
             ),
@@ -555,7 +548,6 @@ abstract class AbstractIntegrationTest {
 
         val ex8 = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = listOf(
                 HeaderBlock("Complete the expression")
             ),
@@ -570,7 +562,6 @@ abstract class AbstractIntegrationTest {
 
         val ex9INFO = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = listOf(
                 ParagraphBlock("If statements run if a condition is true")
             ),
@@ -579,7 +570,6 @@ abstract class AbstractIntegrationTest {
 
         val ex10INFO = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = listOf(
                 ParagraphBlock("They are very powerful")
             ),
@@ -588,7 +578,6 @@ abstract class AbstractIntegrationTest {
 
         val ex11INFO = ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = listOf(
                 ParagraphBlock("Else statements run if none of the if statement conditions were true")
             ),

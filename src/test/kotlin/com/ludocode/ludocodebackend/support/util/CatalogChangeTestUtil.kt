@@ -53,7 +53,6 @@ object CatalogChangeTestUtil {
     fun createInfoExercise(text: String): ExerciseSnap =
         ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = listOf(ParagraphBlock(text)),
             interaction = null
         )
@@ -75,7 +74,6 @@ object CatalogChangeTestUtil {
 
         return ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = blocks,
             interaction = SelectInteraction(
                 items = items,
@@ -102,7 +100,6 @@ object CatalogChangeTestUtil {
 
         return ExerciseSnap(
             exerciseId = UUID.randomUUID(),
-            exerciseVersion = 1,
             blocks = blocks,
             interaction = ClozeInteraction(
                 file = InteractionFile(language = language, content = content),
@@ -378,7 +375,7 @@ object CatalogChangeTestUtil {
                                 options = listOf("\"hi\"", "'hi'", "hi")
                             )
                         }
-                        list[i] = newEx.copy(exerciseId = old.exerciseId, exerciseVersion = old.exerciseVersion)
+                        list[i] = newEx.copy(exerciseId = old.exerciseId)
                     }
                 }
             }
