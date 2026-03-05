@@ -149,6 +149,12 @@ object TestRestClient {
 
     fun <T : Any> getOk(
         url: String,
+        userId: UUID,
+        responseType: Class<T>
+    ): T = getOk(url, userId as UUID?, responseType, null)
+
+    fun <T : Any> getOk(
+        url: String,
         userId: UUID? = null,
         responseType: Class<T>,
         jwt: String? = null,
@@ -161,12 +167,24 @@ object TestRestClient {
             else -> error("Must provide either jwt or userId for test request")
         }
 
-        return req.`when`()
+        val extracted = req.`when`()
             .get(url)
             .then()
             .statusCode(200)
             .extract()
-            .`as`(responseType)
+            .response()
+
+        val respContentType = extracted.contentType ?: ""
+        val bodyString = extracted.asString()
+
+        return if (respContentType.contains("yaml", ignoreCase = true)
+            || bodyString.trimStart().startsWith("-")) {
+            // response is YAML -- parse with the yaml mapper
+            yamlMapper.readValue(bodyString, responseType)
+        } else {
+            // default JSON handling
+            extracted.`as`(responseType)
+        }
     }
 
     fun <T : Any> getOk(
@@ -186,13 +204,23 @@ object TestRestClient {
             }
         }
 
-        return req
+        val extracted = req
             .`when`()
             .get(url)
             .then()
             .statusCode(200)
             .extract()
-            .`as`(responseType)
+            .response()
+
+        val respContentType = extracted.contentType ?: ""
+        val bodyString = extracted.asString()
+
+        return if (respContentType.contains("yaml", ignoreCase = true)
+            || bodyString.trimStart().startsWith("-")) {
+            yamlMapper.readValue(bodyString, responseType)
+        } else {
+            extracted.`as`(responseType)
+        }
     }
 
 
