@@ -6,8 +6,8 @@ object PlanDefinitions {
 
     private val FREE = PlanConfig(
         limits = PlanLimits(
-            monthlyAiCredits = 5,
-            maxProjects = 3
+            monthlyAiCredits = 10,
+            maxProjects = 6
         ),
         features = setOf(
             Feature.AI_ASSISTANT,
