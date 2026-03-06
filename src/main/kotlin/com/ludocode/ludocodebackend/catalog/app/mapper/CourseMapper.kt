@@ -3,7 +3,7 @@ package com.ludocode.ludocodebackend.catalog.app.mapper
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseSubjectResponse
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
-import com.ludocode.ludocodebackend.catalog.domain.entity.Subject
+import com.ludocode.ludocodebackend.tag.domain.entity.Subject
 import com.ludocode.ludocodebackend.commons.mapper.BasicMapper
 import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import org.springframework.stereotype.Component

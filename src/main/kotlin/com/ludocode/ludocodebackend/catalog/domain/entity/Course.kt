@@ -25,7 +25,7 @@ class Course(
     val description: String,
 
     @Column(name = "course_icon")
-    val courseIcon: String,
+    var courseIcon: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "code_language_id", nullable = true)

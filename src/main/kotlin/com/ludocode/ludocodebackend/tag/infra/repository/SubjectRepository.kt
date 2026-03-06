@@ -1,6 +1,6 @@
-package com.ludocode.ludocodebackend.catalog.infra.repository
+package com.ludocode.ludocodebackend.tag.infra.repository
 
-import com.ludocode.ludocodebackend.catalog.domain.entity.Subject
+import com.ludocode.ludocodebackend.tag.domain.entity.Subject
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface SubjectRepository : JpaRepository<Subject, Long> {

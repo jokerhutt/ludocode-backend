@@ -114,6 +114,7 @@ object ApiPaths {
         const val BY_COURSE = "/{courseId}"
         const val COURSE_SUBJECT = "$BY_COURSE/subject"
         const val COURSE_LANGUAGE = "$BY_COURSE/language"
+        const val COURSE_ICON = "$BY_COURSE/icon"
         const val CURRICULUM = "/curriculum"
         const val BY_COURSE_CURRICULUM = "/curriculum/{courseId}"
         fun byCourse(courseId: UUID): String = "$BASE/$courseId"

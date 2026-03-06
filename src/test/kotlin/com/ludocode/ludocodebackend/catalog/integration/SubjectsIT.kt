@@ -1,19 +1,7 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
-import com.ludocode.ludocodebackend.catalog.api.dto.request.SubjectRequest
-import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseSubjectResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.SubjectMetadata
-import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
-import com.ludocode.ludocodebackend.support.TestRestClient
-import io.restassured.response.ValidatableResponse
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.fail
-import java.util.UUID
-import kotlin.test.Test
 
 
 class SubjectsIT : AbstractIntegrationTest() {

@@ -4,13 +4,13 @@ import com.google.cloud.storage.Storage
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
-import com.ludocode.ludocodebackend.catalog.domain.entity.Subject
+import com.ludocode.ludocodebackend.tag.domain.entity.Subject
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
-import com.ludocode.ludocodebackend.catalog.infra.repository.SubjectRepository
+import com.ludocode.ludocodebackend.tag.infra.repository.SubjectRepository
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.config.*

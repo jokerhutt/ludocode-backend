@@ -113,6 +113,18 @@ class CatalogService(
         currentCourse.language = chosenLanguage
     }
 
+    @Caching(
+        evict = [
+            CacheEvict(cacheNames = [CacheNames.COURSE_LIST], allEntries = true),
+        ]
+    )
+    @Transactional
+    fun updateCourseIcon(courseId: UUID, iconName: String) {
+        val course = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
+        course.courseIcon = iconName
+    }
+
+
 
 
 }
