@@ -11,7 +11,10 @@
         <dropColumn tableName="course" columnName="subject_id"/>
 
         <addColumn tableName="course">
-            <column name="course_icon" type="varchar(100)"/>
+            <column
+                    name="course_icon"
+                    type="varchar(100)"
+                    defaultValue="STAR"/>
         </addColumn>
 
     </changeSet>
