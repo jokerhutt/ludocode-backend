@@ -33,7 +33,7 @@ class CreateCourseIT : AbstractIntegrationTest() {
         val newCourseName = "Python New"
         val requestHash = UUID.randomUUID()
 
-        val req = CreateCourseRequest(newCourseName, requestHash, "New python course that is awesome", CourseType.COURSE, pythonSubject.id, pythonLanguage.id)
+        val req = CreateCourseRequest(newCourseName, requestHash, "New python course that is awesome", CourseType.COURSE, "Star", pythonLanguage.id)
 
         val res = submitPostCreateCourse(req)
 
@@ -44,7 +44,6 @@ class CreateCourseIT : AbstractIntegrationTest() {
 
         assertThat(created).isNotNull()
         assertThat(created.title).isEqualTo(newCourseName)
-        assertThat(created.subject.slug).isEqualTo(pythonSubject.slug)
         assertThat(created.language).isNotNull()
         assertThat(created.language!!.languageId).isEqualTo(pythonLanguage.id)
     }
@@ -54,7 +53,7 @@ class CreateCourseIT : AbstractIntegrationTest() {
 
         val yamlReq = CurriculumYamlRoot(
             title = "Python YAML Course",
-            subjectId = pythonSubject.id,
+            courseIcon = "Star",
             languageId = pythonLanguage.id,
             description = "Cool Python Stuff",
             courseType = CourseType.COURSE,

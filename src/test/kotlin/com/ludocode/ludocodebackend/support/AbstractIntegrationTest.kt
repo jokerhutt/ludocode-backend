@@ -246,10 +246,6 @@ abstract class AbstractIntegrationTest {
 
         snaps.forEach { cs ->
 
-            val subject = subjectRepository
-                .findBySlugAndName(cs.courseSubject.slug, cs.courseSubject.name)
-                ?: throw ApiException(ErrorCode.SUBJECT_NOT_FOUND)
-
             val language =
                 cs.language?.languageId?.let { id ->
                     codeLanguagesRepository.findByIdOrNull(id)
@@ -261,7 +257,7 @@ abstract class AbstractIntegrationTest {
                     id = cs.courseId,
                     title = cs.title,
                     courseType = cs.courseType,
-                    subject = subject,
+                    courseIcon = "STAR",
                     language = language,
                     description = "cool course"
                 )
@@ -634,7 +630,7 @@ abstract class AbstractIntegrationTest {
             CourseSnap(
                 courseId = pythonId,
                 title = "Python",
-                courseSubject = pythonSubjectSnap,
+                courseIcon = "Star",
                 courseType = CourseType.COURSE,
                 modules = pythonModules,
                 language = swiftLanguageMetadata
@@ -642,7 +638,7 @@ abstract class AbstractIntegrationTest {
             CourseSnap(
                 courseId = swiftId,
                 title = "Swift",
-                courseSubject = swiftSubjectSnap,
+                courseIcon = "Star",
                 courseType = CourseType.COURSE,
                 modules = swiftModules,
                 language = pythonLanguageMetadata

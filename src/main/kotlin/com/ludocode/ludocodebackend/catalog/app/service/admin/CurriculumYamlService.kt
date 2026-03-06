@@ -15,7 +15,6 @@ import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.commons.configuration.web.YamlProperties
 import com.ludocode.ludocodebackend.lesson.app.service.admin.LessonSnapshotService
 import jakarta.transaction.Transactional
-import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -41,7 +40,7 @@ class CurriculumYamlService(
                 requestHash = UUID.randomUUID(),
                 description = root.description,
                 courseType = root.courseType,
-                courseSubjectId = root.subjectId,
+                courseIcon = root.courseIcon,
                 languageId = root.languageId
             ))
 
@@ -116,7 +115,7 @@ class CurriculumYamlService(
             title = course.title,
             description = course.description,
             courseType = course.courseType,
-            subjectId = course.subject.id,
+            courseIcon = course.courseIcon,
             languageId = course.language?.id,
             modules = modules
         )

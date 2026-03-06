@@ -53,15 +53,15 @@ class CatalogAdminController(
             .body(yaml)
     }
 
-    @PutMapping(ApiPaths.SNAPSHOTS.COURSE_SUBJECT)
-    fun changeSubject(
-        @RequestBody req: ChangeSubjectRequest,
-        @PathVariable courseId: UUID
-    ): ResponseEntity<List<CourseResponse>> {
-        val subjectId = req.subjectId
-        catalogService.updateCourseSubject(courseId, subjectId)
-        return ResponseEntity.ok(catalogService.getAllCourses())
-    }
+//    @PutMapping(ApiPaths.SNAPSHOTS.COURSE_SUBJECT)
+//    fun changeSubject(
+//        @RequestBody req: ChangeSubjectRequest,
+//        @PathVariable courseId: UUID
+//    ): ResponseEntity<List<CourseResponse>> {
+//        val subjectId = req.subjectId
+//        catalogService.updateCourseSubject(courseId, subjectId)
+//        return ResponseEntity.ok(catalogService.getAllCourses())
+//    }
 
     @PutMapping(ApiPaths.SNAPSHOTS.COURSE_LANGUAGE)
     fun changeLanguage(

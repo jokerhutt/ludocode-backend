@@ -8,7 +8,7 @@ data class CourseResponse(
     val id: UUID,
     val title: String,
     val courseType: CourseType,
-    val subject: CourseSubjectResponse,
+    val courseIcon: String,
     val language: LanguageMetadata?,
     val description: String
 )

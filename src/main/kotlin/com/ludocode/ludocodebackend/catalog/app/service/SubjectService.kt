@@ -45,15 +45,15 @@ class SubjectService(
         return subjectMapper.toSubjectMetadataList(subjects)
     }
 
-    @Transactional
-    fun deleteSubject(id: Long): List<SubjectMetadata> {
-        if (courseRepository.existsBySubjectId(id)) {
-            throw ApiException(ErrorCode.SUBJECT_IN_USE)
-        }
-        val subject = subjectRepository.findById(id).orElseThrow { ApiException(ErrorCode.SUBJECT_NOT_FOUND) }
-        subjectRepository.delete(subject)
-        return getAllSubjects()
-    }
+//    @Transactional
+//    fun deleteSubject(id: Long): List<SubjectMetadata> {
+//        if (courseRepository.existsBySubjectId(id)) {
+//            throw ApiException(ErrorCode.SUBJECT_IN_USE)
+//        }
+//        val subject = subjectRepository.findById(id).orElseThrow { ApiException(ErrorCode.SUBJECT_NOT_FOUND) }
+//        subjectRepository.delete(subject)
+//        return getAllSubjects()
+//    }
 
     @Transactional
     fun updateSubject(id: Long, req: SubjectMetadata): List<SubjectMetadata> {

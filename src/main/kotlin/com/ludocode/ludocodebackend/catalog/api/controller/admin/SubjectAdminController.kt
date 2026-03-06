@@ -55,19 +55,19 @@ class SubjectAdminController(
         return ResponseEntity.ok(subjectService.updateSubject(subjectId, req))
     }
 
-    @Operation(
-        summary = "Delete subject",
-        description = """
-        Deletes the specified course subject.
-        Intended for catalog modification & admin use.
-        """
-    )
-    @SecurityRequirement(name = "sessionAuth")
-    @DeleteMapping(ApiPaths.SUBJECTS.BY_SUBJECT)
-    fun deleteSubject(
-        @PathVariable subjectId: Long
-    ): ResponseEntity<List<SubjectMetadata>> {
-        return ResponseEntity.ok(subjectService.deleteSubject(subjectId))
-    }
+//    @Operation(
+//        summary = "Delete subject",
+//        description = """
+//        Deletes the specified course subject.
+//        Intended for catalog modification & admin use.
+//        """
+//    )
+//    @SecurityRequirement(name = "sessionAuth")
+//    @DeleteMapping(ApiPaths.SUBJECTS.BY_SUBJECT)
+//    fun deleteSubject(
+//        @PathVariable subjectId: Long
+//    ): ResponseEntity<List<SubjectMetadata>> {
+//        return ResponseEntity.ok(subjectService.deleteSubject(subjectId))
+//    }
 
 }
