@@ -223,7 +223,6 @@ abstract class AbstractIntegrationTest {
           lesson_exercises,
           module_lessons,
           lesson,
-          lesson, 
           module, 
           course,
           subjects,

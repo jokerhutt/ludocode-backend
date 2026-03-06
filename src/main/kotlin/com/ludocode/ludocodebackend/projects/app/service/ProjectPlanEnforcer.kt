@@ -36,6 +36,7 @@ class ProjectPlanEnforcer(private val userProjectRepository: UserProjectReposito
                 }
             }
         }
+        userProjectRepository.saveAll(projects)
     }
 
 }

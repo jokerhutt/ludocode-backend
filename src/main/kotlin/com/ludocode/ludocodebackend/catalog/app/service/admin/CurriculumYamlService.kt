@@ -1,6 +1,8 @@
 package com.ludocode.ludocodebackend.catalog.app.service.admin
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
@@ -13,6 +15,7 @@ import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.commons.configuration.web.YamlProperties
 import com.ludocode.ludocodebackend.lesson.app.service.admin.LessonSnapshotService
 import jakarta.transaction.Transactional
+import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -21,11 +24,13 @@ class CurriculumYamlService(
     private val curriculumSnapshotService: CurriculumSnapshotService,
     private val lessonSnapshotService: LessonSnapshotService,
     private val courseRepository: CourseRepository,
-    private val yamlMapper: ObjectMapper,
     private val yamlProperties: YamlProperties,
-    properties: YamlProperties,
-    yamlProperties1: YamlProperties,
 ) {
+
+
+    private val yamlMapper =
+        ObjectMapper(YAMLFactory())
+            .registerModule(KotlinModule.Builder().build())
 
     @Transactional
     fun importYaml(courseId: UUID? = null, root: CurriculumYamlRoot) {

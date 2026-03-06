@@ -14,7 +14,6 @@ import io.restassured.config.EncoderConfig.encoderConfig
 
 object TestRestClient {
 
-
     private val yamlMapper =
         ObjectMapper(YAMLFactory()).registerKotlinModule()
 
@@ -28,6 +27,7 @@ object TestRestClient {
         val req = given()
             .header("X-Test-User-Id", userId.toString())
             .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
 
         if (body != null) {
             req.body(body)
@@ -51,6 +51,7 @@ object TestRestClient {
         val req = given()
             .header("X-Test-User-Id", userId.toString())
             .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
 
         if (body != null) {
             req.body(body)
@@ -73,6 +74,7 @@ object TestRestClient {
         return given()
             .header("X-Test-User-Id", userId.toString())
             .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
             .`when`()
             .delete(url)
             .then()
@@ -91,6 +93,7 @@ object TestRestClient {
         val req = given()
             .header("X-Test-User-Id", userId.toString())
             .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
 
         if (body != null) {
             req.body(body)
@@ -110,6 +113,7 @@ object TestRestClient {
     ) {
         given()
             .header("X-Test-User-Id", userId.toString())
+            .accept(ContentType.JSON)
             .`when`()
             .delete(url)
             .then()
@@ -119,9 +123,9 @@ object TestRestClient {
     fun postNoContent(
         url: String,
         userId: UUID,
-        body: Any? = null,
-        contentType: String = ContentType.JSON.toString()
+        body: Any? = null
     ) {
+
         val req = given()
             .config(
                 RestAssured.config().encoderConfig(
@@ -129,16 +133,11 @@ object TestRestClient {
                 )
             )
             .header("X-Test-User-Id", userId.toString())
-            .contentType(contentType)
+            .contentType("application/x-yaml")
+            .accept("application/x-yaml")
 
         if (body != null) {
-            val serializedBody =
-                if (contentType.contains("yaml", ignoreCase = true))
-                    yamlMapper.writeValueAsString(body)
-                else
-                    body
-
-            req.body(serializedBody)
+            req.body(yamlMapper.writeValueAsString(body))
         }
 
         req.`when`()
@@ -159,7 +158,10 @@ object TestRestClient {
         responseType: Class<T>,
         jwt: String? = null,
     ): T {
-        val req = given().contentType(ContentType.JSON)
+
+        val req = given()
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
 
         when {
             jwt != null -> req.cookie("AUTH", jwt)
@@ -174,17 +176,7 @@ object TestRestClient {
             .extract()
             .response()
 
-        val respContentType = extracted.contentType ?: ""
-        val bodyString = extracted.asString()
-
-        return if (respContentType.contains("yaml", ignoreCase = true)
-            || bodyString.trimStart().startsWith("-")) {
-            // response is YAML -- parse with the yaml mapper
-            yamlMapper.readValue(bodyString, responseType)
-        } else {
-            // default JSON handling
-            extracted.`as`(responseType)
-        }
+        return extracted.`as`(responseType)
     }
 
     fun <T : Any> getOk(
@@ -193,8 +185,10 @@ object TestRestClient {
         responseType: Class<T>,
         queryParams: Map<String, Any?>
     ): T {
+
         val req = given()
             .header("X-Test-User-Id", userId.toString())
+            .accept(ContentType.JSON)
 
         queryParams.forEach { (k, v) ->
             when (v) {
@@ -212,24 +206,15 @@ object TestRestClient {
             .extract()
             .response()
 
-        val respContentType = extracted.contentType ?: ""
-        val bodyString = extracted.asString()
-
-        return if (respContentType.contains("yaml", ignoreCase = true)
-            || bodyString.trimStart().startsWith("-")) {
-            yamlMapper.readValue(bodyString, responseType)
-        } else {
-            extracted.`as`(responseType)
-        }
+        return extracted.`as`(responseType)
     }
-
 
     fun putNoContent(
         url: String,
         userId: UUID,
-        body: Any? = null,
-        contentType: String = ContentType.JSON.toString()
+        body: Any? = null
     ) {
+
         val req = given()
             .config(
                 RestAssured.config().encoderConfig(
@@ -237,16 +222,11 @@ object TestRestClient {
                 )
             )
             .header("X-Test-User-Id", userId.toString())
-            .contentType(contentType)
+            .contentType("application/x-yaml")
+            .accept("application/x-yaml")
 
         if (body != null) {
-            val serializedBody =
-                if (contentType.contains("yaml", ignoreCase = true))
-                    yamlMapper.writeValueAsString(body)
-                else
-                    body
-
-            req.body(serializedBody)
+            req.body(yamlMapper.writeValueAsString(body))
         }
 
         req.`when`()
@@ -262,9 +242,11 @@ object TestRestClient {
         body: Any? = null,
         expected: ErrorCode
     ): ValidatableResponse {
+
         val spec = given()
             .header("X-Test-User-Id", userId.toString())
             .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
 
         if (body != null) spec.body(body)
 
