@@ -24,7 +24,7 @@ class Course(
     @Column(name = "description")
     val description: String,
 
-    @Column(name = "icon_name")
+    @Column(name = "course_icon")
     val courseIcon: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
