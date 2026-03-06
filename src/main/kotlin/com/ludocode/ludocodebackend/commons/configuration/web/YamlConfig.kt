@@ -15,22 +15,21 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @EnableConfigurationProperties(YamlProperties::class)
 class YamlConfig : WebMvcConfigurer {
 
-    @Bean
-    fun yamlMapper(): ObjectMapper =
-        ObjectMapper(YAMLFactory())
-            .registerModule(KotlinModule.Builder().build())
-
     override fun extendMessageConverters(converters: MutableList<HttpMessageConverter<*>>) {
-        val mapper = ObjectMapper(YAMLFactory())
+
+        val yamlMapper = ObjectMapper(YAMLFactory())
             .registerModule(KotlinModule.Builder().build())
 
-        val converter = MappingJackson2HttpMessageConverter(mapper)
-        converter.supportedMediaTypes = listOf(
+        val yamlConverter = MappingJackson2HttpMessageConverter(yamlMapper)
+
+        yamlConverter.supportedMediaTypes = listOf(
             MediaType("application", "x-yaml"),
             MediaType("application", "yaml"),
             MediaType("text", "yaml")
         )
 
-        converters.add(converter)
+        converters.add(yamlConverter)
     }
+
+
 }

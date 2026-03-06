@@ -2,7 +2,6 @@ package com.ludocode.ludocodebackend.catalog.integration
 
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlLesson
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlModule
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlRoot
@@ -18,7 +17,6 @@ import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.support.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.support.snapshot.TestSnapshotService
-import io.restassured.http.ContentType
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
 import java.util.*
@@ -144,7 +142,6 @@ ___("Hello world")
             "${ApiPaths.SNAPSHOTS.ADMIN_BASE}${ApiPaths.SNAPSHOTS.COURSE}?mode=yaml",
             user1.id,
             req,
-            "application/x-yaml"
         )
     }
 

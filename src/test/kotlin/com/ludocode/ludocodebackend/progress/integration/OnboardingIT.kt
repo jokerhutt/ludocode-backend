@@ -66,7 +66,7 @@ class OnboardingIT : AbstractIntegrationTest() {
     fun submitPreferences_DisablesAI() {
         val userId = user1.id
         initializePreferences(userId)
-        val req = TogglePreferencesRequest(false, PreferenceRequestKey.AUDIO)
+        val req = TogglePreferencesRequest(false, PreferenceRequestKey.AI)
         val res = submitPatchForPreferences(userId, req)
         assertThat(res).isNotNull()
         assertThat(res.aiEnabled).isFalse()

@@ -36,6 +36,9 @@ class CourseProgressService(
                 ErrorCode.COURSE_PROGRESS_NOT_FOUND
             )
         }
+        if (userCourseProgress.currentModuleId == null) {
+            userCourseProgress.currentModuleId = firstModuleOfCourse
+        }
         val enrolled = courseProgressRepository.findAllCourseIdsForUser(userId)
         return courseProgressMapper.toCourseProgressResponseWithEnrolled(userCourseProgress, enrolled)
     }

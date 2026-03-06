@@ -306,7 +306,7 @@ ___("Hello world")
                 ),
                 CourseProgress(
                     id = CourseProgressId(user1.id!!, swiftId),
-                    currentModuleId = swMod2Id,
+                    currentModuleId = swMod1Id,
                     createdAt = OffsetDateTime.now(clock),
                     updatedAt = OffsetDateTime.now(clock)
                 )
@@ -405,7 +405,7 @@ ___("Hello world")
                 CourseProgress(
                     id = CourseProgressId(user1.id!!, swiftId),
                     isComplete = true,
-                    currentModuleId = swMod2Id,
+                    currentModuleId = swMod1Id,
                     createdAt = OffsetDateTime.now(clock),
                     updatedAt = OffsetDateTime.now(clock)
                 )
@@ -591,7 +591,6 @@ ___("Hello world")
             ApiPaths.SNAPSHOTS.byCourseCurriculumAdmin(courseId) + "?mode=yaml",
             user1.id,
             req,
-            "application/x-yaml"
         )
     }
 

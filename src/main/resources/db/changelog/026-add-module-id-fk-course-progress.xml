@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="026-001-add-module-id-fk-course-progress" author="david">
+        <addForeignKeyConstraint
+                constraintName="fk_course_progress_current_module"
+                baseTableName="course_progress"
+                baseColumnNames="current_module_id"
+                referencedTableName="module"
+                referencedColumnNames="id"
+                onDelete="SET NULL"/>
+    </changeSet>
+
+</databaseChangeLog>

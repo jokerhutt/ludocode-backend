@@ -14,6 +14,10 @@ class ProjectPlanEnforcer(private val userProjectRepository: UserProjectReposito
     fun enforcePlanLimit(userId: UUID, maxProjects: Int) {
         val projects = userProjectRepository.findAllByUserIdOrderByUpdatedAtDesc(userId)
 
+        projects.forEach {
+            println("${it.id} updatedAt=${it.updatedAt}")
+        }
+
         if (projects.size <= maxProjects) {
             projects.forEach {
                 if (it.deleteAt != null) {
@@ -36,6 +40,7 @@ class ProjectPlanEnforcer(private val userProjectRepository: UserProjectReposito
                 }
             }
         }
+        userProjectRepository.saveAll(projects)
     }
 
 }

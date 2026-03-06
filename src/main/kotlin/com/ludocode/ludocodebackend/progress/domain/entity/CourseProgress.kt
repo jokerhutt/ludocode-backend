@@ -22,7 +22,7 @@ class CourseProgress(
     var updatedAt: OffsetDateTime,
 
     @Column(name = "current_module_id")
-    var currentModuleId: UUID,
+    var currentModuleId: UUID? = null,
 
     @Column(nullable = false, name = "is_complete")
     var isComplete: Boolean = false

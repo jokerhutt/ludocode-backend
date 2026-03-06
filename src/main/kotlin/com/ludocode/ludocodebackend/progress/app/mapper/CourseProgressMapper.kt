@@ -15,7 +15,7 @@ class CourseProgressMapper(private val basicMapper: BasicMapper) {
             CourseProgressResponse(
                 courseId = courseProgress.id.courseId,
                 userId = courseProgress.id.userId,
-                moduleId = courseProgress.currentModuleId,
+                moduleId = courseProgress.currentModuleId!!,
                 id = courseProgress.id.courseId,
                 updatedAt = courseProgress.updatedAt.toInstant()
             )

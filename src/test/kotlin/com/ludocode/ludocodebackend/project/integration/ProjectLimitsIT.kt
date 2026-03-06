@@ -47,12 +47,12 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
     @Test
     fun overPlanLimit_attemptCreateProject_throwsError () {
-        val (projects, files) = ProjectTestUtil.spawnProjects(4, user1.id, pythonLanguage, clock, storage, bucketName, 2)
+        val (projects, files) = ProjectTestUtil.spawnProjects(6, user1.id, pythonLanguage, clock, storage, bucketName, 2)
         projectFileRepository.saveAll(files)
         userProjectRepository.saveAll(projects)
 
         val newProjectRequest = CreateProjectRequest(
-            projectName = "Second Project",
+            projectName = "Seventh Project",
             projectLanguageId = pythonLanguage.id,
             requestHash = UUID.randomUUID()
         )
@@ -63,7 +63,7 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
     @Test
     fun createTwoProjects_firstUnderPlanLimit_secondOverLimit_firstSucceeds_secondThrows () {
-        val (projects, files) = ProjectTestUtil.spawnProjects(2, user1.id, pythonLanguage, clock, storage, bucketName, 2)
+        val (projects, files) = ProjectTestUtil.spawnProjects(5, user1.id, pythonLanguage, clock, storage, bucketName, 2)
         projectFileRepository.saveAll(files)
         userProjectRepository.saveAll(projects)
 
@@ -75,12 +75,12 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
         val res = submitPostCreateProject(newProjectRequest, user1.id)
         assertThat(res).isNotNull()
-        assertThat(res.projects.size).isEqualTo(3)
+        assertThat(res.projects.size).isEqualTo(6)
         val stillMarked = res.projects.filter { it.deleteAt != null }
         assertThat(stillMarked).isEmpty()
 
         val secondProjectRequest = CreateProjectRequest(
-            projectName = "Third Project",
+            projectName = "Seventh Project",
             projectLanguageId = pythonLanguage.id,
             requestHash = UUID.randomUUID()
         )
@@ -91,7 +91,7 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
     @Test
     fun downGraded_marksDeletedAt() {
-        val (projects, files) = ProjectTestUtil.spawnProjects(4, user1.id, pythonLanguage, clock, storage, bucketName, 2)
+        val (projects, files) = ProjectTestUtil.spawnProjects(7, user1.id, pythonLanguage, clock, storage, bucketName, 2)
         projectFileRepository.saveAll(files)
         userProjectRepository.saveAll(projects)
 
@@ -100,7 +100,7 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
         val res = submitGetUserProjects(userId = user1.id)
 
-        assertThat(res.projects.size).isEqualTo(4)
+        assertThat(res.projects.size).isEqualTo(7)
 
         val markedForDeletion = res.projects.filter { it.deleteAt != null }
 
@@ -120,7 +120,7 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
         val now = OffsetDateTime.now(clock)
 
-        val (projects, files) = ProjectTestUtil.spawnProjects(4, user1.id, pythonLanguage, clock, storage, bucketName, 2)
+        val (projects, files) = ProjectTestUtil.spawnProjects(7, user1.id, pythonLanguage, clock, storage, bucketName, 2)
         projectFileRepository.saveAll(files)
         userProjectRepository.saveAll(projects)
 
@@ -129,7 +129,7 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
         val res = submitGetUserProjects(userId = user1.id)
 
-        assertThat(res.projects.size).isEqualTo(4)
+        assertThat(res.projects.size).isEqualTo(7)
 
         val markedForDeletion = res.projects.filter { it.deleteAt != null }
 
@@ -147,7 +147,7 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
         val newRes = submitGetUserProjects(userId = user1.id)
 
-        assertThat(newRes.projects).hasSize(4)
+        assertThat(newRes.projects).hasSize(7)
 
         val stillMarked = newRes.projects.filter { it.deleteAt != null }
 
@@ -160,7 +160,7 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
         val now = OffsetDateTime.now(clock)
 
-        val (projects, files) = ProjectTestUtil.spawnProjects(4, user1.id, pythonLanguage, clock, storage, bucketName, 2)
+        val (projects, files) = ProjectTestUtil.spawnProjects(7, user1.id, pythonLanguage, clock, storage, bucketName, 2)
         projectFileRepository.saveAll(files)
         userProjectRepository.saveAll(projects)
 
@@ -169,14 +169,14 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
         val res = submitGetUserProjects(userId = user1.id)
 
-        assertThat(res.projects.size).isEqualTo(4)
+        assertThat(res.projects.size).isEqualTo(7)
 
         clock.set(clock.instant().plus(21, ChronoUnit.DAYS))
         projectCleanupJob.execute()
 
         val newRes = submitGetUserProjects(userId = user1.id)
 
-        assertThat(newRes.projects.size).isEqualTo(3)
+        assertThat(newRes.projects.size).isEqualTo(6)
 
         val stillMarked = newRes.projects.filter { it.deleteAt != null }
 
