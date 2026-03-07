@@ -7,8 +7,13 @@ import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import io.restassured.RestAssured.given
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.junit.jupiter.DisabledIf
 import kotlin.test.Test
 
+@DisabledIf(
+    expression = "\${firebase.enabled}",
+    loadContext = true
+)
 class DemoAuthIT : AbstractIntegrationTest() {
 
     @Autowired

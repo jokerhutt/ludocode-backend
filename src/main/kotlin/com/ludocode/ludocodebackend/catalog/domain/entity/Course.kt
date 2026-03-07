@@ -27,6 +27,9 @@ class Course(
     @Column(name = "description")
     val description: String,
 
+    @Column(name = "is_visible")
+    var isVisible: Boolean = true,
+
     @Column(name = "is_deleted")
     var isDeleted: Boolean = false,
 

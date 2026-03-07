@@ -13,6 +13,7 @@ interface CourseRepository : JpaRepository<Course, UUID> {
     from Course c
     left join fetch c.language l
     where c.isDeleted = false
+    and c.isVisible = true
 """
     )
     fun findAllWithLanguage(): List<Course>
