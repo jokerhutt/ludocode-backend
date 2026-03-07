@@ -54,7 +54,7 @@
                 ('php', 'PHP', 'php', 'php', 'script', 'PHP', '.php', '&lt;?php\necho "Hello, world!";\n?&gt;'),
                 ('kotlin', 'Kotlin', 'kotlin', 'kotlin', 'program', 'Kotlin', '.kt', 'fun main() {\n    println("Hello, world!")\n}'),
                 ('c', 'C', 'c', 'c', 'program', 'C', '.c', '#include &lt;stdio.h&gt;\n\nint main() {\n    printf("Hello, world!\\n");\n    return 0;\n}'),
-                ('cpp', 'C++', 'cpp', 'cpp', 'program', 'Cpp', '.cpp', '#include &lt;iostream&gt;\n\nint main() {\n    std::cout &lt;&lt; "Hello, world!" &lt;&lt; std::endl;\n    return 0;\n}'),
+                ('cpp', 'C++', 'cpp', 'cpp', 'program', 'CPP', '.cpp', '#include &lt;iostream&gt;\n\nint main() {\n    std::cout &lt;&lt; "Hello, world!" &lt;&lt; std::endl;\n    return 0;\n}'),
                 ('java', 'Java', 'java', 'java', 'program', 'Java', '.java', 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, world!");\n    }\n}')
             ON CONFLICT (slug) DO NOTHING;
         </sql>
