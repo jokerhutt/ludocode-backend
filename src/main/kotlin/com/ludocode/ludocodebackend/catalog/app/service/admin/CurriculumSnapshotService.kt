@@ -155,6 +155,10 @@ class CurriculumSnapshotService(
     }
 
     internal fun deleteCourseReturningList(courseId: UUID): List<CourseResponse> {
+        val courses = courseRepository.findAll()
+        if (courses.size <= 1) {
+            throw ApiException(ErrorCode.NO_LAST_COURSE_DELETE)
+        }
         deleteCourse(courseId)
         val courseTags = courseTagRepository.getAllCourseTags()
 

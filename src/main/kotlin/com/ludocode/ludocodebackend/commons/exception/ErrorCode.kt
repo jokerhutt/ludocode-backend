@@ -17,12 +17,13 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     MODULE_NOT_FOUND_FOR_LESSON(HttpStatus.NOT_FOUND, "Module not found for given lesson"),
     LESSON_NOT_FOUND_FOR_EXERCISE(HttpStatus.NOT_FOUND, "Lesson not found for given exercise"),
     COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Course not found"),
-
+    NO_LAST_COURSE_DELETE(HttpStatus.BAD_REQUEST, "Can not delete last course"),
     SYSTEM_PROMPT_MISSING(HttpStatus.BAD_REQUEST, "System prompt missing from metadata"),
 
     ENTRY_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "This project lacks an entry file"),
 
     CAREER_PREFERENCE_NOT_FOUND(HttpStatus.NOT_FOUND, "Career preference not found"),
+
 
     EMPTY_MODULES(HttpStatus.BAD_REQUEST, "Modules can not be empty"),
     EMPTY_LESSONS(HttpStatus.BAD_REQUEST, "Lessons can not be empty"),
