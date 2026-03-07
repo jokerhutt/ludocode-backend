@@ -4,11 +4,13 @@ import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
 import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import jakarta.persistence.*
 import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.annotations.SQLRestriction
 import org.hibernate.type.SqlTypes
 import java.util.*
 
 @Entity
 @Table(name = "course")
+@SQLRestriction("is_deleted = false")
 class Course(
 
     @Id
@@ -23,6 +25,9 @@ class Course(
 
     @Column(name = "description")
     val description: String,
+
+    @Column(name = "is_deleted")
+    var isDeleted: Boolean = false,
 
     @Column(name = "course_icon")
     var courseIcon: String,
