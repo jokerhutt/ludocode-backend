@@ -24,9 +24,8 @@ class Course(
     @Column(name = "description")
     val description: String,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subject_id", nullable = false)
-    var subject: Subject,
+    @Column(name = "course_icon")
+    var courseIcon: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "code_language_id", nullable = true)

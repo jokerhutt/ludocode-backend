@@ -8,6 +8,6 @@ data class CreateCourseRequest(
     val requestHash: UUID,
     val description: String?,
     val courseType: CourseType,
-    val courseSubjectId: Long,
+    val courseIcon: String,
     val languageId: Long?
 )

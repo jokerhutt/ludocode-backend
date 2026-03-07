@@ -8,7 +8,7 @@ data class CurriculumYamlRoot (
     val title: String,
     val description: String? = "",
     val courseType: CourseType,
-    val subjectId: Long,
+    val courseIcon: String,
     val languageId: Long?,
     val modules: List<CurriculumYamlModule>
 )

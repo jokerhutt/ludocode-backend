@@ -8,7 +8,7 @@ data class CourseSnap(
     val courseId: UUID,
     val title: String = "",
     val courseType: CourseType,
-    val courseSubject: SubjectSnap,
+    val courseIcon: String,
     val language: LanguageMetadata?,
     val modules: List<ModuleSnap>
 )

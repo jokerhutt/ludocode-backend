@@ -1,16 +1,19 @@
-package com.ludocode.ludocodebackend.catalog.api.controller.admin
+package com.ludocode.ludocodebackend.tag.api.controller.admin
 
-import com.ludocode.ludocodebackend.catalog.api.dto.request.SubjectRequest
-import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseSubjectResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.SubjectMetadata
-import com.ludocode.ludocodebackend.catalog.app.service.SubjectService
+import com.ludocode.ludocodebackend.tag.app.service.TagService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.context.annotation.Profile
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @Tag(
     name = "Admin Subjects",
@@ -19,8 +22,8 @@ import org.springframework.web.bind.annotation.*
 @Profile("admin", "dev", "test", "devtestadmin")
 @RestController
 @RequestMapping(ApiPaths.SUBJECTS.ADMIN_BASE)
-class SubjectAdminController(
-    private val subjectService: SubjectService
+class TagAdminController(
+    private val tagService: TagService
 ) {
 
     @Operation(
@@ -36,7 +39,7 @@ class SubjectAdminController(
     fun createSubject(
         @RequestBody req: SubjectMetadata
     ): ResponseEntity<List<SubjectMetadata>> {
-        return ResponseEntity.ok(subjectService.createSubject(req))
+        return ResponseEntity.ok(tagService.createSubject(req))
     }
 
     @Operation(
@@ -52,22 +55,22 @@ class SubjectAdminController(
         @PathVariable subjectId: Long,
         @RequestBody req: SubjectMetadata
     ): ResponseEntity<List<SubjectMetadata>> {
-        return ResponseEntity.ok(subjectService.updateSubject(subjectId, req))
+        return ResponseEntity.ok(tagService.updateSubject(subjectId, req))
     }
 
-    @Operation(
-        summary = "Delete subject",
-        description = """
-        Deletes the specified course subject.
-        Intended for catalog modification & admin use.
-        """
-    )
-    @SecurityRequirement(name = "sessionAuth")
-    @DeleteMapping(ApiPaths.SUBJECTS.BY_SUBJECT)
-    fun deleteSubject(
-        @PathVariable subjectId: Long
-    ): ResponseEntity<List<SubjectMetadata>> {
-        return ResponseEntity.ok(subjectService.deleteSubject(subjectId))
-    }
+//    @Operation(
+//        summary = "Delete subject",
+//        description = """
+//        Deletes the specified course subject.
+//        Intended for catalog modification & admin use.
+//        """
+//    )
+//    @SecurityRequirement(name = "sessionAuth")
+//    @DeleteMapping(ApiPaths.SUBJECTS.BY_SUBJECT)
+//    fun deleteSubject(
+//        @PathVariable subjectId: Long
+//    ): ResponseEntity<List<SubjectMetadata>> {
+//        return ResponseEntity.ok(subjectService.deleteSubject(subjectId))
+//    }
 
 }

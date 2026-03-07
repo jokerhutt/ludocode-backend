@@ -35,17 +35,13 @@ class TestSnapshotService(
             buildModuleSnapshot(module)
         }
 
-        val subject = course.subject
-
         val codeLanguage = course.language?.let { lang -> languagesMapper.toLanguageMetadata(lang) }
-
-        val subjectSnap = SubjectSnap(slug = subject.slug, name = subject.name)
 
         return CourseSnap(
             courseId,
             course.title,
             courseType = course.courseType,
-            courseSubject = subjectSnap,
+            courseIcon = course.courseIcon,
             codeLanguage,
             moduleSnapshots
         )

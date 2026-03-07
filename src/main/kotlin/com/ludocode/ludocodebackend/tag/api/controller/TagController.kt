@@ -1,8 +1,7 @@
-package com.ludocode.ludocodebackend.catalog.api.controller
+package com.ludocode.ludocodebackend.tag.api.controller
 
-import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseSubjectResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.SubjectMetadata
-import com.ludocode.ludocodebackend.catalog.app.service.SubjectService
+import com.ludocode.ludocodebackend.tag.app.service.TagService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -17,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController
 )
 @RestController
 @RequestMapping(ApiPaths.SUBJECTS.BASE)
-class SubjectController(
-    private val subjectService: SubjectService
+class TagController(
+    private val tagService: TagService
 ) {
 
     @Operation(
@@ -32,7 +31,7 @@ class SubjectController(
     )
     @GetMapping
     fun getSubjects(): ResponseEntity<List<SubjectMetadata>> {
-        return ResponseEntity.ok(subjectService.getAllSubjects())
+        return ResponseEntity.ok(tagService.getAllSubjects())
     }
 
 }

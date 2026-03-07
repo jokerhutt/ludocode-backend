@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.catalog.app.mapper
 
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.SubjectMetadata
-import com.ludocode.ludocodebackend.catalog.domain.entity.Subject
+import com.ludocode.ludocodebackend.tag.domain.entity.Subject
 import com.ludocode.ludocodebackend.commons.mapper.BasicMapper
 import org.springframework.stereotype.Component
 

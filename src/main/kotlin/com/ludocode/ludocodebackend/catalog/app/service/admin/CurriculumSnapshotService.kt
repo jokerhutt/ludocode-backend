@@ -3,7 +3,6 @@ package com.ludocode.ludocodebackend.catalog.app.service.admin
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.app.mapper.CourseMapper
@@ -14,7 +13,6 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLesso
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
-import com.ludocode.ludocodebackend.catalog.infra.repository.SubjectRepository
 import com.ludocode.ludocodebackend.commons.constants.CacheNames
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
@@ -51,7 +49,6 @@ class CurriculumSnapshotService(
     private val lessonRepository: LessonRepository,
     private val courseProgressRepository: CourseProgressRepository,
     private val codeLanguagesRepository: CodeLanguagesRepository,
-    private val subjectRepository: SubjectRepository
 ) {
 
     private val logger = LoggerFactory.getLogger(CurriculumSnapshotService::class.java)
@@ -167,13 +164,14 @@ class CurriculumSnapshotService(
         val newCourseName = request.courseTitle
         val newCourseHash = request.requestHash
         val newCourseType = request.courseType
-        val newCourseSubjectId = request.courseSubjectId
         val newCourseDescription = request.description ?: "No description"
+        val newCourseIcon = request.courseIcon
 
         val newCourseId = UUID.randomUUID()
         val newModuleId = UUID.randomUUID()
         val newLessonId = UUID.randomUUID()
         val newExerciseId = UUID.randomUUID()
+
 
         val codeLanguage =
             request.languageId?.let { id ->
@@ -181,16 +179,13 @@ class CurriculumSnapshotService(
                     ?: throw ApiException(ErrorCode.LANGUAGE_NOT_FOUND)
             }
 
-        val subject = subjectRepository.findById(newCourseSubjectId)
-            .orElseThrow { ApiException(ErrorCode.SUBJECT_NOT_FOUND) }
-
         val newCourse = Course(
             id = newCourseId,
             title = newCourseName,
             requestHash = newCourseHash,
             courseType = newCourseType,
-            subject = subject,
             language = codeLanguage,
+            courseIcon = newCourseIcon,
             description = newCourseDescription
         )
 

@@ -10,7 +10,6 @@ import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForProgress
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
-import com.ludocode.ludocodebackend.catalog.infra.repository.SubjectRepository
 import com.ludocode.ludocodebackend.commons.constants.CacheNames
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
@@ -35,7 +34,6 @@ class CatalogService(
     private val moduleMapper: ModuleMapper,
     private val lessonRepository: LessonRepository,
     private val flatCourseTreeMapper: FlatCourseTreeMapper,
-    private val subjectRepository: SubjectRepository,
     private val codeLanguagesRepository: CodeLanguagesRepository,
 ) : CatalogPortForProgress {
 
@@ -55,7 +53,7 @@ class CatalogService(
 
     @Cacheable(CacheNames.COURSE_LIST)
     fun getAllCourses(): List<CourseResponse> {
-        return courseMapper.toCourseResponseList(courseRepository.findAllWithSubjectAndLanguage())
+        return courseMapper.toCourseResponseList(courseRepository.findAllWithLanguage())
     }
 
     @Cacheable(CacheNames.COURSE_TREE, key = "#courseId")
@@ -73,26 +71,26 @@ class CatalogService(
         return moduleMapper.toModuleResponseList(modules)
     }
 
-    @Caching(
-        evict = [
-            CacheEvict(cacheNames = [CacheNames.COURSE_TREE], allEntries = true),
-            CacheEvict(cacheNames = [CacheNames.COURSE_FIRST_MODULE], allEntries = true),
-            CacheEvict(cacheNames = [CacheNames.COURSE_LIST], allEntries = true),
-            CacheEvict(cacheNames = [CacheNames.LESSON_MODULE], allEntries = true),
-            CacheEvict(cacheNames = [CacheNames.LESSON_EXERCISES], allEntries = true)
-        ]
-    )
-    @Transactional
-    fun updateCourseSubject(courseId: UUID, subjectId: Long) {
-        val currentCourse = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
-        val chosenSubject = subjectRepository.findById(subjectId).orElseThrow { ApiException(ErrorCode.SUBJECT_NOT_FOUND) }
-
-        if (currentCourse.subject.id == chosenSubject.id) {
-            return
-        }
-
-        currentCourse.subject = chosenSubject
-    }
+//    @Caching(
+//        evict = [
+//            CacheEvict(cacheNames = [CacheNames.COURSE_TREE], allEntries = true),
+//            CacheEvict(cacheNames = [CacheNames.COURSE_FIRST_MODULE], allEntries = true),
+//            CacheEvict(cacheNames = [CacheNames.COURSE_LIST], allEntries = true),
+//            CacheEvict(cacheNames = [CacheNames.LESSON_MODULE], allEntries = true),
+//            CacheEvict(cacheNames = [CacheNames.LESSON_EXERCISES], allEntries = true)
+//        ]
+//    )
+//    @Transactional
+//    fun updateCourseSubject(courseId: UUID, subjectId: Long) {
+//        val currentCourse = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
+//        val chosenSubject = subjectRepository.findById(subjectId).orElseThrow { ApiException(ErrorCode.SUBJECT_NOT_FOUND) }
+//
+//        if (currentCourse.subject.id == chosenSubject.id) {
+//            return
+//        }
+//
+//        currentCourse.subject = chosenSubject
+//    }
 
     @Caching(
         evict = [
@@ -106,7 +104,7 @@ class CatalogService(
     @Transactional
     fun updateCourseLanguage(courseId: UUID, languageId: Long) {
         val currentCourse = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
-        val chosenLanguage = codeLanguagesRepository.findById(languageId).orElseThrow { ApiException(ErrorCode.SUBJECT_NOT_FOUND) }
+        val chosenLanguage = codeLanguagesRepository.findById(languageId).orElseThrow { ApiException(ErrorCode.LANGUAGE_NOT_FOUND) }
 
         if (currentCourse.language?.id == chosenLanguage.id) {
             return
@@ -114,6 +112,18 @@ class CatalogService(
 
         currentCourse.language = chosenLanguage
     }
+
+    @Caching(
+        evict = [
+            CacheEvict(cacheNames = [CacheNames.COURSE_LIST], allEntries = true),
+        ]
+    )
+    @Transactional
+    fun updateCourseIcon(courseId: UUID, iconName: String) {
+        val course = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
+        course.courseIcon = iconName
+    }
+
 
 
 

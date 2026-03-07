@@ -4,13 +4,13 @@ import com.google.cloud.storage.Storage
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
-import com.ludocode.ludocodebackend.catalog.domain.entity.Subject
+import com.ludocode.ludocodebackend.tag.domain.entity.Subject
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
-import com.ludocode.ludocodebackend.catalog.infra.repository.SubjectRepository
+import com.ludocode.ludocodebackend.tag.infra.repository.SubjectRepository
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.config.*
@@ -246,10 +246,6 @@ abstract class AbstractIntegrationTest {
 
         snaps.forEach { cs ->
 
-            val subject = subjectRepository
-                .findBySlugAndName(cs.courseSubject.slug, cs.courseSubject.name)
-                ?: throw ApiException(ErrorCode.SUBJECT_NOT_FOUND)
-
             val language =
                 cs.language?.languageId?.let { id ->
                     codeLanguagesRepository.findByIdOrNull(id)
@@ -261,7 +257,7 @@ abstract class AbstractIntegrationTest {
                     id = cs.courseId,
                     title = cs.title,
                     courseType = cs.courseType,
-                    subject = subject,
+                    courseIcon = "STAR",
                     language = language,
                     description = "cool course"
                 )
@@ -634,7 +630,7 @@ abstract class AbstractIntegrationTest {
             CourseSnap(
                 courseId = pythonId,
                 title = "Python",
-                courseSubject = pythonSubjectSnap,
+                courseIcon = "Star",
                 courseType = CourseType.COURSE,
                 modules = pythonModules,
                 language = swiftLanguageMetadata
@@ -642,7 +638,7 @@ abstract class AbstractIntegrationTest {
             CourseSnap(
                 courseId = swiftId,
                 title = "Swift",
-                courseSubject = swiftSubjectSnap,
+                courseIcon = "Star",
                 courseType = CourseType.COURSE,
                 modules = swiftModules,
                 language = pythonLanguageMetadata

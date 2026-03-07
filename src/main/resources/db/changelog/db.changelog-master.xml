@@ -31,6 +31,7 @@
     <include file="/db/changelog/024-user-deletion-changes.xml"/>
     <include file="/db/changelog/025-project-entry-file-id.xml"/>
     <include file="/db/changelog/026-add-module-id-fk-course-progress.xml"/>
+    <include file="/db/changelog/027-remove-subject-id-add-course-icon.xml"/>
 
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>

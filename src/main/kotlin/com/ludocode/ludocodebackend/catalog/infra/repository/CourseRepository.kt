@@ -11,13 +11,10 @@ interface CourseRepository : JpaRepository<Course, UUID> {
         """
     select distinct c
     from Course c
-    join fetch c.subject s
     left join fetch c.language l
 """
     )
-    fun findAllWithSubjectAndLanguage(): List<Course>
-
-    fun existsBySubjectId(subjectId: Long): Boolean
+    fun findAllWithLanguage(): List<Course>
 
     fun findByTitle(title: String): Course?
 
