@@ -5,12 +5,13 @@ import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import jakarta.persistence.*
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.annotations.SQLRestriction
+import org.hibernate.annotations.Where
 import org.hibernate.type.SqlTypes
 import java.util.*
 
 @Entity
 @Table(name = "course")
-@SQLRestriction("is_deleted = false")
+@Where(clause = "is_deleted = false")
 class Course(
 
     @Id
