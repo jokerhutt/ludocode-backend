@@ -181,7 +181,6 @@ class CurriculumSnapshotService(
         courseToDelete.isDeleted = true
     }
 
-    @Transactional
     internal fun deleteModulesInCourse(courseId: UUID) {
         val courseModuleIds = moduleRepository.findActiveIdsByCourse(courseId)
         courseModuleIds.forEach { moduleId ->
