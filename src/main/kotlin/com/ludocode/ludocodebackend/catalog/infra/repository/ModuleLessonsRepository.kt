@@ -13,17 +13,6 @@ interface ModuleLessonsRepository : JpaRepository<ModuleLesson, ModuleLessonsId>
 
     @Query(
         value = """
-        SELECT lesson.id
-        FROM lesson
-        JOIN module_lessons ON module_lessons.lesson_id = lesson.id
-        WHERE module_lessons.module_id = :moduleId
-          AND lesson.is_deleted = false
-        """, nativeQuery = true
-    )
-    fun findActiveLessonIdsByModuleId(@Param("moduleId") moduleId: UUID): List<UUID>
-
-    @Query(
-        value = """
         SELECT *
         FROM lesson
         JOIN module_lessons ON module_lessons.lesson_id = lesson.id
@@ -45,13 +34,5 @@ interface ModuleLessonsRepository : JpaRepository<ModuleLesson, ModuleLessonsId>
     )
     fun findOrderIndexForLesson(@Param("moduleId") moduleId: UUID, @Param("lessonId") lessonId: UUID): Int
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(
-        """
-  DELETE FROM ModuleLesson ml
-  WHERE ml.moduleLessonsId.moduleId = :moduleId
-"""
-    )
-    fun deleteLessonsInModule(@Param("moduleId") moduleId: UUID)
 
 }

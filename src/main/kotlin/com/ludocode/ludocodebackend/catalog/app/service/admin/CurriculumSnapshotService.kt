@@ -41,6 +41,7 @@ import java.time.OffsetDateTime
 import java.util.*
 
 @Service
+@Transactional
 class CurriculumSnapshotService(
     private val courseRepository: CourseRepository,
     private val moduleRepository: ModuleRepository,
@@ -65,7 +66,6 @@ class CurriculumSnapshotService(
             CacheEvict(cacheNames = [CacheNames.LESSON_EXERCISES], allEntries = true)
         ]
     )
-    @Transactional
     fun applyCurriculumDiffs(courseId: UUID, snapshot: CurriculumDraftSnapshot): CurriculumDraftSnapshot {
         courseRepository.findById(courseId).orElseThrow()
 
@@ -77,12 +77,7 @@ class CurriculumSnapshotService(
             if (moduleSnap.lessons.isEmpty()) throw ApiException(ErrorCode.EMPTY_LESSONS)
         }
 
-        val oldModuleIds = moduleRepository.findActiveIdsByCourse(courseId)
-        oldModuleIds.forEach { moduleId ->
-            moduleLessonsRepository.deleteByModuleLessonsIdModuleId(moduleId)
-        }
-
-        moduleRepository.deleteByCourseId(courseId)
+        deleteModulesInCourse(courseId)
 
         snapshot.modules.forEachIndexed { moduleIndex, moduleSnapshot ->
 
@@ -159,6 +154,21 @@ class CurriculumSnapshotService(
         return courseMapper.toCourseResponseList(courseRepository.findAll(), tagsByCourse)
     }
 
+    internal fun deleteCourseReturningList(courseId: UUID): List<CourseResponse> {
+        val courses = courseRepository.findAll()
+        if (courses.size <= 1) {
+            throw ApiException(ErrorCode.NO_LAST_COURSE_DELETE)
+        }
+        deleteCourse(courseId)
+        val courseTags = courseTagRepository.getAllCourseTags()
+
+        val tagsByCourse =
+            courseTags.groupBy({ it.courseId }) {
+                TagMetadata(it.id, it.name, it.slug)
+            }
+        return courseMapper.toCourseResponseList(courseRepository.findAll(), tagsByCourse)
+    }
+
     @Caching(
         evict = [
             CacheEvict(cacheNames = [CacheNames.COURSE_TREE], allEntries = true),
@@ -168,7 +178,30 @@ class CurriculumSnapshotService(
             CacheEvict(cacheNames = [CacheNames.LESSON_EXERCISES], allEntries = true)
         ]
     )
-    @Transactional
+    internal fun deleteCourse(courseId: UUID) {
+        val courseToDelete = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
+        deleteModulesInCourse(courseId)
+        courseToDelete.isDeleted = true
+    }
+
+    internal fun deleteModulesInCourse(courseId: UUID) {
+        val courseModuleIds = moduleRepository.findActiveIdsByCourse(courseId)
+        courseModuleIds.forEach { moduleId ->
+            moduleLessonsRepository.deleteByModuleLessonsIdModuleId(moduleId)
+        }
+
+        moduleRepository.deleteByCourseId(courseId)
+    }
+
+    @Caching(
+        evict = [
+            CacheEvict(cacheNames = [CacheNames.COURSE_TREE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.COURSE_FIRST_MODULE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.COURSE_LIST], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.LESSON_MODULE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.LESSON_EXERCISES], allEntries = true)
+        ]
+    )
     internal fun createCourse(request: CreateCourseRequest): UUID {
         val newCourseName = request.courseTitle
         val newCourseHash = request.requestHash

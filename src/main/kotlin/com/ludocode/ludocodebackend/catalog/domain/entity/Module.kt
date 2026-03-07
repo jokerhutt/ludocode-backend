@@ -4,10 +4,12 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import org.hibernate.annotations.SQLRestriction
 import java.util.*
 
 @Entity
 @Table(name = "module")
+@SQLRestriction("is_deleted = false")
 class Module(
 
     @Id

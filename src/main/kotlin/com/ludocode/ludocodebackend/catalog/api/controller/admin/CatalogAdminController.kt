@@ -119,6 +119,11 @@ class CatalogAdminController(
         return ResponseEntity.noContent().build()
     }
 
+    @DeleteMapping(ApiPaths.SNAPSHOTS.BY_COURSE)
+    fun deleteCourse(@PathVariable courseId: UUID): ResponseEntity<List<CourseResponse>> {
+        return ResponseEntity.ok(curriculumSnapshotService.deleteCourseReturningList(courseId))
+    }
+
 
     @Operation(
         summary = "Create course",
