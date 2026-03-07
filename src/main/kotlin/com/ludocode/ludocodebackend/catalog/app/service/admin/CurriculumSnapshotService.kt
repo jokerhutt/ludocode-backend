@@ -41,6 +41,7 @@ import java.time.OffsetDateTime
 import java.util.*
 
 @Service
+@Transactional
 class CurriculumSnapshotService(
     private val courseRepository: CourseRepository,
     private val moduleRepository: ModuleRepository,
@@ -65,7 +66,6 @@ class CurriculumSnapshotService(
             CacheEvict(cacheNames = [CacheNames.LESSON_EXERCISES], allEntries = true)
         ]
     )
-    @Transactional
     fun applyCurriculumDiffs(courseId: UUID, snapshot: CurriculumDraftSnapshot): CurriculumDraftSnapshot {
         courseRepository.findById(courseId).orElseThrow()
 
@@ -174,7 +174,6 @@ class CurriculumSnapshotService(
             CacheEvict(cacheNames = [CacheNames.LESSON_EXERCISES], allEntries = true)
         ]
     )
-    @Transactional
     internal fun deleteCourse(courseId: UUID) {
         val courseToDelete = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
         deleteModulesInCourse(courseId)
@@ -199,7 +198,6 @@ class CurriculumSnapshotService(
             CacheEvict(cacheNames = [CacheNames.LESSON_EXERCISES], allEntries = true)
         ]
     )
-    @Transactional
     internal fun createCourse(request: CreateCourseRequest): UUID {
         val newCourseName = request.courseTitle
         val newCourseHash = request.requestHash
