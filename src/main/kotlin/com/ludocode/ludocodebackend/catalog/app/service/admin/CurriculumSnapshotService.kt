@@ -184,6 +184,15 @@ class CurriculumSnapshotService(
         courseToDelete.isDeleted = true
     }
 
+    @Caching(
+        evict = [
+            CacheEvict(cacheNames = [CacheNames.COURSE_TREE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.COURSE_FIRST_MODULE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.COURSE_LIST], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.LESSON_MODULE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.LESSON_EXERCISES], allEntries = true)
+        ]
+    )
     internal fun deleteModulesInCourse(courseId: UUID) {
         val courseModuleIds = moduleRepository.findActiveIdsByCourse(courseId)
         courseModuleIds.forEach { moduleId ->
