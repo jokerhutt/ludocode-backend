@@ -1,17 +1,17 @@
 package com.ludocode.ludocodebackend.catalog.app.mapper
 
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
-import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseSubjectResponse
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
-import com.ludocode.ludocodebackend.tag.domain.entity.Tag
 import com.ludocode.ludocodebackend.commons.mapper.BasicMapper
 import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
+import com.ludocode.ludocodebackend.tag.api.dto.TagMetadata
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 @Component
 class CourseMapper(private val basicMapper: BasicMapper, private val languagesMapper: LanguagesMapper) {
 
-    fun toCourseResponse(course: Course): CourseResponse =
+    fun toCourseResponse(course: Course, tags: List<TagMetadata>): CourseResponse =
         basicMapper.one(course) {
             CourseResponse(
                 id = it.id!!,
@@ -21,21 +21,17 @@ class CourseMapper(private val basicMapper: BasicMapper, private val languagesMa
                 language = it.language?.let { lang ->
                     languagesMapper.toLanguageMetadata(lang)
                 },
+                tags = tags,
                 description = it.description
             )
         }
 
-    fun toCourseResponseList(courses: List<Course>): List<CourseResponse> =
+    fun toCourseResponseList(
+        courses: List<Course>,
+        tagsByCourse: Map<UUID, List<TagMetadata>>
+    ): List<CourseResponse> =
         basicMapper.list(courses) { course ->
-            toCourseResponse(course)
+            toCourseResponse(course, tagsByCourse[course.id] ?: emptyList())
         }
-
-    fun toCourseSubjectResponse(tag: Tag): CourseSubjectResponse {
-        return CourseSubjectResponse(
-            subjectId = tag.id,
-            slug = tag.slug,
-            name = tag.name,
-        )
-    }
 
 }

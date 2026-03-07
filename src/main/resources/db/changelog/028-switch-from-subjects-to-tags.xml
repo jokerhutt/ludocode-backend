@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="028-001-switch-from-subjects-to-tags" author="david">
+
+        <renameTable
+                oldTableName="subjects"
+                newTableName="tag"/>
+
+        <createTable tableName="course_tag">
+
+            <column name="course_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="tag_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <addPrimaryKey
+                tableName="course_tag"
+                columnNames="course_id, tag_id"
+                constraintName="pk_course_tag"/>
+
+        <addForeignKeyConstraint
+                baseTableName="course_tag"
+                baseColumnNames="course_id"
+                referencedTableName="course"
+                referencedColumnNames="id"
+                constraintName="fk_course_tag_course"/>
+
+        <addForeignKeyConstraint
+                baseTableName="course_tag"
+                baseColumnNames="tag_id"
+                referencedTableName="tag"
+                referencedColumnNames="id"
+                constraintName="fk_course_tag_tag"/>
+
+    </changeSet>
+
+</databaseChangeLog>

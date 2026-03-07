@@ -51,7 +51,6 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     PISTON_ID_EXISTS(HttpStatus.BAD_REQUEST, "Piston ID already exists"),
 
     COURSE_EXISTS(HttpStatus.BAD_REQUEST, "This course slug or name already exists, did you already create it?"),
-    SUBJECT_IN_USE(HttpStatus.BAD_REQUEST, "This subject is already in use by other courses"),
 
     TAG_NOT_FOUND(HttpStatus.NOT_FOUND, "Tag not found"),
     DUPLICATE_TAGS(HttpStatus.BAD_REQUEST, "Duplicate tags present"),

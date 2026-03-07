@@ -11,6 +11,7 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.CourseTagRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
 import com.ludocode.ludocodebackend.commons.constants.CacheNames
@@ -28,6 +29,7 @@ import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.LessonExercisesId
 import com.ludocode.ludocodebackend.lesson.infra.repository.*
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
+import com.ludocode.ludocodebackend.tag.api.dto.TagMetadata
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
@@ -49,6 +51,7 @@ class CurriculumSnapshotService(
     private val lessonRepository: LessonRepository,
     private val courseProgressRepository: CourseProgressRepository,
     private val codeLanguagesRepository: CodeLanguagesRepository,
+    private val courseTagRepository: CourseTagRepository,
 ) {
 
     private val logger = LoggerFactory.getLogger(CurriculumSnapshotService::class.java)
@@ -147,7 +150,13 @@ class CurriculumSnapshotService(
 
     internal fun createCourseReturningList(request: CreateCourseRequest): List<CourseResponse> {
         createCourse(request)
-        return courseMapper.toCourseResponseList(courseRepository.findAll())
+        val courseTags = courseTagRepository.getAllCourseTags()
+
+        val tagsByCourse =
+            courseTags.groupBy({ it.courseId }) {
+                TagMetadata(it.id, it.name, it.slug)
+            }
+        return courseMapper.toCourseResponseList(courseRepository.findAll(), tagsByCourse)
     }
 
     @Caching(

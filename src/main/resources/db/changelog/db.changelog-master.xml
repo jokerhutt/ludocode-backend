@@ -14,9 +14,9 @@
     <include file="/db/changelog/007-user-table-trim.xml"/>
     <include file="/db/changelog/008-lesson-completion-submission-id.xml"/>
     <include file="/db/changelog/009-toggled-preferences.xml"/>
-    <include file="/db/changelog/010-tags-languages.xml"/>
+    <include file="/db/changelog/010-subjects-languages.xml"/>
     <include file="/db/changelog/011-enhance-languages.xml"/>
-    <include file="/db/changelog/012-move-language-from-tag-to-course.xml"/>
+    <include file="/db/changelog/012-move-language-from-subject-to-course.xml"/>
     <include file="/db/changelog/013-replace-current-lesson-with-module.xml"/>
     <include file="/db/changelog/014-exercise-option-unique-answer-order.xml"/>
     <include file="/db/changelog/015-subscriptions-and-plans.xml"/>
@@ -31,7 +31,9 @@
     <include file="/db/changelog/024-user-deletion-changes.xml"/>
     <include file="/db/changelog/025-project-entry-file-id.xml"/>
     <include file="/db/changelog/026-add-module-id-fk-course-progress.xml"/>
-    <include file="/db/changelog/027-remove-tag-id-add-course-icon.xml"/>
+    <include file="/db/changelog/027-remove-subject-id-add-course-icon.xml"/>
+    <include file="/db/changelog/028-switch-from-subjects-to-tags.xml"/>
+
 
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>

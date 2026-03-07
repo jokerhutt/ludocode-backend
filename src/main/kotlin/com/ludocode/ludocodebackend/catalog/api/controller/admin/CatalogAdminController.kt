@@ -53,8 +53,8 @@ class CatalogAdminController(
             .body(yaml)
     }
 
-    @PutMapping(ApiPaths.SNAPSHOTS.COURSE_SUBJECT)
-    fun changeSubject(
+    @PutMapping(ApiPaths.SNAPSHOTS.COURSE_TAG)
+    fun changeTag(
         @RequestBody req: ChangeCourseTagsRequest,
         @PathVariable courseId: UUID
     ): ResponseEntity<List<CourseResponse>> {

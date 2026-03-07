@@ -69,9 +69,9 @@ class TagAdminController(
     @SecurityRequirement(name = "sessionAuth")
     @DeleteMapping(ApiPaths.TAGS.BY_TAG)
     fun deleteTag(
-        @PathVariable subjectId: Long
+        @PathVariable tagId: Long
     ): ResponseEntity<List<TagMetadata>> {
-        return ResponseEntity.ok(tagService.deleteTag(subjectId))
+        return ResponseEntity.ok(tagService.deleteTag(tagId))
     }
 
 }

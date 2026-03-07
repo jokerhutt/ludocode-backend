@@ -42,7 +42,6 @@ import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPl
 import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
 import com.ludocode.ludocodebackend.support.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.support.snapshot.ModuleSnap
-import com.ludocode.ludocodebackend.support.snapshot.SubjectSnap
 import com.ludocode.ludocodebackend.user.domain.entity.ExternalAccount
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
@@ -225,7 +224,8 @@ abstract class AbstractIntegrationTest {
           lesson,
           module, 
           course,
-          subjects,
+          tag,
+          course_tag,
           code_languages,
           subscription_plan,
           user_preferences
@@ -611,16 +611,6 @@ abstract class AbstractIntegrationTest {
         )
         val swiftModules = listOf(
             ModuleSnap(moduleId = swMod1Id, title = "Variables", lessons = swMod1Lessons),
-        )
-
-        val pythonSubjectSnap = SubjectSnap(
-            slug = pythonTag.slug,
-            name = pythonTag.name
-        )
-
-        val swiftSubjectSnap = SubjectSnap(
-            slug = swiftTag.slug,
-            name = swiftTag.name
         )
 
         val pythonLanguageMetadata = languagesMapper.toLanguageMetadata(pythonLanguage)

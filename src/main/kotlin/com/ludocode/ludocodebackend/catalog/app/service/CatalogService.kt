@@ -20,6 +20,7 @@ import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
 import com.ludocode.ludocodebackend.lesson.infra.repository.LessonRepository
+import com.ludocode.ludocodebackend.tag.api.dto.TagMetadata
 import com.ludocode.ludocodebackend.tag.infra.repository.TagRepository
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
@@ -59,7 +60,13 @@ class CatalogService(
 
     @Cacheable(CacheNames.COURSE_LIST)
     fun getAllCourses(): List<CourseResponse> {
-        return courseMapper.toCourseResponseList(courseRepository.findAllWithLanguage())
+        val courseTags = courseTagRepository.getAllCourseTags()
+
+        val tagsByCourse =
+            courseTags.groupBy({ it.courseId }) {
+                TagMetadata(it.id, it.name, it.slug)
+            }
+        return courseMapper.toCourseResponseList(courseRepository.findAllWithLanguage(), tagsByCourse)
     }
 
     @Cacheable(CacheNames.COURSE_TREE, key = "#courseId")
