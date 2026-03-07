@@ -22,9 +22,9 @@
         </sql>
     </changeSet>
 
-    <changeSet id="010-02-add-subjects-table" author="dave" dbms="postgresql">
+    <changeSet id="010-02-add-tags-table" author="dave" dbms="postgresql">
         <sql>
-            CREATE TABLE subjects (
+            CREATE TABLE tags (
               id BIGSERIAL PRIMARY KEY,
               slug TEXT NOT NULL,
               name TEXT NOT NULL,
@@ -54,7 +54,7 @@
         </sql>
     </changeSet>
 
-    <changeSet id="010-05-add-course-subject-columns" author="dave" dbms="postgresql">
+    <changeSet id="010-05-add-course-tag-columns" author="dave" dbms="postgresql">
         <sql>
             ALTER TABLE course
                 ADD COLUMN course_type course_type NOT NULL DEFAULT 'COURSE',
@@ -63,7 +63,7 @@
             ALTER TABLE course
                 ADD CONSTRAINT fk_course_subject
                     FOREIGN KEY (subject_id)
-                        REFERENCES subjects(id);
+                        REFERENCES tags(id);
         </sql>
     </changeSet>
 

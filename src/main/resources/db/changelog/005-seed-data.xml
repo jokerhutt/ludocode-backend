@@ -47,9 +47,9 @@
         </sql>
     </changeSet>
 
-    <changeSet id="005-03-01-subjects" author="dave" context="dev" dbms="postgresql">
+    <changeSet id="005-03-01-tags" author="dave" context="dev" dbms="postgresql">
         <sql>
-            INSERT INTO subjects (slug, name)
+            INSERT INTO tags (slug, name)
             VALUES ('python', 'Python')
             ON CONFLICT (slug) DO NOTHING;
         </sql>
@@ -68,7 +68,7 @@
                 'COURSE',
                 s.id,
                 cl.id
-            FROM subjects s
+            FROM tags s
                      JOIN code_languages cl ON cl.slug = 'python'
             WHERE s.slug = 'python'
             ON CONFLICT (id) DO NOTHING;

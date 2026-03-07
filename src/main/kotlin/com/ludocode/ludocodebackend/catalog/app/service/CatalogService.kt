@@ -7,8 +7,11 @@ import com.ludocode.ludocodebackend.catalog.app.mapper.CourseMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.FlatCourseTreeMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.ModuleMapper
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForProgress
+import com.ludocode.ludocodebackend.catalog.domain.entity.CourseTag
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
+import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.CourseTagId
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
+import com.ludocode.ludocodebackend.catalog.infra.repository.CourseTagRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
 import com.ludocode.ludocodebackend.commons.constants.CacheNames
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
@@ -17,6 +20,7 @@ import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
 import com.ludocode.ludocodebackend.lesson.infra.repository.LessonRepository
+import com.ludocode.ludocodebackend.tag.infra.repository.TagRepository
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
@@ -35,6 +39,8 @@ class CatalogService(
     private val lessonRepository: LessonRepository,
     private val flatCourseTreeMapper: FlatCourseTreeMapper,
     private val codeLanguagesRepository: CodeLanguagesRepository,
+    private val tagRepository: TagRepository,
+    private val courseTagRepository: CourseTagRepository,
 ) : CatalogPortForProgress {
 
     private val logger = LoggerFactory.getLogger(CatalogService::class.java)
@@ -71,26 +77,37 @@ class CatalogService(
         return moduleMapper.toModuleResponseList(modules)
     }
 
-//    @Caching(
-//        evict = [
-//            CacheEvict(cacheNames = [CacheNames.COURSE_TREE], allEntries = true),
-//            CacheEvict(cacheNames = [CacheNames.COURSE_FIRST_MODULE], allEntries = true),
-//            CacheEvict(cacheNames = [CacheNames.COURSE_LIST], allEntries = true),
-//            CacheEvict(cacheNames = [CacheNames.LESSON_MODULE], allEntries = true),
-//            CacheEvict(cacheNames = [CacheNames.LESSON_EXERCISES], allEntries = true)
-//        ]
-//    )
-//    @Transactional
-//    fun updateCourseSubject(courseId: UUID, subjectId: Long) {
-//        val currentCourse = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
-//        val chosenSubject = subjectRepository.findById(subjectId).orElseThrow { ApiException(ErrorCode.SUBJECT_NOT_FOUND) }
-//
-//        if (currentCourse.subject.id == chosenSubject.id) {
-//            return
-//        }
-//
-//        currentCourse.subject = chosenSubject
-//    }
+    @Caching(
+        evict = [
+            CacheEvict(cacheNames = [CacheNames.COURSE_TREE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.COURSE_FIRST_MODULE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.COURSE_LIST], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.LESSON_MODULE], allEntries = true),
+            CacheEvict(cacheNames = [CacheNames.LESSON_EXERCISES], allEntries = true)
+        ]
+    )
+    @Transactional
+    fun changeCourseTags(courseId: UUID, tagIds: List<Long>) {
+
+        val course = courseRepository.findById(courseId)
+            .orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
+
+        val tags = tagRepository.findByIdIn(tagIds)
+
+        if (tagIds.size != tagIds.toSet().size) {
+            throw ApiException(ErrorCode.DUPLICATE_TAGS)
+        }
+
+        courseTagRepository.deleteByCourseTagIdCourseId(courseId)
+
+        val newTags = tags.map {
+            CourseTag(
+                CourseTagId(courseId, it.id)
+            )
+        }
+
+        courseTagRepository.saveAll(newTags)
+    }
 
     @Caching(
         evict = [

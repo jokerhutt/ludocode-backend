@@ -6,7 +6,7 @@
           http://www.liquibase.org/xml/ns/dbchangelog
           http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
 
-    <changeSet id="027-001-remove-subject-id-add-course-icon" author="david">
+    <changeSet id="027-001-remove-tag-id-add-course-icon" author="david">
 
         <dropColumn tableName="course" columnName="subject_id"/>
 

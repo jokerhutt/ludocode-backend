@@ -3,7 +3,7 @@ package com.ludocode.ludocodebackend.catalog.app.mapper
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseSubjectResponse
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
-import com.ludocode.ludocodebackend.tag.domain.entity.Subject
+import com.ludocode.ludocodebackend.tag.domain.entity.Tag
 import com.ludocode.ludocodebackend.commons.mapper.BasicMapper
 import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import org.springframework.stereotype.Component
@@ -30,11 +30,11 @@ class CourseMapper(private val basicMapper: BasicMapper, private val languagesMa
             toCourseResponse(course)
         }
 
-    fun toCourseSubjectResponse(subject: Subject): CourseSubjectResponse {
+    fun toCourseSubjectResponse(tag: Tag): CourseSubjectResponse {
         return CourseSubjectResponse(
-            subjectId = subject.id,
-            slug = subject.slug,
-            name = subject.name,
+            subjectId = tag.id,
+            slug = tag.slug,
+            name = tag.name,
         )
     }
 

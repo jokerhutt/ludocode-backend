@@ -12,10 +12,10 @@
             ALTER TABLE course
                 ADD COLUMN code_language_id BIGINT;
 
-            -- 2. Copy existing subject language to course
+            -- 2. Copy existing tag language to course
             UPDATE course c
             SET code_language_id = s.code_language_id
-            FROM subjects s
+            FROM tags s
             WHERE c.subject_id = s.id
               AND s.code_language_id IS NOT NULL;
 
@@ -26,12 +26,12 @@
                         REFERENCES code_languages(id)
                         ON DELETE SET NULL;
 
-            -- 4. Drop FK from subjects to code_languages
-            ALTER TABLE subjects
+            -- 4. Drop FK from tags to code_languages
+            ALTER TABLE tags
                 DROP CONSTRAINT fk_subjects_code_language;
 
-            -- 5. Drop column from subjects
-            ALTER TABLE subjects
+            -- 5. Drop column from tags
+            ALTER TABLE tags
                 DROP COLUMN code_language_id;
         </sql>
     </changeSet>

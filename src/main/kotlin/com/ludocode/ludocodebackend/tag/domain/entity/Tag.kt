@@ -10,12 +10,12 @@ import jakarta.persistence.UniqueConstraint
 
 @Entity
 @Table(
-    name = "subjects",
+    name = "tag",
     uniqueConstraints = [
         UniqueConstraint(columnNames = ["slug"])
     ]
 )
-class Subject(
+class Tag(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
