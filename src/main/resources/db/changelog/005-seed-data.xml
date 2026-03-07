@@ -42,7 +42,20 @@
             INSERT INTO code_languages
             (slug, name, editor_id, piston_id, base, icon_name, extension, initial_script)
             VALUES
-                ('python', 'Python', 'python', 'python', 'script', 'Python', '.py', 'print("Hello, world!")')
+                ('python', 'Python', 'python', 'python', 'script', 'Python', '.py', 'print("Hello, world!")'),
+                ('javascript', 'JavaScript', 'javascript', 'javascript', 'script', 'Javascript', '.js', 'console.log("Hello, world!");'),
+                ('lua', 'Lua', 'lua', 'lua', 'script', 'Lua', '.lua', 'print("Hello, world!")'),
+                ('go', 'Go', 'go', 'go', 'program', 'Golang', '.go', 'package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello, world!")\n}'),
+                ('swift', 'Swift', 'swift', 'swift', 'program', 'Swift', '.swift', 'print("Hello, world!")'),
+                ('typescript', 'TypeScript', 'typescript', 'typescript', 'script', 'Typescript', '.ts', 'console.log("Hello, world!");'),
+                ('rust', 'Rust', 'rust', 'rust', 'program', 'Rust', '.rs', 'fn main() {\n    println!("Hello, world!");\n}'),
+                ('css', 'CSS', 'css', 'css', 'style', 'CSS', '.css', 'body {\n    font-family: sans-serif;\n}'),
+                ('html', 'HTML', 'html', 'html', 'markup', 'HTML', '.html', '&lt;!DOCTYPE html&gt;\n&lt;html&gt;\n&lt;head&gt;\n  &lt;title&gt;Hello&lt;/title&gt;\n&lt;/head&gt;\n&lt;body&gt;\n  Hello, world!\n&lt;/body&gt;\n&lt;/html&gt;'),
+                ('php', 'PHP', 'php', 'php', 'script', 'PHP', '.php', '&lt;?php\necho "Hello, world!";\n?&gt;'),
+                ('kotlin', 'Kotlin', 'kotlin', 'kotlin', 'program', 'Kotlin', '.kt', 'fun main() {\n    println("Hello, world!")\n}'),
+                ('c', 'C', 'c', 'c', 'program', 'C', '.c', '#include &lt;stdio.h&gt;\n\nint main() {\n    printf("Hello, world!\\n");\n    return 0;\n}'),
+                ('cpp', 'C++', 'cpp', 'cpp', 'program', 'CPP', '.cpp', '#include &lt;iostream&gt;\n\nint main() {\n    std::cout &lt;&lt; "Hello, world!" &lt;&lt; std::endl;\n    return 0;\n}'),
+                ('java', 'Java', 'java', 'java', 'program', 'Java', '.java', 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, world!");\n    }\n}')
             ON CONFLICT (slug) DO NOTHING;
         </sql>
     </changeSet>
