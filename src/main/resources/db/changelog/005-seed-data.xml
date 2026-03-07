@@ -91,7 +91,7 @@
                 'COURSE',
                 'Python',
                 true,
-                cl.id,
+                cl.id
             FROM code_languages cl
             WHERE cl.slug = 'python'
             ON CONFLICT (id) DO NOTHING;
