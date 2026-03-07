@@ -5,10 +5,12 @@ import com.ludocode.ludocodebackend.catalog.api.dto.request.VisibilityToggleRequ
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.support.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.support.snapshot.TestSnapshotService
+import io.restassured.response.ValidatableResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
 import java.util.UUID
@@ -39,6 +41,24 @@ class CourseVisibilityIT : AbstractIntegrationTest(){
         assertThat(res.size).isEqualTo(initialCourseCount)
         assertThat(res)
             .noneMatch { it.id == newCourseSnap.courseId }
+    }
+
+    @Test
+    fun makeAllCoursesInvisible_throwsError () {
+
+        val allCourses = submitGetAllCourses()
+        assertThat(allCourses.size).isEqualTo(2)
+
+        val firstCourseThatShouldSucceedId = allCourses[0].id
+        val secondCourseThatShouldFailId = allCourses[1].id
+
+        submitPutToggleCourseVisibility(VisibilityToggleRequest(false), firstCourseThatShouldSucceedId)
+        courseRepository.flush()
+        moduleRepository.flush()
+        moduleLessonsRepository.flush()
+
+        assertPutToggleVisibilityError(VisibilityToggleRequest(false), secondCourseThatShouldFailId, ErrorCode.NO_ALL_COURSES_INVISIBLE)
+
     }
 
 
@@ -82,11 +102,6 @@ class CourseVisibilityIT : AbstractIntegrationTest(){
         assertThat(refreshedCoursesRes)
             .anyMatch { it.id == newCourseSnap.courseId }
 
-
-
-
-
-
     }
 
     fun buildCourseSnapshotByTitle(title: String): CourseSnap {
@@ -105,6 +120,10 @@ class CourseVisibilityIT : AbstractIntegrationTest(){
                 Array<CourseResponse>::class.java
             )
             .toList()
+
+    private fun assertPutToggleVisibilityError(req: VisibilityToggleRequest, courseId: UUID, errorCode: ErrorCode) : ValidatableResponse? {
+        return TestRestClient.assertError("PUT", ApiPaths.SNAPSHOTS.byCourseAdminVisibility(courseId), user1.id!!, req, errorCode)
+    }
 
     private fun submitPutToggleCourseVisibility(req: VisibilityToggleRequest, courseId: UUID): List<CourseResponse> =
         TestRestClient
