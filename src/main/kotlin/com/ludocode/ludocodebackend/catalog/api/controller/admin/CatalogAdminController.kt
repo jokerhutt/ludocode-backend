@@ -1,4 +1,5 @@
 package com.ludocode.ludocodebackend.catalog.api.controller.admin
+import com.ludocode.ludocodebackend.catalog.api.dto.internal.ChangeCourseTagsRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.request.ChangeIconRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.request.ChangeLanguageRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
@@ -52,15 +53,15 @@ class CatalogAdminController(
             .body(yaml)
     }
 
-//    @PutMapping(ApiPaths.SNAPSHOTS.COURSE_SUBJECT)
-//    fun changeSubject(
-//        @RequestBody req: ChangeSubjectRequest,
-//        @PathVariable courseId: UUID
-//    ): ResponseEntity<List<CourseResponse>> {
-//        val subjectId = req.subjectId
-//        catalogService.updateCourseSubject(courseId, subjectId)
-//        return ResponseEntity.ok(catalogService.getAllCourses())
-//    }
+    @PutMapping(ApiPaths.SNAPSHOTS.COURSE_TAG)
+    fun changeTag(
+        @RequestBody req: ChangeCourseTagsRequest,
+        @PathVariable courseId: UUID
+    ): ResponseEntity<List<CourseResponse>> {
+        val tagIds = req.tagIds
+        catalogService.changeCourseTags(courseId, tagIds)
+        return ResponseEntity.ok(catalogService.getAllCourses())
+    }
 
     @PutMapping(ApiPaths.SNAPSHOTS.COURSE_LANGUAGE)
     fun changeLanguage(

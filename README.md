@@ -30,7 +30,7 @@ The project is made so that you can run it without providing any external creden
 ### Learning & Content Management 📚
 - Course, module, lesson, and exercise management
 - Versioned course authoring with diff-based change tracking
-- Dynamic language and subject configuration
+- Dynamic language and tag configuration
 - Lesson submission and completion workflows
 
 ### User Progress & Engagement 🎯
@@ -281,7 +281,7 @@ Handles AI chatbot messages & user credits
 Handles user authentication, and issuing JWT tokens + cookies.
 
 ### Catalog
-Stores and manages all static course content: courses, subjects, modules, lessons. Additionally handles curriculum modifications
+Stores and manages all static course content: courses, tags, modules, lessons. Additionally handles curriculum modifications
 
 ### Features
 Provides endpoints for querying active features (e.g. whether AI, runtimes, etc. are enabled).

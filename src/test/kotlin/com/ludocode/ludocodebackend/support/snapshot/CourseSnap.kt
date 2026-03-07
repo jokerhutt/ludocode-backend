@@ -12,8 +12,3 @@ data class CourseSnap(
     val language: LanguageMetadata?,
     val modules: List<ModuleSnap>
 )
-
-data class SubjectSnap(
-    val slug: String,
-    val name: String,
-)

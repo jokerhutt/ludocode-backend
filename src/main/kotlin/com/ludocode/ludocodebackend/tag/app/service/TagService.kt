@@ -1,10 +1,9 @@
 package com.ludocode.ludocodebackend.tag.app.service
 
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.SubjectMetadata
-import com.ludocode.ludocodebackend.catalog.app.mapper.SubjectMapper
-import com.ludocode.ludocodebackend.tag.domain.entity.Subject
-import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
-import com.ludocode.ludocodebackend.tag.infra.repository.SubjectRepository
+import com.ludocode.ludocodebackend.tag.api.dto.TagMetadata
+import com.ludocode.ludocodebackend.tag.app.mapper.TagMapper
+import com.ludocode.ludocodebackend.tag.domain.entity.Tag
+import com.ludocode.ludocodebackend.tag.infra.repository.TagRepository
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import jakarta.transaction.Transactional
@@ -12,56 +11,52 @@ import org.springframework.stereotype.Service
 
 @Service
 class TagService(
-    private val subjectRepository: SubjectRepository,
-    private val  subjectMapper: SubjectMapper,
-    private val courseRepository: CourseRepository
+    private val tagRepository: TagRepository,
+    private val  tagMapper: TagMapper,
 ) {
 
     @Transactional
-    fun createSubject(req: SubjectMetadata): List<SubjectMetadata> {
+    fun createTag(req: TagMetadata): List<TagMetadata> {
 
-        if (subjectRepository.existsBySlug(req.slug)) {
+        if (tagRepository.existsBySlug(req.slug)) {
             throw ApiException(ErrorCode.SLUG_EXISTS)
         }
 
-        val subject = Subject(
+        val tag = Tag(
             name = req.name,
             slug = req.slug,
         )
 
-        subjectRepository.save(subject)
+        tagRepository.save(tag)
 
-        return getAllSubjects()
+        return getAllTags()
     }
 
-    fun getAllSubjects(): List<SubjectMetadata> {
-        val subjects = subjectRepository.findAll()
-        return subjectMapper.toSubjectMetadataList(subjects)
+    fun getAllTags(): List<TagMetadata> {
+        val tags = tagRepository.findAll()
+        return tagMapper.toTagMetadataList(tags)
     }
-
-//    @Transactional
-//    fun deleteSubject(id: Long): List<SubjectMetadata> {
-//        if (courseRepository.existsBySubjectId(id)) {
-//            throw ApiException(ErrorCode.SUBJECT_IN_USE)
-//        }
-//        val subject = subjectRepository.findById(id).orElseThrow { ApiException(ErrorCode.SUBJECT_NOT_FOUND) }
-//        subjectRepository.delete(subject)
-//        return getAllSubjects()
-//    }
 
     @Transactional
-    fun updateSubject(id: Long, req: SubjectMetadata): List<SubjectMetadata> {
+    fun deleteTag(id: Long): List<TagMetadata> {
+        val tag = tagRepository.findById(id).orElseThrow { ApiException(ErrorCode.TAG_NOT_FOUND) }
+        tagRepository.delete(tag)
+        return getAllTags()
+    }
 
-        if (subjectRepository.existsBySlugAndIdNot(req.slug, id)) {
-            throw ApiException(ErrorCode.SLUG_EXISTS, "This slug already exists on another language")
+    @Transactional
+    fun updateTag(id: Long, req: TagMetadata): List<TagMetadata> {
+
+        if (tagRepository.existsBySlugAndIdNot(req.slug, id)) {
+            throw ApiException(ErrorCode.SLUG_EXISTS, "This slug already exists on another tag")
         }
 
-        val subject = subjectRepository.findById(id).orElseThrow { ApiException(ErrorCode.SUBJECT_NOT_FOUND) }
+        val tag = tagRepository.findById(id).orElseThrow { ApiException(ErrorCode.TAG_NOT_FOUND) }
 
-        subject.slug = req.slug
-        subject.name = req.name
+        tag.slug = req.slug
+        tag.name = req.name
 
-        return getAllSubjects()
+        return getAllTags()
 
     }
 

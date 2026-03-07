@@ -112,7 +112,7 @@ object ApiPaths {
         const val ADMIN_BASE = "$API_PREFIX$ADMIN_PREFIX/snapshots"
         const val COURSE = "/course"
         const val BY_COURSE = "/{courseId}"
-        const val COURSE_SUBJECT = "$BY_COURSE/subject"
+        const val COURSE_TAG = "$BY_COURSE/tag"
         const val COURSE_LANGUAGE = "$BY_COURSE/language"
         const val COURSE_ICON = "$BY_COURSE/icon"
         const val CURRICULUM = "/curriculum"
@@ -124,12 +124,12 @@ object ApiPaths {
         fun byCourseAdmin(courseId: UUID): String = "$ADMIN_BASE/$courseId"
     }
 
-    object SUBJECTS {
-        const val BASE = "$API_PREFIX/subjects"
-        const val ADMIN_BASE = "$API_PREFIX$ADMIN_PREFIX/subjects"
-        const val BY_SUBJECT = "/{subjectId}"
-        fun bySubject(subjectId: Long): String = "$BASE/$subjectId"
-        fun bySubjectAdmin(subjectId: Long): String = "$ADMIN_BASE/$subjectId"
+    object TAGS {
+        const val BASE = "$API_PREFIX/tags"
+        const val ADMIN_BASE = "$API_PREFIX$ADMIN_PREFIX/tags"
+        const val BY_TAG = "/{tagId}"
+        fun bySubject(tagId: Long): String = "$BASE/$tagId"
+        fun byTagAdmin(tagId: Long): String = "$ADMIN_BASE/$tagId"
     }
 
     object PREFERENCES {

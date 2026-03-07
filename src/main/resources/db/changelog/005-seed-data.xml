@@ -47,9 +47,9 @@
         </sql>
     </changeSet>
 
-    <changeSet id="005-03-01-subjects" author="dave" context="dev" dbms="postgresql">
+    <changeSet id="005-03-01-tags" author="dave" context="dev" dbms="postgresql">
         <sql>
-            INSERT INTO subjects (slug, name)
+            INSERT INTO tag (slug, name)
             VALUES ('python', 'Python')
             ON CONFLICT (slug) DO NOTHING;
         </sql>
@@ -58,7 +58,16 @@
     <!-- ===================== COURSE STRUCTURE ===================== -->
     <changeSet id="005-03-course" author="dave" context="dev" dbms="postgresql">
         <sql>
-            INSERT INTO course (id, title, description, img_src, request_hash, course_type, subject_id, code_language_id)
+            INSERT INTO course (
+                id,
+                title,
+                description,
+                img_src,
+                request_hash,
+                course_type,
+                course_icon,
+                code_language_id
+            )
             SELECT
                 '75975805-3f02-43c2-9106-c990d944dfd2',
                 'Python',
@@ -66,11 +75,10 @@
                 NULL,
                 '6873b087-9f85-4f1d-8bc9-04a84e704a29',
                 'COURSE',
-                s.id,
+                'Python',
                 cl.id
-            FROM subjects s
-                     JOIN code_languages cl ON cl.slug = 'python'
-            WHERE s.slug = 'python'
+            FROM code_languages cl
+            WHERE cl.slug = 'python'
             ON CONFLICT (id) DO NOTHING;
         </sql>
     </changeSet>

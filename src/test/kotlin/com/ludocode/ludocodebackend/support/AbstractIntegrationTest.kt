@@ -4,13 +4,13 @@ import com.google.cloud.storage.Storage
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
-import com.ludocode.ludocodebackend.tag.domain.entity.Subject
+import com.ludocode.ludocodebackend.tag.domain.entity.Tag
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
-import com.ludocode.ludocodebackend.tag.infra.repository.SubjectRepository
+import com.ludocode.ludocodebackend.tag.infra.repository.TagRepository
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.config.*
@@ -42,7 +42,6 @@ import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPl
 import com.ludocode.ludocodebackend.subscription.infra.repository.UserSubscriptionRepository
 import com.ludocode.ludocodebackend.support.snapshot.CourseSnap
 import com.ludocode.ludocodebackend.support.snapshot.ModuleSnap
-import com.ludocode.ludocodebackend.support.snapshot.SubjectSnap
 import com.ludocode.ludocodebackend.user.domain.entity.ExternalAccount
 import com.ludocode.ludocodebackend.user.domain.entity.User
 import com.ludocode.ludocodebackend.user.domain.enums.AuthProvider
@@ -82,7 +81,7 @@ abstract class AbstractIntegrationTest {
     private lateinit var languagesMapper: LanguagesMapper
 
     @Autowired
-    private lateinit var subjectRepository: SubjectRepository
+    private lateinit var tagRepository: TagRepository
 
     @Autowired
     private lateinit var codeLanguagesRepository: CodeLanguagesRepository
@@ -121,8 +120,8 @@ abstract class AbstractIntegrationTest {
     lateinit var luaLanguage: CodeLanguages
     lateinit var jsLanguage: CodeLanguages
 
-    lateinit var pythonSubject: Subject
-    lateinit var swiftSubject: Subject
+    lateinit var pythonTag: Tag
+    lateinit var swiftTag: Tag
 
     lateinit var dataPath: CareerPreference
 
@@ -225,7 +224,8 @@ abstract class AbstractIntegrationTest {
           lesson,
           module, 
           course,
-          subjects,
+          tag,
+          course_tag,
           code_languages,
           subscription_plan,
           user_preferences
@@ -425,15 +425,15 @@ abstract class AbstractIntegrationTest {
 
     @Transactional
     fun initializeSubjects() {
-        pythonSubject = subjectRepository.save(
-            Subject(
+        pythonTag = tagRepository.save(
+            Tag(
                 slug = "py",
                 name = "Python",
             )
         )
 
-        swiftSubject = subjectRepository.save(
-            Subject(
+        swiftTag = tagRepository.save(
+            Tag(
                 slug = "swift",
                 name = "swift",
             )
@@ -611,16 +611,6 @@ abstract class AbstractIntegrationTest {
         )
         val swiftModules = listOf(
             ModuleSnap(moduleId = swMod1Id, title = "Variables", lessons = swMod1Lessons),
-        )
-
-        val pythonSubjectSnap = SubjectSnap(
-            slug = pythonSubject.slug,
-            name = pythonSubject.name
-        )
-
-        val swiftSubjectSnap = SubjectSnap(
-            slug = swiftSubject.slug,
-            name = swiftSubject.name
         )
 
         val pythonLanguageMetadata = languagesMapper.toLanguageMetadata(pythonLanguage)

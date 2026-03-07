@@ -57,6 +57,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         )
 
         LessonSubmissionTestUtil.completeLesson(user1.id!!, lessonSnap, currentCourse)
+        lessonCompletionRepository.flush()
 
         val res2 = LessonSubmissionTestUtil.completeLesson(user1.id!!, lessonSnap, currentCourse)
         val content = res2.content!!
@@ -114,6 +115,8 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
 
         submitPostForLessonSubmission(user1.id!!, firstRequest)
 
+        lessonCompletionRepository.flush()
+
         val duplicateRequest = LessonSubmissionRequest(
             submissionId = submissionId,
             lessonId = lessonSnap.id,
@@ -147,6 +150,8 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         lessonCompletionRepository.saveAll(
             CourseProgressTestUtil.pythonProgress(user1.id, currentCourse, pythonLessons)
         )
+
+        lessonCompletionRepository.flush()
 
         val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
         val lessonSnap = pythonSnap.modules[1].lessons[1]

@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.tag.api.controller
 
-import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.SubjectMetadata
+import com.ludocode.ludocodebackend.tag.api.dto.TagMetadata
 import com.ludocode.ludocodebackend.tag.app.service.TagService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import io.swagger.v3.oas.annotations.Operation
@@ -15,23 +15,23 @@ import org.springframework.web.bind.annotation.RestController
     description = "Operations related to course subjects available on the platform"
 )
 @RestController
-@RequestMapping(ApiPaths.SUBJECTS.BASE)
+@RequestMapping(ApiPaths.TAGS.BASE)
 class TagController(
     private val tagService: TagService
 ) {
 
     @Operation(
-        summary = "Get all available subjects",
+        summary = "Get all available tags",
         description = """
-        Returns a list of all course subjects available on the platform.
+        Returns a list of tags available on the platform.
         The returned data can be used to populate subject selectors and to
         organize courses and learning paths by topic.
         Requires an authenticated user session.
         """
     )
     @GetMapping
-    fun getSubjects(): ResponseEntity<List<SubjectMetadata>> {
-        return ResponseEntity.ok(tagService.getAllSubjects())
+    fun getTags(): ResponseEntity<List<TagMetadata>> {
+        return ResponseEntity.ok(tagService.getAllTags())
     }
 
 }
