@@ -79,6 +79,7 @@
                 request_hash,
                 course_type,
                 course_icon,
+                is_visible,
                 code_language_id
             )
             SELECT
@@ -89,6 +90,7 @@
                 '6873b087-9f85-4f1d-8bc9-04a84e704a29',
                 'COURSE',
                 'Python',
+                true,
                 cl.id
             FROM code_languages cl
             WHERE cl.slug = 'python'

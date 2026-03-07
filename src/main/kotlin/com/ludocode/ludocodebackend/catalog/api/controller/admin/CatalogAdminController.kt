@@ -3,6 +3,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.internal.ChangeCourseTagsReq
 import com.ludocode.ludocodebackend.catalog.api.dto.request.ChangeIconRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.request.ChangeLanguageRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
+import com.ludocode.ludocodebackend.catalog.api.dto.request.VisibilityToggleRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlRoot
@@ -105,6 +106,17 @@ class CatalogAdminController(
         return ResponseEntity.noContent().build()
     }
 
+    @PutMapping(ApiPaths.SNAPSHOTS.BY_COURSE_VISIBILITY)
+    fun toggleCourseVisibility(@RequestBody req: VisibilityToggleRequest, @PathVariable courseId: UUID) : ResponseEntity<List<CourseResponse>> {
+        curriculumSnapshotService.toggleVisibility(courseId, req.value)
+        return ResponseEntity.ok(curriculumSnapshotService.getAllCoursesAdminResponseList())
+    }
+
+    @GetMapping(ApiPaths.SNAPSHOTS.COURSES)
+    fun getAllCoursesWithAdminData() : ResponseEntity<List<CourseResponse>> {
+        return ResponseEntity.ok(curriculumSnapshotService.getAllCoursesAdminResponseList())
+    }
+
     @Operation(
         summary = "Create course",
         description = """
@@ -121,9 +133,9 @@ class CatalogAdminController(
 
     @DeleteMapping(ApiPaths.SNAPSHOTS.BY_COURSE)
     fun deleteCourse(@PathVariable courseId: UUID): ResponseEntity<List<CourseResponse>> {
-        return ResponseEntity.ok(curriculumSnapshotService.deleteCourseReturningList(courseId))
+        curriculumSnapshotService.deleteCourse(courseId)
+        return ResponseEntity.ok(curriculumSnapshotService.getAllCoursesAdminResponseList())
     }
-
 
     @Operation(
         summary = "Create course",
@@ -135,7 +147,8 @@ class CatalogAdminController(
     )
     @PostMapping(ApiPaths.SNAPSHOTS.COURSE)
     fun createCourse(@RequestBody request: CreateCourseRequest): ResponseEntity<List<CourseResponse>> {
-        return ResponseEntity.ok(curriculumSnapshotService.createCourseReturningList(request))
+        curriculumSnapshotService.createCourse(request)
+        return ResponseEntity.ok(curriculumSnapshotService.getAllCoursesAdminResponseList())
     }
 
 

@@ -12,5 +12,6 @@ data class CourseResponse(
     val courseIcon: String,
     val language: LanguageMetadata?,
     val tags: List<TagMetadata>,
+    val isVisible: Boolean?,
     val description: String
 )

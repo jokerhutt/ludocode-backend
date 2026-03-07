@@ -22,13 +22,14 @@ class CourseMapper(private val basicMapper: BasicMapper, private val languagesMa
                     languagesMapper.toLanguageMetadata(lang)
                 },
                 tags = tags,
-                description = it.description
+                description = it.description,
+                isVisible = it.isVisible
             )
         }
 
     fun toCourseResponseList(
         courses: List<Course>,
-        tagsByCourse: Map<UUID, List<TagMetadata>>
+        tagsByCourse: Map<UUID, List<TagMetadata>>,
     ): List<CourseResponse> =
         basicMapper.list(courses) { course ->
             toCourseResponse(course, tagsByCourse[course.id] ?: emptyList())

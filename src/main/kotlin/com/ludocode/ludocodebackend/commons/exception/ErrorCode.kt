@@ -18,6 +18,7 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     LESSON_NOT_FOUND_FOR_EXERCISE(HttpStatus.NOT_FOUND, "Lesson not found for given exercise"),
     COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Course not found"),
     NO_LAST_COURSE_DELETE(HttpStatus.BAD_REQUEST, "Can not delete last course"),
+    NO_ALL_COURSES_INVISIBLE(HttpStatus.BAD_REQUEST, "There must be at least one visible course"),
     SYSTEM_PROMPT_MISSING(HttpStatus.BAD_REQUEST, "System prompt missing from metadata"),
 
     ENTRY_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "This project lacks an entry file"),

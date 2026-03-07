@@ -145,15 +145,18 @@ class CurriculumSnapshotService(
 
     @Caching(
         evict = [
-            CacheEvict(cacheNames = [CacheNames.COURSE_TREE], allEntries = true),
-            CacheEvict(cacheNames = [CacheNames.COURSE_FIRST_MODULE], allEntries = true),
             CacheEvict(cacheNames = [CacheNames.COURSE_LIST], allEntries = true),
-            CacheEvict(cacheNames = [CacheNames.LESSON_MODULE], allEntries = true),
-            CacheEvict(cacheNames = [CacheNames.LESSON_EXERCISES], allEntries = true)
         ]
     )
-    internal fun createCourseReturningList(request: CreateCourseRequest): List<CourseResponse> {
-        createCourse(request)
+    @Transactional
+    internal fun toggleVisibility(courseId: UUID, value: Boolean) {
+        val allCourses = courseRepository.findAllWithLanguage()
+        if (allCourses.size <= 1) throw ApiException(ErrorCode.NO_ALL_COURSES_INVISIBLE)
+        val course = courseRepository.findById(courseId).orElseThrow{ApiException(ErrorCode.COURSE_NOT_FOUND)}
+        course.isVisible = value
+    }
+
+    internal fun getAllCoursesAdminResponseList() : List<CourseResponse> {
         val courseTags = courseTagRepository.getAllCourseTags()
 
         val tagsByCourse =
@@ -162,6 +165,7 @@ class CurriculumSnapshotService(
             }
         return courseMapper.toCourseResponseList(courseRepository.findAll(), tagsByCourse)
     }
+
 
     @Caching(
         evict = [
@@ -172,22 +176,9 @@ class CurriculumSnapshotService(
             CacheEvict(cacheNames = [CacheNames.LESSON_EXERCISES], allEntries = true)
         ]
     )
-    internal fun deleteCourseReturningList(courseId: UUID): List<CourseResponse> {
-        val courses = courseRepository.findAll()
-        if (courses.size <= 1) {
-            throw ApiException(ErrorCode.NO_LAST_COURSE_DELETE)
-        }
-        deleteCourse(courseId)
-        val courseTags = courseTagRepository.getAllCourseTags()
-
-        val tagsByCourse =
-            courseTags.groupBy({ it.courseId }) {
-                TagMetadata(it.id, it.name, it.slug)
-            }
-        return courseMapper.toCourseResponseList(courseRepository.findAll(), tagsByCourse)
-    }
-
     internal fun deleteCourse(courseId: UUID) {
+        val allCourses = courseRepository.findAllWithLanguage()
+        if (allCourses.size <= 1) throw ApiException(ErrorCode.NO_LAST_COURSE_DELETE)
         val courseToDelete = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
         deleteModulesInCourse(courseId)
         courseToDelete.isDeleted = true
@@ -237,7 +228,8 @@ class CurriculumSnapshotService(
             courseType = newCourseType,
             language = codeLanguage,
             courseIcon = newCourseIcon,
-            description = newCourseDescription
+            description = newCourseDescription,
+            isVisible = false
         )
 
         courseRepository.save(newCourse)

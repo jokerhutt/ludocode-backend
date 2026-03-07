@@ -34,8 +34,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         userCoinsRepository.save(UserCoins(user1.id!!, 0))
         userStreakRepository.save(UserStreak(userId = user1.id!!))
 
-        val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
-        val lessonSnap = pythonSnap.modules[0].lessons[3]
+
 
         val currentCourse = pythonId
 
@@ -55,6 +54,9 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
                 )
             )
         )
+
+        val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
+        val lessonSnap = pythonSnap.modules[0].lessons[3]
 
         LessonSubmissionTestUtil.completeLesson(user1.id!!, lessonSnap, currentCourse)
         lessonCompletionRepository.flush()
