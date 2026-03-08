@@ -51,6 +51,11 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
         courseIds: List<UUID>
     ): List<CourseProgress>
 
+    fun existsByIdUserIdAndIdCourseId(
+        userId: UUID,
+        courseId: UUID
+    ): Boolean
+
     @Query(
         value = """
         SELECT

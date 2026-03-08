@@ -20,6 +20,7 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     NO_LAST_COURSE_DELETE(HttpStatus.BAD_REQUEST, "Can not delete last course"),
     NO_ALL_COURSES_INVISIBLE(HttpStatus.BAD_REQUEST, "There must be at least one visible course"),
     NO_DELETE_NON_DRAFT_COURSE(HttpStatus.BAD_REQUEST, "You can not delete a non-draft course"),
+    INVALID_ENROLLMENT(HttpStatus.BAD_REQUEST, "You can not enroll in this course"),
     NO_UNDRAFTING_COURSE(HttpStatus.BAD_REQUEST, "You can not un-draft a course"),
     SYSTEM_PROMPT_MISSING(HttpStatus.BAD_REQUEST, "System prompt missing from metadata"),
     NO_ARCHIVING_DRAFT_COURSE(HttpStatus.BAD_REQUEST, "You can not archive a draft course"),
