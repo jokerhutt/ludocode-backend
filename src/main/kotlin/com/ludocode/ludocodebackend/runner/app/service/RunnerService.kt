@@ -21,6 +21,7 @@ class RunnerService(private val pistonOutboundPort: PistonOutboundPort) {
     internal fun runCode(project: ProjectSnapshot): RunnerResult {
 
         val runtime = project.projectLanguage.pistonId
+        val runtimeVersion = project.projectLanguage.runtimeVersion
         val fileNames = project.files.map { it.path }
 
         val orderedFiles =
@@ -33,6 +34,7 @@ class RunnerService(private val pistonOutboundPort: PistonOutboundPort) {
 
         val req = PistonRequest(
             language = runtime,
+            version = runtimeVersion,
             files = orderedFiles.map {
                 PistonFile(name = it.path, content = it.content)
             },

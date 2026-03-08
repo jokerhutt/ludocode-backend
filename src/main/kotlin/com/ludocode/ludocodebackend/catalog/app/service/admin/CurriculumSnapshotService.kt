@@ -151,7 +151,7 @@ class CurriculumSnapshotService(
     @Transactional
     internal fun toggleVisibility(courseId: UUID, value: Boolean) {
         val allCourses = courseRepository.findAllWithLanguage()
-        if (allCourses.size <= 1) throw ApiException(ErrorCode.NO_ALL_COURSES_INVISIBLE)
+        if (value == false && allCourses.size <= 1) throw ApiException(ErrorCode.NO_ALL_COURSES_INVISIBLE)
         val course = courseRepository.findById(courseId).orElseThrow{ApiException(ErrorCode.COURSE_NOT_FOUND)}
         course.isVisible = value
     }

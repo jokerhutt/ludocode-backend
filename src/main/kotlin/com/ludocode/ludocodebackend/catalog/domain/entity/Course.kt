@@ -17,7 +17,7 @@ class Course(
     @Id
     val id: UUID,
 
-    @Column(name = "title", nullable = false, unique = true)
+    @Column(name = "title", nullable = false)
     val title: String,
 
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
