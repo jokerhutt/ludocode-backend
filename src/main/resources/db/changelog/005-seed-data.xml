@@ -55,13 +55,13 @@
                  '5.4.4'),
 
                 ('go', 'Go', 'go', 'go', 'program', 'Golang', '.go',
-                 'package main
+'package main
 
-                 import "fmt"
+import "fmt"
 
-                 func main() {
-                     fmt.Println("Hello, world!")
-                 }',
+func main() {
+    fmt.Println("Hello, world!")
+}',
                  '1.16.2'),
 
                 ('swift', 'Swift', 'swift', 'swift', 'program', 'Swift', '.swift',
@@ -85,53 +85,53 @@
                  '*'),
 
                 ('html', 'HTML', 'html', 'html', 'markup', 'HTML', '.html',
-                 '<!DOCTYPE html>
-                 <html>
-                 <head>
-                   <title>Hello</title>
-                 </head>
-                 <body>
-                   Hello, world!
-                 </body>
-                 </html>',
+'<!DOCTYPE html>
+<html>
+<head>
+<title>Hello</title>
+</head>
+<body>
+Hello, world!
+</body>
+</html>',
                  '*'),
 
                 ('php', 'PHP', 'php', 'php', 'script', 'PHP', '.php',
-                 '<?php
-                 echo "Hello, world!";
-                 ?>',
+'<?php
+ echo "Hello, world!";
+ ?>',
                  '8.2.3'),
 
                 ('kotlin', 'Kotlin', 'kotlin', 'kotlin', 'program', 'Kotlin', '.kt',
-                 'fun main() {
-                     println("Hello, world!")
-                 }',
+'fun main() {
+     println("Hello, world!")
+ }',
                  '1.8.20'),
 
                 ('c', 'C', 'c', 'c', 'program', 'C', '.c',
-                 '#include <stdio.h>
+'#include <stdio.h>
 
-                 int main() {
-                     printf("Hello, world!\n");
-                     return 0;
-                 }',
+ int main() {
+     printf("Hello, world!\n");
+     return 0;
+ }',
                  '10.2.0'),
 
                 ('cpp', 'C++', 'cpp', 'cpp', 'program', 'CPP', '.cpp',
-                 '#include <iostream>
+'#include <iostream>
 
-                 int main() {
-                     std::cout << "Hello, world!" << std::endl;
-                     return 0;
-                 }',
+ int main() {
+     std::cout << "Hello, world!" << std::endl;
+     return 0;
+ }',
                  '10.2.0'),
 
                 ('java', 'Java', 'java', 'java', 'program', 'Java', '.java',
-                 'public class Main {
-                     public static void main(String[] args) {
-                         System.out.println("Hello, world!");
-                     }
-                 }',
+'public class Main {
+     public static void main(String[] args) {
+         System.out.println("Hello, world!");
+     }
+ }',
                  '15.0.2')
 
             ON CONFLICT (slug) DO NOTHING;
