@@ -101,6 +101,7 @@ class LanguagesIT : AbstractIntegrationTest() {
             editorId = "sql",
             base = "db",
             iconName = "Sql",
+            runtimeVersion = "*",
             initialScript = "SELECT * FROM USERS;",
             slug = "sql"
         )
@@ -125,6 +126,7 @@ class LanguagesIT : AbstractIntegrationTest() {
             editorId = "sql",
             base = "db",
             iconName = "Sql",
+            runtimeVersion = "*",
             initialScript = "SELECT * FROM USERS;",
             slug = "sql"
         )

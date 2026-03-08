@@ -36,6 +36,7 @@
     <include file="/db/changelog/029-add-is-deleted-to-course.xml"/>
     <include file="/db/changelog/030-add-is-visible-to-course.xml"/>
     <include file="/db/changelog/031-make-course-title-unique-by-deleted.xml"/>
+    <include file="/db/changelog/032-add-language-runtime-version.xml"/>
 
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>
