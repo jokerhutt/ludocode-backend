@@ -41,6 +41,7 @@ class LanguagesService(
                 editorId = req.editorId,
                 pistonId = req.pistonId,
                 extension = req.extension,
+                runtimeVersion = req.runtimeVersion,
                 base = req.base,
                 iconName = req.iconName,
                 initialScript = req.initialScript
@@ -74,6 +75,7 @@ class LanguagesService(
         language.slug = req.slug
         language.base = req.base
         language.iconName = req.iconName
+        language.runtimeVersion = req.runtimeVersion
         language.extension = req.extension
         language.initialScript = req.initialScript
         language.pistonId = req.pistonId

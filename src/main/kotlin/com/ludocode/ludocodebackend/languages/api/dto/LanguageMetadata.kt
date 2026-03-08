@@ -6,6 +6,7 @@ data class LanguageMetadata(
     val slug: String,
     val editorId: String,
     val pistonId: String,
+    val runtimeVersion: String,
     val extension: String,
     val base: String,
     val iconName: String,

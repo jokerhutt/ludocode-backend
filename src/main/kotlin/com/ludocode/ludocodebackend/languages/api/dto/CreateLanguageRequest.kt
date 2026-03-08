@@ -6,6 +6,7 @@ data class CreateLanguageRequest(
     val editorId: String,
     val pistonId: String,
     val extension: String,
+    val runtimeVersion: String = "*",
     val base: String,
     val iconName: String,
     val initialScript: String

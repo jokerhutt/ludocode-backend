@@ -21,6 +21,9 @@ class CodeLanguages(
     @Column(nullable = false)
     var name: String,
 
+    @Column(name = "runtime_version")
+    var runtimeVersion: String = "*",
+
     @Column(name = "initial_script", nullable = true)
     var initialScript: String = "",
 
