@@ -37,6 +37,7 @@
     <include file="/db/changelog/030-add-is-visible-to-course.xml"/>
     <include file="/db/changelog/031-make-course-title-unique-by-deleted.xml"/>
     <include file="/db/changelog/032-add-language-runtime-version.xml"/>
+    <include file="/db/changelog/033-add-course-status-remove-visibility.xml"/>
 
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="033-001-add-course-status-remove-visibility" author="david">
+        <sql>
+            CREATE TYPE course_status_enum AS ENUM ('DRAFT', 'PUBLISHED', 'ARCHIVED');
+        </sql>
+
+        <addColumn tableName="course">
+            <column name="course_status" type="course_status_enum" defaultValue="DRAFT">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <dropColumn tableName="course" columnName="is_visible"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -23,7 +23,7 @@ class CourseMapper(private val basicMapper: BasicMapper, private val languagesMa
                 },
                 tags = tags,
                 description = it.description,
-                isVisible = it.isVisible
+                courseStatus = it.courseStatus
             )
         }
 

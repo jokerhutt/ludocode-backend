@@ -113,7 +113,7 @@ object ApiPaths {
         const val COURSE = "/course"
         const val COURSES = "/courses"
         const val BY_COURSE = "/{courseId}"
-        const val BY_COURSE_VISIBILITY = "$BY_COURSE/visibility"
+        const val BY_COURSE_STATUS = "$BY_COURSE/visibility"
         const val COURSE_TAG = "$BY_COURSE/tag"
         const val COURSE_LANGUAGE = "$BY_COURSE/language"
         const val COURSE_ICON = "$BY_COURSE/icon"

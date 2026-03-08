@@ -3,7 +3,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.internal.ChangeCourseTagsReq
 import com.ludocode.ludocodebackend.catalog.api.dto.request.ChangeIconRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.request.ChangeLanguageRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
-import com.ludocode.ludocodebackend.catalog.api.dto.request.VisibilityToggleRequest
+import com.ludocode.ludocodebackend.catalog.api.dto.request.CourseStatusRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlRoot
@@ -106,9 +106,9 @@ class CatalogAdminController(
         return ResponseEntity.noContent().build()
     }
 
-    @PutMapping(ApiPaths.SNAPSHOTS.BY_COURSE_VISIBILITY)
-    fun toggleCourseVisibility(@RequestBody req: VisibilityToggleRequest, @PathVariable courseId: UUID) : ResponseEntity<List<CourseResponse>> {
-        curriculumSnapshotService.toggleVisibility(courseId, req.value)
+    @PutMapping(ApiPaths.SNAPSHOTS.BY_COURSE_STATUS)
+    fun toggleCourseVisibility(@RequestBody req: CourseStatusRequest, @PathVariable courseId: UUID) : ResponseEntity<List<CourseResponse>> {
+        curriculumSnapshotService.changeCourseStatus(courseId, req.value)
         return ResponseEntity.ok(curriculumSnapshotService.getAllCoursesAdminResponseList())
     }
 
