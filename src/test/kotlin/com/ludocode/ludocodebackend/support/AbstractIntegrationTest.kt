@@ -625,7 +625,7 @@ abstract class AbstractIntegrationTest {
                 courseIcon = "Star",
                 courseType = CourseType.COURSE,
                 modules = pythonModules,
-                language = swiftLanguageMetadata
+                language = pythonLanguageMetadata
             ),
             CourseSnap(
                 courseId = swiftId,
@@ -633,7 +633,7 @@ abstract class AbstractIntegrationTest {
                 courseIcon = "Star",
                 courseType = CourseType.COURSE,
                 modules = swiftModules,
-                language = pythonLanguageMetadata
+                language = swiftLanguageMetadata
             )
         )
 
