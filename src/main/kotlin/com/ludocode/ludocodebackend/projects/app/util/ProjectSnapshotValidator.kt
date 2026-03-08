@@ -19,16 +19,9 @@ object ProjectSnapshotValidator {
             throw ApiException(ErrorCode.ENTRY_FILE_NOT_FOUND)
 
         incoming.forEach { file ->
-            if (!validateFilePathRegex(file.path)) throw ApiException(ErrorCode.INVALID_FILE_NAME)
             if (file.content.length > 512_000) throw ApiException(ErrorCode.FILE_TOO_LARGE)
         }
 
     }
-
-    private fun validateFilePathRegex(filePath: String): Boolean {
-        val allowed = Regex("""^[\w.-]+\.(py|swift|js|css|html|lua)$""")
-        return filePath.matches(allowed)
-    }
-
 
 }
