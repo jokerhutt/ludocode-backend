@@ -7,6 +7,7 @@ import com.ludocode.ludocodebackend.catalog.app.mapper.CourseMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.FlatCourseTreeMapper
 import com.ludocode.ludocodebackend.catalog.app.mapper.ModuleMapper
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForProgress
+import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.CourseTag
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.CourseTagId
@@ -82,6 +83,10 @@ class CatalogService(
     internal fun getModulesByIds(moduleIds: List<UUID>): List<ModuleResponse> {
         val modules: List<Module> = moduleRepository.findAllByIdIn(moduleIds)
         return moduleMapper.toModuleResponseList(modules)
+    }
+
+    override fun findCourseById(courseId: UUID): Course {
+        return courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
     }
 
     @Caching(

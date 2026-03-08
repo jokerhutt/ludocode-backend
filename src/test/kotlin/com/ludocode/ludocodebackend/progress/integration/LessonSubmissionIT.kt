@@ -34,8 +34,6 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         userCoinsRepository.save(UserCoins(user1.id!!, 0))
         userStreakRepository.save(UserStreak(userId = user1.id!!))
 
-
-
         val currentCourse = pythonId
 
         courseProgressRepository.saveAll(
@@ -159,6 +157,7 @@ class LessonSubmissionIT : AbstractIntegrationTest() {
         val lessonSnap = pythonSnap.modules[1].lessons[1]
 
         val response = LessonSubmissionTestUtil.completeLesson(user1.id!!, lessonSnap, currentCourse)
+        lessonCompletionRepository.flush()
         val content = response.content!!
 
         assertThat(response.status).isEqualTo(LessonCompletionStatus.COURSE_COMPLETE)

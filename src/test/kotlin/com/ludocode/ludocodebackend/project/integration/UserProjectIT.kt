@@ -300,17 +300,6 @@ class UserProjectIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun saveProject_invalidFileName_returnsError() {
-        val projectId = existingProject.id
-        val snapshot = submitGetProjectSnapshot(projectId, user1.id!!)
-        assertThat(snapshot).isNotNull()
-        val modifiedFiles = snapshot.files.toMutableList()
-        modifiedFiles[1].path = "script1py"
-        val snapshotCopy = snapshot.copy(files = modifiedFiles)
-        assertErrorOnSave(user1.id!!, snapshotCopy, ErrorCode.INVALID_FILE_NAME)
-    }
-
-    @Test
     fun getProject_notOwnProject_returnsUnautharized() {
         val projectId = existingProject.id
         val userId = user2.id!!

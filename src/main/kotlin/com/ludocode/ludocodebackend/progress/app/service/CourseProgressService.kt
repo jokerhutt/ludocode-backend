@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.progress.app.service
 
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForProgress
+import com.ludocode.ludocodebackend.catalog.domain.enums.CourseStatus
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.progress.api.dto.internal.CourseProgressWithCompletion
@@ -29,6 +30,21 @@ class CourseProgressService(
 
     @Transactional
     override fun findOrCreate(userId: UUID, courseId: UUID): CourseProgressResponseWithEnrolled {
+
+        val course = catalogPortForProgress.findCourseById(courseId)
+
+        if (course.courseStatus != CourseStatus.PUBLISHED) {
+            if (course.courseStatus == CourseStatus.DRAFT) {
+                throw ApiException(ErrorCode.INVALID_ENROLLMENT, "You can not enroll in a draft course")
+            } else if (course.courseStatus == CourseStatus.ARCHIVED) {
+                if (!courseProgressRepository.existsByIdUserIdAndIdCourseId(userId, courseId)) {
+                    throw ApiException(ErrorCode.INVALID_ENROLLMENT, "You can not enroll in an archived course")
+                }
+            } else {
+                throw ApiException(ErrorCode.INVALID_ENROLLMENT)
+            }
+        }
+
         val firstModuleOfCourse = catalogPortForProgress.findFirstModuleIdInCourse(courseId)
         courseProgressRepository.upsert(userId, courseId, firstModuleOfCourse, OffsetDateTime.now(clock))
         val userCourseProgress = courseProgressRepository.findById(CourseProgressId(userId, courseId)).orElseThrow {

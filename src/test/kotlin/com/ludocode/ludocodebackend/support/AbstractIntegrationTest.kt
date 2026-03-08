@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
 import com.ludocode.ludocodebackend.tag.domain.entity.Tag
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
+import com.ludocode.ludocodebackend.catalog.domain.enums.CourseStatus
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
@@ -259,7 +260,8 @@ abstract class AbstractIntegrationTest {
                     courseType = cs.courseType,
                     courseIcon = "STAR",
                     language = language,
-                    description = "cool course"
+                    description = "cool course",
+                    courseStatus = CourseStatus.PUBLISHED
                 )
             )
 
@@ -623,7 +625,7 @@ abstract class AbstractIntegrationTest {
                 courseIcon = "Star",
                 courseType = CourseType.COURSE,
                 modules = pythonModules,
-                language = swiftLanguageMetadata
+                language = pythonLanguageMetadata
             ),
             CourseSnap(
                 courseId = swiftId,
@@ -631,7 +633,7 @@ abstract class AbstractIntegrationTest {
                 courseIcon = "Star",
                 courseType = CourseType.COURSE,
                 modules = swiftModules,
-                language = pythonLanguageMetadata
+                language = swiftLanguageMetadata
             )
         )
 

@@ -10,6 +10,7 @@ import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
 import com.ludocode.ludocodebackend.catalog.domain.entity.embeddable.ModuleLessonsId
+import com.ludocode.ludocodebackend.catalog.domain.enums.CourseStatus
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseTagRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
@@ -149,11 +150,25 @@ class CurriculumSnapshotService(
         ]
     )
     @Transactional
-    internal fun toggleVisibility(courseId: UUID, value: Boolean) {
-        val allCourses = courseRepository.findAllWithLanguage()
-        if (value == false && allCourses.size <= 1) throw ApiException(ErrorCode.NO_ALL_COURSES_INVISIBLE)
-        val course = courseRepository.findById(courseId).orElseThrow{ApiException(ErrorCode.COURSE_NOT_FOUND)}
-        course.isVisible = value
+    internal fun changeCourseStatus(courseId: UUID, value: CourseStatus) {
+
+        val course = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
+        if (course.courseStatus == value) return
+
+        when (value) {
+            CourseStatus.DRAFT -> throw ApiException(ErrorCode.NO_UNDRAFTING_COURSE)
+            CourseStatus.PUBLISHED -> { course.courseStatus = value}
+            CourseStatus.ARCHIVED -> {
+                if (course.courseStatus == CourseStatus.DRAFT) {
+                    throw ApiException(ErrorCode.NO_ARCHIVING_DRAFT_COURSE)
+                }
+                val publishedCourseCount = courseRepository.countByCourseStatusAndIsDeletedFalse(CourseStatus.PUBLISHED)
+                if (course.courseStatus == CourseStatus.PUBLISHED && publishedCourseCount <= 1) {
+                    throw ApiException(ErrorCode.NO_ALL_COURSES_INVISIBLE)
+                }
+                course.courseStatus = value
+            }
+        }
     }
 
     internal fun getAllCoursesAdminResponseList() : List<CourseResponse> {
@@ -177,10 +192,15 @@ class CurriculumSnapshotService(
         ]
     )
     internal fun deleteCourse(courseId: UUID) {
-        val allCourses = courseRepository.findAllWithLanguage()
-        if (allCourses.size <= 1) throw ApiException(ErrorCode.NO_LAST_COURSE_DELETE)
         val courseToDelete = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
+
+        if (courseToDelete.courseStatus != CourseStatus.DRAFT) {
+            throw ApiException(ErrorCode.NO_DELETE_NON_DRAFT_COURSE)
+        }
+
         deleteModulesInCourse(courseId)
+
+        //TODO maybe just delete directly?
         courseToDelete.isDeleted = true
     }
 
@@ -229,7 +249,7 @@ class CurriculumSnapshotService(
             language = codeLanguage,
             courseIcon = newCourseIcon,
             description = newCourseDescription,
-            isVisible = false
+            courseStatus = CourseStatus.DRAFT
         )
 
         courseRepository.save(newCourse)

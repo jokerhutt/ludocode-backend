@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.domain.entity
 
+import com.ludocode.ludocodebackend.catalog.domain.enums.CourseStatus
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
 import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import jakarta.persistence.*
@@ -27,8 +28,9 @@ class Course(
     @Column(name = "description")
     val description: String,
 
-    @Column(name = "is_visible")
-    var isVisible: Boolean = true,
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "course_status")
+    var courseStatus: CourseStatus,
 
     @Column(name = "is_deleted")
     var isDeleted: Boolean = false,
