@@ -373,3 +373,11 @@ Handles tags that can be attached to courses
 
 ### User
 Manages user creation, retrieval, updates, & deletion.
+
+## Naming & Trademark
+
+"Ludocode" is a trademark of the Ludocode project.
+
+The source code in this repository is open source and can be used, modified, and even commercialized.
+
+If you build a commercial product or hosted service based on this project, please use a different name and branding so it is not confused with the official Ludocode project.
