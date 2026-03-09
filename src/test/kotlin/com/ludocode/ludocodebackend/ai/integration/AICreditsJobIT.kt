@@ -65,7 +65,6 @@ class AICreditsJobIT : AbstractIntegrationTest() {
         val subscriptionRes = submitGetSubscription(user1.id)
         val expected = OffsetDateTime
             .of(2025, 2, 1, 0, 0, 0, 0, ZoneOffset.UTC)
-            .toEpochSecond()
 
         assertThat(subscriptionRes.currentPeriodEnd)
             .isEqualTo(expected)

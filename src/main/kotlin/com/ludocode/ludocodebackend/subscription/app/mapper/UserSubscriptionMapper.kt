@@ -47,7 +47,7 @@ class UserSubscriptionMapper (
             planCode = planCode,
             monthlyCreditAllowance = planDefinitions.limits.monthlyAiCredits,
             maxProjects = planDefinitions.limits.maxProjects,
-            currentPeriodEnd = currentPeriodEnd.toEpochSecond(),
+            currentPeriodEnd = currentPeriodEnd,
             cancelAtPeriodEnd = cancelAtPeriodEnd
         )
     }

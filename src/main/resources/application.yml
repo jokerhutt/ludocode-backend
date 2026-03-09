@@ -1,6 +1,10 @@
 spring:
   application:
     name: ludocode-backend
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
   datasource:
     url: ${DB_URL}
     username: ${DB_USER}
