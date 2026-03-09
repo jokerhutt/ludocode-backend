@@ -101,6 +101,8 @@ These integrations are optional. If not configured, local storage is used by def
 
 ## Project Setup
 
+Below are setup instructions for running the backend locally and enabling features. I recommend you use the web docs, as they also cover the frontend setup. https://ludocode.dev/resources/docs
+
 ### Simple Setup
 
 If you are only interested in running the project locally, I have provided a setup that creates a local PostgreSQL instance with the schema & pre-seeded with a demo user / course. With this, you'll have access to all features except AI and Google authentication.
@@ -128,9 +130,7 @@ docker compose -f docker-compose.ludocode.yml build ludocode-backend
 docker compose -f docker-compose.ludocode.yml up -d ludocode-backend
 ```
 
-After you have your Postgres & Application containers running, you will have a pre-seeded demo user & lessons. On the frontend, simply visit `your-frontend-url/demo` to bypass the google authentication stage.
-
-For example, `http://localhost:5173/demo`
+After you have your Postgres & Application containers running, you will have a pre-seeded demo user & lessons. On the frontend, simply visit `your-frontend-url` and you will be automatically authenticated as a demo user.
 
 ---
 
@@ -143,9 +143,58 @@ To enable AI features, you need a Gemini API Key & enable the feature in the env
 
 ---
 
+### Enabling Code Execution
+
+Code execution uses the Piston API. Below are the setup instructions. You can also look at the Piston repo if you have issues with setup https://github.com/engineer-man/piston
+
+1. Ensure you have a Linux environment, Docker, Node JS 15 or later, cgroup v2 enabled, and cgroup v1 disabled
+2. Clone the piston repo
+```
+# clone and enter repo
+
+git clone https://github.com/engineer-man/piston
+```
+3. Start the API container & install the CLI
+```
+# Start the API container
+
+docker-compose up -d api
+
+# Install all the dependencies for the cli
+
+cd cli && npm i && cd -
+```
+4. Install the runtimes you want (with Python example)
+```
+# List all available packages
+
+cli/index.js ppman list
+
+# Install latest python
+
+cli/index.js ppman install python
+
+# Install specific version of python
+
+cli/index.js ppman install python=3.9.4
+```
+5. Set the Piston URL on the backend & enable Piston
+```
+# Set the URL
+
+PISTON_BASE=http://localhost:2000/api/v2
+
+# Enable Piston Runtime
+
+PISTON_ENABLED=true
+```
+
+
+---
+
 ### Setting up Firebase (Optional)
 
-If not configured, Firebase authentication will be disabled and you must use demo authentication.
+If not configured, Firebase authentication will be disabled and your app will be in demo mode (1 user for the app)
 
 ---
 
@@ -204,7 +253,7 @@ These must match your frontend configuration.
 #### 4. Generate a Service Account Key (Backend)
 
 1. Go to **Project Settings → Service Accounts**
-2. Click **Generate new private key**
+2. Click **Generate new private key** (choose the java one)
 3. Download the JSON file
 
 ---
@@ -214,10 +263,11 @@ These must match your frontend configuration.
 Set:
 
 ```
+FIREBASE_ENABLED=true
 FIREBASE_SERVICE_ACCOUNT_JSON={...full service account JSON...}
 ```
 
-The value must contain the entire contents of the downloaded JSON file.
+The account json value must contain the entire contents of the downloaded JSON file.
 
 When using Docker or `.env`, ensure it is either:
 
@@ -231,7 +281,13 @@ If omitted or invalid, Firebase authentication will be disabled.
 ### Setting up Tests
 - The test suite uses **Test containers**. Ensure Docker is installed and running before executing tests. (Ensure Docker Desktop on MacOS / Windows)
 - All containers (Postgres, etc.) will be started automatically during the test run.
-- The tests use a PostgreSQL schema found in `/test/kotlin/resources/schema.sql`.
+- Tests use a liquibase seed schema for initial data (e.g. an initial course structure)
+- Make sure you have your docker engine running & Java 17
+- Run:
+```
+export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+mvn test
+```
 
 ---
 
