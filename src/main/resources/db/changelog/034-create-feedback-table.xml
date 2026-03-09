@@ -11,7 +11,6 @@
             CREATE TYPE feedback_type AS ENUM (
             'GENERAL',
             'EXERCISE',
-            'LESSON',
             'PROJECT'
         );
         </sql>
