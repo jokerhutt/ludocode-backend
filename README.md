@@ -31,6 +31,7 @@ The project is made so that you can run it without providing any external creden
 - Course, module, lesson, and exercise management
 - Versioned course authoring with diff-based change tracking
 - Dynamic language and tag configuration
+- YAML imports and exports of courses
 - Lesson submission and completion workflows
 
 ### User Progress & Engagement 🎯
@@ -282,11 +283,10 @@ If omitted or invalid, Firebase authentication will be disabled.
 - The test suite uses **Test containers**. Ensure Docker is installed and running before executing tests. (Ensure Docker Desktop on MacOS / Windows)
 - All containers (Postgres, etc.) will be started automatically during the test run.
 - Tests use a liquibase seed schema for initial data (e.g. an initial course structure)
-- Make sure you have your docker engine running & Java 17
-- Run:
+- Make sure you have your docker engine running & Java 21
+- Run the tests:
 ```
-export JAVA_HOME=$(/usr/libexec/java_home -v 17)
-mvn test
+./mvnw clean test -Dapi.version=1.44 -Dtest='*IT'
 ```
 
 ---
@@ -348,7 +348,7 @@ Stores and manages languages for runtimes & courses. Additionally handles langua
 ### Lesson
 Stores and manages lessons and exercises. Additionally handles exercise modifications.
 
-### Playground
+### Projects
 Manages user code projects and their files, saves snapshots, and executes code submissions via the Piston runtime client.
 
 ### Preferences
@@ -367,6 +367,9 @@ Handles all interactions with blob stoage: uploading, fetching, and managing sto
 
 ### Subscription
 Manages user subscriptions & stripe webhooks
+
+### Tag
+Handles tags that can be attached to courses
 
 ### User
 Manages user creation, retrieval, updates, & deletion.
