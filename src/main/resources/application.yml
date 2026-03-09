@@ -4,7 +4,7 @@ spring:
 
   jackson:
     serialization:
-      write-dates-as-timestamps: false
+      write-dates-as-timestamps: true
   datasource:
     url: ${DB_URL}
     username: ${DB_USER}
