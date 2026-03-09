@@ -120,7 +120,18 @@ object TestRestClient {
             .statusCode(204)
     }
 
-    fun postNoContent(
+    fun postNoContent(path: String, userId: UUID, body: Any) {
+        given()
+            .header("X-Test-User-Id", userId)
+            .contentType(ContentType.JSON)
+            .body(body)
+            .`when`()
+            .post(path)
+            .then()
+            .statusCode(204)
+    }
+
+    fun postNoContentYaml(
         url: String,
         userId: UUID,
         body: Any? = null

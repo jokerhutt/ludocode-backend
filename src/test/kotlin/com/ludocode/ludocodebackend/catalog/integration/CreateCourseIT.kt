@@ -137,7 +137,7 @@ ___("Hello world")
             .toList()
 
     private fun submitPostCreateCourseWithYaml(req: CurriculumYamlRoot) {
-        TestRestClient.postNoContent(
+        TestRestClient.postNoContentYaml(
             "${ApiPaths.SNAPSHOTS.ADMIN_BASE}${ApiPaths.SNAPSHOTS.COURSE}?mode=yaml",
             user1.id,
             req,
