@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="034-001-create-feedback-table" author="david">
+        <sql>
+            CREATE TYPE feedback_type AS ENUM (
+            'GENERAL',
+            'EXERCISE',
+            'PROJECT'
+        );
+        </sql>
+
+        <createTable tableName="feedback">
+
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="content" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="feedback_type" type="feedback_type">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="entity_id" type="UUID"/>
+
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

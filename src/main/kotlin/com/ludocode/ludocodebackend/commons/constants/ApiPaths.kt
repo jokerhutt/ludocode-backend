@@ -30,6 +30,10 @@ object ApiPaths {
         const val MANAGE = "/manage"
     }
 
+    object FEEDBACK {
+        const val BASE = "$API_PREFIX/feedback"
+    }
+
     object CATALOG {
         const val BASE = "$API_PREFIX/catalog"
         const val COURSES = "/courses"
