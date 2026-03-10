@@ -75,14 +75,6 @@ class CourseProgressService(
     }
 
     @Transactional
-    fun resetUserModuleIdInCourses(courseProgressList: List<CourseProgress>) {
-        courseProgressList.forEach {
-            val firstModuleId = catalogPortForProgress.findFirstModuleIdInCourse(it.id.courseId)
-            it.currentModuleId = firstModuleId
-        }
-    }
-
-    @Transactional
     internal fun resetUserCourseProgress(userId: UUID, courseId: UUID): CourseProgressResponse {
         lessonCompletionRepository.deleteLessonCompletionsForUserAndCourse(userId, courseId)
         val firstModuleIdInCourse = catalogPortForProgress.findFirstModuleIdInCourse(courseId)
@@ -142,17 +134,19 @@ class CourseProgressService(
         return courseProgressRepository.findCurrentCourseIdForUser(userId)
     }
 
+    @Transactional
     internal fun findCourseProgressList(courseIds: List<UUID>, userId: UUID): List<CourseProgressResponse> {
 
         val courseProgressList =
             courseProgressRepository.findByIdUserIdAndIdCourseIdIn(userId, courseIds)
 
-        val progressWithNullModuleIds =
-            courseProgressList.filter { it.currentModuleId == null }
-
-        if (progressWithNullModuleIds.isNotEmpty()) {
-            resetUserModuleIdInCourses(progressWithNullModuleIds)
-        }
+        courseProgressList
+            .filter { it.currentModuleId == null }
+            .forEach {
+                val firstModuleId =
+                    catalogPortForProgress.findFirstModuleIdInCourse(it.id.courseId)
+                it.currentModuleId = firstModuleId
+            }
 
         return courseProgressMapper.toCourseProgressResponseList(courseProgressList)
     }
