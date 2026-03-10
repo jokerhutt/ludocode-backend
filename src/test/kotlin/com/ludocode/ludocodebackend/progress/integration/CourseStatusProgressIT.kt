@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.progress.integration
 
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CourseStatusRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
+import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseStatus
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
@@ -16,6 +17,7 @@ import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.support.snapshot.TestSnapshotService
+import com.ludocode.ludocodebackend.support.util.CatalogChangeTestUtil
 import com.ludocode.ludocodebackend.support.util.LessonSubmissionTestUtil
 import com.ludocode.ludocodebackend.user.api.dto.request.ChangeCourseRequest
 import org.assertj.core.api.Assertions.assertThat
@@ -95,6 +97,52 @@ class CourseStatusProgressIT : AbstractIntegrationTest() {
         assertThat(submissionResult.content!!.updatedCompletedLesson.isCompleted).isTrue()
     }
 
+    @Test
+    fun curriculumChange_removesUsersCurrentModule_moduleIdResetsToFirstModuleOfCourse() {
+        // User is enrolled in python and currently on the second module
+        courseProgressRepository.save(
+            CourseProgress(
+                id = CourseProgressId(user1.id!!, pythonId),
+                currentModuleId = pyMod2Id,
+                createdAt = OffsetDateTime.now(clock),
+                updatedAt = OffsetDateTime.now(clock)
+            )
+        )
+        courseProgressRepository.flush()
+
+        // Verify the user is currently on pyMod2Id before the change
+        val progressBefore = submitGetCourseProgressList(user1.id!!, listOf(pythonId))
+        assertThat(progressBefore).hasSize(1)
+        assertThat(progressBefore[0].moduleId).isEqualTo(pyMod2Id)
+
+        // Build a brand-new curriculum that replaces ALL existing modules with one new module
+        val newModule = CatalogChangeTestUtil.createModule(
+            "Replacement Module",
+            "Replacement Lesson One",
+            "Replacement Lesson Two"
+        )
+        val newCurriculum = CurriculumDraftSnapshot(modules = mutableListOf(newModule))
+        val updatedCurriculum = submitPutUpdateCurriculum(newCurriculum, pythonId)
+
+        // The first (and only) module in the returned curriculum is the new module
+        val newFirstModuleId = updatedCurriculum.modules[0].id
+
+        // After the curriculum change, the controller calls resetAllModuleIdsInCourse,
+        // which should have reset the user's currentModuleId to the new first module
+        val progressAfter = submitGetCourseProgressList(user1.id!!, listOf(pythonId))
+        assertThat(progressAfter).hasSize(1)
+        assertThat(progressAfter[0].courseId).isEqualTo(pythonId)
+        assertThat(progressAfter[0].moduleId).isEqualTo(newFirstModuleId)
+    }
+
+    private fun submitPutUpdateCurriculum(req: CurriculumDraftSnapshot, courseId: UUID): CurriculumDraftSnapshot =
+        TestRestClient.putOk(
+            ApiPaths.SNAPSHOTS.byCourseCurriculumAdmin(courseId),
+            user1.id!!,
+            req,
+            CurriculumDraftSnapshot::class.java
+        )
+
     private fun submitChangeCourse(userId: UUID, courseId: UUID): CourseProgressResponseWithEnrolled =
         TestRestClient.putOk(
             "${ApiPaths.PROGRESS.COURSES.BASE}${ApiPaths.PROGRESS.COURSES.CURRENT}",
@@ -129,4 +177,3 @@ class CourseStatusProgressIT : AbstractIntegrationTest() {
             mapOf("courseIds" to courseIds)
         ).toList()
 }
-
