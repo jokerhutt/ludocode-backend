@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.progress.app.service
 
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForProgress
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseStatus
+import com.ludocode.ludocodebackend.commons.constants.CacheNames
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.progress.api.dto.internal.CourseProgressWithCompletion
@@ -10,10 +11,13 @@ import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResp
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressStats
 import com.ludocode.ludocodebackend.progress.app.mapper.CourseProgressMapper
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
+import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
 import jakarta.transaction.Transactional
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Caching
 import org.springframework.stereotype.Service
 import java.time.Clock
 import java.time.OffsetDateTime
@@ -61,6 +65,13 @@ class CourseProgressService(
 
     override fun existsAnyByUserId(userId: UUID): Boolean {
         return courseProgressRepository.existsByUser(userId)
+    }
+
+    @Transactional
+    fun resetAllModuleIdsInCourse(courseId: UUID) {
+        val firstModuleId = catalogPortForProgress.findFirstModuleIdInCourse(courseId)
+        val allCourseProgressInCourse = courseProgressRepository.findByIdCourseId(courseId)
+        allCourseProgressInCourse.forEach { it -> it.currentModuleId = firstModuleId }
     }
 
     @Transactional
@@ -123,13 +134,21 @@ class CourseProgressService(
         return courseProgressRepository.findCurrentCourseIdForUser(userId)
     }
 
+    @Transactional
     internal fun findCourseProgressList(courseIds: List<UUID>, userId: UUID): List<CourseProgressResponse> {
-        return courseProgressMapper.toCourseProgressResponseList(
-            courseProgressRepository.findByIdUserIdAndIdCourseIdIn(
-                userId,
-                courseIds
-            )
-        )
+
+        val courseProgressList =
+            courseProgressRepository.findByIdUserIdAndIdCourseIdIn(userId, courseIds)
+
+        courseProgressList
+            .filter { it.currentModuleId == null }
+            .forEach {
+                val firstModuleId =
+                    catalogPortForProgress.findFirstModuleIdInCourse(it.id.courseId)
+                it.currentModuleId = firstModuleId
+            }
+
+        return courseProgressMapper.toCourseProgressResponseList(courseProgressList)
     }
 
     private fun findCourseProgress(userId: UUID, courseId: UUID): CourseProgressResponse {
