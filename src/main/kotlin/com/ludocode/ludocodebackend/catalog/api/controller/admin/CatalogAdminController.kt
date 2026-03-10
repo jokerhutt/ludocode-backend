@@ -11,6 +11,7 @@ import com.ludocode.ludocodebackend.catalog.app.service.CatalogService
 import com.ludocode.ludocodebackend.catalog.app.service.admin.CurriculumSnapshotService
 import com.ludocode.ludocodebackend.catalog.app.service.admin.CurriculumYamlService
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.progress.app.service.CourseProgressService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.context.annotation.Profile
@@ -29,7 +30,8 @@ import java.util.*
 class CatalogAdminController(
     private val curriculumSnapshotService: CurriculumSnapshotService,
     private val catalogService: CatalogService,
-    private val curriculumYamlService: CurriculumYamlService
+    private val curriculumYamlService: CurriculumYamlService,
+    private val courseProgressService: CourseProgressService
 ) {
 
     @GetMapping(ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM, params = ["mode!=yaml"])
@@ -89,9 +91,9 @@ class CatalogAdminController(
         @RequestBody snapshot: CurriculumDraftSnapshot,
         @PathVariable courseId: UUID
     ): ResponseEntity<CurriculumDraftSnapshot> {
-        return ResponseEntity.ok(
-            curriculumSnapshotService.applyCurriculumDiffs(courseId, snapshot)
-        )
+        val res = curriculumSnapshotService.applyCurriculumDiffs(courseId, snapshot)
+        courseProgressService.resetAllModuleIdsInCourse(courseId)
+        return ResponseEntity.ok(res)
     }
 
     @PutMapping(
@@ -103,6 +105,7 @@ class CatalogAdminController(
         @PathVariable courseId: UUID
     ): ResponseEntity<Void> {
         curriculumYamlService.importYaml(courseId, yaml)
+        courseProgressService.resetAllModuleIdsInCourse(courseId)
         return ResponseEntity.noContent().build()
     }
 

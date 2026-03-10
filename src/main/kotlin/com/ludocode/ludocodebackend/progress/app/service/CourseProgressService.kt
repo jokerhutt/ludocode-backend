@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.progress.app.service
 
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForProgress
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseStatus
+import com.ludocode.ludocodebackend.commons.constants.CacheNames
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.progress.api.dto.internal.CourseProgressWithCompletion
@@ -14,6 +15,8 @@ import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgre
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
 import jakarta.transaction.Transactional
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Caching
 import org.springframework.stereotype.Service
 import java.time.Clock
 import java.time.OffsetDateTime
@@ -61,6 +64,13 @@ class CourseProgressService(
 
     override fun existsAnyByUserId(userId: UUID): Boolean {
         return courseProgressRepository.existsByUser(userId)
+    }
+
+    @Transactional
+    fun resetAllModuleIdsInCourse(courseId: UUID) {
+        val firstModuleId = catalogPortForProgress.findFirstModuleIdInCourse(courseId)
+        val allCourseProgressInCourse = courseProgressRepository.findByIdCourseId(courseId)
+        allCourseProgressInCourse.forEach { it -> it.currentModuleId = firstModuleId }
     }
 
     @Transactional

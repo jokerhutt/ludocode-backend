@@ -46,6 +46,8 @@ interface CourseProgressRepository : JpaRepository<CourseProgress, CourseProgres
     )
     fun findCurrentCourseIdForUser(@Param("userId") userId: UUID): UUID?
 
+    fun findByIdCourseId(courseId: UUID): List<CourseProgress>
+
     fun findByIdUserIdAndIdCourseIdIn(
         userId: UUID,
         courseIds: List<UUID>

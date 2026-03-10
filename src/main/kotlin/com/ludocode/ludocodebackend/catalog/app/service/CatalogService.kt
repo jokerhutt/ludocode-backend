@@ -89,6 +89,9 @@ class CatalogService(
         return courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
     }
 
+
+
+
     @Caching(
         evict = [
             CacheEvict(cacheNames = [CacheNames.COURSE_TREE], allEntries = true),
