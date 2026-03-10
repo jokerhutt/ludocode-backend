@@ -1,5 +1,7 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
+import com.ludocode.ludocodebackend.catalog.api.dto.request.ChangeTitleRequest
+import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlLesson
@@ -42,6 +44,30 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
     @BeforeEach
     fun seed() {
+
+    }
+
+    @Test
+    fun submitCourseTitleChange_returnsChanged() {
+        val pythonId = pythonId
+        val newTitle = "A new introduction to Python"
+
+        val res = submitPutUpdateTitle(ChangeTitleRequest(newTitle), pythonId)
+
+        courseRepository.flush()
+
+        val pythonSnap = testSnapshotService.buildCourseSnapshot(pythonId)
+        assertThat(pythonSnap.title).isEqualTo(newTitle)
+
+    }
+
+    @Test
+    fun submitCourseTitleChange_titleInUse_throwsError() {
+        val pythonId = pythonId
+        val swift = testSnapshotService.buildCourseSnapshot(swiftId)
+        val newTitle = swift.title
+
+        assertPutCourseTitleError(ChangeTitleRequest(newTitle), pythonId, ErrorCode.COURSE_TITLE_IN_USE)
 
     }
 
@@ -583,6 +609,12 @@ ___("Hello world")
             CurriculumDraftSnapshot::class.java
         )
 
+    private fun submitPutUpdateTitle(req: ChangeTitleRequest, courseId: UUID):  List<CourseResponse> =
+        TestRestClient.putOk(
+            ApiPaths.SNAPSHOTS.byCourseAdminTitle(courseId), user1.id, req,
+            Array<CourseResponse>::class.java
+        ).toList()
+
     private fun submitPutUpdateCurriculumWithYaml(
         req: CurriculumYamlRoot,
         courseId: UUID
@@ -592,6 +624,10 @@ ___("Hello world")
             user1.id,
             req,
         )
+    }
+
+    private fun assertPutCourseTitleError(req: ChangeTitleRequest, courseId: UUID, statusCode: ErrorCode): ValidatableResponse? {
+        return TestRestClient.assertError("PUT", ApiPaths.SNAPSHOTS.byCourseAdminTitle(courseId), user1.id, req, statusCode)
     }
 
     private fun assertPutCurriculumError(req: CurriculumDraftSnapshot, courseId: UUID, statusCode: ErrorCode): ValidatableResponse? {
