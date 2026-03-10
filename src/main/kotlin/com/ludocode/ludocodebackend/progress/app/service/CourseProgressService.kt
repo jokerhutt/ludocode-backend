@@ -11,6 +11,7 @@ import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResp
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressStats
 import com.ludocode.ludocodebackend.progress.app.mapper.CourseProgressMapper
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
+import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
 import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgressId
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
@@ -74,6 +75,14 @@ class CourseProgressService(
     }
 
     @Transactional
+    fun resetUserModuleIdInCourses(courseProgressList: List<CourseProgress>) {
+        courseProgressList.forEach {
+            val firstModuleId = catalogPortForProgress.findFirstModuleIdInCourse(it.id.courseId)
+            it.currentModuleId = firstModuleId
+        }
+    }
+
+    @Transactional
     internal fun resetUserCourseProgress(userId: UUID, courseId: UUID): CourseProgressResponse {
         lessonCompletionRepository.deleteLessonCompletionsForUserAndCourse(userId, courseId)
         val firstModuleIdInCourse = catalogPortForProgress.findFirstModuleIdInCourse(courseId)
@@ -134,12 +143,18 @@ class CourseProgressService(
     }
 
     internal fun findCourseProgressList(courseIds: List<UUID>, userId: UUID): List<CourseProgressResponse> {
-        return courseProgressMapper.toCourseProgressResponseList(
-            courseProgressRepository.findByIdUserIdAndIdCourseIdIn(
-                userId,
-                courseIds
-            )
-        )
+
+        val courseProgressList =
+            courseProgressRepository.findByIdUserIdAndIdCourseIdIn(userId, courseIds)
+
+        val progressWithNullModuleIds =
+            courseProgressList.filter { it.currentModuleId == null }
+
+        if (progressWithNullModuleIds.isNotEmpty()) {
+            resetUserModuleIdInCourses(progressWithNullModuleIds)
+        }
+
+        return courseProgressMapper.toCourseProgressResponseList(courseProgressList)
     }
 
     private fun findCourseProgress(userId: UUID, courseId: UUID): CourseProgressResponse {
