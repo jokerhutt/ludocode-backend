@@ -163,7 +163,7 @@ class CatalogService(
     )
     @Transactional
     fun updateCourseTitle(courseId: UUID, title: String) {
-        val course = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_EXISTS) }
+        val course = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
         if (courseRepository.existsByTitle(title)) {
             throw ApiException(ErrorCode.COURSE_TITLE_IN_USE)
         }
