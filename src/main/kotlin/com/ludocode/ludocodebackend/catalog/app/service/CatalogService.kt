@@ -156,6 +156,24 @@ class CatalogService(
         course.courseIcon = iconName
     }
 
+    @Caching(
+        evict = [
+            CacheEvict(cacheNames = [CacheNames.COURSE_LIST], allEntries = true),
+        ]
+    )
+    @Transactional
+    fun updateCourseTitle(courseId: UUID, title: String) {
+        val course = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_EXISTS) }
+        if (courseRepository.existsByTitle(title)) {
+            throw ApiException(ErrorCode.COURSE_TITLE_IN_USE)
+        }
+        if (title.isEmpty()) {
+            throw ApiException(ErrorCode.COURSE_TITLE_EMPTY)
+        }
+        course.title = title
+    }
+
+
 
 
 

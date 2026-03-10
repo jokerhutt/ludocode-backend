@@ -24,5 +24,7 @@ interface CourseRepository : JpaRepository<Course, UUID> {
     //TODO check this with unique stuff
     fun findByTitle(title: String): Course?
 
+    fun existsByTitle(title: String): Boolean
+
 
 }
