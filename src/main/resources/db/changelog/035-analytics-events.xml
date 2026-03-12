@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="035-001-create-analytics-event-table" author="david">
+        <createTable tableName="analytics_event">
+
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="event" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="properties" type="jsonb"/>
+
+            <column name="created_at" type="timestamp with time zone">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <createIndex tableName="analytics_event" indexName="idx_analytics_event_event">
+            <column name="event"/>
+        </createIndex>
+
+        <createIndex tableName="analytics_event" indexName="idx_analytics_event_created_at">
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

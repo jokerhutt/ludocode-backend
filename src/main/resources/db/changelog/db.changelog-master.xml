@@ -39,6 +39,7 @@
     <include file="/db/changelog/032-add-language-runtime-version.xml"/>
     <include file="/db/changelog/033-add-course-status-remove-visibility.xml"/>
     <include file="/db/changelog/034-create-feedback-table.xml"/>
+    <include file="/db/changelog/035-analytics-events.xml"/>
 
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>
