@@ -29,7 +29,9 @@ class TestSnapshotService(
 
         val course = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
         val moduleIds = moduleRepository.findActiveIdsByCourse(courseId)
-        val modules = moduleRepository.findAllByIdIn(moduleIds)
+        val modules = moduleRepository
+            .findAllByIdIn(moduleIds)
+            .sortedBy { it.orderIndex }
 
         val moduleSnapshots = modules.map { module ->
             buildModuleSnapshot(module)
@@ -56,22 +58,27 @@ class TestSnapshotService(
         val module = moduleRepository.findActiveById(moduleId)
         val lessons = moduleLessonsRepository.findActiveLessonsByModuleId(moduleId)
 
-        val lessonSnapshots = lessons.map { lesson ->
-            val exerciseResponses = lessonService.getExercisesByLessonId(lesson.id)
-
-            val exerciseSnapshots = exerciseResponses.map { exerciseResponse ->
-                lessonSnapshotService.buildExerciseSnapshot(exerciseResponse)
+        val lessonSnapshots = lessons
+            .map { lesson ->
+                val orderIndex = moduleLessonsRepository.findOrderIndexForLesson(moduleId, lesson.id)
+                orderIndex to lesson
             }
+            .sortedBy { it.first }
+            .map { (orderIndex, lesson) ->
 
-            val orderIndex = moduleLessonsRepository.findOrderIndexForLesson(moduleId, lesson.id)
+                val exerciseResponses = lessonService.getExercisesByLessonId(lesson.id)
 
-            LessonSnap(
-                id = lesson.id!!,
-                title = lesson.title,
-                orderIndex = orderIndex,
-                exercises = exerciseSnapshots
-            )
-        }
+                val exerciseSnapshots = exerciseResponses.map {
+                    lessonSnapshotService.buildExerciseSnapshot(it)
+                }
+
+                LessonSnap(
+                    id = lesson.id!!,
+                    title = lesson.title,
+                    orderIndex = orderIndex,
+                    exercises = exerciseSnapshots
+                )
+            }
 
         return ModuleSnap(
             moduleId = module!!.id,

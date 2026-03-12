@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.support
 
 import com.google.cloud.storage.Storage
+import com.ludocode.ludocodebackend.analytics.infra.http.AnalyticsEventRepository
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
@@ -190,6 +191,8 @@ abstract class AbstractIntegrationTest {
     lateinit var subscriptionPlanRepository: SubscriptionPlanRepository
     @Autowired
     lateinit var userSubscriptionRepository: UserSubscriptionRepository
+    @Autowired
+    lateinit var analyticsEventRepository: AnalyticsEventRepository
 
 
     @Autowired
@@ -229,7 +232,8 @@ abstract class AbstractIntegrationTest {
           course_tag,
           code_languages,
           subscription_plan,
-          user_preferences
+          user_preferences,
+          analytics_event
         RESTART IDENTITY CASCADE
         """.trimIndent()
         )

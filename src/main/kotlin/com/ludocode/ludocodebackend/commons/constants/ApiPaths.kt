@@ -12,6 +12,10 @@ object ApiPaths {
         const val COMPLETIONS = "/completions"
     }
 
+    object ANALYTICS {
+        const val BASE = "$API_PREFIX/analytics"
+    }
+
     object AUTH {
         const val BASE = "$API_PREFIX/auth"
         const val ADMIN_BASE = "$API_PREFIX$ADMIN_PREFIX/auth"
