@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExerciseAnswer
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectAnswer
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExecutableInteraction
 import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseRepository
 import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionRequest
 import com.ludocode.ludocodebackend.progress.domain.entity.ExerciseAttempt
@@ -110,6 +111,7 @@ import java.util.*
     }
 
     //TODO ignore info
+//TODO ABSOLUTELY FIX THIS fIGURE THIS OUT
     private fun grade(exercise: Exercise, answer: ExerciseAnswer): Boolean {
         val interaction = exercise.interaction ?: return true
 
@@ -130,6 +132,7 @@ import java.util.*
                     userValue in blank.correctOptions
                 }
             }
+            is ExecutableInteraction -> true
         }
     }
 

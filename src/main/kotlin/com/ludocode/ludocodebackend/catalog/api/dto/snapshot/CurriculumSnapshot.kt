@@ -21,5 +21,6 @@ data class LessonDraftSnapshot(
 )
 
 data class LessonCurriculumDraftSnapshot(
-    var exercises: List<ExerciseSnap>
+    var exercises: List<ExerciseSnap>,
+    var lessonType: LessonType
 )
