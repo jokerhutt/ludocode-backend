@@ -9,6 +9,7 @@ import org.slf4j.MDC
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.AuthenticationException
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -84,6 +85,29 @@ class GlobalExceptionHandler {
             MDC.get("traceId")?.let { setProperty("traceId", it) }
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(pd)
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleUnreadable(
+        ex: HttpMessageNotReadableException,
+        req: HttpServletRequest
+    ): ResponseEntity<ProblemDetail> {
+
+        logger.warn(
+            "${LogEvents.VALIDATION_FAILED} {}",
+            kv(LogFields.URI_PATH, req.requestURI),
+            ex
+        )
+
+        val pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST).apply {
+            title = "BAD_REQUEST"
+            detail = "Malformed JSON or invalid request body"
+            setProperty("code", "BAD_REQUEST")
+            setProperty("path", req.requestURI)
+            MDC.get("traceId")?.let { setProperty("traceId", it) }
+        }
+
+        return ResponseEntity.badRequest().body(pd)
     }
 
     @ExceptionHandler(Exception::class)
