@@ -97,7 +97,7 @@ class CurriculumYamlService(
             val lessons = module.lessons.map { lesson ->
 
                 val lessonSnap =
-                    lessonSnapshotService.buildLessonCurriculumSnapshot(lesson.id)
+                    lessonSnapshotService.buildLessonCurriculumSnapshot(lesson.id, lesson.lessonType)
 
                 CurriculumYamlLesson(
                     id = lesson.id,

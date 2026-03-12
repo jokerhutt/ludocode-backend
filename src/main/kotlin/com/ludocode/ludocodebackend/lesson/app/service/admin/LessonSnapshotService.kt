@@ -11,8 +11,10 @@ import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
 import com.ludocode.ludocodebackend.lesson.domain.entity.LessonExercise
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.LessonExercisesId
+import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
 import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseRepository
 import com.ludocode.ludocodebackend.lesson.infra.repository.LessonExercisesRepository
+import com.ludocode.ludocodebackend.lesson.infra.repository.LessonRepository
 import jakarta.transaction.Transactional
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Caching
@@ -23,7 +25,8 @@ import java.util.*
 class LessonSnapshotService(
     private val lessonExercisesRepository: LessonExercisesRepository,
     private val lessonService: LessonService,
-    private val exerciseRepository: ExerciseRepository
+    private val exerciseRepository: ExerciseRepository,
+    private val lessonRepository: LessonRepository
 ) {
 
     @Caching(
@@ -75,18 +78,28 @@ class LessonSnapshotService(
             )
         }
 
-        return buildLessonCurriculumSnapshot(lessonId)
+        return buildLessonCurriculumSnapshot(lessonId, lessonType = snap.lessonType)
     }
 
-
     fun buildLessonCurriculumSnapshot(lessonId: UUID): LessonCurriculumDraftSnapshot {
+        val lesson = lessonRepository.findById(lessonId).orElseThrow { ApiException(ErrorCode.LESSON_NOT_FOUND) }
+        val exerciseResponses = lessonService.getExercisesByLessonId(lessonId)
+        val exerciseSnapshots = exerciseResponses.map { exerciseResponse ->
+            buildExerciseSnapshot(exerciseResponse)
+        }
+
+        return LessonCurriculumDraftSnapshot(exerciseSnapshots, lesson.lessonType)
+
+    }
+
+    fun buildLessonCurriculumSnapshot(lessonId: UUID, lessonType: LessonType): LessonCurriculumDraftSnapshot {
 
         val exerciseResponses = lessonService.getExercisesByLessonId(lessonId)
         val exerciseSnapshots = exerciseResponses.map { exerciseResponse ->
             buildExerciseSnapshot(exerciseResponse)
         }
 
-        return LessonCurriculumDraftSnapshot(exerciseSnapshots)
+        return LessonCurriculumDraftSnapshot(exerciseSnapshots, lessonType)
 
     }
 
