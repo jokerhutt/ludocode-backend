@@ -5,6 +5,8 @@ enum class AnalyticsEventKey {
     LOGIN_CLICK,
     NAVIGATION_CLICK,
     DOCS_CLICK,
+    LESSON_START,
+    LESSON_EXIT,
     SOURCE_CODE_CLICK,
     LANDING_PAGE_VIEW
 }
