@@ -55,12 +55,17 @@
 
     "lesson": {
       "type": "object",
-      "required": ["title", "exercises"],
+      "required": ["title", "exercises", "lessonType"],
       "properties": {
 
         "id": {
           "type": "string",
           "format": "uuid"
+        },
+
+        "lessonType": {
+          "type": "string",
+          "enum": ["NORMAL", "GUIDED"]
         },
 
         "title": {
@@ -72,7 +77,53 @@
           "minItems": 1,
           "items": { "$ref": "#/$defs/exercise" }
         }
-      }
+      },
+
+      "allOf": [
+        {
+          "if": {
+            "properties": { "lessonType": { "const": "GUIDED" } }
+          },
+          "then": {
+            "properties": {
+              "exercises": {
+                "items": {
+                  "required": ["interaction"],
+                  "properties": {
+                    "interaction": {
+                      "properties": {
+                        "type": { "const": "EXECUTABLE" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "lessonType": { "const": "NORMAL" } }
+          },
+          "then": {
+            "properties": {
+              "exercises": {
+                "items": {
+                  "properties": {
+                    "interaction": {
+                      "not": {
+                        "properties": {
+                          "type": { "const": "EXECUTABLE" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
     },
 
     "exercise": {
@@ -96,7 +147,8 @@
               { "$ref": "#/$defs/headerBlock" },
               { "$ref": "#/$defs/paragraphBlock" },
               { "$ref": "#/$defs/codeBlock" },
-              { "$ref": "#/$defs/mediaBlock" }
+              { "$ref": "#/$defs/mediaBlock" },
+              { "$ref": "#/$defs/instructionsBlock" }
             ]
           }
         },
@@ -120,6 +172,14 @@
                 }
               },
               "then": { "$ref": "#/$defs/clozeInteraction" }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": { "const": "EXECUTABLE" }
+                }
+              },
+              "then": { "$ref": "#/$defs/executableInteraction" }
             }
           ]
         }
@@ -154,6 +214,19 @@
         "language": { "type": "string" },
         "content": { "type": "string" },
         "output": { "type": ["string", "null"] },
+        "clientId": { "type": "string", "format": "uuid" }
+      }
+    },
+
+    "instructionsBlock": {
+      "type": "object",
+      "required": ["type", "instructions"],
+      "properties": {
+        "type": { "const": "instructions" },
+        "instructions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
         "clientId": { "type": "string", "format": "uuid" }
       }
     },
@@ -224,6 +297,64 @@
 
         "output": {
           "type": ["string", "null"]
+        }
+      }
+    },
+
+    "executableInteraction": {
+      "type": "object",
+      "required": ["type", "files", "tests"],
+      "properties": {
+
+        "type": {
+          "const": "EXECUTABLE"
+        },
+
+        "clientId": {
+          "type": "string",
+          "format": "uuid"
+        },
+
+        "files": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/executableFile" }
+        },
+
+        "tests": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/executableTest" }
+        },
+
+        "showOutput": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "executableFile": {
+      "type": "object",
+      "required": ["name", "language", "content"],
+      "properties": {
+        "name": { "type": "string" },
+        "language": { "type": "string" },
+        "content": { "type": "string" }
+      }
+    },
+
+    "executableTest": {
+      "type": "object",
+      "required": ["type", "expected"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "OUTPUT_EQUALS",
+            "OUTPUT_CONTAINS",
+            "FILE_CONTAINS"
+          ]
+        },
+        "expected": {
+          "type": "string"
         }
       }
     },
