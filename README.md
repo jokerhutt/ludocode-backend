@@ -102,7 +102,7 @@ These integrations are optional. If not configured, local storage is used by def
 
 ## Project Setup
 
-Below are setup instructions for running the backend locally and enabling features. I recommend you use the web docs, as they also cover the frontend setup. https://ludocode.dev/resources/docs
+Below are setup instructions for running the backend locally and enabling features. I recommend you use the web docs, as they also cover the frontend setup. https://ludocode.dev/docs
 
 ### Simple Setup
 
