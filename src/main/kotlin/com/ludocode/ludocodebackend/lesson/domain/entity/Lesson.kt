@@ -3,6 +3,8 @@ package com.ludocode.ludocodebackend.lesson.domain.entity
 import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import java.util.*
@@ -20,6 +22,7 @@ class Lesson(
     @Column(name = "is_deleted")
     var isDeleted: Boolean = false,
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type")
     var lessonType: LessonType
 
