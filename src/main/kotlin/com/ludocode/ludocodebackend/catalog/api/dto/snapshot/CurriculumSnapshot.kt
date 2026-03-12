@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.catalog.api.dto.snapshot
 
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
 import java.util.*
 
 data class CurriculumDraftSnapshot(
@@ -15,6 +16,7 @@ data class ModuleDraftSnapshot(
 
 data class LessonDraftSnapshot(
     val id: UUID,
+    val lessonType: LessonType,
     var title: String,
 )
 

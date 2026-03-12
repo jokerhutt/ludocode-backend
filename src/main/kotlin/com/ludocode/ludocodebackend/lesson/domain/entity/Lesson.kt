@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.lesson.domain.entity
 
+import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -17,5 +18,9 @@ class Lesson(
     var title: String,
 
     @Column(name = "is_deleted")
-    var isDeleted: Boolean = false
+    var isDeleted: Boolean = false,
+
+    @Column(name = "type")
+    var lessonType: LessonType
+
 )

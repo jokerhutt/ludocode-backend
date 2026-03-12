@@ -28,6 +28,7 @@ import com.ludocode.ludocodebackend.lesson.domain.entity.Lesson
 import com.ludocode.ludocodebackend.lesson.domain.entity.LessonExercise
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.LessonExercisesId
+import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
 import com.ludocode.ludocodebackend.lesson.infra.repository.*
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import com.ludocode.ludocodebackend.tag.api.dto.TagMetadata
@@ -100,7 +101,8 @@ class CurriculumSnapshotService(
                 val lesson = existing ?: Lesson(
                     id = lessonSnapshot.id,
                     title = lessonSnapshot.title,
-                    isDeleted = false
+                    isDeleted = false,
+                    lessonType = lessonSnapshot.lessonType
                 )
 
                 if (isNewLesson) {
@@ -269,6 +271,7 @@ class CurriculumSnapshotService(
             id = newLessonId,
             title = "Hello world!",
             isDeleted = false,
+            lessonType = LessonType.NORMAL
         )
 
         lessonRepository.save(newLesson)
@@ -333,6 +336,7 @@ class CurriculumSnapshotService(
             LessonDraftSnapshot(
                 id = lesson.id,
                 title = lesson.title,
+                lessonType = lesson.lessonType
             )
         }
 

@@ -12,7 +12,8 @@ import java.util.UUID
 )
 @JsonSubTypes(
     JsonSubTypes.Type(value = SelectInteraction::class, name = "SELECT"),
-    JsonSubTypes.Type(value = ClozeInteraction::class, name = "CLOZE")
+    JsonSubTypes.Type(value = ClozeInteraction::class, name = "CLOZE"),
+    JsonSubTypes.Type(value = ExecutableInteraction::class, name = "EXECUTABLE")
 )
 sealed interface ExerciseInteraction {
     val clientId: UUID
@@ -41,3 +42,27 @@ data class InteractionFile(
     val language: String,
     val content: String
 )
+
+data class ExecutableFile(
+    val name: String,
+    val language: String,
+    val content: String
+)
+
+data class ExecutableTest(
+    val type: TestType,
+    val expected: String
+)
+
+data class ExecutableInteraction(
+    override val clientId: UUID = UUID.randomUUID(),
+    val files: List<ExecutableFile>,
+    val tests: List<ExecutableTest>,
+    val showOutput: Boolean = true
+) : ExerciseInteraction
+
+enum class TestType {
+    OUTPUT_EQUALS,
+    OUTPUT_CONTAINS,
+    FILE_CONTAINS
+}
