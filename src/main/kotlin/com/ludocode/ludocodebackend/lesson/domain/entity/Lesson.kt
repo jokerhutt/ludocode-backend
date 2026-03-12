@@ -23,7 +23,7 @@ class Lesson(
     var isDeleted: Boolean = false,
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type")
+    @Column(name = "lesson_type")
     var lessonType: LessonType
 
 )
