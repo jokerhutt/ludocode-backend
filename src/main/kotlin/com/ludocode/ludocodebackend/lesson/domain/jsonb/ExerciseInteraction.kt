@@ -52,11 +52,13 @@ data class InteractionFile(
 
 data class ExecutableTest(
     val type: TestType,
-    val expected: String
+    val expected: String,
+    val feedback: String?
 )
 
 enum class TestType {
-    OUTPUT_EQUALS,
     OUTPUT_CONTAINS,
-    FILE_CONTAINS
+    FILE_CONTAINS,
+    FILE_PATTERN_MATCHES,
+    OUTPUT_PATTERN_MATCHES
 }
