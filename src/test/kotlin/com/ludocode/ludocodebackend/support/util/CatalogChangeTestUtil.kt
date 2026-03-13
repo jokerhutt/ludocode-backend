@@ -12,6 +12,7 @@ import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionBlank
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionFile
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExecutableInteraction
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ParagraphBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.support.snapshot.CourseSnap
@@ -291,6 +292,11 @@ object CatalogChangeTestUtil {
                         val interaction = ex.interaction
 
                         val newInteraction: ExerciseInteraction? = when (interaction) {
+                            is ExecutableInteraction -> {
+                                ExecutableInteraction(
+
+                                )
+                            }
                             is SelectInteraction -> {
                                 val correct = randomString(random, 6)
                                 val d1 = randomString(random, 6)

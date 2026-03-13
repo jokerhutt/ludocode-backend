@@ -23,6 +23,6 @@ data class LessonDraftSnapshot(
 
 data class LessonCurriculumDraftSnapshot(
     var exercises: List<ExerciseSnap>,
-    var projectSnapshot: ProjectSnapshot?,
-    var lessonType: LessonType
+    var projectSnapshot: ProjectSnapshot? = null,
+    var lessonType: LessonType,
 )

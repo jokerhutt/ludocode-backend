@@ -304,7 +304,7 @@ ___("Hello world")
             )
         )
 
-        val lessonCurriculum = LessonCurriculumDraftSnapshot(exercises = exercises)
+        val lessonCurriculum = LessonCurriculumDraftSnapshot(exercises = exercises, lessonType = LessonType.NORMAL)
 
         val result = submitPostUpdateExerciseCatalog(lessonToChange.id, lessonCurriculum)
 

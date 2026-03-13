@@ -13,7 +13,7 @@ interface ModuleLessonsRepository : JpaRepository<ModuleLesson, ModuleLessonsId>
 
     @Query(
         value = """
-        SELECT *
+        SELECT lesson.*
         FROM lesson
         JOIN module_lessons ON module_lessons.lesson_id = lesson.id
         WHERE module_lessons.module_id = :moduleId

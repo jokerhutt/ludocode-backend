@@ -25,6 +25,6 @@ data class CurriculumYamlLesson (
     val id: UUID?,
     val title: String,
     val lessonType: LessonType,
-    val projectSnapshot: ProjectSnapshot?,
+    val projectSnapshot: ProjectSnapshot? = null,
     val exercises: List<ExerciseSnap>
 )
