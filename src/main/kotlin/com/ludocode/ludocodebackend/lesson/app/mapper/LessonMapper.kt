@@ -13,7 +13,8 @@ class LessonMapper(private val basicMapper: BasicMapper) {
             id = p.getId(),
             title = p.getTitle(),
             orderIndex = p.getOrderIndex(),
-            isCompleted = p.getIsCompleted()
+            isCompleted = p.getIsCompleted(),
+            projectSnapshot = p.getProjectSnapshot()
         )
 
     fun toLessonResponseList(rows: List<UserLessonProjection>): List<LessonResponse> =

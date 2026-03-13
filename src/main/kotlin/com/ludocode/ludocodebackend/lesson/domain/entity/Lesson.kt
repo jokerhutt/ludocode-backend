@@ -30,7 +30,7 @@ class Lesson(
     var lessonType: LessonType,
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "files")
+    @Column(name = "project_snapshot")
     var projectSnapshot: ProjectSnapshot? = null
 
 )
