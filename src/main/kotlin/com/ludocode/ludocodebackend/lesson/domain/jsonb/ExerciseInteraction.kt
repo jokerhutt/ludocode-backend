@@ -53,7 +53,7 @@ data class InteractionFile(
 data class ExecutableTest(
     val type: TestType,
     val expected: String,
-    val feedback: String?
+    val feedback: String? = "Not quite!"
 )
 
 enum class TestType {
