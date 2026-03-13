@@ -60,7 +60,7 @@ class CurriculumYamlService(
                         LessonDraftSnapshot(
                             id = lessonId,
                             title = lesson.title,
-                            lessonType = lesson.lessonType
+                            lessonType = lesson.lessonType,
                         )
                     }
                 )
@@ -79,7 +79,7 @@ class CurriculumYamlService(
 
                 lessonSnapshotService.applyExercises(
                     lessonIdMap[lesson]!!,
-                    LessonCurriculumDraftSnapshot(normalizedExercises, lessonType = lesson.lessonType)
+                    LessonCurriculumDraftSnapshot(normalizedExercises, lessonType = lesson.lessonType, projectSnapshot = lesson.projectSnapshot )
                 )
             }
         }
@@ -97,13 +97,14 @@ class CurriculumYamlService(
             val lessons = module.lessons.map { lesson ->
 
                 val lessonSnap =
-                    lessonSnapshotService.buildLessonCurriculumSnapshot(lesson.id, lesson.lessonType)
+                    lessonSnapshotService.buildLessonCurriculumSnapshot(lesson.id)
 
                 CurriculumYamlLesson(
                     id = lesson.id,
                     title = lesson.title,
                     exercises = lessonSnap.exercises,
-                    lessonType = lessonSnap.lessonType
+                    lessonType = lessonSnap.lessonType,
+                    projectSnapshot = lessonSnap.projectSnapshot
                 )
             }
 

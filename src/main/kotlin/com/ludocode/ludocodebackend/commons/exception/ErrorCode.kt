@@ -24,7 +24,8 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     NO_UNDRAFTING_COURSE(HttpStatus.BAD_REQUEST, "You can not un-draft a course"),
     SYSTEM_PROMPT_MISSING(HttpStatus.BAD_REQUEST, "System prompt missing from metadata"),
     NO_ARCHIVING_DRAFT_COURSE(HttpStatus.BAD_REQUEST, "You can not archive a draft course"),
-
+    GUIDED_LESSON_NEEDS_SNAPSHOT(HttpStatus.BAD_REQUEST, "Guided lesson requires a project snapshot"),
+    NORMAL_LESSON_NO_SNAPSHOT(HttpStatus.BAD_REQUEST, "Normal lesson can not have snapshot"),
     ENTRY_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "This project lacks an entry file"),
 
     CAREER_PREFERENCE_NOT_FOUND(HttpStatus.NOT_FOUND, "Career preference not found"),

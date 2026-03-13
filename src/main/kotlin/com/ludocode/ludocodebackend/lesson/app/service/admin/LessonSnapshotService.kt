@@ -15,6 +15,7 @@ import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
 import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseRepository
 import com.ludocode.ludocodebackend.lesson.infra.repository.LessonExercisesRepository
 import com.ludocode.ludocodebackend.lesson.infra.repository.LessonRepository
+import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import jakarta.transaction.Transactional
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Caching
@@ -78,7 +79,10 @@ class LessonSnapshotService(
             )
         }
 
-        return buildLessonCurriculumSnapshot(lessonId, lessonType = snap.lessonType)
+        val lesson = lessonRepository.findById(lessonId).orElseThrow { ApiException(ErrorCode.LESSON_NOT_FOUND) }
+        lesson.projectSnapshot = snap.projectSnapshot
+
+        return buildLessonCurriculumSnapshot(lessonId)
     }
 
     fun buildLessonCurriculumSnapshot(lessonId: UUID): LessonCurriculumDraftSnapshot {
@@ -88,20 +92,10 @@ class LessonSnapshotService(
             buildExerciseSnapshot(exerciseResponse)
         }
 
-        return LessonCurriculumDraftSnapshot(exerciseSnapshots, lesson.lessonType)
+        return LessonCurriculumDraftSnapshot(exerciseSnapshots, lessonType = lesson.lessonType,  projectSnapshot = lesson.projectSnapshot)
 
     }
 
-    fun buildLessonCurriculumSnapshot(lessonId: UUID, lessonType: LessonType): LessonCurriculumDraftSnapshot {
-
-        val exerciseResponses = lessonService.getExercisesByLessonId(lessonId)
-        val exerciseSnapshots = exerciseResponses.map { exerciseResponse ->
-            buildExerciseSnapshot(exerciseResponse)
-        }
-
-        return LessonCurriculumDraftSnapshot(exerciseSnapshots, lessonType)
-
-    }
 
     internal fun buildExerciseSnapshot(
         exerciseResponse: ExerciseResponse

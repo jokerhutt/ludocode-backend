@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.catalog.api.dto.snapshot
 
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
+import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import java.util.*
 
 data class CurriculumDraftSnapshot(
@@ -22,5 +23,6 @@ data class LessonDraftSnapshot(
 
 data class LessonCurriculumDraftSnapshot(
     var exercises: List<ExerciseSnap>,
+    var projectSnapshot: ProjectSnapshot?,
     var lessonType: LessonType
 )

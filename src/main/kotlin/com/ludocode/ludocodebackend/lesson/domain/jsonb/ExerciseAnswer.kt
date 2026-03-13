@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.lesson.domain.jsonb
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -24,10 +25,5 @@ data class ClozeAnswer(
 ) : ExerciseAnswer
 
 data class ExecutableAnswer(
-    val files: List<SubmittedFile>
+    val submission: ProjectSnapshot
 ) : ExerciseAnswer
-
-data class SubmittedFile(
-    val name: String,
-    val content: String
-)

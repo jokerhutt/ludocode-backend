@@ -34,6 +34,12 @@ data class ClozeInteraction(
     val output: String? = null
 ) : ExerciseInteraction
 
+data class ExecutableInteraction(
+    override val clientId: UUID = UUID.randomUUID(),
+    val tests: List<ExecutableTest>,
+    val showOutput: Boolean = true
+) : ExerciseInteraction
+
 data class InteractionBlank(
     val index: Int,
     val correctOptions: List<String>
@@ -44,24 +50,10 @@ data class InteractionFile(
     val content: String
 )
 
-data class ExecutableFile(
-    val id: UUID?,
-    val name: String,
-    val language: LanguageMetadata,
-    val content: String
-)
-
 data class ExecutableTest(
     val type: TestType,
     val expected: String
 )
-
-data class ExecutableInteraction(
-    override val clientId: UUID = UUID.randomUUID(),
-    val files: List<ExecutableFile>,
-    val tests: List<ExecutableTest>,
-    val showOutput: Boolean = true
-) : ExerciseInteraction
 
 enum class TestType {
     OUTPUT_EQUALS,
