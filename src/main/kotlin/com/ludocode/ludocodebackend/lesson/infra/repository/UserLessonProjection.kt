@@ -7,7 +7,7 @@ interface UserLessonProjection {
 
     fun getId(): UUID
     fun getTitle(): String
-    fun getProjectSnapshot(): ProjectSnapshot?
+    fun getProjectSnapshot(): String?
     fun getOrderIndex(): Int
     fun getIsCompleted(): Boolean
 
