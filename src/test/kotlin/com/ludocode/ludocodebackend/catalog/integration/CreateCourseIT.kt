@@ -8,6 +8,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlRoot
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.HeaderBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionBlank
@@ -65,6 +66,7 @@ class CreateCourseIT : AbstractIntegrationTest() {
                         CurriculumYamlLesson(
                             id = null,
                             title = "Print Statements",
+                            lessonType = LessonType.NORMAL,
                             exercises = listOf(
 
                                 // INFO

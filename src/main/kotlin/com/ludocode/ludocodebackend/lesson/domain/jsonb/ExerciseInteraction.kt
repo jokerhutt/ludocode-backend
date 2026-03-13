@@ -45,6 +45,7 @@ data class InteractionFile(
 )
 
 data class ExecutableFile(
+    val id: UUID?,
     val name: String,
     val language: LanguageMetadata,
     val content: String

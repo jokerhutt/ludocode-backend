@@ -34,6 +34,7 @@ import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.LessonSnap
 import com.ludocode.ludocodebackend.lesson.domain.entity.*
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.LessonExercisesId
+import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
 import com.ludocode.ludocodebackend.lesson.infra.repository.*
 import com.ludocode.ludocodebackend.projects.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.projects.infra.repository.UserProjectRepository
@@ -287,6 +288,7 @@ abstract class AbstractIntegrationTest {
                         Lesson(
                             id = ls.id,
                             title = ls.title,
+                            lessonType = LessonType.NORMAL,
                             isDeleted = false
                         )
                     )

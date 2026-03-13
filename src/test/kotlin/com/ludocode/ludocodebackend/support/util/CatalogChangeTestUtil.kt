@@ -11,6 +11,7 @@ import com.ludocode.ludocodebackend.lesson.domain.jsonb.HeaderBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionBlank
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionFile
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ParagraphBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.support.snapshot.CourseSnap
@@ -26,10 +27,12 @@ object CatalogChangeTestUtil {
                 ModuleDraftSnapshot(
                     id = module.moduleId,
                     title = module.title,
+
                     lessons = module.lessons.map { lesson ->
                         LessonDraftSnapshot(
                             id = lesson.id,
-                            title = lesson.title
+                            title = lesson.title,
+                            lessonType = LessonType.NORMAL
                         )
                     }
                 )
@@ -39,6 +42,7 @@ object CatalogChangeTestUtil {
     fun createLesson(title: String): LessonDraftSnapshot =
         LessonDraftSnapshot(
             id = UUID.randomUUID(),
+            lessonType = LessonType.NORMAL,
             title = title
         )
 
