@@ -45,7 +45,7 @@ data class InteractionFile(
 )
 
 data class ExecutableFile(
-    val path: String,
+    val name: String,
     val language: LanguageMetadata,
     val content: String
 )
