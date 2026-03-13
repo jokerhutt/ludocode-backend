@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.lesson.domain.jsonb
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.ludocode.ludocodebackend.languages.api.dto.LanguageMetadata
 
 import java.util.UUID
 
@@ -44,8 +45,8 @@ data class InteractionFile(
 )
 
 data class ExecutableFile(
-    val name: String,
-    val language: String,
+    val path: String,
+    val language: LanguageMetadata,
     val content: String
 )
 
