@@ -10,5 +10,6 @@ interface UserLessonProjection {
     fun getProjectSnapshot(): String?
     fun getOrderIndex(): Int
     fun getIsCompleted(): Boolean
+    fun getLessonType(): String
 
 }
