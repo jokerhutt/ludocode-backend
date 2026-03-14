@@ -38,7 +38,8 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
     SELECT 
       l.id           AS id,
       l.title        AS title,
-      l.project_snapshot::text AS project_snapshot,
+      l.lesson_type AS lessonType,  
+      l.project_snapshot::text AS project_snapshot, 
       ml.order_index AS orderIndex,
       EXISTS (
         SELECT 1 FROM lesson_completion lc
