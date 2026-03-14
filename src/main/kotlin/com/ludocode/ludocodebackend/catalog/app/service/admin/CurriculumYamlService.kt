@@ -1,7 +1,9 @@
 package com.ludocode.ludocodebackend.catalog.app.service.admin
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
@@ -31,6 +33,9 @@ class CurriculumYamlService(
     private val yamlMapper =
         ObjectMapper(YAMLFactory())
             .registerModule(KotlinModule.Builder().build())
+            .registerModule(JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+
 
     @Transactional
     fun importYaml(courseId: UUID? = null, root: CurriculumYamlRoot) {
