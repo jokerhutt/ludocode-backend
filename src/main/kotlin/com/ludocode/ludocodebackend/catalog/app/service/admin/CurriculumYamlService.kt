@@ -32,7 +32,7 @@ class CurriculumYamlService(
 ) {
 
 
-    private val yamlMapper =
+    val yamlMapper =
         ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
             .registerModule(KotlinModule.Builder().build())
             .registerModule(JavaTimeModule())

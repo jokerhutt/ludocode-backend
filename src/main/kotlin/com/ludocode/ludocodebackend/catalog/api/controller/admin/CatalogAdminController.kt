@@ -116,8 +116,13 @@ class CatalogAdminController(
         @RequestBody yaml: CurriculumYamlRoot,
         @PathVariable courseId: UUID
     ): ResponseEntity<Void> {
-        curriculumYamlService.importYaml(courseId, yaml)
+        val root = curriculumYamlService.yamlMapper
+            .readValue(yaml, CurriculumYamlRoot::class.java)
+
+        curriculumYamlService.importYaml(courseId, root)
+
         courseProgressService.resetAllModuleIdsInCourse(courseId)
+
         return ResponseEntity.noContent().build()
     }
 
