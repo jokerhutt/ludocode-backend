@@ -32,12 +32,16 @@ class CurriculumYamlService(
 ) {
 
 
-    val yamlMapper =
+    private val yamlMapper =
         ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
             .registerModule(KotlinModule.Builder().build())
             .registerModule(JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+
+    fun parseYaml(yaml: String): CurriculumYamlRoot {
+        return yamlMapper.readValue(yaml, CurriculumYamlRoot::class.java)
+    }
 
 
     @Transactional

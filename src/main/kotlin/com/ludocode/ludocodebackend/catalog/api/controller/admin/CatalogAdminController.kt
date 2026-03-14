@@ -113,14 +113,13 @@ class CatalogAdminController(
         params = ["mode=yaml"],
         consumes = ["application/x-yaml", "text/yaml", "application/yaml"])
     fun applyCurriculumYaml(
-        @RequestBody yaml: CurriculumYamlRoot,
+        @RequestBody yaml: String,
         @PathVariable courseId: UUID
     ): ResponseEntity<Void> {
-        val root = curriculumYamlService.yamlMapper
-            .readValue(yaml, CurriculumYamlRoot::class.java)
+
+        val root = curriculumYamlService.parseYaml(yaml)
 
         curriculumYamlService.importYaml(courseId, root)
-
         courseProgressService.resetAllModuleIdsInCourse(courseId)
 
         return ResponseEntity.noContent().build()
