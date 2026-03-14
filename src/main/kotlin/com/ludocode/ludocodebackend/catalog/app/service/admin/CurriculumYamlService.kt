@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.app.service.admin
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
@@ -36,6 +37,7 @@ class CurriculumYamlService(
             .registerModule(KotlinModule.Builder().build())
             .registerModule(JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
 
 
     @Transactional
