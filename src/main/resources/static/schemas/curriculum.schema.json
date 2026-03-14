@@ -304,7 +304,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["OUTPUT_EQUALS", "OUTPUT_CONTAINS", "FILE_CONTAINS"]
+          "enum": ["OUTPUT_PATTERN_MATCHES", "FILE_PATTERN_MATCHES", "OUTPUT_CONTAINS", "FILE_CONTAINS"]
         },
         "expected": {
           "type": "string"

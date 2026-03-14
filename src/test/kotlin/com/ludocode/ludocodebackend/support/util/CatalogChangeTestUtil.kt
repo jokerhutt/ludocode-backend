@@ -292,11 +292,6 @@ object CatalogChangeTestUtil {
                         val interaction = ex.interaction
 
                         val newInteraction: ExerciseInteraction? = when (interaction) {
-                            is ExecutableInteraction -> {
-                                ExecutableInteraction(
-
-                                )
-                            }
                             is SelectInteraction -> {
                                 val correct = randomString(random, 6)
                                 val d1 = randomString(random, 6)
