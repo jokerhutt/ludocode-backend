@@ -147,6 +147,10 @@
           "format": "uuid"
         },
 
+        "body": {
+          "type": ["string", "null"]
+        },
+
         "exerciseVersion": {
           "type": "integer"
         },
