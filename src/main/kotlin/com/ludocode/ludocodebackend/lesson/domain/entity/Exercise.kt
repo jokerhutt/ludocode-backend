@@ -22,6 +22,9 @@ class Exercise(
     @Column(name = "blocks", columnDefinition = "jsonb", nullable = false)
     val blocks: List<Block>,
 
+    @Column(name = "body")
+    var body: String? = null,
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "interaction", columnDefinition = "jsonb")
     val interaction: ExerciseInteraction? = null,
@@ -29,8 +32,7 @@ class Exercise(
     @Column(name = "is_deleted")
     var isDeleted: Boolean? = false,
 
-    @Column(name = "body")
-    var body: String? = null,
+
 
 )
 
