@@ -65,6 +65,7 @@ class LessonSnapshotService(
                 Exercise(
                     ExerciseId(exerciseId, version),
                     blocks = exercise.blocks,
+                    body = exercise.body,
                     interaction = exercise.interaction,
                     isDeleted = false
                 )
