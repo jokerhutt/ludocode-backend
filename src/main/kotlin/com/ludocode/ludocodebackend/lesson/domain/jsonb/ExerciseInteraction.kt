@@ -36,7 +36,7 @@ data class ClozeInteraction(
 
 data class ExecutableInteraction(
     override val clientId: UUID = UUID.randomUUID(),
-    val solution: String,
+    val solution: String?,
     val tests: List<ExecutableTest>,
     val showOutput: Boolean = true
 ) : ExerciseInteraction
