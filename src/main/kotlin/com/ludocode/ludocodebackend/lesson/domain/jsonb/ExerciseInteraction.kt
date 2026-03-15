@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.lesson.domain.jsonb
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.ludocode.ludocodebackend.languages.api.dto.LanguageMetadata
+import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
 
 import java.util.UUID
 
@@ -36,7 +37,7 @@ data class ClozeInteraction(
 
 data class ExecutableInteraction(
     override val clientId: UUID = UUID.randomUUID(),
-    val solution: String?,
+    val solution: String = "",
     val tests: List<ExecutableTest>,
     val showOutput: Boolean = true
 ) : ExerciseInteraction

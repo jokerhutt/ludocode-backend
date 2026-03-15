@@ -284,14 +284,20 @@
 
     "executableInteraction": {
       "type": "object",
-      "required": ["type", "tests"],
+      "required": ["type", "tests", "solution"],
       "properties": {
         "type": { "const": "EXECUTABLE" },
         "clientId": { "type": "string", "format": "uuid" },
+
+        "solution": {
+          "type": "string"
+        },
+
         "tests": {
           "type": "array",
           "items": { "$ref": "#/$defs/executableTest" }
         },
+
         "showOutput": {
           "type": "boolean"
         }
@@ -376,6 +382,7 @@
         "files": {
           "type": "array",
           "minItems": 1,
+          "maxItems": 1,
           "items": { "$ref": "#/$defs/projectFileSnapshot" }
         }
       }
