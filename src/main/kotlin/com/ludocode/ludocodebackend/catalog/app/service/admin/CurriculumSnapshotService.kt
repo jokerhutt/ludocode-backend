@@ -121,7 +121,7 @@ class CurriculumSnapshotService(
                                     InstructionsBlock(clientId = UUID.randomUUID(), instructions = listOf("Make the program print hello world"))
                                 ),
                                 interaction = ExecutableInteraction(clientId = UUID.randomUUID(), tests = listOf(
-                                    ExecutableTest(type = TestType.OUTPUT_CONTAINS, expected = "hello world")))
+                                    ExecutableTest(type = TestType.OUTPUT_CONTAINS, expected = "hello world", solution = "print('hello world')")))
                             )
                         )} else {
                             exerciseRepository.save(

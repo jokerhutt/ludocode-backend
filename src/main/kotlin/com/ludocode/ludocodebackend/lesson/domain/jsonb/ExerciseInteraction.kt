@@ -53,6 +53,7 @@ data class InteractionFile(
 data class ExecutableTest(
     val type: TestType,
     val expected: String,
+    val solution: String,
     val feedback: String? = "Not quite!"
 )
 
