@@ -10,5 +10,7 @@ data class ExerciseSnap (
 
     val blocks: List<Block>,
 
-    var interaction: ExerciseInteraction? = null
+    var interaction: ExerciseInteraction? = null,
+
+    val body: String? = null
 )
