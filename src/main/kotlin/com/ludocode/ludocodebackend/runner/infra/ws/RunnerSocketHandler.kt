@@ -34,6 +34,9 @@ class RunnerSocketHandler(
             }
 
             override fun handleTextMessage(pistonSession: WebSocketSession, message: TextMessage) {
+
+                println("Piston → ${message.payload}")
+
                 if (session.isOpen) {
                     session.sendMessage(message)
                 }
@@ -43,7 +46,10 @@ class RunnerSocketHandler(
                 pistonSessions.remove(session.id)
             }
 
-        }).exceptionally {
+        }).exceptionally { ex ->
+            println("Piston connection failed: ${ex.message}")
+            ex.printStackTrace()
+
             session.close(CloseStatus.SERVER_ERROR)
             null
         }
