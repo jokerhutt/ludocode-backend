@@ -3,13 +3,12 @@ package com.ludocode.ludocodebackend.runner.infra.ws
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
-import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
-import com.ludocode.ludocodebackend.runner.api.dto.request.PistonDataMessage
-import com.ludocode.ludocodebackend.runner.api.dto.request.PistonFile
-import com.ludocode.ludocodebackend.runner.api.dto.request.PistonInitMessage
 import com.ludocode.ludocodebackend.runner.api.dto.request.RunnerRunMessage
 import com.ludocode.ludocodebackend.runner.api.dto.request.RunnerStdinMessage
+import com.ludocode.ludocodebackend.runner.infra.ws.dto.PistonDataMessage
+import com.ludocode.ludocodebackend.runner.infra.ws.dto.PistonFile
+import com.ludocode.ludocodebackend.runner.infra.ws.dto.PistonInitMessage
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
