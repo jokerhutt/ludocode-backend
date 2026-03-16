@@ -7,7 +7,13 @@ data class PistonInitMessage(
     val type: String = "init",
     val language: String,
     val version: String,
-    val files: List<PistonFile>
+    val files: List<PistonFile>,
+
+    val run_timeout: Int = 120000,
+    val run_cpu_time: Int = 120000,
+    val compile_timeout: Int = 10000,
+    val compile_cpu_time: Int = 10000,
+    val run_memory_limit: Long = 536870912
 )
 
 data class PistonFile(
