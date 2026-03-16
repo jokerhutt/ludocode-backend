@@ -31,9 +31,15 @@ class RunnerSocketHandler(
         val pendingMessages: ConcurrentLinkedQueue<TextMessage> = ConcurrentLinkedQueue()
     )
 
+
     private val logger = LoggerFactory.getLogger(RunnerSocketHandler::class.java)
     private val mapper = jacksonObjectMapper()
     private val bridges = ConcurrentHashMap<String, ClientBridge>()
+
+
+    companion object {
+        private const val MAX_MESSAGE_SIZE = 512_000
+    }
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
         bridges[session.id] = ClientBridge()
@@ -63,6 +69,9 @@ class RunnerSocketHandler(
             }
 
             override fun handleTextMessage(pistonSession: WebSocketSession, message: TextMessage) {
+
+
+
 
                 withMdc(
                     LogFields.WS_SESSION_ID to session.id,
@@ -117,6 +126,13 @@ class RunnerSocketHandler(
 
     override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
 
+        if (message.payloadLength > MAX_MESSAGE_SIZE) {
+            withMdc(LogFields.WS_SESSION_ID to session.id) {
+                logger.warn(LogEvents.RUNNER_WS_MESSAGE_TOO_LARGE)
+            }
+            session.close(CloseStatus.POLICY_VIOLATION)
+            return
+        }
         val bridge = bridges[session.id]
         if (bridge == null) {
             withMdc(LogFields.WS_SESSION_ID to session.id) {
@@ -126,7 +142,19 @@ class RunnerSocketHandler(
         }
 
         val pistonSession = bridge.pistonSession
+
+
+
         if (pistonSession == null || !pistonSession.isOpen) {
+
+            if (bridge.pendingMessages.size > 100) {
+                withMdc(LogFields.WS_SESSION_ID to session.id) {
+                    logger.warn("runner_ws_buffer_limit_exceeded")
+                }
+                session.close(CloseStatus.POLICY_VIOLATION);
+                return;
+            }
+
             bridge.pendingMessages.add(TextMessage(message.payload))
             withMdc(LogFields.WS_SESSION_ID to session.id) {
                 logger.debug("runner_ws_message_buffered_until_piston_ready")
@@ -237,6 +265,11 @@ class RunnerSocketHandler(
     }
 
     private fun handleStdin(msg: RunnerStdinMessage, pistonSession: WebSocketSession) {
+
+        if (msg.text.length > 4096) {
+            logger.warn(LogEvents.RUNNER_WS_STDIN_TOO_LARGE)
+            return
+        }
 
         val pistonMsg = PistonDataMessage(
             stream = "stdin",

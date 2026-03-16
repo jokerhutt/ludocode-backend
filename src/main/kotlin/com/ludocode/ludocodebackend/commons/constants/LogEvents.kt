@@ -38,6 +38,8 @@ object LogEvents {
     const val RUNNER_WS_PISTON_DISCONNECTED = "runner_ws_piston_disconnected"
     const val RUNNER_WS_PISTON_CONNECT_FAILED = "runner_ws_piston_connect_failed"
     const val RUNNER_WS_PISTON_MESSAGE_FORWARDED = "runner_ws_piston_message_forwarded"
+    const val RUNNER_WS_MESSAGE_TOO_LARGE = "runner_ws_message_too_large"
+    const val RUNNER_WS_STDIN_TOO_LARGE = "runner_ws_stdin_too_large"
     const val RUNNER_WS_MESSAGE_PARSE_FAILED = "runner_ws_message_parse_failed"
     const val RUNNER_WS_UNKNOWN_MESSAGE_TYPE = "runner_ws_unknown_message_type"
     const val RUNNER_WS_PISTON_SESSION_MISSING = "runner_ws_piston_session_missing"
