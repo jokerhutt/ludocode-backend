@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.runner.infra.ws
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.runner.api.dto.request.PistonDataMessage
 import com.ludocode.ludocodebackend.runner.api.dto.request.PistonFile
@@ -36,9 +37,10 @@ class RunnerSocketHandler(
     private val mapper = jacksonObjectMapper()
     private val bridges = ConcurrentHashMap<String, ClientBridge>()
 
-
     companion object {
         private const val MAX_MESSAGE_SIZE = 512_000
+        private const val MAX_PENDING_MESSAGES = 100
+        private const val MAX_STDIN_SIZE = 4096
     }
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
@@ -147,9 +149,9 @@ class RunnerSocketHandler(
 
         if (pistonSession == null || !pistonSession.isOpen) {
 
-            if (bridge.pendingMessages.size > 100) {
+            if (bridge.pendingMessages.size >= MAX_PENDING_MESSAGES) {
                 withMdc(LogFields.WS_SESSION_ID to session.id) {
-                    logger.warn("runner_ws_buffer_limit_exceeded")
+                    logger.warn(LogEvents.RUNNER_WS_BUFFER_LIMIT_EXCEEDED)
                 }
                 session.close(CloseStatus.POLICY_VIOLATION);
                 return;
@@ -266,7 +268,7 @@ class RunnerSocketHandler(
 
     private fun handleStdin(msg: RunnerStdinMessage, pistonSession: WebSocketSession) {
 
-        if (msg.text.length > 4096) {
+        if (msg.text.length > MAX_STDIN_SIZE) {
             logger.warn(LogEvents.RUNNER_WS_STDIN_TOO_LARGE)
             return
         }
