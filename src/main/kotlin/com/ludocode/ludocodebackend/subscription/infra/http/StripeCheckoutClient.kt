@@ -1,6 +1,8 @@
 package com.ludocode.ludocodebackend.subscription.infra.http
 
 import com.ludocode.ludocodebackend.commons.configuration.app.AppProperties
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.subscription.app.port.out.StripeCheckoutPort
 import com.stripe.model.checkout.Session
 import com.stripe.param.checkout.SessionCreateParams
@@ -12,7 +14,7 @@ class StripeCheckoutClient(
     private val appProperties: AppProperties
 ) : StripeCheckoutPort {
 
-    private val logger = LoggerFactory.getLogger(StripeCheckoutPort::class.java)
+    private val logger = LoggerFactory.getLogger(StripeCheckoutClient::class.java)
 
     override fun createCheckoutSession(planPriceId: String, planId: UUID, userId: UUID, stripeCustomerId: String): String {
 
@@ -36,11 +38,10 @@ class StripeCheckoutClient(
         val session = Session.create(params)
 
         logger.info(
-            "Stripe checkout session created {}",
-            kv("userId", userId.toString()),
-            kv("planId", planId.toString()),
-            kv("sessionId", session.id),
-            kv("checkoutUrl", session.url)
+            LogEvents.STRIPE_CHECKOUT_SESSION_CREATED + " {} {} {}",
+            kv(LogFields.USER_ID, userId.toString()),
+            kv(LogFields.PLAN_ID, planId.toString()),
+            kv(LogFields.STRIPE_SESSION_ID, session.id)
         )
 
         return session.url!!

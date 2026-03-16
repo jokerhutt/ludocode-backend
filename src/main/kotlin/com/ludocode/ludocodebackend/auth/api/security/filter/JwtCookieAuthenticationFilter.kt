@@ -45,10 +45,14 @@ class JwtCookieAuthenticationFilter(
                 path.startsWith("/api/v1/auth/firebase") ||
                 path.startsWith("/api/v1/firebase") ||
                 path.startsWith("/actuator") ||
-                path.startsWith("/api/v1/subscription/webhook")
+                path.startsWith("/api/v1/subscription/webhook") ||
                 path.startsWith("/schemas")
 
-        log.debug("shouldNotFilter check: path='$path', exclude=$exclude")
+        log.debug(
+            LogEvents.AUTH_FILTER_SHOULD_NOT_FILTER + " {} {}",
+            StructuredArguments.kv(LogFields.URI_PATH, path),
+            StructuredArguments.kv(LogFields.EXCLUDED, exclude)
+        )
         return exclude
     }
 
@@ -66,7 +70,11 @@ class JwtCookieAuthenticationFilter(
                 val loginResponse = authService.loginWithDemo(res)
                 token = jwtService.createToken(loginResponse.user.id, role = "admin")
             } catch (e: Exception) {
-                log.warn("Demo auto-login failed: ${e.message}")
+                log.warn(
+                    LogEvents.AUTH_DEMO_AUTO_LOGIN_FAILED + " {}",
+                    StructuredArguments.kv(LogFields.ERROR_CODE, e.message ?: e.javaClass.simpleName),
+                    e
+                )
             }
         }
 

@@ -1,9 +1,7 @@
 package com.ludocode.ludocodebackend
-
 import com.ludocode.ludocodebackend.config.FirebaseAuthTestConfig
 import com.ludocode.ludocodebackend.config.GcpTestConfig
 import com.ludocode.ludocodebackend.config.GeminiTestConfig
-import com.ludocode.ludocodebackend.config.PistonTestConfig
 import com.ludocode.ludocodebackend.config.security.TestSecurityConfig
 import com.ludocode.ludocodebackend.config.time.TestClockConfig
 import org.junit.jupiter.api.Test
@@ -17,7 +15,6 @@ import org.springframework.test.context.ActiveProfiles
     GeminiTestConfig::class,
     FirebaseAuthTestConfig::class,
     GcpTestConfig::class,
-    PistonTestConfig::class,
     TestSecurityConfig::class,
     TestClockConfig::class
 )

@@ -1,7 +1,11 @@
 package com.ludocode.ludocodebackend.subscription.api.controller
+
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.subscription.api.dto.request.CheckoutRequest
 import com.ludocode.ludocodebackend.subscription.api.dto.response.SubscriptionPlanOverviewResponse
 import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
@@ -86,30 +90,43 @@ class SubscriptionController(
         @RequestBody request: CheckoutRequest
     ): Map<String, String> {
 
-        logger.info("Creating Stripe checkout session {}", kv("userId", userId), kv("planCode", request.planCode))
+        return withMdc(LogFields.USER_ID to userId.toString()) {
 
-        val plan = subscriptionPlanRepository
-            .findByPlanCodeAndIsActiveTrue(request.planCode)
-            ?: run {
-                logger.warn("Plan not found for checkout {}", kv("planCode", request.planCode))
-                throw ApiException(ErrorCode.PLAN_NOT_FOUND)
-            }
+            logger.info(
+                LogEvents.SUBSCRIPTION_CHECKOUT_REQUESTED + " {}",
+                kv(LogFields.PLAN_CODE, request.planCode)
+            )
 
-        val stripeCustomerUser = userRepository.findById(userId)
-            .orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
+            val plan = subscriptionPlanRepository
+                .findByPlanCodeAndIsActiveTrue(request.planCode)
+                ?: run {
+                    logger.warn(
+                        LogEvents.SUBSCRIPTION_CHECKOUT_PLAN_NOT_FOUND + " {}",
+                        kv(LogFields.PLAN_CODE, request.planCode)
+                    )
+                    throw ApiException(ErrorCode.PLAN_NOT_FOUND)
+                }
 
-        val stripeCustomerId = stripeCustomerUser.stripeCustomerId ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
+            val stripeCustomerUser = userRepository.findById(userId)
+                .orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
 
-        val url = stripeCheckoutPort.createCheckoutSession(
-            planPriceId = plan.stripePriceId,
-            planId = plan.id,
-            userId = userId,
-            stripeCustomerId = stripeCustomerId
-        )
+            val stripeCustomerId = stripeCustomerUser.stripeCustomerId ?: throw ApiException(ErrorCode.USER_SUBSCRIPTION_NOT_FOUND)
 
-        logger.info("Stripe checkout session created {}", kv("userId", userId), kv("checkoutUrl", url))
+            val url = stripeCheckoutPort.createCheckoutSession(
+                planPriceId = plan.stripePriceId,
+                planId = plan.id,
+                userId = userId,
+                stripeCustomerId = stripeCustomerId
+            )
 
-        return mapOf("url" to url)
+            logger.info(
+                LogEvents.SUBSCRIPTION_CHECKOUT_SESSION_CREATED + " {} {}",
+                kv(LogFields.PLAN_CODE, request.planCode),
+                kv(LogFields.PLAN_ID, plan.id.toString())
+            )
+
+            mapOf("url" to url)
+        }
     }
 
     @PostMapping(ApiPaths.SUBSCRIPTION.MANAGE)
@@ -152,7 +169,7 @@ class SubscriptionController(
         @RequestBody payload: String,
         @RequestHeader("Stripe-Signature") sigHeader: String
     ): ResponseEntity<Void> {
-        logger.info("Received Stripe webhook event")
+        logger.info(LogEvents.SUBSCRIPTION_WEBHOOK_RECEIVED)
         stripeWebhookPort.handle(payload, sigHeader)
         return ok().build()
     }
