@@ -53,17 +53,23 @@ object LogFields {
 
     const val PLAN = "plan"
     const val PLAN_CODE = "planCode"
+    const val PLAN_ID = "planId"
 
     const val CURRENT_PERIOD_START = "currentPeriodStart"
     const val CURRENT_PERIOD_END = "currentPeriodEnd"
 
     const val CANCEL_AT_PERIOD_END = "cancelAtPeriodEnd"
     const val ACTIVE = "active"
+    const val STRIPE_SESSION_ID = "stripeSessionId"
 
     const val HISTORY_COUNT = "historyCount"
     const val USER_MESSAGE_LENGTH = "userMessageLength"
 
     const val FILE_COUNT = "fileCount"
+    const val PAYLOAD_SIZE = "payloadSize"
+    const val MESSAGE_TYPE = "messageType"
+    const val WS_SESSION_ID = "wsSessionId"
+    const val PISTON_WS_SESSION_ID = "pistonWsSessionId"
     const val HITS = "hits"
     const val ADD_COUNT = "addCount"
     const val LANGUAGE = "language"
@@ -89,5 +95,14 @@ object LogFields {
     const val MODULE_COUNT = "moduleCount"
     const val LESSON_COUNT = "lessonCount"
     const val EXERCISE_COUNT = "exerciseCount"
+    const val TOTAL_LESSONS = "totalLessons"
+    const val COMPLETED_LESSONS = "completedLessons"
+    const val MAX_PROJECTS = "maxProjects"
+    const val PROJECT_COUNT = "projectCount"
+    const val MARKED_FOR_DELETION_COUNT = "markedForDeletionCount"
+    const val REQUEST_METHOD = "requestMethod"
+    const val ORIGIN = "origin"
+    const val ALLOWED_ORIGINS_COUNT = "allowedOriginsCount"
+    const val EXCLUDED = "excluded"
 
 }

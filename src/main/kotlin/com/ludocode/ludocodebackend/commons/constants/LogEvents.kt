@@ -19,6 +19,8 @@ object LogEvents {
     const val AUTH_DEMO_LOGIN_REQUESTED = "auth_demo_login_requested"
 
     const val AUTH_JWT_INVALID = "auth_jwt_invalid"
+    const val AUTH_DEMO_AUTO_LOGIN_FAILED = "auth_demo_auto_login_failed"
+    const val AUTH_FILTER_SHOULD_NOT_FILTER = "auth_filter_should_not_filter"
 
     const val GCS_GET_FAILED = "gcs_get_failed"
     const val STORAGE_DELETE_FAILED = "storage_delete_failed"
@@ -29,6 +31,18 @@ object LogEvents {
     const val PISTON_EMPTY_RESPONSE = "piston_empty_response"
     const val PISTON_EXECUTE_FAILED = "piston_execute_failed"
     const val PISTON_RUNTIMES_FAILED = "piston_runtimes_failed"
+    const val RUNNER_WS_CLIENT_CONNECTED = "runner_ws_client_connected"
+    const val RUNNER_WS_CLIENT_DISCONNECTED = "runner_ws_client_disconnected"
+    const val RUNNER_WS_PISTON_CONNECTING = "runner_ws_piston_connecting"
+    const val RUNNER_WS_PISTON_CONNECTED = "runner_ws_piston_connected"
+    const val RUNNER_WS_PISTON_DISCONNECTED = "runner_ws_piston_disconnected"
+    const val RUNNER_WS_PISTON_CONNECT_FAILED = "runner_ws_piston_connect_failed"
+    const val RUNNER_WS_PISTON_MESSAGE_FORWARDED = "runner_ws_piston_message_forwarded"
+    const val RUNNER_WS_MESSAGE_PARSE_FAILED = "runner_ws_message_parse_failed"
+    const val RUNNER_WS_UNKNOWN_MESSAGE_TYPE = "runner_ws_unknown_message_type"
+    const val RUNNER_WS_PISTON_SESSION_MISSING = "runner_ws_piston_session_missing"
+    const val RUNNER_WS_RUN_FORWARDED = "runner_ws_run_forwarded"
+    const val RUNNER_WS_STDIN_FORWARDED = "runner_ws_stdin_forwarded"
 
     const val LESSON_COMPLETION_DUPLICATE = "lesson_completion_duplicate"
     const val LESSON_COMPLETION_SUBMITTED = "lesson_completion_submitted"
@@ -56,6 +70,7 @@ object LogEvents {
 
     const val LESSON_EXERCISES_LOADED = "lesson_exercises_loaded"
     const val COURSE_TREE_LOADED = "course_tree_loaded"
+    const val COURSE_PROGRESS_STATS_COMPUTED = "course_progress_stats_computed"
 
     const val USER_ONBOARDED = "userOnboarded"
     const val USER_DELETED = "userDeleted"
@@ -74,6 +89,8 @@ object LogEvents {
     const val PROJECT_DELETE_REQUESTED = "project_delete_requested"
     const val PROJECT_CREATED = "project_created"
     const val PROJECT_SNAPSHOT_FORBIDDEN = "project_snapshot_forbidden"
+    const val PROJECT_PLAN_ENFORCEMENT_STARTED = "project_plan_enforcement_started"
+    const val PROJECT_PLAN_ENFORCEMENT_COMPLETED = "project_plan_enforcement_completed"
 
     const val USER_COINS_ADJUSTED = "user_coins_adjusted"
     const val USERNAME_CHANGED = "username_changed"
@@ -86,6 +103,11 @@ object LogEvents {
     const val STRIPE_CUSTOMER_CREATED = "stripe_customer_created"
     const val STRIPE_SUBSCRIPTION_CREATED = "stripe_subscription_created"
     const val STRIPE_SUBSCRIPTION_CANCEL_REQUESTED = "stripe_subscription_cancel_requested"
+    const val STRIPE_CHECKOUT_SESSION_CREATED = "stripe_checkout_session_created"
+    const val SUBSCRIPTION_CHECKOUT_REQUESTED = "subscription_checkout_requested"
+    const val SUBSCRIPTION_CHECKOUT_PLAN_NOT_FOUND = "subscription_checkout_plan_not_found"
+    const val SUBSCRIPTION_CHECKOUT_SESSION_CREATED = "subscription_checkout_session_created"
+    const val SUBSCRIPTION_WEBHOOK_RECEIVED = "subscription_webhook_received"
 
     const val SUBSCRIPTION_INVOICE_PAID = "subscription_invoice_paid"
     const val SUBSCRIPTION_UPDATED = "subscription_updated"
@@ -93,5 +115,7 @@ object LogEvents {
 
     const val FREE_SUBSCRIPTION_CREATED = "free_subscription_created"
     const val SUBSCRIPTION_CANCELLED_LOCALLY = "subscription_cancelled_locally"
+    const val CORS_REQUEST_ALLOWED = "cors_request_allowed"
+    const val CORS_REQUEST_REJECTED = "cors_request_rejected"
 
 }

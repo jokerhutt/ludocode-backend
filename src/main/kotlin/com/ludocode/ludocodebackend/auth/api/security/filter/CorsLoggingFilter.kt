@@ -1,9 +1,12 @@
 package com.ludocode.ludocodebackend.auth.api.security.filter
 
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.configuration.web.CorsProperties
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
@@ -27,14 +30,18 @@ class CorsLoggingFilter(private val corsProperties: CorsProperties) : OncePerReq
 
             if (isAllowed) {
                 log.debug(
-                    "CORS request allowed - Origin: {} matches allowed patterns: {}",
-                    origin, corsProperties.origins
+                    LogEvents.CORS_REQUEST_ALLOWED + " {} {} {}",
+                    kv(LogFields.ORIGIN, origin),
+                    kv(LogFields.ALLOWED_ORIGINS_COUNT, corsProperties.origins.size),
+                    kv(LogFields.URI_PATH, request.requestURI)
                 )
             } else {
                 log.warn(
-                    "CORS request REJECTED - Origin: '{}' does not match any allowed patterns: {}. " +
-                            "Request method: {}, Request URI: {}",
-                    origin, corsProperties.origins, request.method, request.requestURI
+                    LogEvents.CORS_REQUEST_REJECTED + " {} {} {} {}",
+                    kv(LogFields.ORIGIN, origin),
+                    kv(LogFields.ALLOWED_ORIGINS_COUNT, corsProperties.origins.size),
+                    kv(LogFields.REQUEST_METHOD, request.method),
+                    kv(LogFields.URI_PATH, request.requestURI)
                 )
             }
         }

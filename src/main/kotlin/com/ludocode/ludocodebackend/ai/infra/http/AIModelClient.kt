@@ -3,6 +3,10 @@ package com.ludocode.ludocodebackend.ai.infra.http
 import com.fasterxml.jackson.databind.JsonNode
 import com.ludocode.ludocodebackend.ai.api.dto.request.GeminiRequest
 import com.ludocode.ludocodebackend.ai.app.port.out.AIPort
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
+import net.logstash.logback.argument.StructuredArguments.kv
+import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Flux
@@ -14,14 +18,20 @@ class AIModelClient(
     builder: WebClient.Builder
 ) : AIPort {
 
+    private val logger = LoggerFactory.getLogger(AIModelClient::class.java)
+
     private val client = builder
         .baseUrl("https://generativelanguage.googleapis.com")
         .defaultHeader("x-goog-api-key", apiKey)
         .build()
 
     override fun stream(request: GeminiRequest): Flux<String> {
-        println("In Client of Gemini")
         val streamUrl = "https://generativelanguage.googleapis.com/v1beta/models/$model:streamGenerateContent"
+
+        logger.debug(
+            LogEvents.AI_STREAM_STARTED + " {}",
+            kv(LogFields.LANGUAGE, model)
+        )
 
         return client.post()
             .uri(streamUrl)

@@ -3,8 +3,11 @@ package com.ludocode.ludocodebackend.progress.app.service
 import com.ludocode.ludocodebackend.catalog.app.port.`in`.CatalogPortForProgress
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseStatus
 import com.ludocode.ludocodebackend.commons.constants.CacheNames
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.progress.api.dto.internal.CourseProgressWithCompletion
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.CourseProgressResponseWithEnrolled
@@ -16,6 +19,8 @@ import com.ludocode.ludocodebackend.progress.domain.entity.embedded.CourseProgre
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
 import jakarta.transaction.Transactional
+import net.logstash.logback.argument.StructuredArguments.kv
+import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Caching
 import org.springframework.stereotype.Service
@@ -31,6 +36,8 @@ class CourseProgressService(
     private val clock: Clock,
     private val lessonCompletionRepository: LessonCompletionRepository,
 ) : CourseProgressPortForUser {
+
+    private val logger = LoggerFactory.getLogger(CourseProgressService::class.java)
 
     @Transactional
     override fun findOrCreate(userId: UUID, courseId: UUID): CourseProgressResponseWithEnrolled {
@@ -96,7 +103,16 @@ class CourseProgressService(
                 ErrorCode.COURSE_STATS_NOT_FOUND
             )
 
-        println("TOTAL: " + courseProgressStats.totalLessons + " COMPLETED: " + courseProgressStats.completedLessons)
+        withMdc(
+            LogFields.USER_ID to userId.toString(),
+            LogFields.COURSE_ID to courseId.toString()
+        ) {
+            logger.debug(
+                LogEvents.COURSE_PROGRESS_STATS_COMPUTED + " {} {}",
+                kv(LogFields.TOTAL_LESSONS, courseProgressStats.totalLessons),
+                kv(LogFields.COMPLETED_LESSONS, courseProgressStats.completedLessons)
+            )
+        }
         val isCourseComplete = courseProgressStats.completedLessons == courseProgressStats.totalLessons
         var isCourseCompleteForFirstTime = false
 

@@ -1,13 +1,16 @@
 package com.ludocode.ludocodebackend.runner.infra.ws
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
+import com.ludocode.ludocodebackend.commons.constants.LogEvents
+import com.ludocode.ludocodebackend.commons.constants.LogFields
+import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.runner.api.dto.request.PistonDataMessage
 import com.ludocode.ludocodebackend.runner.api.dto.request.PistonFile
 import com.ludocode.ludocodebackend.runner.api.dto.request.PistonInitMessage
 import com.ludocode.ludocodebackend.runner.api.dto.request.RunnerRunMessage
 import com.ludocode.ludocodebackend.runner.api.dto.request.RunnerStdinMessage
-import com.ludocode.ludocodebackend.runner.infra.ws.PistonWebSocketClient
+import net.logstash.logback.argument.StructuredArguments.kv
+import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus
@@ -22,20 +25,38 @@ class RunnerSocketHandler(
     private val pistonWebSocketClient: PistonWebSocketClient
 ) : TextWebSocketHandler() {
 
+    private val logger = LoggerFactory.getLogger(RunnerSocketHandler::class.java)
     private val mapper = jacksonObjectMapper()
     private val pistonSessions = ConcurrentHashMap<String, WebSocketSession>()
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
+        withMdc(LogFields.WS_SESSION_ID to session.id) {
+            logger.info(LogEvents.RUNNER_WS_CLIENT_CONNECTED)
+        }
 
         pistonWebSocketClient.connect(object : TextWebSocketHandler() {
 
             override fun afterConnectionEstablished(pistonSession: WebSocketSession) {
                 pistonSessions[session.id] = pistonSession
+                withMdc(
+                    LogFields.WS_SESSION_ID to session.id,
+                    LogFields.PISTON_WS_SESSION_ID to pistonSession.id
+                ) {
+                    logger.info(LogEvents.RUNNER_WS_PISTON_CONNECTED)
+                }
             }
 
             override fun handleTextMessage(pistonSession: WebSocketSession, message: TextMessage) {
 
-                println("Piston → ${message.payload}")
+                withMdc(
+                    LogFields.WS_SESSION_ID to session.id,
+                    LogFields.PISTON_WS_SESSION_ID to pistonSession.id
+                ) {
+                    logger.debug(
+                        LogEvents.RUNNER_WS_PISTON_MESSAGE_FORWARDED + " {}",
+                        kv(LogFields.PAYLOAD_SIZE, message.payloadLength)
+                    )
+                }
 
                 if (session.isOpen) {
                     session.sendMessage(message)
@@ -44,11 +65,26 @@ class RunnerSocketHandler(
 
             override fun afterConnectionClosed(pistonSession: WebSocketSession, status: CloseStatus) {
                 pistonSessions.remove(session.id)
+                withMdc(
+                    LogFields.WS_SESSION_ID to session.id,
+                    LogFields.PISTON_WS_SESSION_ID to pistonSession.id
+                ) {
+                    logger.info(
+                        LogEvents.RUNNER_WS_PISTON_DISCONNECTED + " {} {}",
+                        kv(LogFields.RESPONSE_STATUS, status.code),
+                        kv(LogFields.ERROR_CODE, status.reason ?: "none")
+                    )
+                }
             }
 
         }).exceptionally { ex ->
-            println("Piston connection failed: ${ex.message}")
-            ex.printStackTrace()
+            withMdc(LogFields.WS_SESSION_ID to session.id) {
+                logger.error(
+                    LogEvents.RUNNER_WS_PISTON_CONNECT_FAILED + " {}",
+                    kv(LogFields.ERROR_CODE, ex.message ?: ex.javaClass.simpleName),
+                    ex
+                )
+            }
 
             session.close(CloseStatus.SERVER_ERROR)
             null
@@ -57,26 +93,59 @@ class RunnerSocketHandler(
 
     override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
 
-        val pistonSession = pistonSessions[session.id] ?: return
-
-        val node = mapper.readTree(message.payload)
-        val type = node["type"].asText()
-
-        when (type) {
-
-            "run" -> {
-                val run = mapper.treeToValue(node, RunnerRunMessage::class.java)
-                handleRun(run, pistonSession)
+        val pistonSession = pistonSessions[session.id]
+        if (pistonSession == null) {
+            withMdc(LogFields.WS_SESSION_ID to session.id) {
+                logger.warn(LogEvents.RUNNER_WS_PISTON_SESSION_MISSING)
             }
+            return
+        }
 
-            "stdin" -> {
-                val stdin = mapper.treeToValue(node, RunnerStdinMessage::class.java)
-                handleStdin(stdin, pistonSession)
+        withMdc(
+            LogFields.WS_SESSION_ID to session.id,
+            LogFields.PISTON_WS_SESSION_ID to pistonSession.id
+        ) {
+            try {
+                val node = mapper.readTree(message.payload)
+                val type = node["type"]?.asText() ?: "unknown"
+
+                when (type) {
+                    "run" -> {
+                        val run = mapper.treeToValue(node, RunnerRunMessage::class.java)
+                        handleRun(run, pistonSession)
+                    }
+
+                    "stdin" -> {
+                        val stdin = mapper.treeToValue(node, RunnerStdinMessage::class.java)
+                        handleStdin(stdin, pistonSession)
+                    }
+
+                    else -> {
+                        logger.warn(
+                            LogEvents.RUNNER_WS_UNKNOWN_MESSAGE_TYPE + " {}",
+                            kv(LogFields.MESSAGE_TYPE, type)
+                        )
+                    }
+                }
+            } catch (ex: Exception) {
+                logger.warn(
+                    LogEvents.RUNNER_WS_MESSAGE_PARSE_FAILED + " {}",
+                    kv(LogFields.ERROR_CODE, ex.message ?: ex.javaClass.simpleName),
+                    ex
+                )
             }
         }
     }
 
     private fun handleRun(msg: RunnerRunMessage, pistonSession: WebSocketSession) {
+
+        if (msg.files.isEmpty()) {
+            logger.warn(
+                LogEvents.RUNNER_WS_MESSAGE_PARSE_FAILED + " {}",
+                kv(LogFields.ERROR_CODE, "missing_files")
+            )
+            return
+        }
 
         val runtime = msg.files.first().codeLanguage
 
@@ -94,6 +163,12 @@ class RunnerSocketHandler(
         pistonSession.sendMessage(
             TextMessage(mapper.writeValueAsString(pistonInit))
         )
+
+        logger.info(
+            LogEvents.RUNNER_WS_RUN_FORWARDED + " {} {}",
+            kv(LogFields.FILE_COUNT, msg.files.size),
+            kv(LogFields.LANGUAGE, runtime)
+        )
     }
 
     private fun handleStdin(msg: RunnerStdinMessage, pistonSession: WebSocketSession) {
@@ -106,9 +181,21 @@ class RunnerSocketHandler(
         pistonSession.sendMessage(
             TextMessage(mapper.writeValueAsString(pistonMsg))
         )
+
+        logger.debug(
+            LogEvents.RUNNER_WS_STDIN_FORWARDED + " {}",
+            kv(LogFields.PAYLOAD_SIZE, msg.text.length)
+        )
     }
 
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
+        withMdc(LogFields.WS_SESSION_ID to session.id) {
+            logger.info(
+                LogEvents.RUNNER_WS_CLIENT_DISCONNECTED + " {} {}",
+                kv(LogFields.RESPONSE_STATUS, status.code),
+                kv(LogFields.ERROR_CODE, status.reason ?: "none")
+            )
+        }
         pistonSessions.remove(session.id)?.close()
     }
 }
