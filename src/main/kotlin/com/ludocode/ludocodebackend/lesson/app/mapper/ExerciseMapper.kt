@@ -10,6 +10,7 @@ class ExerciseMapper {
             ExerciseResponse(
                 id = exercise.exerciseId.id,
                 version = exercise.exerciseId.versionNumber,
+                body = exercise.body,
                 orderIndex = index + 1,
                 blocks = exercise.blocks,
                 interaction = exercise.interaction
@@ -23,6 +24,7 @@ class ExerciseMapper {
         ExerciseResponse(
             id = exercise.exerciseId.id,
             version = exercise.exerciseId.versionNumber,
+            body = exercise.body,
             orderIndex = orderIndex,
             blocks = exercise.blocks,
             interaction = exercise.interaction

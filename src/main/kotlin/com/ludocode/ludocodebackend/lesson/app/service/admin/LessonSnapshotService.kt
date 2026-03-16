@@ -105,6 +105,7 @@ class LessonSnapshotService(
         return ExerciseSnap(
             exerciseId = exerciseResponse.id,
             blocks = exerciseResponse.blocks,
+            body = exerciseResponse.body,
             interaction = exerciseResponse.interaction
         )
     }
