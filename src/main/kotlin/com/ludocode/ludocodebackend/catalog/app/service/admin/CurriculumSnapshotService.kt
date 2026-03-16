@@ -121,7 +121,7 @@ class CurriculumSnapshotService(
                                     InstructionsBlock(clientId = UUID.randomUUID(), instructions = listOf("Make the program print hello world"))
                                 ),
                                 interaction = ExecutableInteraction(clientId = UUID.randomUUID(), tests = listOf(
-                                    ExecutableTest(type = TestType.OUTPUT_CONTAINS, expected = "hello world")), solution = "print('hello world')")
+                                    ExecutableTest(type = TestType.OUTPUT_CONTAINS, expected = "hello world")), solution = "CHANGE ME")
                             )
                         )} else {
                             exerciseRepository.save(
@@ -154,7 +154,7 @@ class CurriculumSnapshotService(
 
                         val initialFile = ProjectFileSnapshot(
                             id = initialFileId,
-                            path = language.base,
+                            path = "${language.base}${language.base}",
                             language = languagesMapper.toLanguageMetadata(language),
                             content = ""
                         )
