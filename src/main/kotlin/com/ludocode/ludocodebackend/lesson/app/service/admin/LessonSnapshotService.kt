@@ -11,8 +11,11 @@ import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
 import com.ludocode.ludocodebackend.lesson.domain.entity.LessonExercise
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.LessonExercisesId
+import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
 import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseRepository
 import com.ludocode.ludocodebackend.lesson.infra.repository.LessonExercisesRepository
+import com.ludocode.ludocodebackend.lesson.infra.repository.LessonRepository
+import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import jakarta.transaction.Transactional
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Caching
@@ -23,7 +26,8 @@ import java.util.*
 class LessonSnapshotService(
     private val lessonExercisesRepository: LessonExercisesRepository,
     private val lessonService: LessonService,
-    private val exerciseRepository: ExerciseRepository
+    private val exerciseRepository: ExerciseRepository,
+    private val lessonRepository: LessonRepository
 ) {
 
     @Caching(
@@ -61,6 +65,7 @@ class LessonSnapshotService(
                 Exercise(
                     ExerciseId(exerciseId, version),
                     blocks = exercise.blocks,
+                    body = exercise.body,
                     interaction = exercise.interaction,
                     isDeleted = false
                 )
@@ -75,20 +80,40 @@ class LessonSnapshotService(
             )
         }
 
+        val lesson = lessonRepository.findById(lessonId)
+            .orElseThrow { ApiException(ErrorCode.LESSON_NOT_FOUND) }
+
+        when (lesson.lessonType) {
+
+            LessonType.GUIDED -> {
+                if (snap.projectSnapshot == null) {
+                    throw ApiException(ErrorCode.GUIDED_LESSON_NEEDS_SNAPSHOT)
+                }
+            }
+
+            LessonType.NORMAL -> {
+                if (snap.projectSnapshot != null) {
+                    throw ApiException(ErrorCode.NORMAL_LESSON_NO_SNAPSHOT)
+                }
+            }
+        }
+
+        lesson.projectSnapshot = snap.projectSnapshot
+
         return buildLessonCurriculumSnapshot(lessonId)
     }
 
-
     fun buildLessonCurriculumSnapshot(lessonId: UUID): LessonCurriculumDraftSnapshot {
-
+        val lesson = lessonRepository.findById(lessonId).orElseThrow { ApiException(ErrorCode.LESSON_NOT_FOUND) }
         val exerciseResponses = lessonService.getExercisesByLessonId(lessonId)
         val exerciseSnapshots = exerciseResponses.map { exerciseResponse ->
             buildExerciseSnapshot(exerciseResponse)
         }
 
-        return LessonCurriculumDraftSnapshot(exerciseSnapshots)
+        return LessonCurriculumDraftSnapshot(exerciseSnapshots, lessonType = lesson.lessonType,  projectSnapshot = lesson.projectSnapshot)
 
     }
+
 
     internal fun buildExerciseSnapshot(
         exerciseResponse: ExerciseResponse
@@ -97,6 +122,7 @@ class LessonSnapshotService(
         return ExerciseSnap(
             exerciseId = exerciseResponse.id,
             blocks = exerciseResponse.blocks,
+            body = exerciseResponse.body,
             interaction = exerciseResponse.interaction
         )
     }

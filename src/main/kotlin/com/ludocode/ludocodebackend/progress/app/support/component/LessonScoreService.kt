@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExerciseAnswer
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectAnswer
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExecutableInteraction
 import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseRepository
 import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionRequest
 import com.ludocode.ludocodebackend.progress.domain.entity.ExerciseAttempt
@@ -48,15 +49,16 @@ import java.util.*
                     .findTopByExerciseId_IdAndIsDeletedFalseOrderByExerciseId_VersionNumberDesc(submission.exerciseId)
                     ?: continue
 
-                val attemptsSize = submission.attempts.size
+
+                val attemptsSize = submission.results.size
                 totalAttempts += attemptsSize
 
                 val isPerfect = attemptsSize == 1
                 if (!isPerfect) isPerfectLesson = false
 
-                for (attempt in submission.attempts) {
+                for (result in submission.results) {
 
-                    val isCorrect = grade(exercise, attempt)
+                    val isCorrect = result.isCorrect
 
                     if (isCorrect) correctAttempts++
 
@@ -68,7 +70,7 @@ import java.util.*
                             userId = userId,
                             exerciseId = exercise.exerciseId.id,
                             exerciseVersion = exercise.exerciseId.versionNumber,
-                            answer = attempt,
+                            answer = result.attempt,
                             isCorrect = isCorrect
                         )
                     )
@@ -106,30 +108,6 @@ import java.util.*
             if (total == 0) return BigDecimal.ONE
             return BigDecimal(correct)
                 .divide(BigDecimal(total), 2, RoundingMode.HALF_UP)
-        }
-    }
-
-    //TODO ignore info
-    private fun grade(exercise: Exercise, answer: ExerciseAnswer): Boolean {
-        val interaction = exercise.interaction ?: return true
-
-        return when (interaction) {
-
-            is SelectInteraction -> {
-                val correct = interaction.items
-                    .first { it == interaction.correctValue }
-
-                (answer as SelectAnswer).pickedValue == correct
-            }
-
-            is ClozeInteraction -> {
-                val values = (answer as ClozeAnswer).valuesByBlank
-
-                interaction.blanks.all { blank ->
-                    val userValue = values.getOrNull(blank.index) ?: return false
-                    userValue in blank.correctOptions
-                }
-            }
         }
     }
 

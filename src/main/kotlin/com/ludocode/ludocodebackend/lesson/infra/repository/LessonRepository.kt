@@ -13,6 +13,8 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
     SELECT l.id AS id,
            l.title AS title,
            ml.order_index AS orderIndex,
+           l.project_snapshot::text AS project_snapshot,
+           l.lesson_type AS lessonType,
            EXISTS (
              SELECT 1 FROM lesson_completion lc
              WHERE lc.is_deleted = false
@@ -36,6 +38,8 @@ interface LessonRepository : JpaRepository<Lesson, UUID> {
     SELECT 
       l.id           AS id,
       l.title        AS title,
+      l.lesson_type AS lessonType,  
+      l.project_snapshot::text AS project_snapshot, 
       ml.order_index AS orderIndex,
       EXISTS (
         SELECT 1 FROM lesson_completion lc

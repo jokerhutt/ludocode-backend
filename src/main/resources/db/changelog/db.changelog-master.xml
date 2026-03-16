@@ -40,6 +40,9 @@
     <include file="/db/changelog/033-add-course-status-remove-visibility.xml"/>
     <include file="/db/changelog/034-create-feedback-table.xml"/>
     <include file="/db/changelog/035-analytics-events.xml"/>
+    <include file="/db/changelog/036-add-lesson-type.xml"/>
+    <include file="/db/changelog/037-add-lesson-project-snapshot.xml"/>
+    <include file="/db/changelog/038-add-exercise-body.xml"/>
 
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>

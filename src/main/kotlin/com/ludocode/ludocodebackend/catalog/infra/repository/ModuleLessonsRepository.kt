@@ -13,12 +13,15 @@ interface ModuleLessonsRepository : JpaRepository<ModuleLesson, ModuleLessonsId>
 
     @Query(
         value = """
-        SELECT *
-        FROM lesson
-        JOIN module_lessons ON module_lessons.lesson_id = lesson.id
-        WHERE module_lessons.module_id = :moduleId
-          AND lesson.is_deleted = false
-        """, nativeQuery = true
+    SELECT lesson.*
+    FROM lesson
+    JOIN module_lessons 
+        ON module_lessons.lesson_id = lesson.id
+    WHERE module_lessons.module_id = :moduleId
+      AND lesson.is_deleted = false
+    ORDER BY module_lessons.order_index
+    """,
+        nativeQuery = true
     )
     fun findActiveLessonsByModuleId(@Param("moduleId") moduleId: UUID): List<Lesson>
 

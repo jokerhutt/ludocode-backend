@@ -20,6 +20,7 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.HeaderBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ParagraphBlock
 import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
@@ -28,8 +29,15 @@ import com.ludocode.ludocodebackend.lesson.domain.entity.Lesson
 import com.ludocode.ludocodebackend.lesson.domain.entity.LessonExercise
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.LessonExercisesId
+import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExecutableInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExecutableTest
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.InstructionsBlock
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.TestType
 import com.ludocode.ludocodebackend.lesson.infra.repository.*
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
+import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
+import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import com.ludocode.ludocodebackend.tag.api.dto.TagMetadata
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
@@ -54,6 +62,7 @@ class CurriculumSnapshotService(
     private val courseProgressRepository: CourseProgressRepository,
     private val codeLanguagesRepository: CodeLanguagesRepository,
     private val courseTagRepository: CourseTagRepository,
+    private val languagesMapper: LanguagesMapper,
 ) {
 
     private val logger = LoggerFactory.getLogger(CurriculumSnapshotService::class.java)
@@ -100,20 +109,33 @@ class CurriculumSnapshotService(
                 val lesson = existing ?: Lesson(
                     id = lessonSnapshot.id,
                     title = lessonSnapshot.title,
-                    isDeleted = false
+                    isDeleted = false,
+                    lessonType = lessonSnapshot.lessonType
                 )
 
                 if (isNewLesson) {
-                    val newExercise = exerciseRepository.save(
-                        Exercise(
-                            exerciseId = ExerciseId(UUID.randomUUID(), 1),
-                            blocks = listOf(
-                                HeaderBlock("Placeholder Exercise"),
-                                ParagraphBlock("Change me")
-                            ),
-                            interaction = null
-                        )
-                    )
+                        val newExercise = if (lesson.lessonType == LessonType.GUIDED) {exerciseRepository.save(
+                            Exercise(
+                                exerciseId = ExerciseId(UUID.randomUUID(), 1),
+                                blocks = listOf(
+                                    InstructionsBlock(clientId = UUID.randomUUID(), instructions = listOf("Make the program print hello world"))
+                                ),
+                                interaction = ExecutableInteraction(clientId = UUID.randomUUID(), tests = listOf(
+                                    ExecutableTest(type = TestType.OUTPUT_CONTAINS, expected = "hello world")), solution = "CHANGE ME")
+                            )
+                        )} else {
+                            exerciseRepository.save(
+                                Exercise(
+                                    exerciseId = ExerciseId(UUID.randomUUID(), 1),
+                                    blocks = listOf(
+                                        HeaderBlock("Placeholder Exercise"),
+                                        ParagraphBlock("Change me")
+                                    ),
+                                    interaction = null
+                                )
+                            )
+                        }
+
                     lessonExercisesRepository.save(
                         LessonExercise(
                             LessonExercisesId(lesson.id, 1),
@@ -121,6 +143,33 @@ class CurriculumSnapshotService(
                             newExercise.exerciseId.versionNumber
                         )
                     )
+
+                    if (lesson.lessonType == LessonType.GUIDED) {
+
+                        val courses = courseRepository.findAllWithLanguagesIncludingDraft()
+                        val course = courses.find { it -> it.id == courseId } ?: throw ApiException(ErrorCode.COURSE_NOT_FOUND)
+                        val language = course.language ?: throw ApiException(ErrorCode.LANGUAGE_NOT_FOUND, "Guided lessons course must have a language")
+
+                        val initialFileId = UUID.randomUUID()
+
+                        val initialFile = ProjectFileSnapshot(
+                            id = initialFileId,
+                            path = "${language.base}${language.base}",
+                            language = languagesMapper.toLanguageMetadata(language),
+                            content = ""
+                        )
+
+                        lesson.projectSnapshot = ProjectSnapshot(
+                            projectId = UUID.randomUUID(),
+                            projectName = "printing hello world",
+                            projectLanguage = languagesMapper.toLanguageMetadata(language),
+                            updatedAt = OffsetDateTime.now(),
+                            deleteAt = null,
+                            files = listOf(initialFile),
+                            entryFileId = initialFileId
+                        )
+                    }
+
                 }
 
                 if (isNewLesson) {
@@ -128,6 +177,7 @@ class CurriculumSnapshotService(
                 }
 
                 lesson.title = lessonSnapshot.title
+                lesson.lessonType = lessonSnapshot.lessonType
                 lessonRepository.save(lesson)
 
                 val join = ModuleLesson(
@@ -269,6 +319,7 @@ class CurriculumSnapshotService(
             id = newLessonId,
             title = "Hello world!",
             isDeleted = false,
+            lessonType = LessonType.NORMAL
         )
 
         lessonRepository.save(newLesson)
@@ -333,6 +384,7 @@ class CurriculumSnapshotService(
             LessonDraftSnapshot(
                 id = lesson.id,
                 title = lesson.title,
+                lessonType = lesson.lessonType,
             )
         }
 

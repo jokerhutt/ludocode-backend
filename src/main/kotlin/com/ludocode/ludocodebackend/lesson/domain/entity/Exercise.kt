@@ -3,7 +3,6 @@ package com.ludocode.ludocodebackend.lesson.domain.entity
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.Block
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExerciseInteraction
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
-import com.ludocode.ludocodebackend.lesson.domain.enums.ExerciseType
 import jakarta.persistence.Column
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
@@ -23,12 +22,17 @@ class Exercise(
     @Column(name = "blocks", columnDefinition = "jsonb", nullable = false)
     val blocks: List<Block>,
 
+    @Column(name = "body")
+    var body: String? = null,
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "interaction", columnDefinition = "jsonb")
     val interaction: ExerciseInteraction? = null,
 
     @Column(name = "is_deleted")
-    var isDeleted: Boolean? = false
+    var isDeleted: Boolean? = false,
+
+
 
 )
 

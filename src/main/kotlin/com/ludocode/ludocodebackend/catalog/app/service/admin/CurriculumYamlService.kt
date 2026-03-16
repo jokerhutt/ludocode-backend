@@ -1,7 +1,11 @@
 package com.ludocode.ludocodebackend.catalog.app.service.admin
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.ludocode.ludocodebackend.catalog.api.dto.request.CreateCourseRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
@@ -14,6 +18,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlRoot
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.commons.configuration.web.YamlProperties
 import com.ludocode.ludocodebackend.lesson.app.service.admin.LessonSnapshotService
+import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -28,8 +33,16 @@ class CurriculumYamlService(
 
 
     private val yamlMapper =
-        ObjectMapper(YAMLFactory())
+        ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
             .registerModule(KotlinModule.Builder().build())
+            .registerModule(JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+
+    fun parseYaml(yaml: String): CurriculumYamlRoot {
+        return yamlMapper.readValue(yaml, CurriculumYamlRoot::class.java)
+    }
+
 
     @Transactional
     fun importYaml(courseId: UUID? = null, root: CurriculumYamlRoot) {
@@ -58,7 +71,8 @@ class CurriculumYamlService(
 
                         LessonDraftSnapshot(
                             id = lessonId,
-                            title = lesson.title
+                            title = lesson.title,
+                            lessonType = lesson.lessonType,
                         )
                     }
                 )
@@ -77,7 +91,7 @@ class CurriculumYamlService(
 
                 lessonSnapshotService.applyExercises(
                     lessonIdMap[lesson]!!,
-                    LessonCurriculumDraftSnapshot(normalizedExercises)
+                    LessonCurriculumDraftSnapshot(normalizedExercises, lessonType = lesson.lessonType, projectSnapshot = lesson.projectSnapshot )
                 )
             }
         }
@@ -100,7 +114,9 @@ class CurriculumYamlService(
                 CurriculumYamlLesson(
                     id = lesson.id,
                     title = lesson.title,
-                    exercises = lessonSnap.exercises
+                    exercises = lessonSnap.exercises,
+                    lessonType = lessonSnap.lessonType,
+                    projectSnapshot = lessonSnap.projectSnapshot
                 )
             }
 

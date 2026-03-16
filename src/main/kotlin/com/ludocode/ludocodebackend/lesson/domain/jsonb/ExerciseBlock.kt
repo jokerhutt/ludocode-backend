@@ -14,7 +14,8 @@ import java.util.UUID
     JsonSubTypes.Type(value = HeaderBlock::class, name = "header"),
     JsonSubTypes.Type(value = ParagraphBlock::class, name = "paragraph"),
     JsonSubTypes.Type(value = CodeBlock::class, name = "code"),
-    JsonSubTypes.Type(value = MediaBlock::class, name = "media")
+    JsonSubTypes.Type(value = MediaBlock::class, name = "media"),
+    JsonSubTypes.Type(value = InstructionsBlock::class, name = "instructions")
 )
 sealed interface Block {
     val clientId: UUID
@@ -37,8 +38,14 @@ data class CodeBlock(
     override val clientId: UUID = UUID.randomUUID()
 ) : Block
 
+data class InstructionsBlock(
+    val instructions: List<String>,
+    override val clientId: UUID = UUID.randomUUID()
+) : Block
+
 data class MediaBlock(
     val src: String,
     val alt: String? = null,
     override val clientId: UUID = UUID.randomUUID()
 ) : Block
+

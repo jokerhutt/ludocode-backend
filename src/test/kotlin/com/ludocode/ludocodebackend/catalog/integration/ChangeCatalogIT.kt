@@ -15,6 +15,7 @@ import com.ludocode.ludocodebackend.lesson.domain.jsonb.HeaderBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionBlank
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionFile
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
+import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ParagraphBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.progress.domain.entity.CourseProgress
@@ -118,6 +119,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
                         CurriculumYamlLesson(
                             id = null,
                             title = "Print Statements",
+                            lessonType = LessonType.NORMAL,
                             exercises = listOf(
 
                                 // INFO exercise
@@ -201,7 +203,8 @@ ___("Hello world")
         val lessonToChange = pythonSnap.modules[0].lessons[0]
 
         val lessonCurriculum = LessonCurriculumDraftSnapshot(
-            exercises = lessonToChange.exercises.toMutableList()
+            exercises = lessonToChange.exercises.toMutableList(),
+            lessonType = LessonType.NORMAL,
         )
 
         lessonCurriculum.exercises = lessonCurriculum.exercises - lessonCurriculum.exercises
@@ -301,7 +304,7 @@ ___("Hello world")
             )
         )
 
-        val lessonCurriculum = LessonCurriculumDraftSnapshot(exercises = exercises)
+        val lessonCurriculum = LessonCurriculumDraftSnapshot(exercises = exercises, lessonType = LessonType.NORMAL)
 
         val result = submitPostUpdateExerciseCatalog(lessonToChange.id, lessonCurriculum)
 
@@ -391,7 +394,7 @@ ___("Hello world")
             )
         )
 
-        val lessonCurriculum = LessonCurriculumDraftSnapshot(exercises = exercises)
+        val lessonCurriculum = LessonCurriculumDraftSnapshot(exercises = exercises, lessonType = LessonType.NORMAL,)
 
         val result = submitPostUpdateExerciseCatalog(lessonToChange.id, lessonCurriculum)
 
@@ -517,7 +520,7 @@ ___("Hello world")
             seed
         )
 
-        val lessonCurriculum = LessonCurriculumDraftSnapshot(exercises = modifiedExercises)
+        val lessonCurriculum = LessonCurriculumDraftSnapshot(exercises = modifiedExercises, lessonType = LessonType.NORMAL,)
 
         val result = submitPostUpdateExerciseCatalog(lessonToChange.id, lessonCurriculum)
 
@@ -572,7 +575,7 @@ ___("Hello world")
                     lessonToChange.exercises,
                     seed + 1000
                 )
-                val lessonCurriculum = LessonCurriculumDraftSnapshot(exercises = modifiedExercises)
+                val lessonCurriculum = LessonCurriculumDraftSnapshot(exercises = modifiedExercises, lessonType = LessonType.NORMAL,)
                 val exerciseResult = submitPostUpdateExerciseCatalog(lessonToChange.id, lessonCurriculum)
 
                 assertThat(exerciseResult).isNotNull()

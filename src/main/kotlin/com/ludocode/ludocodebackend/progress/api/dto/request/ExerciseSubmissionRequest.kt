@@ -6,5 +6,10 @@ import java.util.*
 data class ExerciseSubmissionRequest(
     val exerciseId: UUID,
     val version: Int,
-    val attempts: List<ExerciseAnswer>
+    val results: List<ExerciseAttemptResult>
+)
+
+data class ExerciseAttemptResult(
+    val isCorrect: Boolean,
+    val attempt: ExerciseAnswer
 )

@@ -7,10 +7,14 @@ import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectAnswer
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.LessonSnap
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExecutableAnswer
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExecutableInteraction
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExerciseAnswer
+import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseAttemptResult
 import com.ludocode.ludocodebackend.progress.api.dto.request.ExerciseSubmissionRequest
 import com.ludocode.ludocodebackend.progress.api.dto.request.LessonSubmissionRequest
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionPacket
+import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import com.ludocode.ludocodebackend.support.TestRestClient
 import java.util.UUID
 import kotlin.random.Random
@@ -53,13 +57,14 @@ object LessonSubmissionTestUtil {
 
     fun createRandomExerciseSubmission(
         exercise: ExerciseSnap,
-        random: Random
+        random: Random,
     ): ExerciseSubmissionRequest =
         createExerciseSubmission(exercise, random.nextBoolean())
 
     private fun createExerciseSubmission(
         exercise: ExerciseSnap,
-        allCorrect: Boolean
+        allCorrect: Boolean,
+        projectSnap: ProjectSnapshot? = null,
     ): ExerciseSubmissionRequest {
 
         val attempts: List<ExerciseAnswer> =
@@ -69,6 +74,20 @@ object LessonSubmissionTestUtil {
                 null -> listOf(
                     SelectAnswer("INFO")
                 )
+
+                is ExecutableInteraction -> {
+
+                    if (allCorrect) {
+                        listOf(
+                            ExecutableAnswer(projectSnap!!)
+                        )
+                    } else {
+                        listOf(
+                            ExecutableAnswer(projectSnap!!.copy()),
+                            ExecutableAnswer(projectSnap!!)
+                        )
+                    }
+                }
 
                 is SelectInteraction -> {
 
@@ -116,7 +135,28 @@ object LessonSubmissionTestUtil {
         return ExerciseSubmissionRequest(
             exerciseId = exercise.exerciseId!!,
             version = 1,
-            attempts = attempts
+            results = attempts.map { attempt ->
+                ExerciseAttemptResult(
+                    attempt = attempt,
+                    isCorrect = when (val interaction = exercise.interaction) {
+
+                        null -> true
+
+                        is ExecutableInteraction -> true
+
+                        is SelectInteraction ->
+                            (attempt as SelectAnswer).pickedValue == interaction.correctValue
+
+                        is ClozeInteraction -> {
+                            val ans = (attempt as ClozeAnswer).valuesByBlank
+                            interaction.blanks.withIndex().all { (i, blank) ->
+                                ans.getOrNull(i) in blank.correctOptions
+                            }
+                        }
+                    }
+                )
+            }
+
         )
     }
 }

@@ -10,5 +10,6 @@ data class ExerciseResponse(
     val version: Int,
     val orderIndex: Int,
     val blocks: List<Block>,
-    val interaction: ExerciseInteraction?
+    val interaction: ExerciseInteraction?,
+    val body: String? = null
 )

@@ -55,7 +55,7 @@
 
     "lesson": {
       "type": "object",
-      "required": ["title", "exercises"],
+      "required": ["title", "exercises", "lessonType"],
       "properties": {
 
         "id": {
@@ -63,8 +63,17 @@
           "format": "uuid"
         },
 
+        "lessonType": {
+          "type": "string",
+          "enum": ["NORMAL", "GUIDED"]
+        },
+
         "title": {
           "type": "string"
+        },
+
+        "projectSnapshot": {
+          "$ref": "#/$defs/projectSnapshot"
         },
 
         "exercises": {
@@ -72,7 +81,60 @@
           "minItems": 1,
           "items": { "$ref": "#/$defs/exercise" }
         }
-      }
+      },
+
+      "allOf": [
+
+        {
+          "if": {
+            "properties": { "lessonType": { "const": "GUIDED" } }
+          },
+          "then": {
+            "required": ["projectSnapshot"],
+            "properties": {
+              "exercises": {
+                "items": {
+                  "required": ["interaction"],
+                  "properties": {
+                    "interaction": {
+                      "properties": {
+                        "type": { "const": "EXECUTABLE" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+
+        {
+          "if": {
+            "properties": { "lessonType": { "const": "NORMAL" } }
+          },
+          "then": {
+            "not": {
+              "required": ["projectSnapshot"]
+            },
+            "properties": {
+              "exercises": {
+                "items": {
+                  "properties": {
+                    "interaction": {
+                      "not": {
+                        "properties": {
+                          "type": { "const": "EXECUTABLE" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+      ]
     },
 
     "exercise": {
@@ -83,6 +145,10 @@
         "exerciseId": {
           "type": "string",
           "format": "uuid"
+        },
+
+        "body": {
+          "type": ["string", "null"]
         },
 
         "exerciseVersion": {
@@ -96,7 +162,8 @@
               { "$ref": "#/$defs/headerBlock" },
               { "$ref": "#/$defs/paragraphBlock" },
               { "$ref": "#/$defs/codeBlock" },
-              { "$ref": "#/$defs/mediaBlock" }
+              { "$ref": "#/$defs/mediaBlock" },
+              { "$ref": "#/$defs/instructionsBlock" }
             ]
           }
         },
@@ -107,19 +174,21 @@
           "allOf": [
             {
               "if": {
-                "properties": {
-                  "type": { "const": "SELECT" }
-                }
+                "properties": { "type": { "const": "SELECT" } }
               },
               "then": { "$ref": "#/$defs/selectInteraction" }
             },
             {
               "if": {
-                "properties": {
-                  "type": { "const": "CLOZE" }
-                }
+                "properties": { "type": { "const": "CLOZE" } }
               },
               "then": { "$ref": "#/$defs/clozeInteraction" }
+            },
+            {
+              "if": {
+                "properties": { "type": { "const": "EXECUTABLE" } }
+              },
+              "then": { "$ref": "#/$defs/executableInteraction" }
             }
           ]
         }
@@ -158,6 +227,19 @@
       }
     },
 
+    "instructionsBlock": {
+      "type": "object",
+      "required": ["type", "instructions"],
+      "properties": {
+        "type": { "const": "instructions" },
+        "instructions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "clientId": { "type": "string", "format": "uuid" }
+      }
+    },
+
     "mediaBlock": {
       "type": "object",
       "required": ["type", "src"],
@@ -173,24 +255,13 @@
       "type": "object",
       "required": ["type", "items", "correctValue"],
       "properties": {
-
-        "type": {
-          "const": "SELECT"
-        },
-
-        "clientId": {
-          "type": "string",
-          "format": "uuid"
-        },
-
+        "type": { "const": "SELECT" },
+        "clientId": { "type": "string", "format": "uuid" },
         "items": {
           "type": "array",
           "items": { "type": "string" }
         },
-
-        "correctValue": {
-          "type": "string"
-        }
+        "correctValue": { "type": "string" }
       }
     },
 
@@ -198,31 +269,57 @@
       "type": "object",
       "required": ["type", "file", "blanks", "options"],
       "properties": {
-
-        "type": {
-          "const": "CLOZE"
-        },
-
-        "clientId": {
-          "type": "string",
-          "format": "uuid"
-        },
-
-        "file": {
-          "$ref": "#/$defs/file"
-        },
-
+        "type": { "const": "CLOZE" },
+        "clientId": { "type": "string", "format": "uuid" },
+        "file": { "$ref": "#/$defs/file" },
         "blanks": {
           "type": "array",
           "items": { "$ref": "#/$defs/blank" }
         },
-
         "options": {
           "type": "array",
           "items": { "type": "string" }
         },
-
         "output": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+
+    "executableInteraction": {
+      "type": "object",
+      "required": ["type", "tests", "solution"],
+      "properties": {
+        "type": { "const": "EXECUTABLE" },
+        "clientId": { "type": "string", "format": "uuid" },
+
+        "solution": {
+          "type": "string"
+        },
+
+        "tests": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/executableTest" }
+        },
+
+        "showOutput": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "executableTest": {
+      "type": "object",
+      "required": ["type", "expected"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["OUTPUT_PATTERN_MATCHES", "FILE_PATTERN_MATCHES", "OUTPUT_CONTAINS", "FILE_CONTAINS"]
+        },
+        "expected": {
+          "type": "string"
+        },
+        "feedback": {
           "type": ["string", "null"]
         }
       }
@@ -232,11 +329,7 @@
       "type": "object",
       "required": ["index", "correctOptions"],
       "properties": {
-
-        "index": {
-          "type": "integer"
-        },
-
+        "index": { "type": "integer" },
         "correctOptions": {
           "type": "array",
           "items": { "type": "string" }
@@ -248,14 +341,108 @@
       "type": "object",
       "required": ["language", "content"],
       "properties": {
+        "language": { "type": "string" },
+        "content": { "type": "string" }
+      }
+    },
+
+    "projectSnapshot": {
+      "type": "object",
+      "required": [
+        "projectId",
+        "projectName",
+        "projectLanguage",
+        "files",
+        "entryFileId"
+      ],
+      "properties": {
+
+        "projectId": {
+          "type": "string",
+          "format": "uuid"
+        },
+
+        "projectName": {
+          "type": "string"
+        },
+
+        "projectLanguage": { "$ref": "#/$defs/languageMetadata" },
+
+        "updatedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+
+        "deleteAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+
+        "entryFileId": {
+          "type": "string",
+          "format": "uuid"
+        },
+
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": { "$ref": "#/$defs/projectFileSnapshot" }
+        }
+      }
+    },
+
+    "projectFileSnapshot": {
+      "type": "object",
+      "required": ["path", "language", "content"],
+      "properties": {
+
+        "id": {
+          "type": ["string", "null"],
+          "format": "uuid"
+        },
+
+        "path": {
+          "type": "string"
+        },
 
         "language": {
-          "type": "string"
+          "$ref": "#/$defs/languageMetadata"
         },
 
         "content": {
           "type": "string"
         }
+      }
+    },
+
+    "languageMetadata": {
+      "type": "object",
+      "required": [
+        "languageId",
+        "name",
+        "slug",
+        "editorId",
+        "pistonId",
+        "runtimeVersion",
+        "extension",
+        "base",
+        "iconName",
+        "initialScript"
+      ],
+      "properties": {
+
+        "languageId": { "type": "integer" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "editorId": { "type": "string" },
+        "pistonId": { "type": "string" },
+        "runtimeVersion": { "type": "string" },
+        "extension": { "type": "string" },
+        "base": { "type": "string" },
+        "iconName": { "type": "string" },
+        "initialScript": { "type": "string" }
+
       }
     }
 
