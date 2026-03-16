@@ -80,7 +80,24 @@ class LessonSnapshotService(
             )
         }
 
-        val lesson = lessonRepository.findById(lessonId).orElseThrow { ApiException(ErrorCode.LESSON_NOT_FOUND) }
+        val lesson = lessonRepository.findById(lessonId)
+            .orElseThrow { ApiException(ErrorCode.LESSON_NOT_FOUND) }
+
+        when (lesson.lessonType) {
+
+            LessonType.GUIDED -> {
+                if (snap.projectSnapshot == null) {
+                    throw ApiException(ErrorCode.GUIDED_LESSON_NEEDS_SNAPSHOT)
+                }
+            }
+
+            LessonType.NORMAL -> {
+                if (snap.projectSnapshot != null) {
+                    throw ApiException(ErrorCode.NORMAL_LESSON_NO_SNAPSHOT)
+                }
+            }
+        }
+
         lesson.projectSnapshot = snap.projectSnapshot
 
         return buildLessonCurriculumSnapshot(lessonId)

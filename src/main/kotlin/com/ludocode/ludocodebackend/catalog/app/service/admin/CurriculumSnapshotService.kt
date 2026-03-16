@@ -146,7 +146,7 @@ class CurriculumSnapshotService(
 
                     if (lesson.lessonType == LessonType.GUIDED) {
 
-                        val courses = courseRepository.findAllWithLanguage()
+                        val courses = courseRepository.findAllWithLanguagesIncludingDraft()
                         val course = courses.find { it -> it.id == courseId } ?: throw ApiException(ErrorCode.COURSE_NOT_FOUND)
                         val language = course.language ?: throw ApiException(ErrorCode.LANGUAGE_NOT_FOUND, "Guided lessons course must have a language")
 

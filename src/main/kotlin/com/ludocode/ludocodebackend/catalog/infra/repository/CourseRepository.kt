@@ -19,6 +19,15 @@ interface CourseRepository : JpaRepository<Course, UUID> {
     )
     fun findAllWithLanguage(): List<Course>
 
+    @Query(
+        """
+    select distinct c
+    from Course c
+    left join fetch c.language l
+"""
+    )
+    fun findAllWithLanguagesIncludingDraft(): List<Course>
+
     fun countByCourseStatusAndIsDeletedFalse(courseStatus: CourseStatus): Long
 
     //TODO check this with unique stuff
