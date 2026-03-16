@@ -18,6 +18,7 @@ import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
 
 @ConditionalOnProperty(prefix = "piston", name = ["enabled"], havingValue = "true")
 @Component
@@ -25,11 +26,18 @@ class RunnerSocketHandler(
     private val pistonWebSocketClient: PistonWebSocketClient
 ) : TextWebSocketHandler() {
 
+    private data class ClientBridge(
+        @Volatile var pistonSession: WebSocketSession? = null,
+        val pendingMessages: ConcurrentLinkedQueue<TextMessage> = ConcurrentLinkedQueue()
+    )
+
     private val logger = LoggerFactory.getLogger(RunnerSocketHandler::class.java)
     private val mapper = jacksonObjectMapper()
-    private val pistonSessions = ConcurrentHashMap<String, WebSocketSession>()
+    private val bridges = ConcurrentHashMap<String, ClientBridge>()
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
+        bridges[session.id] = ClientBridge()
+
         withMdc(LogFields.WS_SESSION_ID to session.id) {
             logger.info(LogEvents.RUNNER_WS_CLIENT_CONNECTED)
         }
@@ -37,13 +45,21 @@ class RunnerSocketHandler(
         pistonWebSocketClient.connect(object : TextWebSocketHandler() {
 
             override fun afterConnectionEstablished(pistonSession: WebSocketSession) {
-                pistonSessions[session.id] = pistonSession
+                val bridge = bridges[session.id]
+                if (bridge == null || !session.isOpen) {
+                    pistonSession.close()
+                    return
+                }
+
+                bridge.pistonSession = pistonSession
                 withMdc(
                     LogFields.WS_SESSION_ID to session.id,
                     LogFields.PISTON_WS_SESSION_ID to pistonSession.id
                 ) {
                     logger.info(LogEvents.RUNNER_WS_PISTON_CONNECTED)
                 }
+
+                flushPendingMessages(session.id, session, bridge, pistonSession)
             }
 
             override fun handleTextMessage(pistonSession: WebSocketSession, message: TextMessage) {
@@ -64,7 +80,8 @@ class RunnerSocketHandler(
             }
 
             override fun afterConnectionClosed(pistonSession: WebSocketSession, status: CloseStatus) {
-                pistonSessions.remove(session.id)
+                val bridge = bridges.remove(session.id)
+                bridge?.pistonSession = null
                 withMdc(
                     LogFields.WS_SESSION_ID to session.id,
                     LogFields.PISTON_WS_SESSION_ID to pistonSession.id
@@ -75,9 +92,14 @@ class RunnerSocketHandler(
                         kv(LogFields.ERROR_CODE, status.reason ?: "none")
                     )
                 }
+
+                if (session.isOpen) {
+                    session.close(CloseStatus.SERVER_ERROR)
+                }
             }
 
         }).exceptionally { ex ->
+            bridges.remove(session.id)
             withMdc(LogFields.WS_SESSION_ID to session.id) {
                 logger.error(
                     LogEvents.RUNNER_WS_PISTON_CONNECT_FAILED + " {}",
@@ -86,23 +108,43 @@ class RunnerSocketHandler(
                 )
             }
 
-            session.close(CloseStatus.SERVER_ERROR)
+            if (session.isOpen) {
+                session.close(CloseStatus.SERVER_ERROR)
+            }
             null
         }
     }
 
     override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
 
-        val pistonSession = pistonSessions[session.id]
-        if (pistonSession == null) {
+        val bridge = bridges[session.id]
+        if (bridge == null) {
             withMdc(LogFields.WS_SESSION_ID to session.id) {
                 logger.warn(LogEvents.RUNNER_WS_PISTON_SESSION_MISSING)
             }
             return
         }
 
+        val pistonSession = bridge.pistonSession
+        if (pistonSession == null || !pistonSession.isOpen) {
+            bridge.pendingMessages.add(TextMessage(message.payload))
+            withMdc(LogFields.WS_SESSION_ID to session.id) {
+                logger.debug("runner_ws_message_buffered_until_piston_ready")
+            }
+            return
+        }
+
+        handleClientMessage(session.id, pistonSession, message)
+    }
+
+    private fun handleClientMessage(
+        clientSessionId: String,
+        pistonSession: WebSocketSession,
+        message: TextMessage
+    ) {
+
         withMdc(
-            LogFields.WS_SESSION_ID to session.id,
+            LogFields.WS_SESSION_ID to clientSessionId,
             LogFields.PISTON_WS_SESSION_ID to pistonSession.id
         ) {
             try {
@@ -133,6 +175,29 @@ class RunnerSocketHandler(
                     kv(LogFields.ERROR_CODE, ex.message ?: ex.javaClass.simpleName),
                     ex
                 )
+            }
+        }
+    }
+
+    private fun flushPendingMessages(
+        clientSessionId: String,
+        clientSession: WebSocketSession,
+        bridge: ClientBridge,
+        pistonSession: WebSocketSession
+    ) {
+        var flushed = 0
+        while (clientSession.isOpen && pistonSession.isOpen) {
+            val pending = bridge.pendingMessages.poll() ?: break
+            handleClientMessage(clientSessionId, pistonSession, pending)
+            flushed += 1
+        }
+
+        if (flushed > 0) {
+            withMdc(
+                LogFields.WS_SESSION_ID to clientSessionId,
+                LogFields.PISTON_WS_SESSION_ID to pistonSession.id
+            ) {
+                logger.debug("runner_ws_buffer_flushed {}", kv("flushedCount", flushed))
             }
         }
     }
@@ -196,6 +261,6 @@ class RunnerSocketHandler(
                 kv(LogFields.ERROR_CODE, status.reason ?: "none")
             )
         }
-        pistonSessions.remove(session.id)?.close()
+        bridges.remove(session.id)?.pistonSession?.close()
     }
 }
