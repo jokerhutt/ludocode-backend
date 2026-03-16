@@ -13,8 +13,10 @@ import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionFile
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExecutableInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.ExecutableTest
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ParagraphBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
+import com.ludocode.ludocodebackend.lesson.domain.jsonb.TestType
 import com.ludocode.ludocodebackend.support.snapshot.CourseSnap
 
 import java.util.UUID
@@ -116,7 +118,25 @@ object CatalogChangeTestUtil {
         )
     }
 
-    // “update options” now means: replace the interaction
+    fun createExecutableExercise(
+        title: String,
+        solution: String = "print('hello world')",
+        expectedOutput: String = "hello world"
+    ): ExerciseSnap {
+        val blocks = listOf(HeaderBlock(title))
+        return ExerciseSnap(
+            exerciseId = UUID.randomUUID(),
+            blocks = blocks,
+            interaction = ExecutableInteraction(
+                solution = solution,
+                tests = listOf(
+                    ExecutableTest(type = TestType.OUTPUT_CONTAINS, expected = expectedOutput)
+                )
+            )
+        )
+    }
+
+    // "update options" now means: replace the interaction
     fun updateExerciseInteraction(exercise: ExerciseSnap, newInteraction: ExerciseInteraction?) {
         exercise.interaction = newInteraction
     }
@@ -252,7 +272,8 @@ object CatalogChangeTestUtil {
 
     fun generateRandomExerciseChanges(
         exercises: List<ExerciseSnap>,
-        seed: Long? = null
+        seed: Long? = null,
+        lessonType: LessonType = LessonType.NORMAL
     ): MutableList<ExerciseSnap> {
         val random = seed?.let { Random(it) } ?: Random.Default
         val list = exercises.toMutableList()
@@ -311,6 +332,24 @@ object CatalogChangeTestUtil {
                                 )
                             }
 
+                            is ExecutableInteraction -> {
+                                // ExecutableInteraction is only valid for GUIDED lessons;
+                                // if somehow encountered in a NORMAL lesson, leave it as-is
+                                if (lessonType == LessonType.GUIDED) {
+                                    ExecutableInteraction(
+                                        solution = "print('${randomString(random, 8)}')",
+                                        tests = listOf(
+                                            ExecutableTest(
+                                                type = TestType.OUTPUT_CONTAINS,
+                                                expected = randomString(random, 8)
+                                            )
+                                        )
+                                    )
+                                } else {
+                                    interaction
+                                }
+                            }
+
                             null -> null
                         }
 
@@ -321,7 +360,8 @@ object CatalogChangeTestUtil {
                 "ADD_EXERCISES" -> {
                     val numToAdd = random.nextInt(1, 3)
                     repeat(numToAdd) {
-                        val kind = random.nextInt(3)
+                        val kindRange = if (lessonType == LessonType.GUIDED) 4 else 3
+                        val kind = random.nextInt(kindRange)
                         list += when (kind) {
                             0 -> createInfoExercise("Info ${randomString(random, 8)}")
                             1 -> createSelectExercise(
@@ -329,7 +369,7 @@ object CatalogChangeTestUtil {
                                 correctValue = randomString(random, 6),
                                 distractors = arrayOf(randomString(random, 6), randomString(random, 6))
                             )
-                            else -> createClozeExercise(
+                            2 -> createClozeExercise(
                                 title = "Cloze ${randomString(random, 8)}",
                                 language = "javascript",
                                 content = "const ___ = ___",
@@ -343,6 +383,11 @@ object CatalogChangeTestUtil {
                                     "let",
                                     "const"
                                 )
+                            )
+                            else -> createExecutableExercise(
+                                title = "Executable ${randomString(random, 8)}",
+                                solution = "print('${randomString(random, 6)}')",
+                                expectedOutput = randomString(random, 6)
                             )
                         }
                     }
@@ -365,19 +410,25 @@ object CatalogChangeTestUtil {
                     if (list.isNotEmpty()) {
                         val i = random.nextInt(list.size)
                         val old = list[i]
-                        val newEx = when (random.nextInt(3)) {
+                        val kindRange = if (lessonType == LessonType.GUIDED) 4 else 3
+                        val newEx = when (random.nextInt(kindRange)) {
                             0 -> createInfoExercise("Info ${randomString(random, 8)}")
                             1 -> createSelectExercise(
                                 title = old.blocks.filterIsInstance<HeaderBlock>().firstOrNull()?.content ?: "Select",
                                 correctValue = randomString(random, 6),
                                 distractors = arrayOf(randomString(random, 6))
                             )
-                            else -> createClozeExercise(
+                            2 -> createClozeExercise(
                                 title = old.blocks.filterIsInstance<HeaderBlock>().firstOrNull()?.content ?: "Cloze",
                                 language = "python",
                                 content = "print(___)",
                                 correctValuesByBlank = listOf(listOf("\"hi\"", "'hi'")),
                                 options = listOf("\"hi\"", "'hi'", "hi")
+                            )
+                            else -> createExecutableExercise(
+                                title = old.blocks.filterIsInstance<HeaderBlock>().firstOrNull()?.content ?: "Executable",
+                                solution = "print('${randomString(random, 6)}')",
+                                expectedOutput = randomString(random, 6)
                             )
                         }
                         list[i] = newEx.copy(exerciseId = old.exerciseId)
