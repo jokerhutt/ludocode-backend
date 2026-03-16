@@ -14,7 +14,7 @@ class PistonFeatureToggleFilter(
 ) : OncePerRequestFilter() {
 
     override fun doFilterInternal(req: HttpServletRequest, res: HttpServletResponse, chain: FilterChain) {
-        if (!req.requestURI.startsWith(ApiPaths.RUNNER.BASE)) {
+        if (!req.requestURI.startsWith(ApiPaths.RUNNER.WS_BASE)) {
             chain.doFilter(req, res)
             return
         }

@@ -112,6 +112,7 @@ object ApiPaths {
 
     object RUNNER {
         const val BASE = "$API_PREFIX/runner"
+        const val WS_BASE = "$API_PREFIX/ws/runner"
         const val EXECUTE = "/executions"
     }
 
