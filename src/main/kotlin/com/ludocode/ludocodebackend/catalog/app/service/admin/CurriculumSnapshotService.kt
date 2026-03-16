@@ -154,7 +154,7 @@ class CurriculumSnapshotService(
 
                         val initialFile = ProjectFileSnapshot(
                             id = initialFileId,
-                            path = "main.py",
+                            path = language.base,
                             language = languagesMapper.toLanguageMetadata(language),
                             content = ""
                         )
@@ -177,6 +177,7 @@ class CurriculumSnapshotService(
                 }
 
                 lesson.title = lessonSnapshot.title
+                lesson.lessonType = lessonSnapshot.lessonType
                 lessonRepository.save(lesson)
 
                 val join = ModuleLesson(
