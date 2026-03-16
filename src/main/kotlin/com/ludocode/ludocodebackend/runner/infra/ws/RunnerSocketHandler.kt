@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
+import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -40,12 +41,21 @@ class RunnerSocketHandler(
         private const val MAX_MESSAGE_SIZE = 512_000
         private const val MAX_PENDING_MESSAGES = 100
         private const val MAX_STDIN_SIZE = 4096
+        private const val MAX_BUFFER_SIZE = 512_000
+        private const val SEND_TIME_LIMIT = 5000
     }
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
-        bridges[session.id] = ClientBridge()
 
-        withMdc(LogFields.WS_SESSION_ID to session.id) {
+        val safeSession = ConcurrentWebSocketSessionDecorator(
+            session,
+            SEND_TIME_LIMIT,
+           MAX_BUFFER_SIZE
+        )
+
+        bridges[safeSession.id] = ClientBridge()
+
+        withMdc(LogFields.WS_SESSION_ID to safeSession.id) {
             logger.info(LogEvents.RUNNER_WS_CLIENT_CONNECTED)
         }
 
