@@ -24,6 +24,7 @@ interface CourseRepository : JpaRepository<Course, UUID> {
     select distinct c
     from Course c
     left join fetch c.language l
+    where c.isDeleted = false
 """
     )
     fun findAllWithLanguagesIncludingDraft(): List<Course>
