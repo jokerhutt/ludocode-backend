@@ -17,6 +17,8 @@ class RunnerWebSocketConfig (
 
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
         registry.addHandler(handler, ApiPaths.RUNNER.WS_BASE)
+            .setAllowedOriginPatterns("*")
+
     }
 
 }
