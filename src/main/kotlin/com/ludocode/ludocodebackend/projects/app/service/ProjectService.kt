@@ -14,6 +14,7 @@ import com.ludocode.ludocodebackend.projects.api.dto.request.RenameProjectReques
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardListResponse
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardResponse
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectSnapshotDiff
+import com.ludocode.ludocodebackend.projects.app.mapper.ProjectCardMapper
 import com.ludocode.ludocodebackend.projects.app.mapper.ProjectMapper
 import com.ludocode.ludocodebackend.projects.app.util.ProjectSnapshotDiffer
 import com.ludocode.ludocodebackend.projects.app.util.ProjectSnapshotValidator
@@ -31,6 +32,7 @@ import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import java.time.Clock
 import java.time.OffsetDateTime
@@ -46,6 +48,7 @@ class ProjectService(
     private val storagePortForServices: StoragePortForServices,
     private val codeLanguagesRepository: CodeLanguagesRepository,
     private val subscriptionService: SubscriptionService,
+    private val projectCardMapper: ProjectCardMapper,
 ) {
 
     private val logger = LoggerFactory.getLogger(ProjectService::class.java)
@@ -56,6 +59,43 @@ class ProjectService(
         val projectLimit = subscriptionService.getUserSubscriptionResponse(userId).maxProjects
 
         return totalProjects < projectLimit
+
+    }
+
+    internal fun getPublicProjects(page: Int, size: Int): ProjectCardListResponse {
+        val pageable = PageRequest.of(page, size)
+
+        val result = userProjectRepository.findPublicProjectCards(pageable)
+
+        logger.info(
+            "${LogEvents.PROJECT_CARD_LIST_LOADED} {}",
+            kv(LogFields.FILE_COUNT, result.content.size)
+        )
+
+        return projectCardMapper.toProjectCardResponseList(
+            result.content,
+            result.number,
+            result.totalPages,
+            result.hasNext()
+        )
+    }
+
+
+    internal fun getUserProjects(userId: UUID, page: Int, size: Int): ProjectCardListResponse {
+        val pageable = PageRequest.of(page, size)
+        val result = userProjectRepository.findProjectCardsByUserId(userId, pageable)
+
+        logger.info(
+            "${LogEvents.PROJECT_CARD_LIST_LOADED} {}",
+            kv(LogFields.FILE_COUNT, result.size)
+        )
+
+        return projectCardMapper.toProjectCardResponseList(
+            result.content,
+            result.number,
+            result.totalPages,
+            result.hasNext()
+        )
 
     }
 
@@ -137,30 +177,7 @@ class ProjectService(
         return base + extension
     }
 
-    internal fun getUserProjects(userId: UUID): ProjectCardListResponse {
-        val projectCardProjections = userProjectRepository.findProjectCardsByUserId(userId)
 
-        logger.info(
-            "${LogEvents.PROJECT_CARD_LIST_LOADED} {}",
-            kv(LogFields.FILE_COUNT, projectCardProjections.size)
-        )
-
-        val projectCards = projectCardProjections.map {
-            ProjectCardResponse(
-                projectId = it.getProjectId(),
-                authorId = it.getAuthorId(),
-                projectTitle = it.getProjectTitle(),
-                createdAt = it.getCreatedAt(),
-                visibility = it.getVisibility(),
-                languageName = it.getLanguageName(),
-                languageIconName = it.getLanguageIconName(),
-                updatedAt = it.getUpdatedAt()
-            )
-        }
-
-        return ProjectCardListResponse(projects = projectCards)
-
-    }
 
 
     internal fun getProjectSnapshotForUserByProjectId(projectId: UUID, userId: UUID): ProjectSnapshot {

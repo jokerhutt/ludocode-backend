@@ -17,5 +17,8 @@ data class ProjectCardResponse (
 )
 
 data class ProjectCardListResponse (
-    val projects: List<ProjectCardResponse>
+    val projects: List<ProjectCardResponse>,
+    val page: Int,
+    val totalPages: Int,
+    val hasNext: Boolean
 )

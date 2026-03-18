@@ -2,6 +2,8 @@ package com.ludocode.ludocodebackend.projects.infra.repository
 
 import com.ludocode.ludocodebackend.projects.domain.entity.UserProject
 import com.ludocode.ludocodebackend.projects.infra.projection.ProjectCardProjection
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -24,7 +26,7 @@ interface UserProjectRepository : JpaRepository<UserProject, UUID> {
     fun findProjectIdsByUserId(@Param("userId") userId: UUID): List<UUID>
 
     @Query(
-        """
+        value = """
     SELECT 
         p.id as projectId,
         p.userId as authorId,
@@ -38,11 +40,43 @@ interface UserProjectRepository : JpaRepository<UserProject, UUID> {
     WHERE p.userId = :userId
       AND p.deleteAt IS NULL
     ORDER BY p.updatedAt DESC
+    """,
+        countQuery = """
+    SELECT COUNT(p)
+    FROM UserProject p
+    WHERE p.userId = :userId
+      AND p.deleteAt IS NULL
     """
     )
     fun findProjectCardsByUserId(
-        @Param("userId") userId: UUID
-    ): List<ProjectCardProjection>
+        @Param("userId") userId: UUID,
+        pageable: Pageable
+    ): Page<ProjectCardProjection>
+
+    @Query(
+        value = """
+        SELECT 
+            p.id as projectId,
+            p.userId as authorId,
+            p.name as projectTitle,
+            p.createdAt as createdAt,
+            p.updatedAt as updatedAt,
+            p.projectVisibility as visibility,
+            p.codeLanguage.iconName as languageIconName,
+            p.codeLanguage.name as languageName
+        FROM UserProject p
+        WHERE p.projectVisibility = 'PUBLIC'
+          AND p.deleteAt IS NULL
+        ORDER BY p.createdAt DESC
+    """,
+        countQuery = """
+        SELECT COUNT(p)
+        FROM UserProject p
+        WHERE p.projectVisibility = 'PUBLIC'
+          AND p.deleteAt IS NULL
+    """
+    )
+    fun findPublicProjectCards(pageable: Pageable): Page<ProjectCardProjection>
 
     @Query(
         """

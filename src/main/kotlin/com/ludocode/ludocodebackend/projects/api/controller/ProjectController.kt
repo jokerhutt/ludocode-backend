@@ -46,9 +46,17 @@ class ProjectController(private val projectService: ProjectService) {
     }
 
     @PutMapping("${ApiPaths.PROJECTS.BY_ID}${ApiPaths.PROJECTS.VISIBILITY}")
-    fun updateVisibility(@PathVariable projectId : UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID, @RequestBody req: ChangeVisibilityRequest) : ResponseEntity<ProjectCardListResponse> {
+    fun updateVisibility(@PathVariable projectId : UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID, @RequestBody req: ChangeVisibilityRequest) : ResponseEntity<Void> {
         projectService.changeProjectVisibility(projectId, userId, req.value)
-        return ResponseEntity.ok(projectService.getUserProjects(userId))
+        return ResponseEntity.noContent().build()
+    }
+
+    @GetMapping(ApiPaths.PROJECTS.PUBLIC)
+    fun getPublicProjects(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "12") size: Int
+    ): ProjectCardListResponse {
+        return projectService.getPublicProjects(page, size)
     }
 
     @Operation(
@@ -63,10 +71,10 @@ class ProjectController(private val projectService: ProjectService) {
     fun deleteProject(
         @PathVariable projectId: UUID,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
-    ): ResponseEntity<ProjectCardListResponse> {
+    ): ResponseEntity<Void> {
         return withMdc(LogFields.PROJECT_ID to projectId.toString()) {
             projectService.deleteProjectForUser(projectId, userId)
-            ResponseEntity.ok(projectService.getUserProjects(userId))
+            ResponseEntity.noContent().build()
         }
     }
 
@@ -84,10 +92,10 @@ class ProjectController(private val projectService: ProjectService) {
         @PathVariable projectId: UUID,
         @RequestBody request: RenameProjectRequest,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
-    ): ResponseEntity<ProjectCardListResponse> {
+    ): ResponseEntity<Void> {
         return withMdc(LogFields.PROJECT_ID to projectId.toString()) {
             projectService.renameProject(request, userId)
-            ResponseEntity.ok(projectService.getUserProjects(userId))
+            ResponseEntity.noContent().build()
         }
     }
 
@@ -103,9 +111,9 @@ class ProjectController(private val projectService: ProjectService) {
     fun createProject(
         @RequestBody request: CreateProjectRequest,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
-    ): ResponseEntity<ProjectCardListResponse> {
+    ): ResponseEntity<Void> {
         projectService.createProject(request, userId)
-        return ResponseEntity.ok(projectService.getUserProjects(userId))
+        return ResponseEntity.noContent().build()
     }
 
     @Operation(
@@ -116,8 +124,11 @@ class ProjectController(private val projectService: ProjectService) {
         """
     )
     @GetMapping
-    fun getUserProjects(@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<ProjectCardListResponse> {
-        return ResponseEntity.ok(projectService.getUserProjects(userId))
+    fun getUserProjects(
+        @AuthenticationPrincipal(expression = "userId") userId: UUID,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "12") size: Int): ResponseEntity<ProjectCardListResponse> {
+        return ResponseEntity.ok(projectService.getUserProjects(userId, page, size))
     }
 
     @Operation(
