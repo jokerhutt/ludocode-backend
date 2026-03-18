@@ -89,6 +89,7 @@ object LogEvents {
     const val PROJECT_RENAME_REQUESTED = "project_rename_requested"
     const val PROJECT_SNAPSHOT_DIFF = "project_snapshot_diff"
     const val PROJECT_SNAPSHOT_LIST_LOADED = "project_snapshot_list_loaded"
+    const val PROJECT_CARD_LIST_LOADED = "project_card_list_loaded"
     const val PROJECT_DELETE_REQUESTED = "project_delete_requested"
     const val PROJECT_CREATED = "project_created"
     const val PROJECT_SNAPSHOT_FORBIDDEN = "project_snapshot_forbidden"

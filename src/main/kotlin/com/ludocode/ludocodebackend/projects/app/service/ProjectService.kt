@@ -11,7 +11,8 @@ import com.ludocode.ludocodebackend.projects.api.dto.request.CreateProjectReques
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.request.RenameProjectRequest
-import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectListResponse
+import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardListResponse
+import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardResponse
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectSnapshotDiff
 import com.ludocode.ludocodebackend.projects.app.mapper.ProjectMapper
 import com.ludocode.ludocodebackend.projects.app.util.ProjectSnapshotDiffer
@@ -59,7 +60,7 @@ class ProjectService(
     }
 
     @Transactional
-    internal fun createProject(request: CreateProjectRequest, userId: UUID): ProjectListResponse {
+    internal fun createProject(request: CreateProjectRequest, userId: UUID) {
 
         if (!isBelowPlanLimit(userId)) {
             throw ApiException(ErrorCode.PROJECT_LIMIT_EXCEEDED)
@@ -130,34 +131,41 @@ class ProjectService(
             )
 
         }
-        return getUserProjects(userId)
-
-
     }
 
     private fun getFirstFileName(base: String, extension: String): String {
         return base + extension
     }
 
-    internal fun getUserProjects(userId: UUID): ProjectListResponse {
-        val projectIds = userProjectRepository.findProjectIdsByUserId(userId)
+    internal fun getUserProjects(userId: UUID): ProjectCardListResponse {
+        val projectCardProjections = userProjectRepository.findProjectCardsByUserId(userId)
 
         logger.info(
-            "${LogEvents.PROJECT_SNAPSHOT_LIST_LOADED} {}",
-            kv(LogFields.FILE_COUNT, projectIds.size)
+            "${LogEvents.PROJECT_CARD_LIST_LOADED} {}",
+            kv(LogFields.FILE_COUNT, projectCardProjections.size)
         )
 
-        val projectSnapshots = mutableListOf<ProjectSnapshot>()
-        for (projectId in projectIds) {
-            projectSnapshots.add(getProjectSnapshotForUserByProjectId(projectId, userId))
+        val projectCards = projectCardProjections.map {
+            ProjectCardResponse(
+                projectId = it.getProjectId(),
+                authorId = it.getAuthorId(),
+                projectTitle = it.getProjectTitle(),
+                createdAt = it.getCreatedAt(),
+                visibility = it.getVisibility(),
+                languageName = it.getLanguageName(),
+                languageIconName = it.getLanguageIconName()
+            )
         }
-        return ProjectListResponse(projectSnapshots)
+
+        return ProjectCardListResponse(projects = projectCards)
+
     }
+
 
     internal fun getProjectSnapshotForUserByProjectId(projectId: UUID, userId: UUID): ProjectSnapshot {
         val project = userProjectRepository.findById(projectId).orElseThrow()
         val isOwnProject = project.userId == userId
-        if (!isOwnProject) {
+        if (project.projectVisibility == Visibility.PRIVATE && !isOwnProject) {
             logger.warn(LogEvents.PROJECT_SNAPSHOT_FORBIDDEN)
             throw ApiException(ErrorCode.NOT_ALLOWED)
         }
@@ -202,7 +210,7 @@ class ProjectService(
     }
 
     @Transactional
-    internal fun deleteProjectForUser(projectId: UUID, userId: UUID): ProjectListResponse {
+    internal fun deleteProjectForUser(projectId: UUID, userId: UUID) {
         val existingProject = userProjectRepository.findById(projectId).orElseThrow()
         val existingFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
 
@@ -217,8 +225,6 @@ class ProjectService(
 
         userProjectRepository.deleteById(existingProject.id)
         deleteFiles(projectId, existingFiles)
-
-        return getUserProjects(userId)
     }
 
     private fun refreshUpdatedAt(existing: UserProject): UserProject {
@@ -233,7 +239,7 @@ class ProjectService(
     }
 
     @Transactional
-    internal fun renameProject(renameProjectRequest: RenameProjectRequest, userId: UUID): ProjectListResponse {
+    internal fun renameProject(renameProjectRequest: RenameProjectRequest, userId: UUID) {
 
         val projectId = renameProjectRequest.targetId
         val newName = renameProjectRequest.newName
@@ -246,8 +252,6 @@ class ProjectService(
         existingProject.name = newName
         existingProject = refreshUpdatedAt(existingProject)
         userProjectRepository.save(existingProject)
-
-        return getUserProjects(userId)
 
     }
 

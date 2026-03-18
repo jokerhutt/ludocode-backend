@@ -7,6 +7,8 @@ import com.ludocode.ludocodebackend.projects.api.dto.request.ChangeVisibilityReq
 import com.ludocode.ludocodebackend.projects.api.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.request.RenameProjectRequest
+import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardListResponse
+import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardResponse
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.projects.app.service.ProjectService
 import io.swagger.v3.oas.annotations.Operation
@@ -44,7 +46,7 @@ class ProjectController(private val projectService: ProjectService) {
     }
 
     @PutMapping("${ApiPaths.PROJECTS.BY_ID}${ApiPaths.PROJECTS.VISIBILITY}")
-    fun updateVisibility(@PathVariable projectId : UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID, @RequestBody req: ChangeVisibilityRequest) : ResponseEntity<ProjectListResponse> {
+    fun updateVisibility(@PathVariable projectId : UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID, @RequestBody req: ChangeVisibilityRequest) : ResponseEntity<ProjectCardListResponse> {
         projectService.changeProjectVisibility(projectId, userId, req.value)
         return ResponseEntity.ok(projectService.getUserProjects(userId))
     }
@@ -61,9 +63,10 @@ class ProjectController(private val projectService: ProjectService) {
     fun deleteProject(
         @PathVariable projectId: UUID,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
-    ): ResponseEntity<ProjectListResponse> {
+    ): ResponseEntity<ProjectCardListResponse> {
         return withMdc(LogFields.PROJECT_ID to projectId.toString()) {
-            ResponseEntity.ok(projectService.deleteProjectForUser(projectId, userId))
+            projectService.deleteProjectForUser(projectId, userId)
+            ResponseEntity.ok(projectService.getUserProjects(userId))
         }
     }
 
@@ -81,9 +84,10 @@ class ProjectController(private val projectService: ProjectService) {
         @PathVariable projectId: UUID,
         @RequestBody request: RenameProjectRequest,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
-    ): ResponseEntity<ProjectListResponse> {
+    ): ResponseEntity<ProjectCardListResponse> {
         return withMdc(LogFields.PROJECT_ID to projectId.toString()) {
-            ResponseEntity.ok(projectService.renameProject(request, userId))
+            projectService.renameProject(request, userId)
+            ResponseEntity.ok(projectService.getUserProjects(userId))
         }
     }
 
@@ -99,8 +103,9 @@ class ProjectController(private val projectService: ProjectService) {
     fun createProject(
         @RequestBody request: CreateProjectRequest,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
-    ): ResponseEntity<ProjectListResponse> {
-        return ResponseEntity.ok(projectService.createProject(request, userId))
+    ): ResponseEntity<ProjectCardListResponse> {
+        projectService.createProject(request, userId)
+        return ResponseEntity.ok(projectService.getUserProjects(userId))
     }
 
     @Operation(
@@ -111,7 +116,7 @@ class ProjectController(private val projectService: ProjectService) {
         """
     )
     @GetMapping
-    fun getUserProjects(@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<ProjectListResponse> {
+    fun getUserProjects(@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<ProjectCardListResponse> {
         return ResponseEntity.ok(projectService.getUserProjects(userId))
     }
 

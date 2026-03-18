@@ -1,6 +1,7 @@
 package com.ludocode.ludocodebackend.projects.infra.repository
 
 import com.ludocode.ludocodebackend.projects.domain.entity.UserProject
+import com.ludocode.ludocodebackend.projects.infra.projection.ProjectCardProjection
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -21,6 +22,26 @@ interface UserProjectRepository : JpaRepository<UserProject, UUID> {
         nativeQuery = true
     )
     fun findProjectIdsByUserId(@Param("userId") userId: UUID): List<UUID>
+
+    @Query(
+        """
+    SELECT 
+        p.id as projectId,
+        p.userId as authorId,
+        p.name as projectTitle,
+        p.createdAt as createdAt,
+        p.projectVisibility as visibility,
+        p.codeLanguage.iconName as languageIconName,
+        p.codeLanguage.name as languageName
+    FROM UserProject p
+    WHERE p.userId = :userId
+      AND p.deleteAt IS NULL
+    ORDER BY p.updatedAt DESC
+    """
+    )
+    fun findProjectCardsByUserId(
+        @Param("userId") userId: UUID
+    ): List<ProjectCardProjection>
 
     @Query(
         """
