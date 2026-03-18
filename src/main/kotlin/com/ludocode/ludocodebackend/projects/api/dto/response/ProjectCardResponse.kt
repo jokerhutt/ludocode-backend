@@ -10,6 +10,7 @@ data class ProjectCardResponse (
     val authorId: UUID,
     val projectTitle: String,
     val createdAt: OffsetDateTime,
+    val updatedAt: OffsetDateTime,
     val visibility: Visibility,
     val languageName: String,
     val languageIconName: String

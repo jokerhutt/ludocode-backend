@@ -9,6 +9,7 @@ interface ProjectCardProjection {
     fun getAuthorId(): UUID
     fun getProjectTitle(): String
     fun getCreatedAt(): OffsetDateTime
+    fun getUpdatedAt(): OffsetDateTime
     fun getVisibility(): Visibility
 
     fun getLanguageIconName(): String

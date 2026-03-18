@@ -153,7 +153,8 @@ class ProjectService(
                 createdAt = it.getCreatedAt(),
                 visibility = it.getVisibility(),
                 languageName = it.getLanguageName(),
-                languageIconName = it.getLanguageIconName()
+                languageIconName = it.getLanguageIconName(),
+                updatedAt = it.getUpdatedAt()
             )
         }
 

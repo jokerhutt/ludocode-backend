@@ -30,6 +30,7 @@ interface UserProjectRepository : JpaRepository<UserProject, UUID> {
         p.userId as authorId,
         p.name as projectTitle,
         p.createdAt as createdAt,
+        p.updatedAt as updatedAt,
         p.projectVisibility as visibility,
         p.codeLanguage.iconName as languageIconName,
         p.codeLanguage.name as languageName
