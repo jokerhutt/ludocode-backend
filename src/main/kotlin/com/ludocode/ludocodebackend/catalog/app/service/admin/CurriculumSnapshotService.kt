@@ -38,6 +38,7 @@ import com.ludocode.ludocodebackend.lesson.infra.repository.*
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
+import com.ludocode.ludocodebackend.projects.domain.enums.Visibility
 import com.ludocode.ludocodebackend.tag.api.dto.TagMetadata
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
@@ -166,7 +167,8 @@ class CurriculumSnapshotService(
                             updatedAt = OffsetDateTime.now(),
                             deleteAt = null,
                             files = listOf(initialFile),
-                            entryFileId = initialFileId
+                            entryFileId = initialFileId,
+                            visibility = Visibility.PUBLIC,
                         )
                     }
 

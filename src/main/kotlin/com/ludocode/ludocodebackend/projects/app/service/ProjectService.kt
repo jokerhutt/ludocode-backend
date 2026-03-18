@@ -18,6 +18,7 @@ import com.ludocode.ludocodebackend.projects.app.util.ProjectSnapshotDiffer
 import com.ludocode.ludocodebackend.projects.app.util.ProjectSnapshotValidator
 import com.ludocode.ludocodebackend.projects.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.projects.domain.entity.UserProject
+import com.ludocode.ludocodebackend.projects.domain.enums.Visibility
 import com.ludocode.ludocodebackend.projects.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.projects.infra.repository.UserProjectRepository
 import com.ludocode.ludocodebackend.storage.app.dto.request.StorageDeleteRequest
@@ -170,6 +171,7 @@ class ProjectService(
             val projectName = project.name
             val deleteAt = project.deleteAt
             val projectLanguage = project.codeLanguage
+            val visibility = project.projectVisibility
             val entryFileId = project.entryFileId
                 ?: throw ApiException(ErrorCode.ENTRY_FILE_NOT_FOUND)
 
@@ -193,7 +195,8 @@ class ProjectService(
                 deleteAt,
                 projectFiles,
                 fileContentsMap.content,
-                entryFileId
+                entryFileId,
+                visibility = visibility
             )
         }
     }
@@ -245,6 +248,18 @@ class ProjectService(
         userProjectRepository.save(existingProject)
 
         return getUserProjects(userId)
+
+    }
+
+    @Transactional
+    internal fun changeProjectVisibility(projectId: UUID, userId: UUID, value: Visibility) {
+        val project = userProjectRepository.findById(projectId).orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
+
+        if (project.userId != userId) {
+            throw ApiException(ErrorCode.NOT_OWN_PROJECT)
+        }
+
+        project.projectVisibility = value
 
     }
 

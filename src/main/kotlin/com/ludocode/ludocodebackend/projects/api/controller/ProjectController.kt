@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.projects.api.controller
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.logging.withMdc
+import com.ludocode.ludocodebackend.projects.api.dto.request.ChangeVisibilityRequest
 import com.ludocode.ludocodebackend.projects.api.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.request.RenameProjectRequest
@@ -40,6 +41,12 @@ class ProjectController(private val projectService: ProjectService) {
         @AuthenticationPrincipal(expression = "userId") userId: UUID
     ): ResponseEntity<ProjectSnapshot> {
         return ResponseEntity.ok(projectService.saveProjectSnapshot(projectSnapshot))
+    }
+
+    @PutMapping("${ApiPaths.PROJECTS.BY_ID}${ApiPaths.PROJECTS.VISIBILITY}")
+    fun updateVisibility(@PathVariable projectId : UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID, @RequestBody req: ChangeVisibilityRequest) : ResponseEntity<ProjectListResponse> {
+        projectService.changeProjectVisibility(projectId, userId, req.value)
+        return ResponseEntity.ok(projectService.getUserProjects(userId))
     }
 
     @Operation(

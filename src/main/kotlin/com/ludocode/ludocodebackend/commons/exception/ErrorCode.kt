@@ -66,6 +66,7 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
 
     NOT_ENOUGH_CREDITS(HttpStatus.UNAUTHORIZED, "Not enough credits to perform this action"),
 
+    NOT_OWN_PROJECT(HttpStatus.UNAUTHORIZED, "User is not allowed to view/modify this project"),
     NOT_ALLOWED(HttpStatus.UNAUTHORIZED, "Not allowed to retrieve content"),
 
     GCS_GET_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to get project files from cloud storage"),
