@@ -108,6 +108,7 @@ object ApiPaths {
         const val VISIBILITY = "/visibility"
         const val NAME = "/{projectId}/name"
         fun byId(projectId: UUID): String = "$BASE/$projectId"
+        fun visibilityById(projectId: UUID): String = "$BASE/$projectId/visibility"
         fun name(projectId: UUID): String = "$BASE/$projectId/name"
     }
 
