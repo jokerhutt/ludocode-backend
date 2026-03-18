@@ -232,6 +232,10 @@ class ProjectService(
         val existingProject = userProjectRepository.findById(projectId).orElseThrow()
         val existingFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
 
+        if (existingProject.userId != userId) {
+            throw ApiException(ErrorCode.NOT_OWN_PROJECT)
+        }
+
         logger.info(
             LogEvents.PROJECT_DELETE_REQUESTED + " {}",
             kv(LogFields.FILE_COUNT, existingFiles.size)
@@ -267,6 +271,11 @@ class ProjectService(
         )
 
         var existingProject = userProjectRepository.findById(projectId).orElseThrow()
+
+        if (existingProject.userId != userId) {
+            throw ApiException(ErrorCode.NOT_OWN_PROJECT)
+        }
+
         existingProject.name = newName
         existingProject = refreshUpdatedAt(existingProject)
         userProjectRepository.save(existingProject)
@@ -275,26 +284,27 @@ class ProjectService(
 
     @Transactional
     internal fun changeProjectVisibility(projectId: UUID, userId: UUID, value: Visibility) {
-        val project = userProjectRepository.findById(projectId).orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
+        val existingProject = userProjectRepository.findById(projectId).orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
 
-        if (project.userId != userId) {
+        if (existingProject.userId != userId) {
             throw ApiException(ErrorCode.NOT_OWN_PROJECT)
         }
 
-        project.projectVisibility = value
+        existingProject.projectVisibility = value
 
     }
 
 
     @Transactional
-    internal fun saveProjectSnapshot(projectSnapshot: ProjectSnapshot): ProjectSnapshot {
+    internal fun saveProjectSnapshot(projectSnapshot: ProjectSnapshot, userId: UUID): ProjectSnapshot {
         val projectId = projectSnapshot.projectId
 
         return withMdc(LogFields.PROJECT_ID to projectId.toString()) {
-            if (!userProjectRepository.existsById(projectId)) throw ApiException(
-                ErrorCode.PROJECT_NOT_FOUND,
-                "This project doesnt exist"
-            )
+            val existingProject = userProjectRepository.findById(projectId).orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
+
+            if (existingProject.userId != userId) {
+                throw ApiException(ErrorCode.NOT_OWN_PROJECT)
+            }
 
             val submittedFiles = projectSnapshot.files
             val entryFileId = projectSnapshot.entryFileId

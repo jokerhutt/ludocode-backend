@@ -42,7 +42,7 @@ class ProjectController(private val projectService: ProjectService) {
         @RequestBody projectSnapshot: ProjectSnapshot,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
     ): ResponseEntity<ProjectSnapshot> {
-        return ResponseEntity.ok(projectService.saveProjectSnapshot(projectSnapshot))
+        return ResponseEntity.ok(projectService.saveProjectSnapshot(projectSnapshot, userId))
     }
 
     @PutMapping("${ApiPaths.PROJECTS.BY_ID}${ApiPaths.PROJECTS.VISIBILITY}")
