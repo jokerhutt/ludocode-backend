@@ -145,8 +145,10 @@ class CatalogAdminController(
     @PostMapping(ApiPaths.SNAPSHOTS.COURSE,
         params = ["mode=yaml"],
         consumes = ["application/x-yaml", "text/yaml", "application/yaml"])
-    fun createCourseYaml(@RequestBody request: CurriculumYamlRoot): ResponseEntity<Void> {
-        curriculumYamlService.importYaml( root = request)
+    fun createCourseYaml(@RequestBody yaml: String): ResponseEntity<Void> {
+        val root = curriculumYamlService.parseYaml(yaml)
+
+        curriculumYamlService.importYaml( root = root)
         return ResponseEntity.noContent().build()
     }
 
