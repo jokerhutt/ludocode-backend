@@ -7,6 +7,7 @@ import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.preferences.api.infra.repository.UserPreferencesRepository
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
+import com.ludocode.ludocodebackend.projects.app.service.ProjectService
 import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForUser
 import com.ludocode.ludocodebackend.user.api.dto.request.EditProfileRequest
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
@@ -42,6 +43,7 @@ class UserService(
     private val courseProgressPortForUser: CourseProgressPortForUser,
     private val subscriptionPortForUser: SubscriptionPortForUser,
     private val firebaseAuthPort: FirebaseAuthPort,
+    private val projectService: ProjectService,
 ) : UserPortForProgress, UserPortForAuth, UserPortForOnboarding {
 
     private val logger = LoggerFactory.getLogger(UserService::class.java)
@@ -64,6 +66,9 @@ class UserService(
         if (ext.provider == AuthProvider.FIREBASE) {
             firebaseAuthPort.deleteUser(ext.providerUserId)
         }
+
+        projectService.deleteUserProjects(userId)
+
         externalAccountRepository.delete(ext)
         logger.warn(LogEvents.USER_DELETED)
         existingUser.email = null

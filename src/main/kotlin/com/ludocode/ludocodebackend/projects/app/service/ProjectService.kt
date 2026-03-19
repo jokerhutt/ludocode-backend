@@ -227,6 +227,11 @@ class ProjectService(
         }
     }
 
+    internal fun deleteUserProjects(userId: UUID) {
+        val projectIds = userProjectRepository.findAllByUserIdOrderByUpdatedAtDesc(userId)
+        projectIds.forEach { it -> deleteProjectForUser(it.id, userId) }
+    }
+
     @Transactional
     internal fun deleteProjectForUser(projectId: UUID, userId: UUID) {
         val existingProject = userProjectRepository.findById(projectId).orElseThrow()
