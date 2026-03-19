@@ -263,6 +263,8 @@ class RunnerSocketHandler(
             }
         )
 
+        val payload = mapper.writeValueAsString(pistonInit)
+        println("TO PISTON → $payload")
         pistonSession.sendMessage(
             TextMessage(mapper.writeValueAsString(pistonInit))
         )
