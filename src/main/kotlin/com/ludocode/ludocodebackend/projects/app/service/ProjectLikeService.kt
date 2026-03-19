@@ -36,6 +36,25 @@ class ProjectLikeService(
         projectLikeRepository.save(ProjectLike(projectLikeId = likeId))
     }
 
+    fun getLikeCountByProjectId(
+        userId: UUID,
+        projectId: UUID
+    ): ProjectLikeCountResponse {
+
+        val count = projectLikeRepository
+            .countByProjectId(projectId)
+            .toInt()
+
+        val likedByMe = projectLikeRepository
+            .existsById(ProjectLikeId(userId, projectId))
+
+        return ProjectLikeCountResponse(
+            id = projectId,
+            count = count,
+            likedByMe = likedByMe
+        )
+    }
+
     @Transactional
     fun unlikeProject(likerId: UUID, projectId: UUID) {
 
@@ -49,17 +68,23 @@ class ProjectLikeService(
         projectLikeRepository.deleteById(ProjectLikeId(likerId, projectId))
     }
 
-    fun getLikeCountsByProjectIds(projectIds: List<UUID>): List<ProjectLikeCountResponse> {
-        if (projectIds.isEmpty()) return emptyList()
+    fun getLikeCountsByProjectIds(
+        userId: UUID,
+        projectIds: List<UUID>
+    ): List<ProjectLikeCountResponse> {
 
-        val countsByProjectId = projectLikeRepository
-            .countByProjectIds(projectIds)
+        val counts = projectLikeRepository.countByProjectIds(projectIds)
             .associate { it.getProjectId() to it.getLikeCount().toInt() }
 
-        return projectIds.map { projectId ->
+        val likedSet = projectLikeRepository
+            .findProjectIdsLikedByUser(userId, projectIds)
+            .toSet()
+
+        return projectIds.map { id ->
             ProjectLikeCountResponse(
-                id = projectId,
-                count = countsByProjectId[projectId] ?: 0,
+                id = id,
+                count = counts[id] ?: 0,
+                likedByMe = id in likedSet
             )
         }
     }

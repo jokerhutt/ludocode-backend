@@ -85,25 +85,25 @@ class ProjectController(
     fun likeProject(
         @PathVariable projectId: UUID,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
-    ): ResponseEntity<Void> {
+    ): ResponseEntity<ProjectLikeCountResponse> {
         projectLikeService.likeProject(userId, projectId)
-        return ResponseEntity.noContent().build()
+        return ResponseEntity.ok(projectLikeService.getLikeCountByProjectId(userId, projectId))
     }
 
     @DeleteMapping(ApiPaths.PROJECTS.BY_ID_LIKE)
     fun unlikeProject(
         @PathVariable projectId: UUID,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
-    ): ResponseEntity<Void> {
+    ): ResponseEntity<ProjectLikeCountResponse> {
         projectLikeService.unlikeProject(userId, projectId)
-        return ResponseEntity.noContent().build()
+        return ResponseEntity.ok(projectLikeService.getLikeCountByProjectId(userId, projectId))
     }
 
     @GetMapping(ApiPaths.PROJECTS.LIKE)
     fun getProjectLikeCountsByIds(
-        @RequestParam projectIds: List<UUID>
+        @RequestParam projectIds: List<UUID>, @AuthenticationPrincipal(expression = "userId") userId: UUID
     ): ResponseEntity<List<ProjectLikeCountResponse>> {
-        return ResponseEntity.ok(projectLikeService.getLikeCountsByProjectIds(projectIds))
+        return ResponseEntity.ok(projectLikeService.getLikeCountsByProjectIds(userId, projectIds))
     }
 
     @PostMapping(ApiPaths.PROJECTS.DUPLICATE)

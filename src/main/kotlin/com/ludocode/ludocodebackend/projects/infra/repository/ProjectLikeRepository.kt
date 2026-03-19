@@ -20,4 +20,24 @@ interface ProjectLikeRepository : JpaRepository<ProjectLike, ProjectLikeId> {
 	)
 	fun countByProjectIds(@Param("projectIds") projectIds: List<UUID>): List<ProjectLikeCountProjection>
 
+	@Query("""
+    SELECT COUNT(pl)
+    FROM ProjectLike pl
+    WHERE pl.projectLikeId.projectId = :projectId
+""")
+	fun countByProjectId(@Param("projectId") projectId: UUID): Long
+
+	@Query(
+		"""
+    SELECT pl.projectLikeId.projectId
+    FROM ProjectLike pl
+    WHERE pl.projectLikeId.userId = :userId
+    AND pl.projectLikeId.projectId IN :projectIds
+    """
+	)
+	fun findProjectIdsLikedByUser(
+		@Param("userId") userId: UUID,
+		@Param("projectIds") projectIds: List<UUID>
+	): List<UUID>
+
 }
