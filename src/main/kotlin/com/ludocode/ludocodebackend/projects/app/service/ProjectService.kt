@@ -227,6 +227,106 @@ class ProjectService(
         }
     }
 
+    @Transactional
+    internal fun duplicateProject(userId: UUID, projectId: UUID): UUID {
+
+        if (!isBelowPlanLimit(userId)) {
+            throw ApiException(ErrorCode.PROJECT_LIMIT_EXCEEDED)
+        }
+
+        val sourceProject = userProjectRepository.findById(projectId)
+            .orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
+
+        if (userId != sourceProject.userId && sourceProject.projectVisibility == Visibility.PRIVATE) {
+            throw ApiException(ErrorCode.NOT_OWN_PROJECT)
+        }
+
+        val now = OffsetDateTime.now(clock)
+        val sourceFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
+
+        val duplicatedProject = userProjectRepository.save(
+            UserProject(
+                id = UUID.randomUUID(),
+                name = sourceProject.name,
+                userId = userId,
+                requestHash = UUID.randomUUID(),
+                deleteAt = null,
+                codeLanguage = sourceProject.codeLanguage,
+                projectVisibility = Visibility.PRIVATE,
+                createdAt = now,
+                updatedAt = now,
+            )
+        )
+
+        withMdc(LogFields.PROJECT_ID to duplicatedProject.id.toString()) {
+            val sourceContentMap = try {
+                storagePortForServices.getList(StorageGetRequest(sourceFiles.map { it.contentUrl })).content
+            } catch (e: Exception) {
+                logger.error(
+                    LogEvents.GCS_GET_FAILED + " {}",
+                    kv(LogFields.FILE_COUNT, sourceFiles.size),
+                    e
+                )
+                throw ApiException(ErrorCode.GCS_GET_FAILED, "Failed to get files from GCS: ${e.message}")
+            }
+
+            val oldToNewFileIds = mutableMapOf<UUID, UUID>()
+            val uploadRequests = mutableListOf<StoragePutRequest>()
+
+            for (sourceFile in sourceFiles) {
+                val content = sourceContentMap[sourceFile.contentUrl]
+                    ?: throw ApiException(
+                        ErrorCode.STORAGE_OBJECT_NOT_FOUND,
+                        "Could not find content for storage path: ${sourceFile.contentUrl}"
+                    )
+
+                val duplicatedFileId = UUID.randomUUID()
+                val duplicatedContentUrl = "${duplicatedProject.id}/$duplicatedFileId"
+
+                oldToNewFileIds[sourceFile.id] = duplicatedFileId
+                uploadRequests.add(StoragePutRequest(path = duplicatedContentUrl, content = content))
+
+                projectFileRepository.save(
+                    ProjectFile(
+                        id = duplicatedFileId,
+                        projectId = duplicatedProject.id,
+                        contentUrl = duplicatedContentUrl,
+                        contentHash = sha256(content),
+                        filePath = sourceFile.filePath,
+                        codeLanguage = sourceFile.codeLanguage,
+                    )
+                )
+            }
+
+            val sourceEntryFileId = sourceProject.entryFileId
+                ?: throw ApiException(ErrorCode.ENTRY_FILE_NOT_FOUND)
+            val duplicatedEntryFileId = oldToNewFileIds[sourceEntryFileId]
+                ?: throw ApiException(
+                    ErrorCode.ENTRY_FILE_NOT_FOUND,
+                    "Source entry file is missing in duplicated files"
+                )
+            duplicatedProject.entryFileId = duplicatedEntryFileId
+
+            try {
+                storagePortForServices.uploadList(StoragePutRequestList(requests = uploadRequests))
+            } catch (e: Exception) {
+                logger.error(
+                    LogEvents.STORAGE_UPLOAD_FAILED + " {}",
+                    kv(LogFields.FILE_COUNT, uploadRequests.size),
+                    e
+                )
+                throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload duplicated files to GCS: ${e.message}")
+            }
+
+            logger.info(
+                LogEvents.PROJECT_CREATED + " {}",
+                kv(LogFields.FILE_COUNT, sourceFiles.size)
+            )
+        }
+
+        return duplicatedProject.id
+    }
+
     internal fun deleteUserProjects(userId: UUID) {
         val projectIds = userProjectRepository.findAllByUserIdOrderByUpdatedAtDesc(userId)
         projectIds.forEach { it -> deleteProjectForUser(it.id, userId) }

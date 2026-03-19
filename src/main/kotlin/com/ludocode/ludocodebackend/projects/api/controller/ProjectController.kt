@@ -78,6 +78,11 @@ class ProjectController(private val projectService: ProjectService) {
         }
     }
 
+    @PostMapping(ApiPaths.PROJECTS.DUPLICATE)
+    fun duplicateProject(@RequestParam projectId: UUID,@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<UUID> {
+        return ResponseEntity.ok(projectService.duplicateProject(userId, projectId))
+    }
+
     @Operation(
         summary = "Rename project",
         description = """

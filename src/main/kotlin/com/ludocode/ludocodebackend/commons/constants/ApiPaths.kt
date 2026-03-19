@@ -106,10 +106,12 @@ object ApiPaths {
         const val BY_ID = "/{projectId}"
         const val LANGUAGES = "/languages"
         const val PUBLIC = "/public"
+        const val DUPLICATE = "/{projectId}/duplicate"
         const val VISIBILITY = "/visibility"
         const val NAME = "/{projectId}/name"
         fun byId(projectId: UUID): String = "$BASE/$projectId"
         fun visibilityById(projectId: UUID): String = "$BASE/$projectId/visibility"
+        fun duplicateById(projectId: UUID): String = "$BASE/$projectId/duplicate"
         fun name(projectId: UUID): String = "$BASE/$projectId/name"
     }
 
