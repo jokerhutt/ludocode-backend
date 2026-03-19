@@ -81,8 +81,7 @@ class RunnerSocketHandler(
 
             override fun handleTextMessage(pistonSession: WebSocketSession, message: TextMessage) {
 
-
-
+                println("PISTON RAW → ${message.payload}")
 
                 withMdc(
                     LogFields.WS_SESSION_ID to session.id,
