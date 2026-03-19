@@ -431,6 +431,12 @@ class ProjectService(
                 refreshUpdatedAt(projectId)
             }
 
+            snapshotDiff.toDeleteFiles.forEach { it -> {
+                if (it.id == entryFileId) {
+                    throw ApiException(ErrorCode.NO_DELETE_ENTRY_FILE)
+                }
+            } }
+
             deleteFiles(projectId, snapshotDiff.toDeleteFiles)
             updateChangedFiles(projectId, snapshotDiff.toUpdate)
             saveNewFiles(projectId, snapshotDiff.toAdd)
@@ -454,6 +460,7 @@ class ProjectService(
         val toDeletePaths = projectFilesToDelete.map { it -> it.contentUrl }
 
         for (file in projectFilesToDelete) {
+
             projectFileRepository.deleteById(file.id)
         }
 
