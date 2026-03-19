@@ -8,8 +8,8 @@ import com.ludocode.ludocodebackend.projects.api.dto.request.CreateProjectReques
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.request.RenameProjectRequest
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardListResponse
-import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardResponse
-import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectListResponse
+import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectLikeCountResponse
+import com.ludocode.ludocodebackend.projects.app.service.ProjectLikeService
 import com.ludocode.ludocodebackend.projects.app.service.ProjectService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
@@ -26,7 +26,10 @@ import java.util.*
 @SecurityRequirement(name = "sessionAuth")
 @RestController
 @RequestMapping(ApiPaths.PROJECTS.BASE)
-class ProjectController(private val projectService: ProjectService) {
+class ProjectController(
+    private val projectService: ProjectService,
+    private val projectLikeService: ProjectLikeService,
+) {
 
     @Operation(
         summary = "Save project for the selected project id",
@@ -78,8 +81,33 @@ class ProjectController(private val projectService: ProjectService) {
         }
     }
 
+    @PostMapping(ApiPaths.PROJECTS.BY_ID_LIKE)
+    fun likeProject(
+        @PathVariable projectId: UUID,
+        @AuthenticationPrincipal(expression = "userId") userId: UUID
+    ): ResponseEntity<Void> {
+        projectLikeService.likeProject(userId, projectId)
+        return ResponseEntity.noContent().build()
+    }
+
+    @DeleteMapping(ApiPaths.PROJECTS.BY_ID_LIKE)
+    fun unlikeProject(
+        @PathVariable projectId: UUID,
+        @AuthenticationPrincipal(expression = "userId") userId: UUID
+    ): ResponseEntity<Void> {
+        projectLikeService.unlikeProject(userId, projectId)
+        return ResponseEntity.noContent().build()
+    }
+
+    @GetMapping(ApiPaths.PROJECTS.LIKE)
+    fun getProjectLikeCountsByIds(
+        @RequestParam projectIds: List<UUID>
+    ): ResponseEntity<List<ProjectLikeCountResponse>> {
+        return ResponseEntity.ok(projectLikeService.getLikeCountsByProjectIds(projectIds))
+    }
+
     @PostMapping(ApiPaths.PROJECTS.DUPLICATE)
-    fun duplicateProject(@RequestParam projectId: UUID,@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<UUID> {
+    fun duplicateProject(@PathVariable projectId: UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<UUID> {
         return ResponseEntity.ok(projectService.duplicateProject(userId, projectId))
     }
 

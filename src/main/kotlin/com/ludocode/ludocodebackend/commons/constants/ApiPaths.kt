@@ -107,11 +107,19 @@ object ApiPaths {
         const val LANGUAGES = "/languages"
         const val PUBLIC = "/public"
         const val DUPLICATE = "/{projectId}/duplicate"
+        const val LIKE = "/like"
+        const val BY_ID_LIKE = "/{projectId}/like"
         const val VISIBILITY = "/visibility"
         const val NAME = "/{projectId}/name"
         fun byId(projectId: UUID): String = "$BASE/$projectId"
         fun visibilityById(projectId: UUID): String = "$BASE/$projectId/visibility"
         fun duplicateById(projectId: UUID): String = "$BASE/$projectId/duplicate"
+        fun likeById(projectId: UUID): String = "$BASE/$projectId/like"
+        fun likesFromIds(ids: List<UUID>): String =
+            BASE + LIKE + ids.joinToString(
+                prefix = "?projectIds=",
+                separator = "&projectIds="
+            ) { it.toString() }
         fun name(projectId: UUID): String = "$BASE/$projectId/name"
     }
 
