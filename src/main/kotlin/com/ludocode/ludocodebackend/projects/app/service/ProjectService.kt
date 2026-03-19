@@ -412,11 +412,21 @@ class ProjectService(
             }
 
             val submittedFiles = projectSnapshot.files
-            val entryFileId = projectSnapshot.entryFileId
+            val entryFileId = existingProject.entryFileId
+
+            if (entryFileId == null) {
+                throw ApiException(ErrorCode.ENTRY_FILE_NOT_FOUND)
+            }
 
             ProjectSnapshotValidator.validateSnapshotRequest(entryFileId, submittedFiles)
 
             val existingFiles: List<ProjectFile> = projectFileRepository.findAllProjectFilesByProjectId(projectId)
+
+            val existingFileIds = existingFiles.map { it.id }.toSet()
+
+            if (submittedFiles.any { it.id != null && it.id !in existingFileIds }) {
+                throw ApiException(ErrorCode.INVALID_PROJECT_FILE_REFERENCE)
+            }
 
             val snapshotDiff = ProjectSnapshotDiffer.computeSnapshotDiff(submittedFiles, existingFiles)
 
@@ -432,7 +442,7 @@ class ProjectService(
             }
 
             snapshotDiff.toDeleteFiles.forEach { it -> {
-                if (it.id == entryFileId) {
+                if (it.id == existingProject.entryFileId) {
                     throw ApiException(ErrorCode.NO_DELETE_ENTRY_FILE)
                 }
             } }

@@ -28,6 +28,7 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     NORMAL_LESSON_NO_SNAPSHOT(HttpStatus.BAD_REQUEST, "Normal lesson can not have snapshot"),
     ENTRY_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "This project lacks an entry file"),
     NO_DELETE_ENTRY_FILE(HttpStatus.BAD_REQUEST, "Can not delete an entry file"),
+    INVALID_PROJECT_FILE_REFERENCE(HttpStatus.BAD_REQUEST, "Invalid project files reference"),
 
     CAREER_PREFERENCE_NOT_FOUND(HttpStatus.NOT_FOUND, "Career preference not found"),
 
