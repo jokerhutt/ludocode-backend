@@ -1,12 +1,16 @@
 package com.ludocode.ludocodebackend.projects.api.controller
 
+import com.ludocode.ludocodebackend.auth.api.security.principal.AuthUser
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.logging.withMdc
+import com.ludocode.ludocodebackend.projects.api.dto.request.ChangeVisibilityRequest
 import com.ludocode.ludocodebackend.projects.api.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.request.RenameProjectRequest
-import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectListResponse
+import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardListResponse
+import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectLikeCountResponse
+import com.ludocode.ludocodebackend.projects.app.service.ProjectLikeService
 import com.ludocode.ludocodebackend.projects.app.service.ProjectService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
@@ -23,7 +27,10 @@ import java.util.*
 @SecurityRequirement(name = "sessionAuth")
 @RestController
 @RequestMapping(ApiPaths.PROJECTS.BASE)
-class ProjectController(private val projectService: ProjectService) {
+class ProjectController(
+    private val projectService: ProjectService,
+    private val projectLikeService: ProjectLikeService,
+) {
 
     @Operation(
         summary = "Save project for the selected project id",
@@ -39,7 +46,21 @@ class ProjectController(private val projectService: ProjectService) {
         @RequestBody projectSnapshot: ProjectSnapshot,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
     ): ResponseEntity<ProjectSnapshot> {
-        return ResponseEntity.ok(projectService.saveProjectSnapshot(projectSnapshot))
+        return ResponseEntity.ok(projectService.saveProjectSnapshot(projectSnapshot, userId))
+    }
+
+    @PutMapping("${ApiPaths.PROJECTS.BY_ID}${ApiPaths.PROJECTS.VISIBILITY}")
+    fun updateVisibility(@PathVariable projectId : UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID, @RequestBody req: ChangeVisibilityRequest) : ResponseEntity<Void> {
+        projectService.changeProjectVisibility(projectId, userId, req.value)
+        return ResponseEntity.noContent().build()
+    }
+
+    @GetMapping(ApiPaths.PROJECTS.PUBLIC)
+    fun getPublicProjects(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "12") size: Int
+    ): ProjectCardListResponse {
+        return projectService.getPublicProjects(page, size)
     }
 
     @Operation(
@@ -54,10 +75,41 @@ class ProjectController(private val projectService: ProjectService) {
     fun deleteProject(
         @PathVariable projectId: UUID,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
-    ): ResponseEntity<ProjectListResponse> {
+    ): ResponseEntity<Void> {
         return withMdc(LogFields.PROJECT_ID to projectId.toString()) {
-            ResponseEntity.ok(projectService.deleteProjectForUser(projectId, userId))
+            projectService.deleteProjectForUser(projectId, userId)
+            ResponseEntity.noContent().build()
         }
+    }
+
+    @PostMapping(ApiPaths.PROJECTS.BY_ID_LIKE)
+    fun likeProject(
+        @PathVariable projectId: UUID,
+        @AuthenticationPrincipal(expression = "userId") userId: UUID
+    ): ResponseEntity<ProjectLikeCountResponse> {
+        projectLikeService.likeProject(userId, projectId)
+        return ResponseEntity.ok(projectLikeService.getLikeCountByProjectId(userId, projectId))
+    }
+
+    @DeleteMapping(ApiPaths.PROJECTS.BY_ID_LIKE)
+    fun unlikeProject(
+        @PathVariable projectId: UUID,
+        @AuthenticationPrincipal(expression = "userId") userId: UUID
+    ): ResponseEntity<ProjectLikeCountResponse> {
+        projectLikeService.unlikeProject(userId, projectId)
+        return ResponseEntity.ok(projectLikeService.getLikeCountByProjectId(userId, projectId))
+    }
+
+    @GetMapping(ApiPaths.PROJECTS.LIKE)
+    fun getProjectLikeCountsByIds(
+        @RequestParam projectIds: List<UUID>, @AuthenticationPrincipal(expression = "userId") userId: UUID
+    ): ResponseEntity<List<ProjectLikeCountResponse>> {
+        return ResponseEntity.ok(projectLikeService.getLikeCountsByProjectIds(userId, projectIds))
+    }
+
+    @PostMapping(ApiPaths.PROJECTS.DUPLICATE)
+    fun duplicateProject(@PathVariable projectId: UUID, @AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<UUID> {
+        return ResponseEntity.ok(projectService.duplicateProject(userId, projectId))
     }
 
     @Operation(
@@ -74,9 +126,10 @@ class ProjectController(private val projectService: ProjectService) {
         @PathVariable projectId: UUID,
         @RequestBody request: RenameProjectRequest,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
-    ): ResponseEntity<ProjectListResponse> {
+    ): ResponseEntity<Void> {
         return withMdc(LogFields.PROJECT_ID to projectId.toString()) {
-            ResponseEntity.ok(projectService.renameProject(request, userId))
+            projectService.renameProject(request, userId)
+            ResponseEntity.noContent().build()
         }
     }
 
@@ -92,8 +145,9 @@ class ProjectController(private val projectService: ProjectService) {
     fun createProject(
         @RequestBody request: CreateProjectRequest,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
-    ): ResponseEntity<ProjectListResponse> {
-        return ResponseEntity.ok(projectService.createProject(request, userId))
+    ): ResponseEntity<Void> {
+        projectService.createProject(request, userId)
+        return ResponseEntity.noContent().build()
     }
 
     @Operation(
@@ -104,8 +158,11 @@ class ProjectController(private val projectService: ProjectService) {
         """
     )
     @GetMapping
-    fun getUserProjects(@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<ProjectListResponse> {
-        return ResponseEntity.ok(projectService.getUserProjects(userId))
+    fun getUserProjects(
+        @AuthenticationPrincipal(expression = "userId") userId: UUID,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "12") size: Int): ResponseEntity<ProjectCardListResponse> {
+        return ResponseEntity.ok(projectService.getUserProjects(userId, page, size))
     }
 
     @Operation(
@@ -124,6 +181,17 @@ class ProjectController(private val projectService: ProjectService) {
         return withMdc(LogFields.PROJECT_ID to projectId.toString()) {
             ResponseEntity.ok(projectService.getProjectSnapshotForUserByProjectId(projectId, userId))
         }
+    }
+
+    @GetMapping("${ApiPaths.PROJECTS.BY_ID_PUBLIC}")
+    fun getPublicProject(
+        @PathVariable projectId: UUID,
+        @AuthenticationPrincipal principal: Any?
+    ): ResponseEntity<ProjectSnapshot> {
+        val userId = (principal as? AuthUser)?.userId
+        return ResponseEntity.ok(
+            projectService.getPublicProjectSnapshot(projectId, userId)
+        )
     }
 
 

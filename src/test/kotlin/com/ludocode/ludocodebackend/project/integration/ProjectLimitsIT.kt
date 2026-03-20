@@ -4,6 +4,8 @@ import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.jobs.ProjectCleanupJob
 import com.ludocode.ludocodebackend.projects.api.dto.request.CreateProjectRequest
+import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardListResponse
+import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardResponse
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.projects.app.service.ProjectPlanEnforcer
@@ -73,7 +75,8 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
             requestHash = UUID.randomUUID()
         )
 
-        val res = submitPostCreateProject(newProjectRequest, user1.id)
+        submitPostCreateProject(newProjectRequest, user1.id)
+        val res = submitGetUserProjects(user1.id)
         assertThat(res).isNotNull()
         assertThat(res.projects.size).isEqualTo(6)
         val stillMarked = res.projects.filter { it.deleteAt != null }
@@ -107,7 +110,7 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
         assertThat(markedForDeletion).hasSize(1)
 
         val oldest = res.projects
-            .minByOrNull { p: ProjectSnapshot ->
+            .minByOrNull { p: ProjectCardResponse ->
                 p.updatedAt ?: OffsetDateTime.MAX
             }!!
 
@@ -136,7 +139,7 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
         assertThat(markedForDeletion).hasSize(1)
 
         val oldest = res.projects
-            .minByOrNull { p: ProjectSnapshot ->
+            .minByOrNull { p: ProjectCardResponse ->
                 p.updatedAt ?: OffsetDateTime.MAX
             }!!
 
@@ -184,14 +187,14 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
     }
 
-    private fun submitGetUserProjects(userId: UUID): ProjectListResponse =
-        TestRestClient.getOk(ApiPaths.PROJECTS.BASE, userId, ProjectListResponse::class.java)
+    private fun submitGetUserProjects(userId: UUID): ProjectCardListResponse =
+        TestRestClient.getOk(ApiPaths.PROJECTS.BASE, userId, ProjectCardListResponse::class.java)
 
     private fun assertErrorOnPost(request: CreateProjectRequest, userId: UUID, errorCode: ErrorCode): ValidatableResponse? =
         TestRestClient.assertError("POST", ApiPaths.PROJECTS.BASE, userId, request, errorCode)
 
-    private fun submitPostCreateProject(request: CreateProjectRequest, userId: UUID): ProjectListResponse =
-        TestRestClient.postOk(ApiPaths.PROJECTS.BASE, userId, request, ProjectListResponse::class.java)
+    private fun submitPostCreateProject(request: CreateProjectRequest, userId: UUID) =
+        TestRestClient.postNoContent(ApiPaths.PROJECTS.BASE, userId, request)
 
 
 

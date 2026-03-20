@@ -213,6 +213,7 @@ abstract class AbstractIntegrationTest {
         jdbc.execute(
             """
         TRUNCATE TABLE 
+          project_like,
           project_file,
           user_project,
           exercise_attempt,

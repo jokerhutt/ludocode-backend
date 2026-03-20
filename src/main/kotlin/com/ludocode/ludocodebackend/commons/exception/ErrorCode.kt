@@ -27,6 +27,8 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     GUIDED_LESSON_NEEDS_SNAPSHOT(HttpStatus.BAD_REQUEST, "Guided lesson requires a project snapshot"),
     NORMAL_LESSON_NO_SNAPSHOT(HttpStatus.BAD_REQUEST, "Normal lesson can not have snapshot"),
     ENTRY_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "This project lacks an entry file"),
+    NO_DELETE_ENTRY_FILE(HttpStatus.BAD_REQUEST, "Can not delete an entry file"),
+    INVALID_PROJECT_FILE_REFERENCE(HttpStatus.BAD_REQUEST, "Invalid project files reference"),
 
     CAREER_PREFERENCE_NOT_FOUND(HttpStatus.NOT_FOUND, "Career preference not found"),
 
@@ -66,6 +68,7 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
 
     NOT_ENOUGH_CREDITS(HttpStatus.UNAUTHORIZED, "Not enough credits to perform this action"),
 
+    NOT_OWN_PROJECT(HttpStatus.UNAUTHORIZED, "User is not allowed to view/modify this project"),
     NOT_ALLOWED(HttpStatus.UNAUTHORIZED, "Not allowed to retrieve content"),
 
     GCS_GET_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to get project files from cloud storage"),

@@ -220,7 +220,7 @@ object TestRestClient {
         return extracted.`as`(responseType)
     }
 
-    fun putNoContent(
+    fun putNoContentYaml(
         url: String,
         userId: UUID,
         body: Any? = null
@@ -242,6 +242,47 @@ object TestRestClient {
 
         req.`when`()
             .put(url)
+            .then()
+            .statusCode(204)
+    }
+
+    fun putNoContent(
+        url: String,
+        userId: UUID,
+        body: Any? = null
+    ) {
+
+        val req = given()
+            .header("X-Test-User-Id", userId.toString())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+
+        if (body != null) {
+            req.body(body)
+        }
+
+        req.`when`()
+            .put(url)
+            .then()
+            .statusCode(204)
+    }
+
+    fun patchNoContent(
+        url: String,
+        userId: UUID,
+        body: Any? = null
+    ) {
+        val req = given()
+            .header("X-Test-User-Id", userId.toString())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+
+        if (body != null) {
+            req.body(body)
+        }
+
+        req.`when`()
+            .patch(url)
             .then()
             .statusCode(204)
     }

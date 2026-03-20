@@ -11,13 +11,16 @@ import com.ludocode.ludocodebackend.projects.api.dto.request.CreateProjectReques
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.request.RenameProjectRequest
-import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectListResponse
+import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardListResponse
+import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardResponse
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectSnapshotDiff
+import com.ludocode.ludocodebackend.projects.app.mapper.ProjectCardMapper
 import com.ludocode.ludocodebackend.projects.app.mapper.ProjectMapper
 import com.ludocode.ludocodebackend.projects.app.util.ProjectSnapshotDiffer
 import com.ludocode.ludocodebackend.projects.app.util.ProjectSnapshotValidator
 import com.ludocode.ludocodebackend.projects.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.projects.domain.entity.UserProject
+import com.ludocode.ludocodebackend.projects.domain.enums.Visibility
 import com.ludocode.ludocodebackend.projects.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.projects.infra.repository.UserProjectRepository
 import com.ludocode.ludocodebackend.storage.app.dto.request.StorageDeleteRequest
@@ -29,6 +32,7 @@ import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import java.time.Clock
 import java.time.OffsetDateTime
@@ -44,6 +48,7 @@ class ProjectService(
     private val storagePortForServices: StoragePortForServices,
     private val codeLanguagesRepository: CodeLanguagesRepository,
     private val subscriptionService: SubscriptionService,
+    private val projectCardMapper: ProjectCardMapper,
 ) {
 
     private val logger = LoggerFactory.getLogger(ProjectService::class.java)
@@ -57,8 +62,45 @@ class ProjectService(
 
     }
 
+    internal fun getPublicProjects(page: Int, size: Int): ProjectCardListResponse {
+        val pageable = PageRequest.of(page, size)
+
+        val result = userProjectRepository.findPublicProjectCards(pageable)
+
+        logger.info(
+            "${LogEvents.PROJECT_CARD_LIST_LOADED} {}",
+            kv(LogFields.FILE_COUNT, result.content.size)
+        )
+
+        return projectCardMapper.toProjectCardResponseList(
+            result.content,
+            result.number,
+            result.totalPages,
+            result.hasNext()
+        )
+    }
+
+
+    internal fun getUserProjects(userId: UUID, page: Int, size: Int): ProjectCardListResponse {
+        val pageable = PageRequest.of(page, size)
+        val result = userProjectRepository.findProjectCardsByUserId(userId, pageable)
+
+        logger.info(
+            "${LogEvents.PROJECT_CARD_LIST_LOADED} {}",
+            kv(LogFields.FILE_COUNT, result.size)
+        )
+
+        return projectCardMapper.toProjectCardResponseList(
+            result.content,
+            result.number,
+            result.totalPages,
+            result.hasNext()
+        )
+
+    }
+
     @Transactional
-    internal fun createProject(request: CreateProjectRequest, userId: UUID): ProjectListResponse {
+    internal fun createProject(request: CreateProjectRequest, userId: UUID) {
 
         if (!isBelowPlanLimit(userId)) {
             throw ApiException(ErrorCode.PROJECT_LIMIT_EXCEEDED)
@@ -129,34 +171,29 @@ class ProjectService(
             )
 
         }
-        return getUserProjects(userId)
-
-
     }
 
     private fun getFirstFileName(base: String, extension: String): String {
         return base + extension
     }
 
-    internal fun getUserProjects(userId: UUID): ProjectListResponse {
-        val projectIds = userProjectRepository.findProjectIdsByUserId(userId)
 
-        logger.info(
-            "${LogEvents.PROJECT_SNAPSHOT_LIST_LOADED} {}",
-            kv(LogFields.FILE_COUNT, projectIds.size)
-        )
 
-        val projectSnapshots = mutableListOf<ProjectSnapshot>()
-        for (projectId in projectIds) {
-            projectSnapshots.add(getProjectSnapshotForUserByProjectId(projectId, userId))
-        }
-        return ProjectListResponse(projectSnapshots)
-    }
 
     internal fun getProjectSnapshotForUserByProjectId(projectId: UUID, userId: UUID): ProjectSnapshot {
-        val project = userProjectRepository.findById(projectId).orElseThrow()
+        val project = userProjectRepository.findById(projectId).orElseThrow{ ApiException(ErrorCode.PROJECT_NOT_FOUND) }
         val isOwnProject = project.userId == userId
-        if (!isOwnProject) {
+        if (project.projectVisibility == Visibility.PRIVATE && !isOwnProject) {
+            logger.warn(LogEvents.PROJECT_SNAPSHOT_FORBIDDEN)
+            throw ApiException(ErrorCode.NOT_ALLOWED)
+        }
+        return getProjectSnapshotByProjectId(projectId)
+    }
+
+    fun getPublicProjectSnapshot(projectId: UUID, userId: UUID?): ProjectSnapshot {
+        val project = userProjectRepository.findById(projectId).orElseThrow{ ApiException(ErrorCode.PROJECT_NOT_FOUND) }
+        val isOwnProject = project.userId == userId
+        if (project.projectVisibility == Visibility.PRIVATE && !isOwnProject) {
             logger.warn(LogEvents.PROJECT_SNAPSHOT_FORBIDDEN)
             throw ApiException(ErrorCode.NOT_ALLOWED)
         }
@@ -170,6 +207,7 @@ class ProjectService(
             val projectName = project.name
             val deleteAt = project.deleteAt
             val projectLanguage = project.codeLanguage
+            val visibility = project.projectVisibility
             val entryFileId = project.entryFileId
                 ?: throw ApiException(ErrorCode.ENTRY_FILE_NOT_FOUND)
 
@@ -193,15 +231,125 @@ class ProjectService(
                 deleteAt,
                 projectFiles,
                 fileContentsMap.content,
-                entryFileId
+                entryFileId,
+                visibility = visibility
             )
         }
     }
 
     @Transactional
-    internal fun deleteProjectForUser(projectId: UUID, userId: UUID): ProjectListResponse {
+    internal fun duplicateProject(userId: UUID, projectId: UUID): UUID {
+
+        if (!isBelowPlanLimit(userId)) {
+            throw ApiException(ErrorCode.PROJECT_LIMIT_EXCEEDED)
+        }
+
+        val sourceProject = userProjectRepository.findById(projectId)
+            .orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
+
+        if (userId != sourceProject.userId && sourceProject.projectVisibility == Visibility.PRIVATE) {
+            throw ApiException(ErrorCode.NOT_OWN_PROJECT)
+        }
+
+        val now = OffsetDateTime.now(clock)
+        val sourceFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
+
+        val duplicatedProject = userProjectRepository.save(
+            UserProject(
+                id = UUID.randomUUID(),
+                name = sourceProject.name,
+                userId = userId,
+                requestHash = UUID.randomUUID(),
+                deleteAt = null,
+                codeLanguage = sourceProject.codeLanguage,
+                projectVisibility = Visibility.PRIVATE,
+                createdAt = now,
+                updatedAt = now,
+            )
+        )
+
+        withMdc(LogFields.PROJECT_ID to duplicatedProject.id.toString()) {
+            val sourceContentMap = try {
+                storagePortForServices.getList(StorageGetRequest(sourceFiles.map { it.contentUrl })).content
+            } catch (e: Exception) {
+                logger.error(
+                    LogEvents.GCS_GET_FAILED + " {}",
+                    kv(LogFields.FILE_COUNT, sourceFiles.size),
+                    e
+                )
+                throw ApiException(ErrorCode.GCS_GET_FAILED, "Failed to get files from GCS: ${e.message}")
+            }
+
+            val oldToNewFileIds = mutableMapOf<UUID, UUID>()
+            val uploadRequests = mutableListOf<StoragePutRequest>()
+
+            for (sourceFile in sourceFiles) {
+                val content = sourceContentMap[sourceFile.contentUrl]
+                    ?: throw ApiException(
+                        ErrorCode.STORAGE_OBJECT_NOT_FOUND,
+                        "Could not find content for storage path: ${sourceFile.contentUrl}"
+                    )
+
+                val duplicatedFileId = UUID.randomUUID()
+                val duplicatedContentUrl = "${duplicatedProject.id}/$duplicatedFileId"
+
+                oldToNewFileIds[sourceFile.id] = duplicatedFileId
+                uploadRequests.add(StoragePutRequest(path = duplicatedContentUrl, content = content))
+
+                projectFileRepository.save(
+                    ProjectFile(
+                        id = duplicatedFileId,
+                        projectId = duplicatedProject.id,
+                        contentUrl = duplicatedContentUrl,
+                        contentHash = sha256(content),
+                        filePath = sourceFile.filePath,
+                        codeLanguage = sourceFile.codeLanguage,
+                    )
+                )
+            }
+
+            val sourceEntryFileId = sourceProject.entryFileId
+                ?: throw ApiException(ErrorCode.ENTRY_FILE_NOT_FOUND)
+            val duplicatedEntryFileId = oldToNewFileIds[sourceEntryFileId]
+                ?: throw ApiException(
+                    ErrorCode.ENTRY_FILE_NOT_FOUND,
+                    "Source entry file is missing in duplicated files"
+                )
+            duplicatedProject.entryFileId = duplicatedEntryFileId
+
+            try {
+                storagePortForServices.uploadList(StoragePutRequestList(requests = uploadRequests))
+            } catch (e: Exception) {
+                logger.error(
+                    LogEvents.STORAGE_UPLOAD_FAILED + " {}",
+                    kv(LogFields.FILE_COUNT, uploadRequests.size),
+                    e
+                )
+                throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload duplicated files to GCS: ${e.message}")
+            }
+
+            logger.info(
+                LogEvents.PROJECT_CREATED + " {}",
+                kv(LogFields.FILE_COUNT, sourceFiles.size)
+            )
+        }
+
+        return duplicatedProject.id
+    }
+
+    internal fun deleteUserProjects(userId: UUID) {
+        val projectIds = userProjectRepository.findAllByUserIdOrderByUpdatedAtDesc(userId)
+        projectIds.forEach { it -> deleteProjectForUser(it.id, userId) }
+    }
+
+    @Transactional
+    internal fun deleteProjectForUser(projectId: UUID, userId: UUID) {
         val existingProject = userProjectRepository.findById(projectId).orElseThrow()
         val existingFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
+
+        if (existingProject.userId != userId) {
+            throw ApiException(ErrorCode.NOT_OWN_PROJECT)
+        }
 
         logger.info(
             LogEvents.PROJECT_DELETE_REQUESTED + " {}",
@@ -214,8 +362,6 @@ class ProjectService(
 
         userProjectRepository.deleteById(existingProject.id)
         deleteFiles(projectId, existingFiles)
-
-        return getUserProjects(userId)
     }
 
     private fun refreshUpdatedAt(existing: UserProject): UserProject {
@@ -230,7 +376,7 @@ class ProjectService(
     }
 
     @Transactional
-    internal fun renameProject(renameProjectRequest: RenameProjectRequest, userId: UUID): ProjectListResponse {
+    internal fun renameProject(renameProjectRequest: RenameProjectRequest, userId: UUID) {
 
         val projectId = renameProjectRequest.targetId
         val newName = renameProjectRequest.newName
@@ -240,31 +386,57 @@ class ProjectService(
         )
 
         var existingProject = userProjectRepository.findById(projectId).orElseThrow()
+
+        if (existingProject.userId != userId) {
+            throw ApiException(ErrorCode.NOT_OWN_PROJECT)
+        }
+
         existingProject.name = newName
         existingProject = refreshUpdatedAt(existingProject)
         userProjectRepository.save(existingProject)
 
-        return getUserProjects(userId)
+    }
+
+    @Transactional
+    internal fun changeProjectVisibility(projectId: UUID, userId: UUID, value: Visibility) {
+        val existingProject = userProjectRepository.findById(projectId).orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
+
+        if (existingProject.userId != userId) {
+            throw ApiException(ErrorCode.NOT_OWN_PROJECT)
+        }
+
+        existingProject.projectVisibility = value
 
     }
 
 
     @Transactional
-    internal fun saveProjectSnapshot(projectSnapshot: ProjectSnapshot): ProjectSnapshot {
+    internal fun saveProjectSnapshot(projectSnapshot: ProjectSnapshot, userId: UUID): ProjectSnapshot {
         val projectId = projectSnapshot.projectId
 
         return withMdc(LogFields.PROJECT_ID to projectId.toString()) {
-            if (!userProjectRepository.existsById(projectId)) throw ApiException(
-                ErrorCode.PROJECT_NOT_FOUND,
-                "This project doesnt exist"
-            )
+            val existingProject = userProjectRepository.findById(projectId).orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
+
+            if (existingProject.userId != userId) {
+                throw ApiException(ErrorCode.NOT_OWN_PROJECT)
+            }
 
             val submittedFiles = projectSnapshot.files
-            val entryFileId = projectSnapshot.entryFileId
+            val entryFileId = existingProject.entryFileId
+
+            if (entryFileId == null) {
+                throw ApiException(ErrorCode.ENTRY_FILE_NOT_FOUND)
+            }
 
             ProjectSnapshotValidator.validateSnapshotRequest(entryFileId, submittedFiles)
 
             val existingFiles: List<ProjectFile> = projectFileRepository.findAllProjectFilesByProjectId(projectId)
+
+            val existingFileIds = existingFiles.map { it.id }.toSet()
+
+            if (submittedFiles.any { it.id != null && it.id !in existingFileIds }) {
+                throw ApiException(ErrorCode.INVALID_PROJECT_FILE_REFERENCE)
+            }
 
             val snapshotDiff = ProjectSnapshotDiffer.computeSnapshotDiff(submittedFiles, existingFiles)
 
@@ -278,6 +450,12 @@ class ProjectService(
             if (hasProjectChanged(snapshotDiff)) {
                 refreshUpdatedAt(projectId)
             }
+
+            snapshotDiff.toDeleteFiles.forEach { it -> {
+                if (it.id == existingProject.entryFileId) {
+                    throw ApiException(ErrorCode.NO_DELETE_ENTRY_FILE)
+                }
+            } }
 
             deleteFiles(projectId, snapshotDiff.toDeleteFiles)
             updateChangedFiles(projectId, snapshotDiff.toUpdate)
@@ -302,6 +480,7 @@ class ProjectService(
         val toDeletePaths = projectFilesToDelete.map { it -> it.contentUrl }
 
         for (file in projectFilesToDelete) {
+
             projectFileRepository.deleteById(file.id)
         }
 
@@ -316,7 +495,6 @@ class ProjectService(
                 kv(LogFields.FILE_COUNT, toDeletePaths.size),
                 e
             )
-            throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to delete files to GCS: ${e.message}")
         }
 
     }

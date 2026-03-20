@@ -36,7 +36,7 @@ class UserProject(
 
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "project_visibility")
-    val projectVisibility: Visibility? = Visibility.PRIVATE,
+    var projectVisibility: Visibility = Visibility.PRIVATE,
 
     @Column(name = "created_at")
     var createdAt: OffsetDateTime? = null,

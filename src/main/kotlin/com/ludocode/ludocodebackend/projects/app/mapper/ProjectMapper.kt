@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import com.ludocode.ludocodebackend.projects.domain.entity.ProjectFile
+import com.ludocode.ludocodebackend.projects.domain.enums.Visibility
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 import java.util.*
@@ -40,7 +41,8 @@ class ProjectMapper(private val basicMapper: BasicMapper, private val languagesM
         deleteAt: OffsetDateTime?,
         projectFiles: List<ProjectFile>,
         fileContentMap: Map<String, String>,
-        entryFileId: UUID
+        entryFileId: UUID,
+        visibility: Visibility
     ): ProjectSnapshot {
         return ProjectSnapshot(
             projectId,
@@ -49,7 +51,8 @@ class ProjectMapper(private val basicMapper: BasicMapper, private val languagesM
             updatedAt,
             deleteAt = deleteAt,
             toProjectFileSnapshotList(projectFiles, fileContentMap),
-            entryFileId = entryFileId
+            entryFileId = entryFileId,
+            visibility = visibility
         )
     }
 
