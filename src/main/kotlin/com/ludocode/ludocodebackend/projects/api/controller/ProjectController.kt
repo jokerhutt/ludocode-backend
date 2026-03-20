@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.projects.api.controller
 
+import com.ludocode.ludocodebackend.auth.api.security.principal.AuthUser
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.logging.withMdc
@@ -185,8 +186,9 @@ class ProjectController(
     @GetMapping("${ApiPaths.PROJECTS.BY_ID_PUBLIC}")
     fun getPublicProject(
         @PathVariable projectId: UUID,
-        @AuthenticationPrincipal(expression = "userId") userId: UUID?
+        @AuthenticationPrincipal principal: Any?
     ): ResponseEntity<ProjectSnapshot> {
+        val userId = (principal as? AuthUser)?.userId
         return ResponseEntity.ok(
             projectService.getPublicProjectSnapshot(projectId, userId)
         )
