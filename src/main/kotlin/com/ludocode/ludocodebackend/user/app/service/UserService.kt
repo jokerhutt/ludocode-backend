@@ -63,12 +63,13 @@ class UserService(
         val ext = externalAccountRepository.findByUserId(userId)
             ?: throw ApiException(ErrorCode.USER_NOT_FOUND, "Could not find external account for user")
 
-        if (ext.provider == AuthProvider.FIREBASE) {
-            firebaseAuthPort.deleteUser(ext.providerUserId)
-        }
+
 
         projectService.deleteUserProjects(userId)
 
+        if (ext.provider == AuthProvider.FIREBASE) {
+            firebaseAuthPort.deleteUser(ext.providerUserId)
+        }
         externalAccountRepository.delete(ext)
         logger.warn(LogEvents.USER_DELETED)
         existingUser.email = null
