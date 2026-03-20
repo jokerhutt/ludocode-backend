@@ -181,7 +181,17 @@ class ProjectService(
 
 
     internal fun getProjectSnapshotForUserByProjectId(projectId: UUID, userId: UUID): ProjectSnapshot {
-        val project = userProjectRepository.findById(projectId).orElseThrow()
+        val project = userProjectRepository.findById(projectId).orElseThrow{ ApiException(ErrorCode.PROJECT_NOT_FOUND) }
+        val isOwnProject = project.userId == userId
+        if (project.projectVisibility == Visibility.PRIVATE && !isOwnProject) {
+            logger.warn(LogEvents.PROJECT_SNAPSHOT_FORBIDDEN)
+            throw ApiException(ErrorCode.NOT_ALLOWED)
+        }
+        return getProjectSnapshotByProjectId(projectId)
+    }
+
+    fun getPublicProjectSnapshot(projectId: UUID, userId: UUID?): ProjectSnapshot {
+        val project = userProjectRepository.findById(projectId).orElseThrow{ ApiException(ErrorCode.PROJECT_NOT_FOUND) }
         val isOwnProject = project.userId == userId
         if (project.projectVisibility == Visibility.PRIVATE && !isOwnProject) {
             logger.warn(LogEvents.PROJECT_SNAPSHOT_FORBIDDEN)

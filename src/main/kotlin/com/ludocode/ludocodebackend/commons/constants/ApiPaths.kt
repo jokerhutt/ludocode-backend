@@ -106,6 +106,7 @@ object ApiPaths {
         const val BY_ID = "/{projectId}"
         const val LANGUAGES = "/languages"
         const val PUBLIC = "/public"
+        const val BY_ID_PUBLIC = "/public/{projectId}"
         const val DUPLICATE = "/{projectId}/duplicate"
         const val LIKE = "/like"
         const val BY_ID_LIKE = "/{projectId}/like"

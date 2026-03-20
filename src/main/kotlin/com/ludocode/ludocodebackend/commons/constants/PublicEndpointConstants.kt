@@ -13,6 +13,7 @@ object PublicEndpointConstants {
         "${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.COURSE_TREE}",
         "${ApiPaths.AI.BASE}/**",
         "${ApiPaths.ANALYTICS.BASE}/**",
+        "${ApiPaths.PROJECTS.BASE}${ApiPaths.PROJECTS.PUBLIC}/**",
         "${ApiPaths.SUBSCRIPTION.BASE}${ApiPaths.SUBSCRIPTION.WEBHOOK}",
         "${ApiPaths.SUBSCRIPTION.BASE}${ApiPaths.SUBSCRIPTION.WEBHOOK}/**"
     )

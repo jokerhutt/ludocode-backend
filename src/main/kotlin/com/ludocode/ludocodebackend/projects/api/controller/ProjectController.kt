@@ -182,5 +182,15 @@ class ProjectController(
         }
     }
 
+    @GetMapping("${ApiPaths.PROJECTS.BY_ID_PUBLIC}")
+    fun getPublicProject(
+        @PathVariable projectId: UUID,
+        @AuthenticationPrincipal(expression = "userId") userId: UUID?
+    ): ResponseEntity<ProjectSnapshot> {
+        return ResponseEntity.ok(
+            projectService.getPublicProjectSnapshot(projectId, userId)
+        )
+    }
+
 
 }
