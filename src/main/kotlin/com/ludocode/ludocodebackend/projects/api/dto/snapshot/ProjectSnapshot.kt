@@ -13,5 +13,4 @@ data class ProjectSnapshot(
     val deleteAt: OffsetDateTime?,
     val files: List<ProjectFileSnapshot>,
     val entryFileId: UUID,
-    val visibility: Visibility
 )

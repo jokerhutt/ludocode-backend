@@ -168,7 +168,6 @@ class CurriculumSnapshotService(
                             deleteAt = null,
                             files = listOf(initialFile),
                             entryFileId = initialFileId,
-                            visibility = Visibility.PUBLIC,
                         )
                     }
 
