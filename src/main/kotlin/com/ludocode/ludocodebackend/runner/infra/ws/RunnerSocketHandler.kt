@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 @ConditionalOnProperty(prefix = "piston", name = ["enabled"], havingValue = "true")
 @Component
 class RunnerSocketHandler(
-    private val pistonWebSocketClient: PistonWebSocketClient
+    private val pistonWebSocketClient: PistonWebSocketClient,
 ) : TextWebSocketHandler() {
 
     private data class ClientBridge(
@@ -81,7 +81,6 @@ class RunnerSocketHandler(
 
             override fun handleTextMessage(pistonSession: WebSocketSession, message: TextMessage) {
 
-                println("PISTON RAW → ${message.payload}")
 
                 withMdc(
                     LogFields.WS_SESSION_ID to session.id,
@@ -264,7 +263,6 @@ class RunnerSocketHandler(
         )
 
         val payload = mapper.writeValueAsString(pistonInit)
-        println("TO PISTON → $payload")
         pistonSession.sendMessage(
             TextMessage(mapper.writeValueAsString(pistonInit))
         )
