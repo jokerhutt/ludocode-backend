@@ -14,4 +14,6 @@ interface ProjectCardProjection {
 
     fun getLanguageIconName(): String
     fun getLanguageName(): String
+
+    fun getDeleteAt(): OffsetDateTime?
 }

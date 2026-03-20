@@ -33,19 +33,18 @@ interface UserProjectRepository : JpaRepository<UserProject, UUID> {
         p.name as projectTitle,
         p.createdAt as createdAt,
         p.updatedAt as updatedAt,
+        p.deleteAt as deleteAt,
         p.projectVisibility as visibility,
         p.codeLanguage.iconName as languageIconName,
         p.codeLanguage.name as languageName
     FROM UserProject p
     WHERE p.userId = :userId
-      AND p.deleteAt IS NULL
     ORDER BY p.updatedAt DESC
     """,
         countQuery = """
     SELECT COUNT(p)
     FROM UserProject p
     WHERE p.userId = :userId
-      AND p.deleteAt IS NULL
     """
     )
     fun findProjectCardsByUserId(
@@ -60,6 +59,7 @@ interface UserProjectRepository : JpaRepository<UserProject, UUID> {
             p.userId as authorId,
             p.name as projectTitle,
             p.createdAt as createdAt,
+            p.deleteAt as deleteAt,
             p.updatedAt as updatedAt,
             p.projectVisibility as visibility,
             p.codeLanguage.iconName as languageIconName,

@@ -6,8 +6,8 @@ import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.util.sha256
 import com.ludocode.ludocodebackend.projects.api.dto.request.ChangeVisibilityRequest
+import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardListResponse
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectListResponse
-import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import com.ludocode.ludocodebackend.projects.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.projects.domain.entity.UserProject
 import com.ludocode.ludocodebackend.projects.domain.enums.Visibility
@@ -111,7 +111,10 @@ class ProjectVisibilityIT : AbstractIntegrationTest() {
 
         assertThat(project.visibility).isEqualTo(Visibility.PRIVATE)
 
-        val res = submitPutChangeProjectVisibility(user1.id, existingProject.id, ChangeVisibilityRequest(Visibility.PUBLIC))
+        submitPutChangeProjectVisibility(user1.id, existingProject.id, ChangeVisibilityRequest(Visibility.PUBLIC))
+
+        val res = submitGetUserProjects(user1.id)
+
         val updatedProject = res.projects.find { it.projectId == existingProject.id }
             ?: fail("Expected project not found")
 
@@ -119,15 +122,14 @@ class ProjectVisibilityIT : AbstractIntegrationTest() {
 
     }
 
-    private fun submitPutChangeProjectVisibility(userId: UUID, projectId: UUID, req: ChangeVisibilityRequest): ProjectListResponse =
-
-        TestRestClient.putOk(ApiPaths.PROJECTS.visibilityById(projectId), userId, req, ProjectListResponse::class.java)
+    private fun submitPutChangeProjectVisibility(userId: UUID, projectId: UUID, req: ChangeVisibilityRequest) =
+        TestRestClient.putNoContent(ApiPaths.PROJECTS.visibilityById(projectId), userId, req)
 
     private fun assertErrorOnPutVisibility(userId: UUID, projectId: UUID, req: ChangeVisibilityRequest, errorCode: ErrorCode) : ValidatableResponse? =
         TestRestClient.assertError("PUT", ApiPaths.PROJECTS.visibilityById(projectId), userId, req, errorCode)
 
-    private fun submitGetUserProjects(userId: UUID): ProjectListResponse =
-        TestRestClient.getOk(ApiPaths.PROJECTS.BASE, userId, ProjectListResponse::class.java)
+    private fun submitGetUserProjects(userId: UUID): ProjectCardListResponse =
+        TestRestClient.getOk(ApiPaths.PROJECTS.BASE, userId, ProjectCardListResponse::class.java)
 
 
 }

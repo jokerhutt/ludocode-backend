@@ -2,6 +2,7 @@ package com.ludocode.ludocodebackend.project.integration
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardResponse
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectLikeCountResponse
 import com.ludocode.ludocodebackend.projects.domain.entity.UserProject
 import com.ludocode.ludocodebackend.projects.domain.enums.Visibility
@@ -85,7 +86,7 @@ class ProjectLikeIT : AbstractIntegrationTest() {
     fun unlikeProject_existingLike_removesLike() {
         like(publicProject.id, user2.id)
 
-        TestRestClient.deleteNoContent(ApiPaths.PROJECTS.likeById(publicProject.id), user2.id)
+        unlike(publicProject.id, user2.id)
 
         val counts = getLikeCounts(user2.id, listOf(publicProject.id))
 
@@ -103,6 +104,10 @@ class ProjectLikeIT : AbstractIntegrationTest() {
         )
     }
 
+    private fun unlike(projectId: UUID, userId: UUID) : ProjectLikeCountResponse {
+        return TestRestClient.deleteOk(ApiPaths.PROJECTS.likeById(projectId), userId, ProjectLikeCountResponse::class.java)
+    }
+
     private fun like(projectId: UUID, userId: UUID) {
         given()
             .header("X-Test-User-Id", userId.toString())
@@ -111,7 +116,7 @@ class ProjectLikeIT : AbstractIntegrationTest() {
             .`when`()
             .post(ApiPaths.PROJECTS.likeById(projectId))
             .then()
-            .statusCode(204)
+            .statusCode(200)
     }
 
     private fun getLikeCounts(userId: UUID, projectIds: List<UUID>): List<ProjectLikeCountResponse> {

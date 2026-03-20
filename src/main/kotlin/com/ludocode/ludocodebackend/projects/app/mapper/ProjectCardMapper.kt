@@ -37,7 +37,8 @@ class ProjectCardMapper (private val basicMapper: BasicMapper, private val proje
             languageName = projectCardProjection.getLanguageName(),
             languageIconName = projectCardProjection.getLanguageIconName(),
             visibility = projectCardProjection.getVisibility(),
-            projectTitle = projectCardProjection.getProjectTitle()
+            projectTitle = projectCardProjection.getProjectTitle(),
+            deleteAt = projectCardProjection.getDeleteAt()
         )
     }
 

@@ -13,7 +13,8 @@ data class ProjectCardResponse (
     val updatedAt: OffsetDateTime,
     val visibility: Visibility,
     val languageName: String,
-    val languageIconName: String
+    val languageIconName: String,
+    val deleteAt: OffsetDateTime?,
 )
 
 data class ProjectCardListResponse (
