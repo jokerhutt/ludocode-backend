@@ -267,6 +267,26 @@ object TestRestClient {
             .statusCode(204)
     }
 
+    fun patchNoContent(
+        url: String,
+        userId: UUID,
+        body: Any? = null
+    ) {
+        val req = given()
+            .header("X-Test-User-Id", userId.toString())
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+
+        if (body != null) {
+            req.body(body)
+        }
+
+        req.`when`()
+            .patch(url)
+            .then()
+            .statusCode(204)
+    }
+
     fun assertError(
         method: String,
         url: String,
