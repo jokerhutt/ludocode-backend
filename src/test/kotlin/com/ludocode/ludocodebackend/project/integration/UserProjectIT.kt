@@ -299,6 +299,41 @@ class UserProjectIT : AbstractIntegrationTest() {
     }
 
     @Test
+    fun saveProject_fileIdFromAnotherProject_returnsInvalidProjectFileReference() {
+        val foreignProject = userProjectRepository.save(
+            UserProject(
+                id = UUID.randomUUID(),
+                name = "Foreign Project",
+                userId = user2.id!!,
+                codeLanguage = pythonLanguage,
+                createdAt = OffsetDateTime.now(clock),
+                updatedAt = OffsetDateTime.now(clock),
+                requestHash = UUID.randomUUID(),
+                entryFileId = null
+            )
+        )
+
+        val foreignFile = projectFileRepository.save(
+            ProjectFile(
+                id = UUID.randomUUID(),
+                projectId = foreignProject.id,
+                contentUrl = "${foreignProject.id}/${UUID.randomUUID()}",
+                contentHash = sha256("print('foreign')"),
+                filePath = "foreign.py",
+                codeLanguage = pythonLanguage
+            )
+        )
+
+        val snapshot = submitGetProjectSnapshot(existingProject.id, user1.id!!)
+        val modifiedFiles = snapshot.files.toMutableList()
+        modifiedFiles[1] = modifiedFiles[1].copy(id = foreignFile.id)
+
+        val snapshotCopy = snapshot.copy(files = modifiedFiles)
+
+        assertErrorOnSave(user1.id!!, snapshotCopy, ErrorCode.INVALID_PROJECT_FILE_REFERENCE)
+    }
+
+    @Test
     fun saveProject_duplicateNames_returnsError() {
         val projectId = existingProject.id
         val snapshot = submitGetProjectSnapshot(projectId, user1.id!!)
