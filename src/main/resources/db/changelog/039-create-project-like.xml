@@ -21,14 +21,16 @@
                 baseColumnNames="user_id"
                 referencedTableName="ludo_user"
                 referencedColumnNames="id"
-                constraintName="fk_project_like_user_id"/>
+                constraintName="fk_project_like_user_id"
+                onDelete="CASCADE"/>
 
         <addForeignKeyConstraint
                 baseTableName="project_like"
                 baseColumnNames="project_id"
                 referencedTableName="user_project"
                 referencedColumnNames="id"
-                constraintName="fk_project_like_project_id"/>
+                constraintName="fk_project_like_project_id"
+                onDelete="CASCADE"/>
 
         <createIndex tableName="project_like" indexName="idx_project_like_project_id">
             <column name="project_id"/>
