@@ -52,7 +52,6 @@ class ProjectMapper(private val basicMapper: BasicMapper, private val languagesM
             deleteAt = deleteAt,
             toProjectFileSnapshotList(projectFiles, fileContentMap),
             entryFileId = entryFileId,
-            visibility = visibility
         )
     }
 
