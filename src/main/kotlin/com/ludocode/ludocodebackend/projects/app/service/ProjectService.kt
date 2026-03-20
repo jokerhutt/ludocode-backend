@@ -495,7 +495,6 @@ class ProjectService(
                 kv(LogFields.FILE_COUNT, toDeletePaths.size),
                 e
             )
-            throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to delete files to GCS: ${e.message}")
         }
 
     }
