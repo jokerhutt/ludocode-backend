@@ -40,6 +40,12 @@ class CodeLanguages(
     var iconName: String,
 
     @Column(name = "extension", nullable = false)
-    var extension: String
+    var extension: String,
+
+    @Column(name = "is_enabled", nullable = false)
+    var isEnabled: Boolean = true,
+
+    @Column(name = "disabled_reason")
+    var disabledReason: String? = null
 
 )

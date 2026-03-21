@@ -207,7 +207,8 @@ class ProjectService(
             val projectName = project.name
             val deleteAt = project.deleteAt
             val projectLanguage = project.codeLanguage
-            val visibility = project.projectVisibility
+            val enabled = projectLanguage.isEnabled
+            val disabledReason = projectLanguage.disabledReason
             val entryFileId = project.entryFileId
                 ?: throw ApiException(ErrorCode.ENTRY_FILE_NOT_FOUND)
 
@@ -232,7 +233,6 @@ class ProjectService(
                 projectFiles,
                 fileContentsMap.content,
                 entryFileId,
-                visibility = visibility
             )
         }
     }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="040-add-language-status" author="david">
+
+        <addColumn tableName="code_languages">
+            <column name="is_enabled" type="BOOLEAN" defaultValueBoolean="true"/>
+            <column name="disabled_reason" type="VARCHAR(255)"/>
+        </addColumn>
+
+        <update tableName="code_languages">
+            <column name="is_enabled" valueBoolean="true"/>
+            <where>is_enabled IS NULL</where>
+        </update>
+
+        <addNotNullConstraint
+                tableName="code_languages"
+                columnName="is_enabled"
+                columnDataType="BOOLEAN"/>
+
+        <sql>
+            ALTER TABLE code_languages
+                ADD CONSTRAINT chk_disabled_reason_when_disabled
+                    CHECK (is_enabled = true OR disabled_reason IS NOT NULL);
+        </sql>
+
+        <rollback>
+            <dropColumn tableName="code_languages" columnName="is_enabled"/>
+            <dropColumn tableName="code_languages" columnName="disabled_reason"/>
+        </rollback>
+
+    </changeSet>
+
+</databaseChangeLog>
+

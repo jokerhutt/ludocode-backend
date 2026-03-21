@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="041-add-banners" author="david">
+
+        <createTable tableName="banners">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="text" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expires_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <sql>
+            CREATE UNIQUE INDEX unique_active_banner_per_type
+                ON banners (type)
+                WHERE is_active = true;
+        </sql>
+
+        <rollback>
+            <dropTable tableName="banners"/>
+        </rollback>
+
+    </changeSet>
+
+</databaseChangeLog>
+

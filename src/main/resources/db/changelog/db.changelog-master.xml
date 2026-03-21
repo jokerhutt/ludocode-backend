@@ -44,6 +44,8 @@
     <include file="/db/changelog/037-add-lesson-project-snapshot.xml"/>
     <include file="/db/changelog/038-add-exercise-body.xml"/>
     <include file="/db/changelog/039-create-project-like.xml"/>
+    <include file="/db/changelog/040-add-language-status.xml"/>
+    <include file="/db/changelog/041-add-banners.xml"/>
 
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>

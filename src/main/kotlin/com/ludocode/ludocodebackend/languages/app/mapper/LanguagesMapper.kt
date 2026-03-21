@@ -20,7 +20,9 @@ class LanguagesMapper(private val basicMapper: BasicMapper) {
                 extension = it.extension,
                 base = it.base,
                 runtimeVersion = it.runtimeVersion,
-                iconName = it.iconName
+                iconName = it.iconName,
+                enabled = it.isEnabled,
+                disabledReason = it.disabledReason
             )
         }
     }

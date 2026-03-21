@@ -11,4 +11,6 @@ data class LanguageMetadata(
     val base: String,
     val iconName: String,
     val initialScript: String,
+    val enabled: Boolean,
+    val disabledReason: String?
 )
