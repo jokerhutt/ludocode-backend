@@ -56,6 +56,13 @@ object ApiPaths {
         const val BASE = "$API_PREFIX/features"
     }
 
+    object BANNERS {
+        const val BASE = "$API_PREFIX/banners"
+        const val ADMIN_BASE = "$API_PREFIX$ADMIN_PREFIX/banners"
+        const val ID = "/{bannerId}"
+        fun byIdAdmin(bannerId: Long): String = "$ADMIN_BASE/$bannerId"
+    }
+
     object LANGUAGES {
         const val BASE = "$API_PREFIX/languages"
         const val ADMIN_BASE = "$API_PREFIX$ADMIN_PREFIX/languages"

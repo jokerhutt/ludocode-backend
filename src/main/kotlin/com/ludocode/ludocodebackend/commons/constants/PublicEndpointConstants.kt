@@ -15,7 +15,8 @@ object PublicEndpointConstants {
         "${ApiPaths.ANALYTICS.BASE}/**",
         "${ApiPaths.PROJECTS.BASE}${ApiPaths.PROJECTS.PUBLIC}/**",
         "${ApiPaths.SUBSCRIPTION.BASE}${ApiPaths.SUBSCRIPTION.WEBHOOK}",
-        "${ApiPaths.SUBSCRIPTION.BASE}${ApiPaths.SUBSCRIPTION.WEBHOOK}/**"
+        "${ApiPaths.SUBSCRIPTION.BASE}${ApiPaths.SUBSCRIPTION.WEBHOOK}/**",
+        ApiPaths.BANNERS.BASE
     )
 
 }

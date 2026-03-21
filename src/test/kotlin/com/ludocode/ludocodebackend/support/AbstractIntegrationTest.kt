@@ -235,7 +235,8 @@ abstract class AbstractIntegrationTest {
           code_languages,
           subscription_plan,
           user_preferences,
-          analytics_event
+          analytics_event,
+          banners
         RESTART IDENTITY CASCADE
         """.trimIndent()
         )

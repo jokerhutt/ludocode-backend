@@ -66,6 +66,9 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     TAG_NOT_FOUND(HttpStatus.NOT_FOUND, "Tag not found"),
     DUPLICATE_TAGS(HttpStatus.BAD_REQUEST, "Duplicate tags present"),
 
+    BANNER_NOT_FOUND(HttpStatus.NOT_FOUND, "Banner not found"),
+    ACTIVE_BANNER_EXISTS(HttpStatus.BAD_REQUEST, "There is already an active banner for this type"),
+
     NOT_ENOUGH_CREDITS(HttpStatus.UNAUTHORIZED, "Not enough credits to perform this action"),
 
     NOT_OWN_PROJECT(HttpStatus.UNAUTHORIZED, "User is not allowed to view/modify this project"),

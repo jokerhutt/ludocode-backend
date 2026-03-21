@@ -90,6 +90,9 @@ app:
     project-cleanup:
       cron: ${PROJECT_CLEANUP_CRON:0 0 * * * *}
       zone: ${PROJECT_CLEANUP_ZONE:UTC}
+    banner-cleanup:
+      cron: ${BANNER_CLEANUP_CRON:0 0 * * * *}
+      zone: ${BANNER_CLEANUP_ZONE:UTC}
 
   frontend-url: ${FRONTEND_URL}
   gcs-host:
