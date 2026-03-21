@@ -3,7 +3,9 @@ package com.ludocode.ludocodebackend.languages.app.service
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.languages.api.dto.CreateLanguageRequest
+import com.ludocode.ludocodebackend.languages.api.dto.LanguageDisabledMessageRequest
 import com.ludocode.ludocodebackend.languages.api.dto.LanguageMetadata
+import com.ludocode.ludocodebackend.languages.api.dto.LanguageToggleRequest
 import com.ludocode.ludocodebackend.languages.api.dto.UpdateLanguageRequest
 import com.ludocode.ludocodebackend.languages.app.LanguagePort
 import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
@@ -44,9 +46,49 @@ class LanguagesService(
                 runtimeVersion = req.runtimeVersion,
                 base = req.base,
                 iconName = req.iconName,
-                initialScript = req.initialScript
+                initialScript = req.initialScript,
+                isEnabled = true,
+                disabledReason = null
             )
         )
+        return getAllLanguages()
+    }
+
+    @Transactional
+    internal fun toggleLanguage(languageId: Long, req: LanguageToggleRequest): List<LanguageMetadata> {
+        val language = codeLanguagesRepository.findById(languageId)
+            .orElseThrow { ApiException(ErrorCode.LANGUAGE_NOT_FOUND) }
+
+        language.isEnabled = req.enabled
+
+        if (req.enabled) {
+            language.disabledReason = null
+        } else {
+            val disabledMessage = req.message?.trim()
+            if (disabledMessage.isNullOrBlank()) {
+                throw ApiException(ErrorCode.BAD_REQ, "Disabled message is required when disabling a language")
+            }
+            language.disabledReason = disabledMessage
+        }
+
+        return getAllLanguages()
+    }
+
+    @Transactional
+    internal fun updateDisabledMessage(languageId: Long, req: LanguageDisabledMessageRequest): List<LanguageMetadata> {
+        val language = codeLanguagesRepository.findById(languageId)
+            .orElseThrow { ApiException(ErrorCode.LANGUAGE_NOT_FOUND) }
+
+        if (language.isEnabled) {
+            throw ApiException(ErrorCode.BAD_REQ, "Can not set disabled message while language is enabled")
+        }
+
+        val message = req.message.trim()
+        if (message.isBlank()) {
+            throw ApiException(ErrorCode.BAD_REQ, "Disabled message can not be blank")
+        }
+
+        language.disabledReason = message
         return getAllLanguages()
     }
 

@@ -3,7 +3,9 @@ package com.ludocode.ludocodebackend.languages.integration
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.languages.api.dto.CreateLanguageRequest
+import com.ludocode.ludocodebackend.languages.api.dto.LanguageDisabledMessageRequest
 import com.ludocode.ludocodebackend.languages.api.dto.LanguageMetadata
+import com.ludocode.ludocodebackend.languages.api.dto.LanguageToggleRequest
 import com.ludocode.ludocodebackend.languages.api.dto.UpdateLanguageRequest
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
@@ -219,6 +221,59 @@ class LanguagesIT : AbstractIntegrationTest() {
 
     }
 
+    @Test
+    fun setLanguageVisibility_disablesLanguage_andCanBeEnabledBack() {
+        val disableReq = LanguageToggleRequest(
+            enabled = false,
+            message = "Temporarily unavailable"
+        )
+        val disabledList = submitPutLanguageVisibility(pythonLanguage.id, disableReq)
+        val disabledLanguage = disabledList.firstOrNull { it.languageId == pythonLanguage.id }
+            ?: fail("Disabled language not found in response")
+
+        assertThat(disabledLanguage.enabled).isFalse()
+        assertThat(disabledLanguage.disabledReason).isEqualTo(disableReq.message)
+
+        val enableReq = LanguageToggleRequest(enabled = true)
+        val enabledList = submitPutLanguageVisibility(pythonLanguage.id, enableReq)
+        val enabledLanguage = enabledList.firstOrNull { it.languageId == pythonLanguage.id }
+            ?: fail("Enabled language not found in response")
+
+        assertThat(enabledLanguage.enabled).isTrue()
+        assertThat(enabledLanguage.disabledReason).isNull()
+    }
+
+    @Test
+    fun setDisabledMessage_disabledLanguage_updatesMessage() {
+        submitPutLanguageVisibility(
+            pythonLanguage.id,
+            LanguageToggleRequest(enabled = false, message = "Temporarily unavailable")
+        )
+
+        val req = LanguageDisabledMessageRequest(message = "Python is in maintenance mode")
+        val res = submitPutLanguageDisabledMessage(pythonLanguage.id, req)
+        val updated = res.firstOrNull { it.languageId == pythonLanguage.id }
+            ?: fail("Updated language not found in response")
+
+        assertThat(updated.enabled).isFalse()
+        assertThat(updated.disabledReason).isEqualTo(req.message)
+    }
+
+    @Test
+    fun setDisabledMessage_enabledLanguage_throwsBadRequest() {
+        val req = LanguageDisabledMessageRequest(message = "Not allowed while enabled")
+        assertPutLanguageDisabledMessageError(pythonLanguage.id, req, ErrorCode.BAD_REQ)
+    }
+
+    @Test
+    fun setLanguageVisibility_disableWithoutMessage_throwsBadRequest() {
+        assertPutLanguageVisibilityError(
+            pythonLanguage.id,
+            LanguageToggleRequest(enabled = false),
+            ErrorCode.BAD_REQ
+        )
+    }
+
 
     private fun submitGetALlLanguages(): Array<LanguageMetadata> =
         TestRestClient.getOk(ApiPaths.LANGUAGES.BASE, userId = user1.id, Array<LanguageMetadata>::class.java)
@@ -252,6 +307,53 @@ class LanguagesIT : AbstractIntegrationTest() {
             req,
             Array<LanguageMetadata>::class.java
         )
+
+    private fun submitPutLanguageVisibility(languageId: Long, req: LanguageToggleRequest): Array<LanguageMetadata> =
+        TestRestClient.putOk(
+            ApiPaths.LANGUAGES.byIdAdminVisibility(languageId),
+            user1.id,
+            req,
+            Array<LanguageMetadata>::class.java
+        )
+
+    private fun submitPutLanguageDisabledMessage(
+        languageId: Long,
+        req: LanguageDisabledMessageRequest
+    ): Array<LanguageMetadata> =
+        TestRestClient.putOk(
+            ApiPaths.LANGUAGES.byIdAdminDisabledMessage(languageId),
+            user1.id,
+            req,
+            Array<LanguageMetadata>::class.java
+        )
+
+    private fun assertPutLanguageDisabledMessageError(
+        languageId: Long,
+        req: LanguageDisabledMessageRequest,
+        statusCode: ErrorCode
+    ): ValidatableResponse? {
+        return TestRestClient.assertError(
+            "PUT",
+            ApiPaths.LANGUAGES.byIdAdminDisabledMessage(languageId),
+            user1.id,
+            req,
+            statusCode
+        )
+    }
+
+    private fun assertPutLanguageVisibilityError(
+        languageId: Long,
+        req: LanguageToggleRequest,
+        statusCode: ErrorCode
+    ): ValidatableResponse? {
+        return TestRestClient.assertError(
+            "PUT",
+            ApiPaths.LANGUAGES.byIdAdminVisibility(languageId),
+            user1.id,
+            req,
+            statusCode
+        )
+    }
 
     private fun submitPostLanguage(req: CreateLanguageRequest): Array<LanguageMetadata> =
         TestRestClient.postOk(ApiPaths.LANGUAGES.ADMIN_BASE, user1.id, req, Array<LanguageMetadata>::class.java)

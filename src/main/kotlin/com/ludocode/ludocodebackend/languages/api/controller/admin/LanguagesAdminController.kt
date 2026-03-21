@@ -2,7 +2,9 @@ package com.ludocode.ludocodebackend.languages.api.controller.admin
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.languages.api.dto.CreateLanguageRequest
+import com.ludocode.ludocodebackend.languages.api.dto.LanguageDisabledMessageRequest
 import com.ludocode.ludocodebackend.languages.api.dto.LanguageMetadata
+import com.ludocode.ludocodebackend.languages.api.dto.LanguageToggleRequest
 import com.ludocode.ludocodebackend.languages.api.dto.UpdateLanguageRequest
 import com.ludocode.ludocodebackend.languages.app.service.LanguagesService
 import io.swagger.v3.oas.annotations.Operation
@@ -74,6 +76,39 @@ class LanguagesAdminController(
         @RequestBody req: UpdateLanguageRequest
     ): ResponseEntity<List<LanguageMetadata>> {
         return ResponseEntity.ok(languagesService.updateLanguage(id, req))
+    }
+
+    @Operation(
+        summary = "Set language visibility",
+        description = """
+        Enables or disables a language for project usage.
+        When enabled=true, any disabled message is cleared.
+        When enabled=false, an optional message can be included in the same request.
+        """
+    )
+    @SecurityRequirement(name = "sessionAuth")
+    @PutMapping(ApiPaths.LANGUAGES.ID + ApiPaths.LANGUAGES.VISIBILITY)
+    fun setLanguageVisibility(
+        @PathVariable id: Long,
+        @RequestBody req: LanguageToggleRequest
+    ): ResponseEntity<List<LanguageMetadata>> {
+        return ResponseEntity.ok(languagesService.toggleLanguage(id, req))
+    }
+
+    @Operation(
+        summary = "Set language disabled message",
+        description = """
+        Sets the disabled message shown to users for a disabled language.
+        This operation is allowed only while the language is disabled.
+        """
+    )
+    @SecurityRequirement(name = "sessionAuth")
+    @PutMapping(ApiPaths.LANGUAGES.ID + ApiPaths.LANGUAGES.DISABLED_MESSAGE)
+    fun setLanguageDisabledMessage(
+        @PathVariable id: Long,
+        @RequestBody req: LanguageDisabledMessageRequest
+    ): ResponseEntity<List<LanguageMetadata>> {
+        return ResponseEntity.ok(languagesService.updateDisabledMessage(id, req))
     }
 
 }

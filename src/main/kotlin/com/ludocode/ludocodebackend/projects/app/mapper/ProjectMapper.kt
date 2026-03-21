@@ -42,7 +42,6 @@ class ProjectMapper(private val basicMapper: BasicMapper, private val languagesM
         projectFiles: List<ProjectFile>,
         fileContentMap: Map<String, String>,
         entryFileId: UUID,
-        visibility: Visibility
     ): ProjectSnapshot {
         return ProjectSnapshot(
             projectId,
