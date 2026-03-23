@@ -5,6 +5,7 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.discussion.api.dto.UserSummary
 import com.ludocode.ludocodebackend.preferences.api.infra.repository.UserPreferencesRepository
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
 import com.ludocode.ludocodebackend.projects.app.service.ProjectService
@@ -50,6 +51,16 @@ class UserService(
 
     override fun getById(id: UUID): UserResponse {
         return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(), hasOnboarded(id))
+    }
+
+    fun findAllById(ids: List<UUID>): List<UserSummary> {
+        return userRepository.findAllById(ids)
+            .map { UserSummary(it.id, it.displayName ?: "Anonymous") }
+    }
+
+    fun getSummaryById(id: UUID): UserSummary {
+        val user = userRepository.findById(id).orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
+        return UserSummary(user.id, user.displayName ?: "Anonymous")
     }
 
     override fun getUserTimezone(userId: UUID): String? {

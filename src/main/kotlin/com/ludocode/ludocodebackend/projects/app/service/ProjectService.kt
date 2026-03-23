@@ -53,6 +53,10 @@ class ProjectService(
 
     private val logger = LoggerFactory.getLogger(ProjectService::class.java)
 
+    fun existsById(projectId: UUID) : Boolean {
+        return userProjectRepository.existsById(projectId)
+    }
+
     private fun isBelowPlanLimit(userId: UUID): Boolean {
 
         val totalProjects = userProjectRepository.countByUserId(userId)

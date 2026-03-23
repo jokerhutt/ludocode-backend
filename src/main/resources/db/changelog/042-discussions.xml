@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="042-001-discussions" author="david">
+
+        <createTable tableName="discussion">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="entity_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="discussion_topic" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint
+                tableName="discussion"
+                columnNames="entity_id, discussion_topic"
+                constraintName="uk_discussion_entity_topic"/>
+
+        <createTable tableName="discussion_message">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="discussion_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="author_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="content" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="parent_id" type="UUID"/>
+
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="discussion_message"
+                baseColumnNames="discussion_id"
+                referencedTableName="discussion"
+                referencedColumnNames="id"
+                constraintName="fk_message_discussion"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                baseTableName="discussion_message"
+                baseColumnNames="parent_id"
+                referencedTableName="discussion_message"
+                referencedColumnNames="id"
+                constraintName="fk_message_parent"
+                onDelete="CASCADE"/>
+
+        <createIndex indexName="idx_discussion_entity_topic"
+                     tableName="discussion">
+            <column name="entity_id"/>
+            <column name="discussion_topic"/>
+        </createIndex>
+
+        <createIndex indexName="idx_message_discussion"
+                     tableName="discussion_message">
+            <column name="discussion_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_message_parent"
+                     tableName="discussion_message">
+            <column name="parent_id"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>
+

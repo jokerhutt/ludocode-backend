@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.commons.constants
 
+import com.ludocode.ludocodebackend.discussion.domain.enums.DiscussionTopic
 import java.util.*
 
 object ApiPaths {
@@ -36,6 +37,21 @@ object ApiPaths {
 
     object FEEDBACK {
         const val BASE = "$API_PREFIX/feedback"
+    }
+
+    object DISCUSSION {
+        const val BASE = "$API_PREFIX/discussion"
+        const val BY_ENTITY_ID = "/{entityId}"
+        const val BY_TOPIC = "/{topic}"
+        const val LIKE = "/messages/like"
+        const val BY_ID_LIKE = "/messages/{messageId}/like"
+        fun byEntityIdAndTopic (entityId: UUID, topic: DiscussionTopic) = "$BASE/$entityId/$topic"
+        fun likeById(messageId: UUID): String = "$BASE/messages/$messageId/like"
+        fun likesFromIds(ids: List<UUID>): String =
+            BASE + LIKE + ids.joinToString(
+                prefix = "?messageIds=",
+                separator = "&messageIds="
+            ) { it.toString() }
     }
 
     object CATALOG {

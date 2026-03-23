@@ -10,5 +10,5 @@ interface ExerciseRepository : JpaRepository<Exercise, ExerciseId> {
     fun findTopByExerciseId_IdAndIsDeletedFalseOrderByExerciseId_VersionNumberDesc(
         id: UUID
     ): Exercise?
-
+    fun existsByExerciseId_IdAndIsDeletedFalse(id: UUID): Boolean
 }
