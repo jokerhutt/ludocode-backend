@@ -8,6 +8,7 @@ import com.ludocode.ludocodebackend.discussion.api.dto.response.MessageLikeCount
 import com.ludocode.ludocodebackend.discussion.app.service.DiscussionMessageLikeService
 import com.ludocode.ludocodebackend.discussion.app.service.DiscussionService
 import com.ludocode.ludocodebackend.discussion.domain.enums.DiscussionTopic
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -29,7 +30,7 @@ class DiscussionController(
 
 
     @PostMapping
-    fun createMessage (@RequestBody req: CreateDiscussionMessageRequest, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<DiscussionMessageResponse> {
+    fun createMessage (@Valid @RequestBody req: CreateDiscussionMessageRequest, @AuthenticationPrincipal(expression = "userId") userId: UUID) : ResponseEntity<DiscussionMessageResponse> {
         return ResponseEntity.ok(discussionService.createMessage(userId, req))
     }
 
