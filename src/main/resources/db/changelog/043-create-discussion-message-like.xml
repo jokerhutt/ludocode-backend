@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="043-001-create-discussion-message-like" author="david">
+        <createTable tableName="discussion_message_like">
+            <column name="user_id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_discussion_message_like"/>
+            </column>
+            <column name="message_id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_discussion_message_like"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="discussion_message_like"
+                baseColumnNames="user_id"
+                referencedTableName="ludo_user"
+                referencedColumnNames="id"
+                constraintName="fk_discussion_message_like_user_id"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                baseTableName="discussion_message_like"
+                baseColumnNames="message_id"
+                referencedTableName="discussion_message"
+                referencedColumnNames="id"
+                constraintName="fk_discussion_message_like_message_id"
+                onDelete="CASCADE"/>
+
+        <createIndex tableName="discussion_message_like" indexName="idx_discussion_message_like_message_id">
+            <column name="message_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
+

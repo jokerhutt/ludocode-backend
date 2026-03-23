@@ -5,7 +5,7 @@ import jakarta.persistence.Embeddable
 import java.util.UUID
 
 @Embeddable
-class DiscussionMessageLikeId (
+data class DiscussionMessageLikeId (
 
     @Column(name = "user_id")
     val userId: UUID,
@@ -13,4 +13,4 @@ class DiscussionMessageLikeId (
     @Column(name = "message_id")
     val messageId: UUID
 
-    )
+)
