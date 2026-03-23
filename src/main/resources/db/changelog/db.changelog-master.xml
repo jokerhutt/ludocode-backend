@@ -46,6 +46,7 @@
     <include file="/db/changelog/039-create-project-like.xml"/>
     <include file="/db/changelog/040-add-language-status.xml"/>
     <include file="/db/changelog/041-add-banners.xml"/>
+    <include file="/db/changelog/042-discussions.xml"/>
 
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>

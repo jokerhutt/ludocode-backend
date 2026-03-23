@@ -19,6 +19,8 @@ import com.ludocode.ludocodebackend.config.*
 import com.ludocode.ludocodebackend.config.security.TestSecurityConfig
 import com.ludocode.ludocodebackend.config.time.MutableClock
 import com.ludocode.ludocodebackend.config.time.TestClockConfig
+import com.ludocode.ludocodebackend.discussion.infra.repository.DiscussionMessageRepository
+import com.ludocode.ludocodebackend.discussion.infra.repository.DiscussionRepository
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ClozeInteraction
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.CodeBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.HeaderBlock
@@ -194,7 +196,10 @@ abstract class AbstractIntegrationTest {
     lateinit var userSubscriptionRepository: UserSubscriptionRepository
     @Autowired
     lateinit var analyticsEventRepository: AnalyticsEventRepository
-
+    @Autowired
+    lateinit var discussionRepository: DiscussionRepository
+    @Autowired
+    lateinit var discussionMessageRepository: DiscussionMessageRepository
 
     @Autowired
     lateinit var storage: Storage
@@ -213,6 +218,8 @@ abstract class AbstractIntegrationTest {
         jdbc.execute(
             """
         TRUNCATE TABLE 
+          discussion_message,
+          discussion,
           project_like,
           project_file,
           user_project,

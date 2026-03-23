@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.commons.constants
 
+import com.ludocode.ludocodebackend.discussion.domain.enums.DiscussionTopic
 import java.util.*
 
 object ApiPaths {
@@ -42,6 +43,7 @@ object ApiPaths {
         const val BASE = "$API_PREFIX/discussion"
         const val BY_ENTITY_ID = "/{entityId}"
         const val BY_TOPIC = "/{topic}"
+        fun byEntityIdAndTopic (entityId: UUID, topic: DiscussionTopic) = "$BASE/$entityId/$topic"
     }
 
     object CATALOG {

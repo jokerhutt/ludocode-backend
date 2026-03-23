@@ -5,7 +5,6 @@ import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.discussion.api.dto.CreateDiscussionMessageRequest
 import com.ludocode.ludocodebackend.discussion.api.dto.DiscussionMessageResponse
 import com.ludocode.ludocodebackend.discussion.api.dto.DiscussionResponse
-import com.ludocode.ludocodebackend.discussion.app.mapper.DiscussionMapper
 import com.ludocode.ludocodebackend.discussion.app.mapper.DiscussionMessageMapper
 import com.ludocode.ludocodebackend.discussion.domain.entity.Discussion
 import com.ludocode.ludocodebackend.discussion.domain.entity.DiscussionMessage
@@ -28,7 +27,6 @@ class DiscussionService(
     private val discussionMessageRepository: DiscussionMessageRepository,
     private val clock: Clock,
     private val discussionMessageMapper: DiscussionMessageMapper,
-    private val discussionMapper: DiscussionMapper
 ) {
 
     private fun getOrCreateDiscussion(entityId: UUID, discussionTopic: DiscussionTopic) : Discussion {
