@@ -5,6 +5,7 @@ import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.discussion.api.dto.CreateDiscussionMessageRequest
 import com.ludocode.ludocodebackend.discussion.api.dto.DiscussionMessageResponse
 import com.ludocode.ludocodebackend.discussion.api.dto.DiscussionResponse
+import com.ludocode.ludocodebackend.discussion.api.dto.UserSummary
 import com.ludocode.ludocodebackend.discussion.app.mapper.DiscussionMessageMapper
 import com.ludocode.ludocodebackend.discussion.domain.entity.Discussion
 import com.ludocode.ludocodebackend.discussion.domain.entity.DiscussionMessage
@@ -13,6 +14,7 @@ import com.ludocode.ludocodebackend.discussion.infra.repository.DiscussionMessag
 import com.ludocode.ludocodebackend.discussion.infra.repository.DiscussionRepository
 import com.ludocode.ludocodebackend.lesson.app.service.LessonService
 import com.ludocode.ludocodebackend.projects.app.service.ProjectService
+import com.ludocode.ludocodebackend.user.app.service.UserService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.Clock
@@ -27,6 +29,7 @@ class DiscussionService(
     private val discussionMessageRepository: DiscussionMessageRepository,
     private val clock: Clock,
     private val discussionMessageMapper: DiscussionMessageMapper,
+    private val userService: UserService,
 ) {
 
     private fun getOrCreateDiscussion(entityId: UUID, discussionTopic: DiscussionTopic) : Discussion {
@@ -67,11 +70,16 @@ class DiscussionService(
             discussionMessageRepository.findByDiscussionIdOrderByCreatedAtAsc(it.id)
         } ?: emptyList()
 
+        val authorIds = messages.map { it.authorId }.toSet()
+
+        val users = userService.findAllById(authorIds.toList())
+            .associateBy { it.id }
+
         return DiscussionResponse(
             id = discussion?.id,
             entityId = entityId,
             discussionTopic = discussionTopic,
-            children = discussionMessageMapper.toDiscussionMessageResponseList(messages)
+            children = discussionMessageMapper.toDiscussionMessageResponseList(messages, users)
         )
     }
 
@@ -83,7 +91,10 @@ class DiscussionService(
         val message = discussionMessageRepository.save(DiscussionMessage(id = UUID.randomUUID(), discussionId = discussion.id,
             authorId = userId, parentId = req.parentId, content = req.content, createdAt = OffsetDateTime.now(clock)))
 
-        return discussionMessageMapper.toDiscussionMessageResponse(message)
+        val authorId = message.authorId
+        val user = userService.getSummaryById(authorId)
+
+        return discussionMessageMapper.toDiscussionMessageResponse(message, user)
 
     }
 

@@ -7,6 +7,7 @@ data class DiscussionMessageResponse(
     val id: UUID,
     val discussionId: UUID,
     val authorId: UUID,
+    val authorName: String,
     val parentId: UUID?,
     val createdAt: OffsetDateTime,
     val content: String,
