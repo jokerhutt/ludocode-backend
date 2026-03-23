@@ -95,7 +95,6 @@ class DiscussionService(
         val user = userService.getSummaryById(authorId)
 
         return discussionMessageMapper.toDiscussionMessageResponse(message, user)
-
     }
 
 }
