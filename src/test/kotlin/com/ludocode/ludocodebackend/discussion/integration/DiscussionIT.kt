@@ -5,7 +5,6 @@ import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.discussion.api.dto.CreateDiscussionMessageRequest
 import com.ludocode.ludocodebackend.discussion.api.dto.DiscussionMessageResponse
 import com.ludocode.ludocodebackend.discussion.api.dto.DiscussionResponse
-import com.ludocode.ludocodebackend.discussion.domain.entity.DiscussionMessage
 import com.ludocode.ludocodebackend.discussion.domain.enums.DiscussionTopic
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
@@ -25,13 +24,13 @@ class DiscussionIT : AbstractIntegrationTest() {
     fun noDiscussionYet_returnsEmptyDiscussion() {
 
         val course = testSnapshotService.buildCourseSnapshot(pythonId)
-        val lesson = course.modules[0].lessons[0]
+        val exercise = course.modules[0].lessons[0].exercises[0]
 
-        val discussion = submitGetDiscussion(lesson.id, DiscussionTopic.LESSON)
+        val discussion = submitGetDiscussion(exercise.exerciseId!!, DiscussionTopic.EXERCISE)
 
         assertThat(discussion).isNotNull()
         assertThat(discussion.id).isNull()
-        assertThat(discussion.entityId).isEqualTo(lesson.id)
+        assertThat(discussion.entityId).isEqualTo(exercise.exerciseId!!)
 
     }
 
@@ -39,17 +38,17 @@ class DiscussionIT : AbstractIntegrationTest() {
     fun noDiscussionYet_createNewMessage_returnsMessage() {
 
         val course = testSnapshotService.buildCourseSnapshot(pythonId)
-        val lesson = course.modules[0].lessons[0]
+        val exercise = course.modules[0].lessons[0].exercises[0]
 
-        val discussion = submitGetDiscussion(lesson.id, DiscussionTopic.LESSON)
+        val discussion = submitGetDiscussion(exercise.exerciseId!!, DiscussionTopic.EXERCISE)
 
         assertThat(discussion).isNotNull()
         assertThat(discussion.id).isNull()
-        assertThat(discussion.entityId).isEqualTo(lesson.id)
+        assertThat(discussion.entityId).isEqualTo(exercise.exerciseId!!)
 
         val newMessage = CreateDiscussionMessageRequest(
-            entityId = lesson.id,
-            discussionTopic = DiscussionTopic.LESSON,
+            entityId = exercise.exerciseId!!,
+            discussionTopic = DiscussionTopic.EXERCISE,
             parentId = null,
             content = "I am a new message as a test"
         )
@@ -61,7 +60,7 @@ class DiscussionIT : AbstractIntegrationTest() {
         assertThat(res.authorId).isEqualTo(user1.id)
         assertThat(res.content).isEqualTo(newMessage.content)
 
-        val refreshedDiscussion = submitGetDiscussion(lesson.id, DiscussionTopic.LESSON)
+        val refreshedDiscussion = submitGetDiscussion(exercise.exerciseId!!, DiscussionTopic.EXERCISE)
         assertThat(refreshedDiscussion.id).isNotNull()
         assertThat(refreshedDiscussion.id).isEqualTo(res.discussionId)
         assertThat(refreshedDiscussion.children.size).isEqualTo(1)
@@ -72,9 +71,9 @@ class DiscussionIT : AbstractIntegrationTest() {
     @Test
     fun createMessageForWrongTopic_throwsError () {
         val course = testSnapshotService.buildCourseSnapshot(pythonId)
-        val lesson = course.modules[0].lessons[0]
+        val exercise = course.modules[0].lessons[0].exercises[0]
         val newMessage = CreateDiscussionMessageRequest(
-            entityId = lesson.id,
+            entityId = exercise.exerciseId!!,
             discussionTopic = DiscussionTopic.PROJECT,
             parentId = null,
             content = "I am a new message as a test"
@@ -86,13 +85,13 @@ class DiscussionIT : AbstractIntegrationTest() {
     fun discussionExists_createReply_returnsMessage() {
 
         val course = testSnapshotService.buildCourseSnapshot(pythonId)
-        val lesson = course.modules[0].lessons[0]
+        val exercise = course.modules[0].lessons[0].exercises[0]
 
-        val discussion = submitGetDiscussion(lesson.id, DiscussionTopic.LESSON)
+        val discussion = submitGetDiscussion(exercise.exerciseId!!, DiscussionTopic.EXERCISE)
 
         val newMessage = CreateDiscussionMessageRequest(
-            entityId = lesson.id,
-            discussionTopic = DiscussionTopic.LESSON,
+            entityId = exercise.exerciseId!!,
+            discussionTopic = DiscussionTopic.EXERCISE,
             parentId = null,
             content = "I am a new message as a test"
         )
@@ -100,10 +99,10 @@ class DiscussionIT : AbstractIntegrationTest() {
         val res = submitPostMessage(newMessage)
 
         val replyMessage = CreateDiscussionMessageRequest(
-            entityId = lesson.id,
-            discussionTopic = DiscussionTopic.LESSON,
+            entityId = exercise.exerciseId!!,
+            discussionTopic = DiscussionTopic.EXERCISE,
             parentId = res.id,
-            content = "I am a reply to that other lesson"
+            content = "I am a reply to that other exercise"
         )
 
         val replyRes = submitPostMessage(replyMessage)
@@ -112,7 +111,7 @@ class DiscussionIT : AbstractIntegrationTest() {
         assertThat(replyRes.content).isEqualTo(replyMessage.content)
         assertThat(replyRes.parentId).isEqualTo(res.id)
 
-        val refreshedDiscussion = submitGetDiscussion(lesson.id, DiscussionTopic.LESSON)
+        val refreshedDiscussion = submitGetDiscussion(exercise.exerciseId!!, DiscussionTopic.EXERCISE)
         assertThat(refreshedDiscussion.id).isEqualTo(replyRes.discussionId)
         assertThat(refreshedDiscussion.children.size).isEqualTo(2)
         val ids = refreshedDiscussion.children.map { it.id }

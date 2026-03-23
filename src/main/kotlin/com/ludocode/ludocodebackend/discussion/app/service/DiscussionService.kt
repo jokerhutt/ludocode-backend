@@ -50,7 +50,7 @@ class DiscussionService(
     private fun validateEntityId(entityId: UUID, discussionTopic: DiscussionTopic) : Boolean {
 
         return when (discussionTopic) {
-            DiscussionTopic.LESSON -> lessonService.existsById(entityId);
+            DiscussionTopic.EXERCISE -> lessonService.existsExerciseById(entityId);
             DiscussionTopic.PROJECT -> projectService.existsById(entityId);
         }
 

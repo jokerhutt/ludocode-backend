@@ -30,8 +30,8 @@ class LessonService(
 
     private val logger = LoggerFactory.getLogger(LessonService::class.java)
 
-    fun existsById(lessonId: UUID) : Boolean {
-        return lessonRepository.existsById(lessonId)
+    fun existsExerciseById(exerciseId: UUID): Boolean {
+        return exerciseRepository.existsByExerciseId_IdAndIsDeletedFalse(exerciseId)
     }
 
     override fun findLessonResponseById(lessonId: UUID, userId: UUID): LessonResponse {
