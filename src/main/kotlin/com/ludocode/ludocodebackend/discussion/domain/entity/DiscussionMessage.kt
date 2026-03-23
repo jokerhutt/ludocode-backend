@@ -20,6 +20,9 @@ class DiscussionMessage (
     @Column(name = "author_id")
     val authorId: UUID,
 
+    @Column(name = "content")
+    val content: String,
+
     @Column(name = "parent_id")
     val parentId: UUID?,
 

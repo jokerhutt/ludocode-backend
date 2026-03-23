@@ -1,7 +1,10 @@
 package com.ludocode.ludocodebackend.discussion.domain.entity
 
+import com.ludocode.ludocodebackend.discussion.domain.enums.DiscussionTopic
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import java.util.UUID
@@ -16,7 +19,8 @@ class Discussion (
     @Column(name = "entity_id")
     val entityId: UUID,
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "discussion_topic")
-    val discussionTopic: String
+    val discussionTopic: DiscussionTopic
 
     )

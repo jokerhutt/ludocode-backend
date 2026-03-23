@@ -38,6 +38,12 @@ object ApiPaths {
         const val BASE = "$API_PREFIX/feedback"
     }
 
+    object DISCUSSION {
+        const val BASE = "$API_PREFIX/discussion"
+        const val BY_ENTITY_ID = "/{entityId}"
+        const val BY_TOPIC = "/{topic}"
+    }
+
     object CATALOG {
         const val BASE = "$API_PREFIX/catalog"
         const val COURSES = "/courses"

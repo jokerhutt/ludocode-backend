@@ -30,6 +30,10 @@ class LessonService(
 
     private val logger = LoggerFactory.getLogger(LessonService::class.java)
 
+    fun existsById(lessonId: UUID) : Boolean {
+        return lessonRepository.existsById(lessonId)
+    }
+
     override fun findLessonResponseById(lessonId: UUID, userId: UUID): LessonResponse {
         return lessonMapper.toLessonResponse(
             lessonRepository.findUserLesson(lessonId, userId) ?: throw ApiException(
