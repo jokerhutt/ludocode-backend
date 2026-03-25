@@ -35,6 +35,7 @@ interface UserProjectRepository : JpaRepository<UserProject, UUID> {
         p.updatedAt as updatedAt,
         p.deleteAt as deleteAt,
         p.projectVisibility as visibility,
+        p.projectType as projectType,
         p.codeLanguage.iconName as languageIconName,
         p.codeLanguage.name as languageName
     FROM UserProject p
@@ -62,6 +63,7 @@ interface UserProjectRepository : JpaRepository<UserProject, UUID> {
             p.deleteAt as deleteAt,
             p.updatedAt as updatedAt,
             p.projectVisibility as visibility,
+            p.projectType as projectType,
             p.codeLanguage.iconName as languageIconName,
             p.codeLanguage.name as languageName
         FROM UserProject p

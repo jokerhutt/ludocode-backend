@@ -34,7 +34,9 @@ class LanguagesService(
     @Transactional
     internal fun createLanguage(req: CreateLanguageRequest): List<LanguageMetadata> {
 
-        assertUnique(req)
+        if (codeLanguagesRepository.existsBySlug(req.slug)) {
+            throw ApiException(ErrorCode.SLUG_EXISTS)
+        }
 
         codeLanguagesRepository.save(
             CodeLanguages(
@@ -44,6 +46,7 @@ class LanguagesService(
                 pistonId = req.pistonId,
                 extension = req.extension,
                 runtimeVersion = req.runtimeVersion,
+                runtime = req.runtime,
                 base = req.base,
                 iconName = req.iconName,
                 initialScript = req.initialScript,
@@ -92,22 +95,6 @@ class LanguagesService(
         return getAllLanguages()
     }
 
-    private fun assertUnique(req: CreateLanguageRequest) {
-
-        if (codeLanguagesRepository.existsBySlug(req.slug)) {
-            throw ApiException(ErrorCode.SLUG_EXISTS)
-        }
-
-        if (codeLanguagesRepository.existsByEditorId(req.editorId)) {
-            throw ApiException(ErrorCode.EDITOR_ID_EXISTS)
-        }
-
-        if (codeLanguagesRepository.existsByPistonId(req.pistonId)) {
-            throw ApiException(ErrorCode.PISTON_ID_EXISTS)
-        }
-    }
-
-
     @Transactional
     internal fun updateLanguage(id: Long, req: UpdateLanguageRequest): List<LanguageMetadata> {
         assertUniqueForUpdate(id, req)
@@ -118,6 +105,7 @@ class LanguagesService(
         language.base = req.base
         language.iconName = req.iconName
         language.runtimeVersion = req.runtimeVersion
+        language.runtime = req.runtime
         language.extension = req.extension
         language.initialScript = req.initialScript
         language.pistonId = req.pistonId
@@ -144,14 +132,6 @@ class LanguagesService(
 
         if (codeLanguagesRepository.existsBySlugAndIdNot(req.slug, id)) {
             throw ApiException(ErrorCode.SLUG_EXISTS)
-        }
-
-        if (codeLanguagesRepository.existsByEditorIdAndIdNot(req.editorId, id)) {
-            throw ApiException(ErrorCode.EDITOR_ID_EXISTS)
-        }
-
-        if (codeLanguagesRepository.existsByPistonIdAndIdNot(req.pistonId, id)) {
-            throw ApiException(ErrorCode.PISTON_ID_EXISTS)
         }
     }
 

@@ -29,6 +29,7 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     ENTRY_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "This project lacks an entry file"),
     NO_DELETE_ENTRY_FILE(HttpStatus.BAD_REQUEST, "Can not delete an entry file"),
     INVALID_PROJECT_FILE_REFERENCE(HttpStatus.BAD_REQUEST, "Invalid project files reference"),
+    INVALID_FILE_PATH(HttpStatus.BAD_REQUEST, "Invalid file path"),
 
     DISCUSSION_NOT_FOUND(HttpStatus.NOT_FOUND, "This discussion was not found"),
     ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "This entity does not exist"),

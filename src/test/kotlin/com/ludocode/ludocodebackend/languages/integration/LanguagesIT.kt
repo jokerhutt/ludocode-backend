@@ -7,6 +7,7 @@ import com.ludocode.ludocodebackend.languages.api.dto.LanguageDisabledMessageReq
 import com.ludocode.ludocodebackend.languages.api.dto.LanguageMetadata
 import com.ludocode.ludocodebackend.languages.api.dto.LanguageToggleRequest
 import com.ludocode.ludocodebackend.languages.api.dto.UpdateLanguageRequest
+import com.ludocode.ludocodebackend.languages.domain.enums.LanguageRuntime
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import io.restassured.response.ValidatableResponse
@@ -46,6 +47,7 @@ class LanguagesIT : AbstractIntegrationTest() {
             pistonId = pythonLanguage.pistonId,
             slug = jsLanguage.slug,
             extension = pythonLanguage.extension,
+            runtime = pythonLanguage.runtime,
             base = "main",
             iconName = "Python Icon",
             initialScript = "print('I have been updated!')"
@@ -55,7 +57,7 @@ class LanguagesIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun updateLanguage_usesExistingEditorId_throwsError() {
+    fun updateLanguage_usesExistingEditorId_updatesLanguage() {
         listOf(
             pythonLanguage, luaLanguage, swiftLanguage, jsLanguage
         )
@@ -66,16 +68,20 @@ class LanguagesIT : AbstractIntegrationTest() {
             pistonId = pythonLanguage.pistonId,
             slug = pythonLanguage.slug,
             extension = pythonLanguage.extension,
+            runtime = pythonLanguage.runtime,
             base = "main",
             iconName = "Python Icon",
             initialScript = "print('I have been updated!')"
         )
 
-        assertPutLanguageError(languageToChange.id, req, ErrorCode.EDITOR_ID_EXISTS)
+        val res = submitPutLanguage(languageToChange.id, req)
+        val updated = res.firstOrNull { it.languageId == languageToChange.id }
+            ?: fail("Updated language not found in response")
+        assertThat(updated.editorId).isEqualTo(jsLanguage.editorId)
     }
 
     @Test
-    fun updateLanguage_usesExistingPistonId_throwsError() {
+    fun updateLanguage_usesExistingPistonId_updatesLanguage() {
         listOf(
             pythonLanguage, luaLanguage, swiftLanguage, jsLanguage
         )
@@ -86,12 +92,16 @@ class LanguagesIT : AbstractIntegrationTest() {
             pistonId = luaLanguage.pistonId,
             slug = pythonLanguage.slug,
             extension = pythonLanguage.extension,
+            runtime = pythonLanguage.runtime,
             base = "main",
             iconName = "Python Icon",
             initialScript = "print('I have been updated!')"
         )
 
-        assertPutLanguageError(languageToChange.id, req, ErrorCode.PISTON_ID_EXISTS)
+        val res = submitPutLanguage(languageToChange.id, req)
+        val updated = res.firstOrNull { it.languageId == languageToChange.id }
+            ?: fail("Updated language not found in response")
+        assertThat(updated.pistonId).isEqualTo(luaLanguage.pistonId)
     }
 
     @Test
@@ -101,6 +111,7 @@ class LanguagesIT : AbstractIntegrationTest() {
             extension = ".sql",
             pistonId = "sql",
             editorId = "sql",
+            runtime = LanguageRuntime.PISTON,
             base = "db",
             iconName = "Sql",
             runtimeVersion = "*",
@@ -126,6 +137,7 @@ class LanguagesIT : AbstractIntegrationTest() {
             extension = ".sql",
             pistonId = "sql",
             editorId = "sql",
+            runtime = LanguageRuntime.PISTON,
             base = "db",
             iconName = "Sql",
             runtimeVersion = "*",
@@ -155,6 +167,7 @@ class LanguagesIT : AbstractIntegrationTest() {
             extension = ".sql",
             pistonId = "sql",
             editorId = "sql",
+            runtime = LanguageRuntime.PISTON,
             base = "db",
             iconName = "Sql",
             initialScript = "SELECT * FROM USERS;",
@@ -178,6 +191,7 @@ class LanguagesIT : AbstractIntegrationTest() {
             extension = ".sql",
             pistonId = "sql",
             editorId = "sql",
+            runtime = LanguageRuntime.PISTON,
             base = "db",
             iconName = "Sql",
             initialScript = "SELECT * FROM USERS;",
@@ -200,6 +214,7 @@ class LanguagesIT : AbstractIntegrationTest() {
             pistonId = pythonLanguage.pistonId,
             slug = pythonLanguage.slug,
             extension = pythonLanguage.extension,
+            runtime = pythonLanguage.runtime,
             base = "main",
             iconName = "Python Icon",
             initialScript = "print('I have been updated!')"

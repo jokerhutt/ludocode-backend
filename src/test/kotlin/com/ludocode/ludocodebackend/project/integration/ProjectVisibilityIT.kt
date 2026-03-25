@@ -10,6 +10,7 @@ import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardListRes
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.projects.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.projects.domain.entity.UserProject
+import com.ludocode.ludocodebackend.projects.domain.enums.ProjectType
 import com.ludocode.ludocodebackend.projects.domain.enums.Visibility
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
@@ -41,15 +42,18 @@ class ProjectVisibilityIT : AbstractIntegrationTest() {
                 createdAt = OffsetDateTime.now(clock).minusDays(2),
                 updatedAt = OffsetDateTime.now(clock).minusDays(1),
                 requestHash = UUID.randomUUID(),
+                projectType = ProjectType.CODE,
                 entryFileId = null
             )
         )
 
         val projectId = existingProject.id
 
-        val f1Url = "$projectId/${f1Id}"
+        val f1Path = "script.py"
+        val f1Url = "$projectId/$f1Path"
         val f1Content = "print(hello world!)"
-        val f2Url = "$projectId/${f2Id}"
+        val f2Path = "script-1.py"
+        val f2Url = "$projectId/$f2Path"
         val f2Content = "print(bye world!)"
 
         existingFiles = projectFileRepository.saveAll(
@@ -59,7 +63,7 @@ class ProjectVisibilityIT : AbstractIntegrationTest() {
                     projectId = existingProject.id,
                     contentUrl = f1Url,
                     contentHash = sha256(f1Content),
-                    filePath = "script.py",
+                    filePath = f1Path,
                     codeLanguage = pythonLanguage
                 ),
                 ProjectFile(
@@ -67,7 +71,7 @@ class ProjectVisibilityIT : AbstractIntegrationTest() {
                     projectId = existingProject.id,
                     contentUrl = f2Url,
                     contentHash = sha256(f2Content),
-                    filePath = "script-1.py",
+                    filePath = f2Path,
                     codeLanguage = pythonLanguage
                 )
             )

@@ -5,6 +5,7 @@ import com.google.cloud.storage.Storage
 import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import com.ludocode.ludocodebackend.projects.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.projects.domain.entity.UserProject
+import com.ludocode.ludocodebackend.projects.domain.enums.ProjectType
 import java.time.Clock
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -30,6 +31,7 @@ object ProjectTestUtil {
                 name = "P${index + 1}",
                 userId = userId,
                 codeLanguage = language,
+                projectType = ProjectType.CODE,
                 createdAt = now.minusDays((10 + index).toLong()),
                 updatedAt = now.minusDays(startDaysAgo + index),
                 requestHash = UUID.randomUUID()
@@ -38,7 +40,8 @@ object ProjectTestUtil {
 
         val files = projects.map { project ->
             val fileId = UUID.randomUUID()
-            val contentUrl = "${project.id}/$fileId"
+            val filePath = "main${language.extension}"
+            val contentUrl = "${project.id}/$filePath"
 
             storage.create(
                 BlobInfo.newBuilder(bucketName, contentUrl).build(),
@@ -50,7 +53,7 @@ object ProjectTestUtil {
                 projectId = project.id,
                 contentUrl = contentUrl,
                 contentHash = "testhash-${project.id}",
-                filePath = "main${language.extension}",
+                filePath = filePath,
                 codeLanguage = language
             )
         }

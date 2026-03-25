@@ -14,6 +14,7 @@ import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardListRes
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.projects.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.projects.domain.entity.UserProject
+import com.ludocode.ludocodebackend.projects.domain.enums.ProjectType
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import io.restassured.response.ValidatableResponse
@@ -52,15 +53,18 @@ class UserProjectIT : AbstractIntegrationTest() {
                 createdAt = OffsetDateTime.now(clock).minusDays(2),
                 updatedAt = OffsetDateTime.now(clock).minusDays(1),
                 requestHash = UUID.randomUUID(),
+                projectType = ProjectType.CODE,
                 entryFileId = null
             )
         )
 
         val projectId = existingProject.id
 
-        val f1Url = "$projectId/${f1Id}"
+        val f1Path = "script.py"
+        val f1Url = "$projectId/$f1Path"
         val f1Content = "print(hello world!)"
-        val f2Url = "$projectId/${f2Id}"
+        val f2Path = "script-1.py"
+        val f2Url = "$projectId/$f2Path"
         val f2Content = "print(bye world!)"
 
         existingFiles = projectFileRepository.saveAll(
@@ -70,7 +74,7 @@ class UserProjectIT : AbstractIntegrationTest() {
                     projectId = existingProject.id,
                     contentUrl = f1Url,
                     contentHash = sha256(f1Content),
-                    filePath = "script.py",
+                    filePath = f1Path,
                     codeLanguage = pythonLanguage
                 ),
                 ProjectFile(
@@ -78,7 +82,7 @@ class UserProjectIT : AbstractIntegrationTest() {
                     projectId = existingProject.id,
                     contentUrl = f2Url,
                     contentHash = sha256(f2Content),
-                    filePath = "script-1.py",
+                    filePath = f2Path,
                     codeLanguage = pythonLanguage
                 )
             )
@@ -113,6 +117,7 @@ class UserProjectIT : AbstractIntegrationTest() {
         val newProjectRequest = CreateProjectRequest(
             projectName = "Second Project",
             projectLanguageId = pythonLanguage.id,
+            projectType = ProjectType.CODE,
             requestHash = UUID.randomUUID()
         )
         submitPostCreateProject(newProjectRequest, user1.id!!)
@@ -141,6 +146,7 @@ class UserProjectIT : AbstractIntegrationTest() {
         val newProjectRequest = CreateProjectRequest(
             projectName = "Third Project",
             projectLanguageId = jsLanguage.id,
+            projectType = ProjectType.CODE,
             requestHash = UUID.randomUUID()
         )
          submitPostCreateProject(newProjectRequest, user1.id!!)
@@ -192,6 +198,7 @@ class UserProjectIT : AbstractIntegrationTest() {
         val newProjectRequest = CreateProjectRequest(
             projectName = "Second Project",
             projectLanguageId = pythonLanguage.id,
+            projectType = ProjectType.CODE,
             requestHash = UUID.randomUUID()
         )
         submitPostCreateProject(newProjectRequest, user1.id!!)
@@ -221,6 +228,7 @@ class UserProjectIT : AbstractIntegrationTest() {
         val newProjectRequest = CreateProjectRequest(
             projectName = "Second Project",
             projectLanguageId = pythonLanguage.id,
+            projectType = ProjectType.CODE,
             requestHash = UUID.randomUUID()
         )
         submitPostCreateProject(newProjectRequest, user1.id!!)
@@ -309,6 +317,7 @@ class UserProjectIT : AbstractIntegrationTest() {
                 createdAt = OffsetDateTime.now(clock),
                 updatedAt = OffsetDateTime.now(clock),
                 requestHash = UUID.randomUUID(),
+                projectType = ProjectType.CODE,
                 entryFileId = null
             )
         )
@@ -317,7 +326,7 @@ class UserProjectIT : AbstractIntegrationTest() {
             ProjectFile(
                 id = UUID.randomUUID(),
                 projectId = foreignProject.id,
-                contentUrl = "${foreignProject.id}/${UUID.randomUUID()}",
+                contentUrl = "${foreignProject.id}/foreign.py",
                 contentHash = sha256("print('foreign')"),
                 filePath = "foreign.py",
                 codeLanguage = pythonLanguage

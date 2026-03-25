@@ -9,6 +9,7 @@ import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardRespons
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.projects.app.service.ProjectPlanEnforcer
+import com.ludocode.ludocodebackend.projects.domain.enums.ProjectType
 import com.ludocode.ludocodebackend.subscription.configuration.PlanDefinitions
 import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
@@ -56,6 +57,7 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
         val newProjectRequest = CreateProjectRequest(
             projectName = "Seventh Project",
             projectLanguageId = pythonLanguage.id,
+            projectType = ProjectType.CODE,
             requestHash = UUID.randomUUID()
         )
 
@@ -72,6 +74,7 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
         val newProjectRequest = CreateProjectRequest(
             projectName = "Second Project",
             projectLanguageId = pythonLanguage.id,
+            projectType = ProjectType.CODE,
             requestHash = UUID.randomUUID()
         )
 
@@ -85,6 +88,7 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
         val secondProjectRequest = CreateProjectRequest(
             projectName = "Seventh Project",
             projectLanguageId = pythonLanguage.id,
+            projectType = ProjectType.CODE,
             requestHash = UUID.randomUUID()
         )
 

@@ -19,6 +19,7 @@ class LanguagesMapper(private val basicMapper: BasicMapper) {
                 pistonId = it.pistonId,
                 extension = it.extension,
                 base = it.base,
+                runtime = it.runtime,
                 runtimeVersion = it.runtimeVersion,
                 iconName = it.iconName,
                 enabled = it.isEnabled,

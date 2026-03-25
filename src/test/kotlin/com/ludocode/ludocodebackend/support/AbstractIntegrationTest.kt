@@ -30,6 +30,7 @@ import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ParagraphBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
 import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
+import com.ludocode.ludocodebackend.languages.domain.enums.LanguageRuntime
 import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.LessonSnap
@@ -397,6 +398,7 @@ abstract class AbstractIntegrationTest {
                 initialScript = "print('Hello World!')",
                 base = "script",
                 extension = ".py",
+                runtime = LanguageRuntime.PISTON,
                 pistonId = "python",
                 iconName = "Python"
             )
@@ -409,6 +411,7 @@ abstract class AbstractIntegrationTest {
                 initialScript = "print('Hello World!')",
                 base = "script",
                 extension = ".swift",
+                runtime = LanguageRuntime.PISTON,
                 pistonId = "swift",
                 iconName = "Swift"
             )
@@ -421,6 +424,7 @@ abstract class AbstractIntegrationTest {
                 initialScript = "print('Hello World!')",
                 base = "script",
                 extension = ".lua",
+                runtime = LanguageRuntime.PISTON,
                 pistonId = "lua",
                 iconName = "Lua"
             )
@@ -433,6 +437,7 @@ abstract class AbstractIntegrationTest {
                 initialScript = "console.log('Hello World!')",
                 base = "script",
                 extension = ".js",
+                runtime = LanguageRuntime.PISTON,
                 pistonId = "js",
                 iconName = "Javascript"
             )

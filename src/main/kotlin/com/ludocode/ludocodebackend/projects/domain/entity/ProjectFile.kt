@@ -15,7 +15,7 @@ class ProjectFile(
     val projectId: UUID,
 
     @Column(name = "content_url")
-    val contentUrl: String,
+    var contentUrl: String,
 
     @Column(name = "content_hash")
     var contentHash: String,

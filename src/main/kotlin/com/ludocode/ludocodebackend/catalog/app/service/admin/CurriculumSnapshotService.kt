@@ -38,6 +38,7 @@ import com.ludocode.ludocodebackend.lesson.infra.repository.*
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
+import com.ludocode.ludocodebackend.projects.domain.enums.ProjectType
 import com.ludocode.ludocodebackend.projects.domain.enums.Visibility
 import com.ludocode.ludocodebackend.tag.api.dto.TagMetadata
 import jakarta.transaction.Transactional
@@ -163,6 +164,7 @@ class CurriculumSnapshotService(
                         lesson.projectSnapshot = ProjectSnapshot(
                             projectId = UUID.randomUUID(),
                             projectName = "printing hello world",
+                            projectType = ProjectType.CODE,
                             projectLanguage = languagesMapper.toLanguageMetadata(language),
                             updatedAt = OffsetDateTime.now(),
                             deleteAt = null,

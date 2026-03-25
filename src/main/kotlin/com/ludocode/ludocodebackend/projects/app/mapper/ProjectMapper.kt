@@ -6,7 +6,7 @@ import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import com.ludocode.ludocodebackend.projects.domain.entity.ProjectFile
-import com.ludocode.ludocodebackend.projects.domain.enums.Visibility
+import com.ludocode.ludocodebackend.projects.domain.enums.ProjectType
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 import java.util.*
@@ -36,6 +36,7 @@ class ProjectMapper(private val basicMapper: BasicMapper, private val languagesM
     fun toProjectSnapshot(
         projectId: UUID,
         projectName: String,
+        projectType: ProjectType,
         projectLanguage: CodeLanguages,
         updatedAt: OffsetDateTime?,
         deleteAt: OffsetDateTime?,
@@ -46,6 +47,7 @@ class ProjectMapper(private val basicMapper: BasicMapper, private val languagesM
         return ProjectSnapshot(
             projectId,
             projectName,
+            projectType,
             languagesMapper.toLanguageMetadata(language = projectLanguage),
             updatedAt,
             deleteAt = deleteAt,

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="044-001-add-language-runtime" author="david" dbms="postgresql">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="code_languages" columnName="runtime"/>
+            </not>
+        </preConditions>
+
+        <addColumn tableName="code_languages">
+            <column name="runtime" type="varchar(32)" defaultValue="PISTON">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="044-002-add-project-type" author="david" dbms="postgresql">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_project" columnName="project_type"/>
+            </not>
+        </preConditions>
+
+        <addColumn tableName="user_project">
+            <column name="project_type" type="varchar(32)" defaultValue="CODE">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="044-003-drop-language-editor-piston-uniques" author="david" dbms="postgresql">
+        <sql>
+            ALTER TABLE code_languages DROP CONSTRAINT IF EXISTS uk_code_languages_editor_id;
+            ALTER TABLE code_languages DROP CONSTRAINT IF EXISTS uk_code_languages_piston_id;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
+

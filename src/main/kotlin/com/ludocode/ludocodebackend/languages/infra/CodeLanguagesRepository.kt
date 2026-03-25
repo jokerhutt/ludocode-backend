@@ -11,12 +11,8 @@ interface CodeLanguagesRepository : JpaRepository<CodeLanguages, Long> {
     fun findAllIds(): List<UUID>
 
     fun existsBySlug(slug: String): Boolean
-    fun existsByPistonId(pistonId: String): Boolean
-    fun existsByEditorId(editorId: String): Boolean
 
     fun existsBySlugAndIdNot(slug: String, id: Long): Boolean
-    fun existsByEditorIdAndIdNot(editorId: String, id: Long): Boolean
-    fun existsByPistonIdAndIdNot(pistonId: String, id: Long): Boolean
 
 
 }

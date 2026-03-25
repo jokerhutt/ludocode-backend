@@ -5,6 +5,7 @@ import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardResponse
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectLikeCountResponse
 import com.ludocode.ludocodebackend.projects.domain.entity.UserProject
+import com.ludocode.ludocodebackend.projects.domain.enums.ProjectType
 import com.ludocode.ludocodebackend.projects.domain.enums.Visibility
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
@@ -38,6 +39,7 @@ class ProjectLikeIT : AbstractIntegrationTest() {
                 requestHash = UUID.randomUUID(),
                 codeLanguage = pythonLanguage,
                 projectVisibility = Visibility.PUBLIC,
+                projectType = ProjectType.CODE,
                 createdAt = now,
                 updatedAt = now,
             )
@@ -51,6 +53,7 @@ class ProjectLikeIT : AbstractIntegrationTest() {
                 requestHash = UUID.randomUUID(),
                 codeLanguage = pythonLanguage,
                 projectVisibility = Visibility.PRIVATE,
+                projectType = ProjectType.CODE,
                 createdAt = now,
                 updatedAt = now,
             )
