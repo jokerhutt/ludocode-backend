@@ -59,7 +59,7 @@ object ProjectTestUtil {
         }
 
         projects.zip(files).forEach { (project, file) ->
-            project.entryFileId = file.id
+            project.entryFilePath = file.filePath
         }
 
 

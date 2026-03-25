@@ -49,6 +49,7 @@
     <include file="/db/changelog/042-discussions.xml"/>
     <include file="/db/changelog/043-create-discussion-message-like.xml"/>
     <include file="/db/changelog/044-add-project-type-runtime-and-language-uniques.xml"/>
+    <include file="/db/changelog/045-project-entry-file-path.xml"/>
 
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>

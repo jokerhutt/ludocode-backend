@@ -54,7 +54,7 @@ class UserProjectIT : AbstractIntegrationTest() {
                 updatedAt = OffsetDateTime.now(clock).minusDays(1),
                 requestHash = UUID.randomUUID(),
                 projectType = ProjectType.CODE,
-                entryFileId = null
+                entryFilePath = null
             )
         )
 
@@ -88,7 +88,7 @@ class UserProjectIT : AbstractIntegrationTest() {
             )
         )
 
-        existingProject.entryFileId = f1Id
+        existingProject.entryFilePath = f1Path
         existingProject = userProjectRepository.save(existingProject)
 
         try {
@@ -300,14 +300,34 @@ class UserProjectIT : AbstractIntegrationTest() {
 
         assertThat(res).isNotNull()
         assertThat(res.files.size).isEqualTo(2)
-
-        assertThat(res.files[0].path).isEqualTo(snapshotCopy.files[0].path)
-        assertThat(res.files[1].path).isEqualTo(snapshotCopy.files[1].path)
+        assertThat(res.files[0].path).isEqualTo(res.entryFilePath)
+        assertThat(res.files.map { it.path }).containsExactly("script.py", "script-1.py")
 
     }
 
     @Test
-    fun saveProject_fileIdFromAnotherProject_returnsInvalidProjectFileReference() {
+    fun saveProject_renameEntryFileAndUpdateEntryFilePath_returnsSuccess() {
+        val projectId = existingProject.id
+        val snapshot = submitGetProjectSnapshot(projectId, user1.id!!)
+        assertThat(snapshot).isNotNull()
+
+        val modifiedFiles = snapshot.files.toMutableList()
+        modifiedFiles[0] = modifiedFiles[0].copy(path = "app.py")
+
+        val snapshotCopy = snapshot.copy(
+            files = modifiedFiles,
+            entryFilePath = "app.py"
+        )
+
+        val res = submitPutSaveProject(user1.id!!, snapshotCopy)
+
+        assertThat(res.entryFilePath).isEqualTo("app.py")
+        assertThat(res.files[0].path).isEqualTo("app.py")
+        assertThat(res.files.map { it.path }).containsExactly("app.py", "script-1.py")
+    }
+
+    @Test
+    fun saveProject_fileIdFromAnotherProject_ignoresIncomingIdAndSaves() {
         val foreignProject = userProjectRepository.save(
             UserProject(
                 id = UUID.randomUUID(),
@@ -318,7 +338,7 @@ class UserProjectIT : AbstractIntegrationTest() {
                 updatedAt = OffsetDateTime.now(clock),
                 requestHash = UUID.randomUUID(),
                 projectType = ProjectType.CODE,
-                entryFileId = null
+                entryFilePath = null
             )
         )
 
@@ -339,7 +359,9 @@ class UserProjectIT : AbstractIntegrationTest() {
 
         val snapshotCopy = snapshot.copy(files = modifiedFiles)
 
-        assertErrorOnSave(user1.id!!, snapshotCopy, ErrorCode.INVALID_PROJECT_FILE_REFERENCE)
+        val res = submitPutSaveProject(user1.id!!, snapshotCopy)
+        assertThat(res.files.size).isEqualTo(2)
+        assertThat(res.files.map { it.path }).containsExactly("script.py", "script-1.py")
     }
 
     @Test
@@ -351,6 +373,17 @@ class UserProjectIT : AbstractIntegrationTest() {
         modifiedFiles[1].path = modifiedFiles[0].path
         val snapshotCopy = snapshot.copy(files = modifiedFiles)
         assertErrorOnSave(user1.id!!, snapshotCopy, ErrorCode.DUPLICATE_FILE_NAME)
+    }
+
+    @Test
+    fun saveProject_deleteEntryFile_returnsNoDeleteEntryFile() {
+        val projectId = existingProject.id
+        val snapshot = submitGetProjectSnapshot(projectId, user1.id!!)
+        assertThat(snapshot).isNotNull()
+
+        val snapshotCopy = snapshot.copy(files = snapshot.files.drop(1))
+
+        assertErrorOnSave(user1.id!!, snapshotCopy, ErrorCode.NO_DELETE_ENTRY_FILE)
     }
 
     @Test

@@ -353,7 +353,7 @@
         "projectName",
         "projectLanguage",
         "files",
-        "entryFileId"
+        "entryFilePath"
       ],
       "properties": {
 
@@ -378,9 +378,8 @@
           "format": "date-time"
         },
 
-        "entryFileId": {
-          "type": "string",
-          "format": "uuid"
+        "entryFilePath": {
+          "type": "string"
         },
 
         "files": {

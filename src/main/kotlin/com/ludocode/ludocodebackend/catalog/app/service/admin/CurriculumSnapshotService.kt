@@ -169,7 +169,7 @@ class CurriculumSnapshotService(
                             updatedAt = OffsetDateTime.now(),
                             deleteAt = null,
                             files = listOf(initialFile),
-                            entryFileId = initialFileId,
+                            entryFilePath = initialFile.path,
                         )
                     }
 

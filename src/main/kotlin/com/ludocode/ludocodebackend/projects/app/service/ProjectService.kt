@@ -152,7 +152,7 @@ class ProjectService(
                 )
             )
 
-            newProject.entryFileId = firstFileId
+            newProject.entryFilePath = ProjectSnapshotValidator.normalizePath(firstFileName)
 
             try {
                 storagePortForServices.uploadList(
@@ -219,12 +219,15 @@ class ProjectService(
             val projectLanguage = project.codeLanguage
             val enabled = projectLanguage.isEnabled
             val disabledReason = projectLanguage.disabledReason
-            val entryFileId = project.entryFileId
+            val entryFilePath = project.entryFilePath
                 ?: throw ApiException(ErrorCode.ENTRY_FILE_NOT_FOUND)
+            val normalizedEntryFilePath = ProjectSnapshotValidator.normalizePath(entryFilePath)
 
             val projectFiles = projectFileRepository
                 .findAllProjectFilesByProjectId(projectId)
-                .sortedWith(compareByDescending { it.id == entryFileId })
+                .sortedWith(compareByDescending {
+                    ProjectSnapshotValidator.normalizePath(it.filePath) == normalizedEntryFilePath
+                })
             val fileContentUrls = StorageGetRequest(projectFiles.map { it -> it.contentUrl })
             val fileContentsMap = storagePortForServices.getList(fileContentUrls)
 
@@ -243,7 +246,7 @@ class ProjectService(
                 deleteAt,
                 projectFiles,
                 fileContentsMap.content,
-                entryFileId,
+                normalizedEntryFilePath,
             )
         }
     }
@@ -292,7 +295,6 @@ class ProjectService(
                 throw ApiException(ErrorCode.GCS_GET_FAILED, "Failed to get files from GCS: ${e.message}")
             }
 
-            val oldToNewFileIds = mutableMapOf<UUID, UUID>()
             val uploadRequests = mutableListOf<StoragePutRequest>()
 
             for (sourceFile in sourceFiles) {
@@ -305,7 +307,6 @@ class ProjectService(
                 val duplicatedFileId = UUID.randomUUID()
                 val duplicatedContentUrl = buildContentUrl(duplicatedProject.id, sourceFile.filePath)
 
-                oldToNewFileIds[sourceFile.id] = duplicatedFileId
                 uploadRequests.add(StoragePutRequest(path = duplicatedContentUrl, content = content))
 
                 projectFileRepository.save(
@@ -320,14 +321,18 @@ class ProjectService(
                 )
             }
 
-            val sourceEntryFileId = sourceProject.entryFileId
+            val sourceEntryFilePath = sourceProject.entryFilePath
                 ?: throw ApiException(ErrorCode.ENTRY_FILE_NOT_FOUND)
-            val duplicatedEntryFileId = oldToNewFileIds[sourceEntryFileId]
+            val normalizedSourceEntryFilePath = ProjectSnapshotValidator.normalizePath(sourceEntryFilePath)
+            val duplicatedEntryFilePath = sourceFiles
+                .find { ProjectSnapshotValidator.normalizePath(it.filePath) == normalizedSourceEntryFilePath }
+                ?.filePath
+                ?.let(ProjectSnapshotValidator::normalizePath)
                 ?: throw ApiException(
                     ErrorCode.ENTRY_FILE_NOT_FOUND,
                     "Source entry file is missing in duplicated files"
                 )
-            duplicatedProject.entryFileId = duplicatedEntryFileId
+            duplicatedProject.entryFilePath = duplicatedEntryFilePath
 
             try {
                 storagePortForServices.uploadList(StoragePutRequestList(requests = uploadRequests))
@@ -436,20 +441,32 @@ class ProjectService(
 
             val submittedFiles = projectSnapshot.files
 
-            val entryFileId = existingProject.entryFileId
-                ?: throw ApiException(ErrorCode.ENTRY_FILE_NOT_FOUND)
+            val existingFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
+            val normalizedEntryPath = ProjectSnapshotValidator.normalizePath(projectSnapshot.entryFilePath)
 
-            projectFileRepository.findById(entryFileId)
-                .orElseThrow { ApiException(ErrorCode.ENTRY_FILE_NOT_FOUND) }
+            val existingFileIdByPath = existingFiles.associate { file ->
+                ProjectSnapshotValidator.normalizePath(file.filePath) to file.id
+            }
 
             val normalizedSubmittedFiles = ProjectSnapshotValidator
-                .validateSnapshotRequest(entryFileId, submittedFiles)
+                .validateSnapshotRequest(normalizedEntryPath, submittedFiles)
 
-            val existingFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
+            val resolvedSubmittedFiles = normalizedSubmittedFiles.map { file ->
+                val normalizedPath = ProjectSnapshotValidator.normalizePath(file.path)
+                file.copy(id = existingFileIdByPath[normalizedPath])
+            }
 
-            deleteFiles(projectId, existingFiles)
+            val backupContents = fetchProjectFileContents(existingFiles)
 
-            overwriteAllFiles(projectId, normalizedSubmittedFiles)
+            existingProject.entryFilePath = normalizedEntryPath
+
+            try {
+                deleteFiles(projectId, existingFiles)
+                overwriteAllFiles(projectId, resolvedSubmittedFiles)
+            } catch (e: Exception) {
+                restoreProjectFiles(projectId, existingFiles, backupContents)
+                throw e
+            }
 
             refreshUpdatedAt(projectId)
 
@@ -465,7 +482,7 @@ class ProjectService(
 
             val fileId = file.id ?: UUID.randomUUID()
             val normalizedPath = ProjectSnapshotValidator.normalizePath(file.path)
-            val contentUrl = buildContentUrl(projectId, normalizedPath)
+            val contentUrl = buildContentUrl(projectId, file.path)
 
             gcsRequests.add(StoragePutRequest(contentUrl, file.content))
 
@@ -493,6 +510,54 @@ class ProjectService(
                 e
             )
             throw ApiException(ErrorCode.GCS_UPLOAD_FAILED)
+        }
+    }
+
+    private fun fetchProjectFileContents(projectFiles: List<ProjectFile>): Map<String, String> {
+        if (projectFiles.isEmpty()) return emptyMap()
+
+        return try {
+            storagePortForServices
+                .getList(StorageGetRequest(projectFiles.map { it.contentUrl }))
+                .content
+        } catch (e: Exception) {
+            logger.error(
+                LogEvents.GCS_GET_FAILED + " {}",
+                kv(LogFields.FILE_COUNT, projectFiles.size),
+                e
+            )
+            throw ApiException(ErrorCode.GCS_GET_FAILED, "Failed to back up files from GCS: ${e.message}")
+        }
+    }
+
+    private fun restoreProjectFiles(projectId: UUID, previousFiles: List<ProjectFile>, previousContents: Map<String, String>) {
+        logger.warn(
+            "snapshot_save_restore_started {}",
+            kv(LogFields.PROJECT_ID, projectId.toString())
+        )
+
+        val currentFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
+        currentFiles.forEach { projectFileRepository.deleteById(it.id) }
+
+        previousFiles.forEach { projectFileRepository.save(it) }
+
+        val restoreRequests = previousFiles.mapNotNull { file ->
+            previousContents[file.contentUrl]?.let { content ->
+                StoragePutRequest(path = file.contentUrl, content = content)
+            }
+        }
+
+        if (restoreRequests.isNotEmpty()) {
+            try {
+                storagePortForServices.uploadList(StoragePutRequestList(requests = restoreRequests))
+            } catch (e: Exception) {
+                logger.error(
+                    "snapshot_save_restore_failed {} {}",
+                    kv(LogFields.PROJECT_ID, projectId.toString()),
+                    kv(LogFields.FILE_COUNT, restoreRequests.size),
+                    e
+                )
+            }
         }
     }
 
@@ -538,7 +603,7 @@ class ProjectService(
             val fileId = file.id ?: UUID.randomUUID()
             val normalizedPath = ProjectSnapshotValidator.normalizePath(file.path)
 
-            val contentUrl = buildContentUrl(projectId, normalizedPath)
+            val contentUrl = buildContentUrl(projectId, file.path)
             gcsRequests.add(StoragePutRequest(contentUrl, file.content))
 
             val language = codeLanguagesRepository.getReferenceById(file.language.languageId)
@@ -581,7 +646,7 @@ class ProjectService(
 
 
             val normalizedPath = ProjectSnapshotValidator.normalizePath(file.path)
-            val contentUrl = buildContentUrl(projectId, normalizedPath)
+            val contentUrl = buildContentUrl(projectId, file.path)
             gcsRequests.add(StoragePutRequest(contentUrl, file.content))
 
             val existingFile = projectFileRepository.findById(file.id)

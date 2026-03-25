@@ -3,12 +3,11 @@ package com.ludocode.ludocodebackend.projects.app.util
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
-import java.util.UUID
 
 object ProjectSnapshotValidator {
 
     fun validateSnapshotRequest(
-        entryFileId: UUID,
+        entryFilePath: String,
         incoming: List<ProjectFileSnapshot>
     ): List<ProjectFileSnapshot> {
 
@@ -24,8 +23,9 @@ object ProjectSnapshotValidator {
             throw ApiException(ErrorCode.DUPLICATE_FILE_NAME)
         }
 
-        if (normalizedFiles.none { it.id == entryFileId }) {
-            throw ApiException(ErrorCode.ENTRY_FILE_NOT_FOUND)
+        val normalizedEntryFilePath = normalizePath(entryFilePath)
+        if (normalizedFiles.none { it.path == normalizedEntryFilePath }) {
+            throw ApiException(ErrorCode.NO_DELETE_ENTRY_FILE)
         }
 
         for (file in normalizedFiles) {

@@ -42,7 +42,7 @@ class ProjectMapper(private val basicMapper: BasicMapper, private val languagesM
         deleteAt: OffsetDateTime?,
         projectFiles: List<ProjectFile>,
         fileContentMap: Map<String, String>,
-        entryFileId: UUID,
+        entryFilePath: String,
     ): ProjectSnapshot {
         return ProjectSnapshot(
             projectId,
@@ -52,7 +52,7 @@ class ProjectMapper(private val basicMapper: BasicMapper, private val languagesM
             updatedAt,
             deleteAt = deleteAt,
             toProjectFileSnapshotList(projectFiles, fileContentMap),
-            entryFileId = entryFileId,
+            entryFilePath = entryFilePath,
         )
     }
 

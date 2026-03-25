@@ -43,7 +43,7 @@ class ProjectVisibilityIT : AbstractIntegrationTest() {
                 updatedAt = OffsetDateTime.now(clock).minusDays(1),
                 requestHash = UUID.randomUUID(),
                 projectType = ProjectType.CODE,
-                entryFileId = null
+                entryFilePath = null
             )
         )
 
@@ -77,7 +77,7 @@ class ProjectVisibilityIT : AbstractIntegrationTest() {
             )
         )
 
-        existingProject.entryFileId = f1Id
+        existingProject.entryFilePath = f1Path
         existingProject = userProjectRepository.save(existingProject)
 
         try {
