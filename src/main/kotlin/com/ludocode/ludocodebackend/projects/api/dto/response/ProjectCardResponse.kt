@@ -14,13 +14,8 @@ data class ProjectCardResponse (
     val updatedAt: OffsetDateTime,
     val visibility: Visibility,
     val projectType: ProjectType,
-    val technologies: List<ProjectCardLangaugeResponse>,
+    val technologies: List<String>,
     val deleteAt: OffsetDateTime?,
-)
-
-data class ProjectCardLangaugeResponse (
-    val languageName: String,
-    val languageIconName: String
 )
 
 data class ProjectCardListResponse (

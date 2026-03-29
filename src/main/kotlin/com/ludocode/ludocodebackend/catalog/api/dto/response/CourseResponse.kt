@@ -1,8 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.api.dto.response
-
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseStatus
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
-import com.ludocode.ludocodebackend.languages.api.dto.LanguageMetadata
 import com.ludocode.ludocodebackend.tag.api.dto.TagMetadata
 import java.util.*
 

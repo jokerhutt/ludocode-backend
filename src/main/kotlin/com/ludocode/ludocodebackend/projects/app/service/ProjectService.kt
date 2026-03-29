@@ -5,7 +5,6 @@ import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
-import com.ludocode.ludocodebackend.commons.util.sha256
 import com.ludocode.ludocodebackend.languages.api.dto.Languages
 import com.ludocode.ludocodebackend.languages.configuration.HostedFilesProperties
 import com.ludocode.ludocodebackend.projects.api.dto.request.CreateProjectRequest
@@ -78,6 +77,7 @@ class ProjectService(
         val pageable = PageRequest.of(page, size)
 
         val result = userProjectRepository.findPublicProjectCards(pageable)
+        val technologiesByProjectId = getTechnologiesByProjectId(result.content.map { it.getProjectId() })
 
         logger.info(
             "${LogEvents.PROJECT_CARD_LIST_LOADED} {}",
@@ -86,6 +86,7 @@ class ProjectService(
 
         return projectCardMapper.toProjectCardResponseList(
             result.content,
+            technologiesByProjectId,
             result.number,
             result.totalPages,
             result.hasNext()
@@ -96,6 +97,7 @@ class ProjectService(
     internal fun getUserProjects(userId: UUID, page: Int, size: Int): ProjectCardListResponse {
         val pageable = PageRequest.of(page, size)
         val result = userProjectRepository.findProjectCardsByUserId(userId, pageable)
+        val technologiesByProjectId = getTechnologiesByProjectId(result.content.map { it.getProjectId() })
 
         logger.info(
             "${LogEvents.PROJECT_CARD_LIST_LOADED} {}",
@@ -104,11 +106,26 @@ class ProjectService(
 
         return projectCardMapper.toProjectCardResponseList(
             result.content,
+            technologiesByProjectId,
             result.number,
             result.totalPages,
             result.hasNext()
         )
 
+    }
+
+    private fun getTechnologiesByProjectId(projectIds: List<UUID>): Map<UUID, List<String>> {
+        if (projectIds.isEmpty()) {
+            return emptyMap()
+        }
+
+        return projectFileRepository.findDistinctLanguagesByProjectIdIn(projectIds)
+            .groupBy { it.getProjectId() }
+            .mapValues { (_, languageRows) ->
+                languageRows
+                    .map { it.getCodeLanguage() }
+                    .distinctBy { it.lowercase() }
+            }
     }
 
     private fun validateLanguageAndPath(file: ProjectFileSnapshot) {
@@ -576,3 +593,4 @@ class ProjectService(
     }
 
 }
+
