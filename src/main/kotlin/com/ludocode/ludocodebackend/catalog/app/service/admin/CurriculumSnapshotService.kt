@@ -20,10 +20,8 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
-import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.HeaderBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ParagraphBlock
-import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
 import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
 import com.ludocode.ludocodebackend.lesson.domain.entity.Lesson
 import com.ludocode.ludocodebackend.lesson.domain.entity.LessonExercise
@@ -39,7 +37,6 @@ import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepo
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import com.ludocode.ludocodebackend.projects.domain.enums.ProjectType
-import com.ludocode.ludocodebackend.projects.domain.enums.Visibility
 import com.ludocode.ludocodebackend.tag.api.dto.TagMetadata
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
@@ -62,9 +59,7 @@ class CurriculumSnapshotService(
     private val courseMapper: CourseMapper,
     private val lessonRepository: LessonRepository,
     private val courseProgressRepository: CourseProgressRepository,
-    private val codeLanguagesRepository: CodeLanguagesRepository,
     private val courseTagRepository: CourseTagRepository,
-    private val languagesMapper: LanguagesMapper,
 ) {
 
     private val logger = LoggerFactory.getLogger(CurriculumSnapshotService::class.java)
@@ -164,8 +159,6 @@ class CurriculumSnapshotService(
                         lesson.projectSnapshot = ProjectSnapshot(
                             projectId = UUID.randomUUID(),
                             projectName = "printing hello world",
-                            projectType = ProjectType.CODE,
-                            projectLanguage = languagesMapper.toLanguageMetadata(language),
                             updatedAt = OffsetDateTime.now(),
                             deleteAt = null,
                             files = listOf(initialFile),

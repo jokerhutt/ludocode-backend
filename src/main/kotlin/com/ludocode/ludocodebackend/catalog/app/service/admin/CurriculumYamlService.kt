@@ -18,7 +18,6 @@ import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlRoot
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.commons.configuration.web.YamlProperties
 import com.ludocode.ludocodebackend.lesson.app.service.admin.LessonSnapshotService
-import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -54,7 +53,7 @@ class CurriculumYamlService(
                 description = root.description,
                 courseType = root.courseType,
                 courseIcon = root.courseIcon,
-                languageId = root.languageId
+                language = root.language
             ))
 
         val lessonIdMap = mutableMapOf<CurriculumYamlLesson, UUID>()
@@ -132,7 +131,7 @@ class CurriculumYamlService(
             description = course.description,
             courseType = course.courseType,
             courseIcon = course.courseIcon,
-            languageId = course.language?.id,
+            language = course.language,
             modules = modules
         )
 

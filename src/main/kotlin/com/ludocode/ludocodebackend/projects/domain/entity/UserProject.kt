@@ -1,6 +1,5 @@
 package com.ludocode.ludocodebackend.projects.domain.entity
 
-import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import com.ludocode.ludocodebackend.projects.domain.enums.ProjectType
 import com.ludocode.ludocodebackend.projects.domain.enums.Visibility
 import jakarta.persistence.*

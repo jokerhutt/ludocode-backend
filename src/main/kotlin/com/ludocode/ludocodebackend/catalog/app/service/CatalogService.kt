@@ -19,7 +19,6 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
-import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
 import com.ludocode.ludocodebackend.lesson.infra.repository.LessonRepository
 import com.ludocode.ludocodebackend.tag.api.dto.TagMetadata
 import com.ludocode.ludocodebackend.tag.infra.repository.TagRepository
@@ -40,7 +39,6 @@ class CatalogService(
     private val moduleMapper: ModuleMapper,
     private val lessonRepository: LessonRepository,
     private val flatCourseTreeMapper: FlatCourseTreeMapper,
-    private val codeLanguagesRepository: CodeLanguagesRepository,
     private val tagRepository: TagRepository,
     private val courseTagRepository: CourseTagRepository,
 ) : CatalogPortForProgress {
@@ -134,9 +132,8 @@ class CatalogService(
         ]
     )
     @Transactional
-    fun updateCourseLanguage(courseId: UUID, languageId: Long) {
+    fun updateCourseLanguage(courseId: UUID, languageName: String) {
         val currentCourse = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
-        val chosenLanguage = codeLanguagesRepository.findById(languageId).orElseThrow { ApiException(ErrorCode.LANGUAGE_NOT_FOUND) }
 
         if (currentCourse.language?.id == chosenLanguage.id) {
             return

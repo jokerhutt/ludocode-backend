@@ -9,5 +9,5 @@ data class CreateCourseRequest(
     val description: String?,
     val courseType: CourseType,
     val courseIcon: String,
-    val languageId: Long?
+    val language: String?
 )

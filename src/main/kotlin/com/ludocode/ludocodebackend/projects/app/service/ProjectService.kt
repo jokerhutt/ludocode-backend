@@ -111,10 +111,27 @@ class ProjectService(
 
     }
 
-    private fun validateFile(file: ProjectFileSnapshot) {
-        val path = file.path
-        val languageName = file.language
-        Languages.validatePath(path, languageName)
+    private fun validateLanguageAndPath(file: ProjectFileSnapshot) {
+        try {
+            Languages.validatePath(file.language, file.path)
+        } catch (e: IllegalArgumentException) {
+            val errorCode = if (e.message?.startsWith("Invalid language:") == true) {
+                ErrorCode.LANGUAGE_NOT_FOUND
+            } else {
+                ErrorCode.INVALID_FILE_PATH
+            }
+            throw ApiException(errorCode, e.message ?: errorCode.defaultMessage)
+        }
+    }
+
+    private fun normalizeAndValidateSubmittedFiles(
+        entryFilePath: String,
+        incomingFiles: List<ProjectFileSnapshot>
+    ): Pair<String, List<ProjectFileSnapshot>> {
+        val normalizedEntryFilePath = ProjectSnapshotValidator.normalizePath(entryFilePath)
+        val normalizedFiles = ProjectSnapshotValidator.validateSnapshotRequest(normalizedEntryFilePath, incomingFiles)
+        normalizedFiles.forEach(::validateLanguageAndPath)
+        return normalizedEntryFilePath to normalizedFiles
     }
 
     @Transactional
@@ -127,10 +144,13 @@ class ProjectService(
         val projectName = request.projectName
         val requestHash = request.requestHash
         val projectType = request.projectType
-        val entryFilePath = request.entryFilePath
 
-        val files = request.files
-        files.forEach { it -> validateFile(it) }
+        val (normalizedEntryFilePath, normalizedFiles) = normalizeAndValidateSubmittedFiles(
+            request.entryFilePath,
+            request.files
+        )
+
+        val now = OffsetDateTime.now(clock)
 
         val newProject = userProjectRepository.save(
             UserProject(
@@ -139,42 +159,20 @@ class ProjectService(
                 userId = userId,
                 projectType = projectType,
                 requestHash = requestHash,
-                createdAt = OffsetDateTime.now(clock),
-                updatedAt = OffsetDateTime.now(clock),
+                entryFilePath = normalizedEntryFilePath,
+                createdAt = now,
+                updatedAt = now,
             )
         )
 
         withMdc(LogFields.PROJECT_ID to newProject.id.toString()) {
 
 
-            files.forEach { it -> {
-                val contentUrl = buildContentUrl(newProject.id, it.path)
-                projectFileRepository.save(ProjectFile(id = UUID.randomUUID(), projectId = newProject.id, contentUrl = contentUrl, it.path, codeLanguage = it.language))
-            } }
-
-            try {
-                storagePortForServices.uploadList(
-                    StoragePutRequestList(
-                        requests = listOf(
-                            StoragePutRequest(
-                                path = ,
-                                content =
-                            )
-                        )
-                    )
-                )
-            } catch (e: Exception) {
-                logger.error(
-                    LogEvents.STORAGE_UPLOAD_FAILED + " {}",
-                    kv(LogFields.FILE_COUNT, 1),
-                    e
-                )
-                throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
-            }
+            overwriteAllFiles(newProject.id, normalizedFiles)
 
             logger.info(
                 LogEvents.PROJECT_CREATED + " {}",
-                kv(LogFields.LANGUAGE, codeLanguage.name)
+                kv(LogFields.FILE_COUNT, normalizedFiles.size)
             )
 
         }
@@ -433,17 +431,16 @@ class ProjectService(
                 throw ApiException(ErrorCode.NOT_OWN_PROJECT)
             }
 
-            val submittedFiles = projectSnapshot.files
-
             val existingFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
-            val normalizedEntryPath = ProjectSnapshotValidator.normalizePath(projectSnapshot.entryFilePath)
+            val (normalizedEntryPath, normalizedSubmittedFiles) = normalizeAndValidateSubmittedFiles(
+                projectSnapshot.entryFilePath,
+                projectSnapshot.files
+            )
 
             val existingFileIdByPath = existingFiles.associate { file ->
                 ProjectSnapshotValidator.normalizePath(file.filePath) to file.id
             }
 
-            val normalizedSubmittedFiles = ProjectSnapshotValidator
-                .validateSnapshotRequest(normalizedEntryPath, submittedFiles)
 
             val resolvedSubmittedFiles = normalizedSubmittedFiles.map { file ->
                 val normalizedPath = ProjectSnapshotValidator.normalizePath(file.path)

@@ -1,6 +1,4 @@
 package com.ludocode.ludocodebackend.projects.domain.entity
-
-import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import jakarta.persistence.*
 import java.util.*
 
