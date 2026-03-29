@@ -107,7 +107,7 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
         val yamlReq = CurriculumYamlRoot(
             title = "Python",
             courseIcon = "STAR",
-            languageId = pythonLanguage.id,
+            language = pythonLanguage,
             description = "Cool Python Stuff",
             courseType = CourseType.COURSE,
             modules = listOf(

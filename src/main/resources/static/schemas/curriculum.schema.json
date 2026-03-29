@@ -4,7 +4,7 @@
   "description": "Schema for Ludocode curriculum YAML",
 
   "type": "object",
-  "required": ["title", "courseType", "modules"],
+  "required": ["title", "courseType", "courseIcon", "modules"],
 
   "properties": {
     "title": { "type": "string" },
@@ -18,8 +18,12 @@
       "enum": ["COURSE", "SKILL_PATH"]
     },
 
-    "languageId": {
-      "type": ["integer", "null"]
+    "courseIcon": {
+      "type": "string"
+    },
+
+    "language": {
+      "type": ["string", "null"]
     },
 
     "modules": {
@@ -351,7 +355,7 @@
       "required": [
         "projectId",
         "projectName",
-        "projectLanguage",
+        "projectType",
         "files",
         "entryFilePath"
       ],
@@ -366,7 +370,10 @@
           "type": "string"
         },
 
-        "projectLanguage": { "$ref": "#/$defs/languageMetadata" },
+        "projectType": {
+          "type": "string",
+          "enum": ["CODE", "WEB"]
+        },
 
         "updatedAt": {
           "type": ["string", "null"],
@@ -385,7 +392,6 @@
         "files": {
           "type": "array",
           "minItems": 1,
-          "maxItems": 1,
           "items": { "$ref": "#/$defs/projectFileSnapshot" }
         }
       }
@@ -406,7 +412,7 @@
         },
 
         "language": {
-          "$ref": "#/$defs/languageMetadata"
+          "type": "string"
         },
 
         "content": {
@@ -416,33 +422,9 @@
     },
 
     "languageMetadata": {
+      "description": "Deprecated legacy language metadata shape; kept only for backward documentation.",
       "type": "object",
-      "required": [
-        "languageId",
-        "name",
-        "slug",
-        "editorId",
-        "pistonId",
-        "runtimeVersion",
-        "extension",
-        "base",
-        "iconName",
-        "initialScript"
-      ],
-      "properties": {
-
-        "languageId": { "type": "integer" },
-        "name": { "type": "string" },
-        "slug": { "type": "string" },
-        "editorId": { "type": "string" },
-        "pistonId": { "type": "string" },
-        "runtimeVersion": { "type": "string" },
-        "extension": { "type": "string" },
-        "base": { "type": "string" },
-        "iconName": { "type": "string" },
-        "initialScript": { "type": "string" }
-
-      }
+      "additionalProperties": true
     }
 
   }

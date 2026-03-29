@@ -31,7 +31,7 @@ class CourseStatusIT : AbstractIntegrationTest() {
         val initialCourseCount = initialCourses.size
         assertThat(initialCourses).allMatch { it.courseStatus == CourseStatus.PUBLISHED }
 
-        val req = CreateCourseRequest(newCourseName, requestHash, "New python course that is awesome", CourseType.COURSE, "Star", pythonLanguage.id)
+        val req = CreateCourseRequest(newCourseName, requestHash, "New python course that is awesome", CourseType.COURSE, "Star", pythonLanguage)
         submitPostCreateCourse(req)
 
         courseRepository.flush()
@@ -68,7 +68,7 @@ class CourseStatusIT : AbstractIntegrationTest() {
         val newCourseName = "Python New"
         val requestHash = UUID.randomUUID()
 
-        val req = CreateCourseRequest(newCourseName, requestHash, "New python course that is awesome", CourseType.COURSE, "Star", pythonLanguage.id)
+        val req = CreateCourseRequest(newCourseName, requestHash, "New python course that is awesome", CourseType.COURSE, "Star", pythonLanguage)
         submitPostCreateCourse(req)
 
         courseRepository.flush()
@@ -85,7 +85,7 @@ class CourseStatusIT : AbstractIntegrationTest() {
         val newCourseName = "Python New"
         val requestHash = UUID.randomUUID()
 
-        val req = CreateCourseRequest(newCourseName, requestHash, "New python course that is awesome", CourseType.COURSE, "Star", pythonLanguage.id)
+        val req = CreateCourseRequest(newCourseName, requestHash, "New python course that is awesome", CourseType.COURSE, "Star", pythonLanguage)
         submitPostCreateCourse(req)
 
         courseRepository.flush()
@@ -113,7 +113,7 @@ class CourseStatusIT : AbstractIntegrationTest() {
 
         val initialCourseCount = submitGetAllCourses().size
 
-        val setupReq = CreateCourseRequest(newCourseName, requestHash, "New python course that is awesome", CourseType.COURSE, "Star", pythonLanguage.id)
+        val setupReq = CreateCourseRequest(newCourseName, requestHash, "New python course that is awesome", CourseType.COURSE, "Star", pythonLanguage)
         submitPostCreateCourse(setupReq)
 
         courseRepository.flush()
@@ -177,21 +177,21 @@ class CourseStatusIT : AbstractIntegrationTest() {
         TestRestClient
             .postOk(
                 "${ApiPaths.SNAPSHOTS.ADMIN_BASE}${ApiPaths.SNAPSHOTS.COURSE}",
-                user1.id!!,
+                user1.id,
                 req,
                 Array<CourseResponse>::class.java
             )
             .toList()
 
     private fun assertPutChangeCourseStatusError(req: CourseStatusRequest, courseId: UUID, errorCode: ErrorCode): ValidatableResponse {
-        return TestRestClient.assertError("PUT", ApiPaths.SNAPSHOTS.byCourseAdminStatus(courseId), user1.id!!, req, errorCode)
+        return TestRestClient.assertError("PUT", ApiPaths.SNAPSHOTS.byCourseAdminStatus(courseId), user1.id, req, errorCode)
     }
 
     private fun submitPutChangeCourseStatus(req: CourseStatusRequest, courseId: UUID): List<CourseResponse> =
         TestRestClient
             .putOk(
                 ApiPaths.SNAPSHOTS.byCourseAdminStatus(courseId),
-                user1.id!!,
+                user1.id,
                 req,
                 Array<CourseResponse>::class.java
             )
@@ -201,9 +201,8 @@ class CourseStatusIT : AbstractIntegrationTest() {
         TestRestClient
             .getOk(
                 "${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.COURSES}",
-                user1.id!!,
+                user1.id,
                 Array<CourseResponse>::class.java
             )
             .toList()
 }
-

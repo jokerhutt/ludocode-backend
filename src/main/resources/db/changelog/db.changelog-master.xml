@@ -53,5 +53,6 @@
 
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>
+    <include file="/db/changelog/046-remove-language-fks-use-code-language-string.xml"/>
 
 </databaseChangeLog>

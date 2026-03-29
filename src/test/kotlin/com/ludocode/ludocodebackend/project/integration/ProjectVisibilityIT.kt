@@ -38,7 +38,6 @@ class ProjectVisibilityIT : AbstractIntegrationTest() {
                 id = UUID.randomUUID(),
                 name = "Untitled",
                 userId = user1.id!!,
-                codeLanguage = pythonLanguage,
                 createdAt = OffsetDateTime.now(clock).minusDays(2),
                 updatedAt = OffsetDateTime.now(clock).minusDays(1),
                 requestHash = UUID.randomUUID(),
@@ -62,7 +61,6 @@ class ProjectVisibilityIT : AbstractIntegrationTest() {
                     id = f1Id,
                     projectId = existingProject.id,
                     contentUrl = f1Url,
-                    contentHash = sha256(f1Content),
                     filePath = f1Path,
                     codeLanguage = pythonLanguage
                 ),
@@ -70,7 +68,6 @@ class ProjectVisibilityIT : AbstractIntegrationTest() {
                     id = f2Id,
                     projectId = existingProject.id,
                     contentUrl = f2Url,
-                    contentHash = sha256(f2Content),
                     filePath = f2Path,
                     codeLanguage = pythonLanguage
                 )

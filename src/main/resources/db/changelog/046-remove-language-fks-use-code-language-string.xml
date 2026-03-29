@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+      http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="046-001-add-string-language-columns-and-backfill" author="david" dbms="postgresql">
+        <sql>
+            ALTER TABLE project_file ADD COLUMN IF NOT EXISTS code_language TEXT;
+            ALTER TABLE course ADD COLUMN IF NOT EXISTS code_language TEXT;
+
+            UPDATE project_file pf
+            SET code_language = cl.slug
+            FROM code_languages cl
+            WHERE pf.code_language IS NULL
+              AND pf.code_language_id = cl.id;
+
+            UPDATE course c
+            SET code_language = cl.slug
+            FROM code_languages cl
+            WHERE c.code_language IS NULL
+              AND c.code_language_id = cl.id;
+        </sql>
+    </changeSet>
+
+    <changeSet id="046-002-drop-fk-language-columns" author="david" dbms="postgresql">
+        <sql>
+            ALTER TABLE project_file DROP CONSTRAINT IF EXISTS fk_project_file_code_language;
+            ALTER TABLE user_project DROP CONSTRAINT IF EXISTS fk_user_project_code_language;
+            ALTER TABLE course DROP CONSTRAINT IF EXISTS fk_course_code_language;
+
+            ALTER TABLE project_file DROP COLUMN IF EXISTS code_language_id;
+            ALTER TABLE user_project DROP COLUMN IF EXISTS code_language_id;
+            ALTER TABLE course DROP COLUMN IF EXISTS code_language_id;
+        </sql>
+    </changeSet>
+
+    <changeSet id="046-003-drop-code-languages-table" author="david" dbms="postgresql">
+        <sql>
+            DROP TABLE IF EXISTS code_languages;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
+

@@ -6,7 +6,6 @@ import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsReposi
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
-import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.LessonSnap
 import com.ludocode.ludocodebackend.lesson.app.service.LessonService
 import com.ludocode.ludocodebackend.lesson.app.service.admin.LessonSnapshotService
@@ -21,7 +20,6 @@ class TestSnapshotService(
     private val moduleLessonsRepository: ModuleLessonsRepository,
     private val lessonService: LessonService,
     private val lessonSnapshotService: LessonSnapshotService,
-    private val languagesMapper: LanguagesMapper
 ) {
 
     @Transactional
@@ -37,7 +35,7 @@ class TestSnapshotService(
             buildModuleSnapshot(module)
         }
 
-        val codeLanguage = course.language?.let { lang -> languagesMapper.toLanguageMetadata(lang) }
+        val codeLanguage = course.language
 
         return CourseSnap(
             courseId,
