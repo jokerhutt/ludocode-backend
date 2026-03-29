@@ -59,18 +59,17 @@
                 course_status,
                 code_language
             )
-            SELECT
-                '75975805-3f02-43c2-9106-c990d944dfd2',
-                'Python',
-                'Simple and Versatile language',
-                NULL,
-                '6873b087-9f85-4f1d-8bc9-04a84e704a29',
-                'COURSE',
-                'Python',
-                'PUBLISHED',
-                'python'
-            FROM code_languages cl
-            WHERE cl.slug = 'python'
+            VALUES (
+                       '75975805-3f02-43c2-9106-c990d944dfd2',
+                       'Python',
+                       'Simple and Versatile language',
+                       NULL,
+                       '6873b087-9f85-4f1d-8bc9-04a84e704a29',
+                       'COURSE',
+                       'Python',
+                       'PUBLISHED',
+                       'python'
+                   )
             ON CONFLICT (id) DO NOTHING;
         </sql>
     </changeSet>
