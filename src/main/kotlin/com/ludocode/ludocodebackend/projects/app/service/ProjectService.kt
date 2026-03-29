@@ -7,6 +7,7 @@ import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.commons.util.sha256
 import com.ludocode.ludocodebackend.languages.api.dto.Languages
+import com.ludocode.ludocodebackend.languages.configuration.HostedFilesProperties
 import com.ludocode.ludocodebackend.projects.api.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
@@ -17,6 +18,7 @@ import com.ludocode.ludocodebackend.projects.app.mapper.ProjectMapper
 import com.ludocode.ludocodebackend.projects.app.util.ProjectSnapshotValidator
 import com.ludocode.ludocodebackend.projects.domain.entity.ProjectFile
 import com.ludocode.ludocodebackend.projects.domain.entity.UserProject
+import com.ludocode.ludocodebackend.projects.domain.enums.ProjectType
 import com.ludocode.ludocodebackend.projects.domain.enums.Visibility
 import com.ludocode.ludocodebackend.projects.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.projects.infra.repository.UserProjectRepository
@@ -45,6 +47,7 @@ class ProjectService(
     private val storagePortForServices: StoragePortForServices,
     private val subscriptionService: SubscriptionService,
     private val projectCardMapper: ProjectCardMapper,
+    private val hostedFilesProperties: HostedFilesProperties
 ) {
 
     private val logger = LoggerFactory.getLogger(ProjectService::class.java)
@@ -52,6 +55,10 @@ class ProjectService(
     private fun buildContentUrl(projectId: UUID, filePath: String): String {
         val normalizedPath = ProjectSnapshotValidator.normalizePath(filePath)
         return "$projectId/$normalizedPath"
+    }
+
+    private fun buildHostedFilesUrl(hostedFilesBase: String, projectId: UUID, filePath: String): String {
+        return "$hostedFilesBase/$projectId/$filePath"
     }
 
     fun existsById(projectId: UUID) : Boolean {
@@ -139,7 +146,6 @@ class ProjectService(
 
         withMdc(LogFields.PROJECT_ID to newProject.id.toString()) {
 
-            val initialFiles = mutableListOf(StoragePu)
 
             files.forEach { it -> {
                 val contentUrl = buildContentUrl(newProject.id, it.path)
@@ -208,9 +214,6 @@ class ProjectService(
             val projectName = project.name
             val projectType = project.projectType
             val deleteAt = project.deleteAt
-            val projectLanguage = project.codeLanguage
-            val enabled = projectLanguage.isEnabled
-            val disabledReason = projectLanguage.disabledReason
             val entryFilePath = project.entryFilePath
                 ?: throw ApiException(ErrorCode.ENTRY_FILE_NOT_FOUND)
             val normalizedEntryFilePath = ProjectSnapshotValidator.normalizePath(entryFilePath)
@@ -229,11 +232,12 @@ class ProjectService(
                 kv(LogFields.HITS, fileContentsMap.content.size),
             )
 
+            val filesUrl = if (projectType != ProjectType.WEB) null else buildHostedFilesUrl(hostedFilesProperties.url, projectId, entryFilePath)
+
             projectMapper.toProjectSnapshot(
                 projectId,
                 projectName,
-                projectType,
-                projectLanguage,
+                filesUrl,
                 lastUpdated,
                 deleteAt,
                 projectFiles,
@@ -267,7 +271,6 @@ class ProjectService(
                 userId = userId,
                 requestHash = UUID.randomUUID(),
                 deleteAt = null,
-                codeLanguage = sourceProject.codeLanguage,
                 projectVisibility = Visibility.PRIVATE,
                 projectType = sourceProject.projectType,
                 createdAt = now,
@@ -306,7 +309,6 @@ class ProjectService(
                         id = duplicatedFileId,
                         projectId = duplicatedProject.id,
                         contentUrl = duplicatedContentUrl,
-                        contentHash = sha256(content),
                         filePath = sourceFile.filePath,
                         codeLanguage = sourceFile.codeLanguage,
                     )

@@ -1,3 +1,4 @@
+        assertErrorOnSave(user1.id!!, snapshotCopy, ErrorCode.INVALID_PROJECT_FILE_REFERENCE)
 package com.ludocode.ludocodebackend.project.integration
 
 import com.google.cloud.storage.BlobInfo
@@ -326,8 +327,8 @@ class UserProjectIT : AbstractIntegrationTest() {
         assertThat(res.files.map { it.path }).containsExactly("app.py", "script-1.py")
     }
 
-    @Test
     fun saveProject_fileIdFromAnotherProject_ignoresIncomingIdAndSaves() {
+    fun saveProject_fileIdFromAnotherProject_returnsInvalidProjectFileReference() {
         val foreignProject = userProjectRepository.save(
             UserProject(
                 id = UUID.randomUUID(),
@@ -358,10 +359,10 @@ class UserProjectIT : AbstractIntegrationTest() {
         modifiedFiles[1] = modifiedFiles[1].copy(id = foreignFile.id)
 
         val snapshotCopy = snapshot.copy(files = modifiedFiles)
-
         val res = submitPutSaveProject(user1.id!!, snapshotCopy)
         assertThat(res.files.size).isEqualTo(2)
         assertThat(res.files.map { it.path }).containsExactly("script.py", "script-1.py")
+        assertErrorOnSave(user1.id!!, snapshotCopy, ErrorCode.INVALID_PROJECT_FILE_REFERENCE)
     }
 
     @Test

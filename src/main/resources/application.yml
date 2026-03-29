@@ -97,6 +97,10 @@ app:
   frontend-url: ${FRONTEND_URL}
   gcs-host:
 
+hosted:
+  enabled: ${HOSTED_FILES_ENABLED:false}
+  url: ${HOSTED_FILES_URL}}
+
 # mode: local, s3, gcs
 storage:
   mode: ${STORAGE_MODE:local}
