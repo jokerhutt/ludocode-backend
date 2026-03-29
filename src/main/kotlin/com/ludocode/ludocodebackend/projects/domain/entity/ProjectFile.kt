@@ -17,14 +17,10 @@ class ProjectFile(
     @Column(name = "content_url")
     var contentUrl: String,
 
-    @Column(name = "content_hash")
-    var contentHash: String,
-
     @Column(name = "file_path")
     var filePath: String,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "code_language_id", nullable = false)
-    val codeLanguage: CodeLanguages
+    @Column(name = "code_language")
+    val codeLanguage: String
 
 )

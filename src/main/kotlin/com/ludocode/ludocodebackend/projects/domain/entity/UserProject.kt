@@ -34,7 +34,7 @@ class UserProject(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "code_language_id")
-    val codeLanguage: CodeLanguages,
+    val codeLanguage: CodeLanguages? = null,
 
     @Column(name = "entry_file_path")
     var entryFilePath: String? = null,

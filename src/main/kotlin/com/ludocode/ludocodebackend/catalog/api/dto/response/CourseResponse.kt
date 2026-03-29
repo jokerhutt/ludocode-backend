@@ -11,7 +11,7 @@ data class CourseResponse(
     val title: String,
     val courseType: CourseType,
     val courseIcon: String,
-    val language: LanguageMetadata?,
+    val codeLanguage: String?,
     val tags: List<TagMetadata>,
     val courseStatus: CourseStatus,
     val description: String

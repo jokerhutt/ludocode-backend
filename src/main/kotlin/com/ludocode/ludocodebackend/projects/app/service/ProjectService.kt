@@ -6,13 +6,12 @@ import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.commons.util.sha256
-import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
+import com.ludocode.ludocodebackend.languages.api.dto.Languages
 import com.ludocode.ludocodebackend.projects.api.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.request.RenameProjectRequest
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardListResponse
-import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectSnapshotDiff
 import com.ludocode.ludocodebackend.projects.app.mapper.ProjectCardMapper
 import com.ludocode.ludocodebackend.projects.app.mapper.ProjectMapper
 import com.ludocode.ludocodebackend.projects.app.util.ProjectSnapshotValidator
@@ -44,7 +43,6 @@ class ProjectService(
     private val projectMapper: ProjectMapper,
     private val clock: Clock,
     private val storagePortForServices: StoragePortForServices,
-    private val codeLanguagesRepository: CodeLanguagesRepository,
     private val subscriptionService: SubscriptionService,
     private val projectCardMapper: ProjectCardMapper,
 ) {
@@ -106,6 +104,12 @@ class ProjectService(
 
     }
 
+    private fun validateFile(file: ProjectFileSnapshot) {
+        val path = file.path
+        val languageName = file.language
+        Languages.validatePath(path, languageName)
+    }
+
     @Transactional
     internal fun createProject(request: CreateProjectRequest, userId: UUID) {
 
@@ -115,52 +119,40 @@ class ProjectService(
 
         val projectName = request.projectName
         val requestHash = request.requestHash
-        val languageId = request.projectLanguageId
         val projectType = request.projectType
+        val entryFilePath = request.entryFilePath
 
-
-        val codeLanguage = codeLanguagesRepository.findById(languageId)
-            .orElseThrow { ApiException(ErrorCode.LANGUAGE_NOT_FOUND) }
+        val files = request.files
+        files.forEach { it -> validateFile(it) }
 
         val newProject = userProjectRepository.save(
             UserProject(
                 id = UUID.randomUUID(),
                 name = projectName,
                 userId = userId,
+                projectType = projectType,
                 requestHash = requestHash,
-                codeLanguage = codeLanguage,
                 createdAt = OffsetDateTime.now(clock),
                 updatedAt = OffsetDateTime.now(clock),
-                projectType = projectType
             )
         )
 
         withMdc(LogFields.PROJECT_ID to newProject.id.toString()) {
 
-            val firstFileName = getFirstFileName(base = codeLanguage.base, extension = codeLanguage.extension)
-            val firstFileId = UUID.randomUUID()
-            val firstFileContentUrl = buildContentUrl(newProject.id, firstFileName)
-            val firstFileContent = codeLanguage.initialScript ?: ""
-            projectFileRepository.save(
-                ProjectFile(
-                    id = firstFileId,
-                    projectId = newProject.id,
-                    contentUrl = firstFileContentUrl,
-                    filePath = firstFileName,
-                    codeLanguage = codeLanguage,
-                    contentHash = sha256(firstFileContent)
-                )
-            )
+            val initialFiles = mutableListOf(StoragePu)
 
-            newProject.entryFilePath = ProjectSnapshotValidator.normalizePath(firstFileName)
+            files.forEach { it -> {
+                val contentUrl = buildContentUrl(newProject.id, it.path)
+                projectFileRepository.save(ProjectFile(id = UUID.randomUUID(), projectId = newProject.id, contentUrl = contentUrl, it.path, codeLanguage = it.language))
+            } }
 
             try {
                 storagePortForServices.uploadList(
                     StoragePutRequestList(
                         requests = listOf(
                             StoragePutRequest(
-                                path = firstFileContentUrl,
-                                content = firstFileContent
+                                path = ,
+                                content =
                             )
                         )
                     )
@@ -483,10 +475,10 @@ class ProjectService(
             val fileId = file.id ?: UUID.randomUUID()
             val normalizedPath = ProjectSnapshotValidator.normalizePath(file.path)
             val contentUrl = buildContentUrl(projectId, file.path)
+            val languageName = file.language
 
             gcsRequests.add(StoragePutRequest(contentUrl, file.content))
 
-            val language = codeLanguagesRepository.getReferenceById(file.language.languageId)
 
             projectFileRepository.save(
                 ProjectFile(
@@ -494,8 +486,7 @@ class ProjectService(
                     projectId = projectId,
                     contentUrl = contentUrl,
                     filePath = normalizedPath,
-                    contentHash = sha256(file.content),
-                    codeLanguage = language
+                    codeLanguage = languageName
                 )
             )
         }
@@ -561,14 +552,6 @@ class ProjectService(
         }
     }
 
-    private fun hasProjectChanged(projectSnapshotDiff: ProjectSnapshotDiff): Boolean {
-        if (projectSnapshotDiff.toAdd.isNotEmpty()) return true
-        if (projectSnapshotDiff.toUpdate.isNotEmpty()) return true
-        if (projectSnapshotDiff.toDeleteFiles.isNotEmpty()) return true
-        return false
-    }
-
-
     private fun deleteFiles(projectId: UUID, projectFilesToDelete: List<ProjectFile>) {
 
         val toDeletePaths = projectFilesToDelete.map { it -> it.contentUrl }
@@ -589,89 +572,6 @@ class ProjectService(
                 kv(LogFields.FILE_COUNT, toDeletePaths.size),
                 e
             )
-        }
-
-    }
-
-    private fun saveNewFiles(projectId: UUID, files: List<ProjectFileSnapshot>) {
-
-        val gcsRequests = mutableListOf<StoragePutRequest>()
-
-        for (file in files) {
-            val hash = sha256(file.content)
-
-            val fileId = file.id ?: UUID.randomUUID()
-            val normalizedPath = ProjectSnapshotValidator.normalizePath(file.path)
-
-            val contentUrl = buildContentUrl(projectId, file.path)
-            gcsRequests.add(StoragePutRequest(contentUrl, file.content))
-
-            val language = codeLanguagesRepository.getReferenceById(file.language.languageId)
-
-            projectFileRepository.save(
-                ProjectFile(
-                    id = fileId,
-                    projectId = projectId,
-                    contentUrl = contentUrl,
-                    filePath = normalizedPath,
-                    contentHash = hash,
-                    codeLanguage = language
-                )
-            )
-        }
-
-        try {
-            storagePortForServices.uploadList(StoragePutRequestList(requests = gcsRequests))
-        } catch (e: Exception) {
-            logger.error(
-                LogEvents.STORAGE_UPLOAD_FAILED + " {} {}",
-                kv(LogFields.PROJECT_ID, projectId.toString()),
-                kv(LogFields.FILE_COUNT, gcsRequests.size),
-                e
-            )
-            throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
-        }
-
-    }
-
-    private fun updateChangedFiles(projectId: UUID, files: List<ProjectFileSnapshot>) {
-
-        val gcsRequests = mutableListOf<StoragePutRequest>()
-
-        for (file in files) {
-            if (file.id == null) throw ApiException(
-                ErrorCode.PROJECT_FILE_ID_NULL,
-                "The Project file id is null for an existing file"
-            )
-
-
-            val normalizedPath = ProjectSnapshotValidator.normalizePath(file.path)
-            val contentUrl = buildContentUrl(projectId, file.path)
-            gcsRequests.add(StoragePutRequest(contentUrl, file.content))
-
-            val existingFile = projectFileRepository.findById(file.id)
-                .orElseThrow { ApiException(ErrorCode.PROJECT_FILE_NOT_FOUND) }
-
-            val newHash = sha256(file.content)
-            val newPath = normalizedPath
-
-            existingFile.contentHash = newHash
-            existingFile.filePath = newPath
-            existingFile.contentUrl = contentUrl
-
-            projectFileRepository.save(existingFile)
-        }
-
-        try {
-            storagePortForServices.uploadList(StoragePutRequestList(requests = gcsRequests))
-        } catch (e: Exception) {
-            logger.error(
-                LogEvents.STORAGE_UPLOAD_FAILED + " {} {}",
-                kv(LogFields.PROJECT_ID, projectId.toString()),
-                kv(LogFields.FILE_COUNT, gcsRequests.size),
-                e
-            )
-            throw ApiException(ErrorCode.GCS_UPLOAD_FAILED, "Failed to upload files to GCS: ${e.message}")
         }
 
     }
