@@ -19,6 +19,7 @@ data class LessonDraftSnapshot(
     val id: UUID,
     val lessonType: LessonType,
     var title: String,
+    var projectSnapshot: ProjectSnapshot? = null,
 )
 
 data class LessonCurriculumDraftSnapshot(

@@ -10,7 +10,7 @@ object Languages {
 
     private val all = listOf(JavaScript, Python, HTML, CSS, Lua)
 
-    private val byName = all.associateBy { it.name }
+    val byName = all.associateBy { it.name }
 
     fun validatePath(name: String, path: String): LanguageMetadata {
         val lang = byName[name.lowercase()]

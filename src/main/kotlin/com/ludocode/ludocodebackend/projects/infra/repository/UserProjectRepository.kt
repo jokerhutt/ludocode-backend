@@ -35,9 +35,7 @@ interface UserProjectRepository : JpaRepository<UserProject, UUID> {
         p.updatedAt as updatedAt,
         p.deleteAt as deleteAt,
         p.projectVisibility as visibility,
-        p.projectType as projectType,
-        p.codeLanguage.iconName as languageIconName,
-        p.codeLanguage.name as languageName
+        p.projectType as projectType
     FROM UserProject p
     WHERE p.userId = :userId
     ORDER BY p.updatedAt DESC
@@ -63,9 +61,7 @@ interface UserProjectRepository : JpaRepository<UserProject, UUID> {
             p.deleteAt as deleteAt,
             p.updatedAt as updatedAt,
             p.projectVisibility as visibility,
-            p.projectType as projectType,
-            p.codeLanguage.iconName as languageIconName,
-            p.codeLanguage.name as languageName
+            p.projectType as projectType
         FROM UserProject p
         WHERE p.projectVisibility = 'PUBLIC'
           AND p.deleteAt IS NULL

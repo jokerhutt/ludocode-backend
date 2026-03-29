@@ -13,9 +13,5 @@ interface ProjectCardProjection {
     fun getUpdatedAt(): OffsetDateTime
     fun getVisibility(): Visibility
     fun getProjectType(): ProjectType
-
-    fun getLanguageIconName(): String
-    fun getLanguageName(): String
-
     fun getDeleteAt(): OffsetDateTime?
 }

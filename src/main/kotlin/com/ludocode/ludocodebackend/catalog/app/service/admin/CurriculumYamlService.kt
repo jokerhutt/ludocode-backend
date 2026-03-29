@@ -72,6 +72,7 @@ class CurriculumYamlService(
                             id = lessonId,
                             title = lesson.title,
                             lessonType = lesson.lessonType,
+                            projectSnapshot = lesson.projectSnapshot,
                         )
                     }
                 )
