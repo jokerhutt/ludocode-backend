@@ -191,6 +191,135 @@ class UserProjectIT : AbstractIntegrationTest() {
         assertThat(res.files).hasSize(2)
     }
 
+    @Test
+    fun duplicateProject_copiesAllFilesAndContent() {
+        val originalSnapshot = submitGetProjectSnapshot(existingProject.id, user1.id!!)
+        val duplicatedId = submitPostDuplicateProject(existingProject.id, user1.id!!)
+
+        val projects = submitGetUserProjects(user1.id!!)
+        assertThat(projects.projects).hasSize(2)
+
+        val duplicatedSnapshot = submitGetProjectSnapshot(duplicatedId, user1.id!!)
+        assertThat(duplicatedSnapshot.projectId).isNotEqualTo(existingProject.id)
+        assertThat(duplicatedSnapshot.projectName).isEqualTo(originalSnapshot.projectName)
+        assertThat(duplicatedSnapshot.entryFilePath).isEqualTo(originalSnapshot.entryFilePath)
+        assertThat(duplicatedSnapshot.files).hasSize(originalSnapshot.files.size)
+        assertThat(duplicatedSnapshot.files.map { it.path })
+            .containsExactlyInAnyOrderElementsOf(originalSnapshot.files.map { it.path })
+        assertThat(duplicatedSnapshot.files.map { it.content })
+            .containsExactlyInAnyOrderElementsOf(originalSnapshot.files.map { it.content })
+    }
+
+    @Test
+    fun duplicateProject_modifyOriginalAfterDuplicate_duplicateUnaffected() {
+        val duplicatedId = submitPostDuplicateProject(existingProject.id, user1.id!!)
+
+        val originalSnapshot = submitGetProjectSnapshot(existingProject.id, user1.id!!)
+        val modifiedFiles = originalSnapshot.files.map { it.copy(content = "print('modified')") }
+        submitPutSaveProject(user1.id!!, originalSnapshot.copy(files = modifiedFiles))
+
+        val duplicatedSnapshot = submitGetProjectSnapshot(duplicatedId, user1.id!!)
+        assertThat(duplicatedSnapshot.files.map { it.content })
+            .containsExactlyInAnyOrder("print('hello world!')", "print('bye world!')")
+    }
+
+    @Test
+    fun saveProject_updateContentOnly_pathsAndCountPreserved() {
+        val snapshot = submitGetProjectSnapshot(existingProject.id, user1.id!!)
+        val originalPaths = snapshot.files.map { it.path }
+
+        val updatedFiles = snapshot.files.map { it.copy(content = "# updated content") }
+        val res = submitPutSaveProject(user1.id!!, snapshot.copy(files = updatedFiles))
+
+        assertThat(res.files).hasSize(snapshot.files.size)
+        assertThat(res.files.map { it.path }).containsExactlyElementsOf(originalPaths)
+        assertThat(res.files.map { it.content }).containsOnly("# updated content")
+    }
+
+    @Test
+    fun saveProject_notOwnProject_returnsError() {
+        val snapshot = submitGetProjectSnapshot(existingProject.id, user1.id!!)
+        assertErrorOnSave(user2.id!!, snapshot, ErrorCode.NOT_OWN_PROJECT)
+    }
+
+    @Test
+    fun deleteProject_notOwnProject_returnsError() {
+        assertErrorOnDelete(existingProject.id, user2.id!!, ErrorCode.NOT_OWN_PROJECT)
+
+        val res = submitGetUserProjects(user1.id!!)
+        assertThat(res.projects).hasSize(1)
+    }
+
+    @Test
+    fun saveProject_consecutiveSaves_returnsLatestState() {
+        val snapshot = submitGetProjectSnapshot(existingProject.id, user1.id!!)
+
+        val firstSaveFiles = snapshot.files.map { it.copy(content = "print('version 1')") }
+        submitPutSaveProject(user1.id!!, snapshot.copy(files = firstSaveFiles))
+
+        val snapshotAfterFirst = submitGetProjectSnapshot(existingProject.id, user1.id!!)
+        val secondSaveFiles = snapshotAfterFirst.files.map { it.copy(content = "print('version 2')") }
+        val finalRes = submitPutSaveProject(user1.id!!, snapshotAfterFirst.copy(files = secondSaveFiles))
+
+        assertThat(finalRes.files.map { it.content }).containsOnly("print('version 2')")
+    }
+
+    // --- edge cases ---
+
+    @Test
+    fun getProject_nonExistentProject_returnsNotFound() {
+        assertErrorOnGet(UUID.randomUUID(), user1.id!!, ErrorCode.PROJECT_NOT_FOUND)
+    }
+
+    @Test
+    fun saveProject_nonExistentProject_returnsNotFound() {
+        val fakeSnapshot = ProjectSnapshot(
+            projectId = UUID.randomUUID(),
+            projectName = "Ghost Project",
+            projectType = ProjectType.CODE,
+            updatedAt = null,
+            deleteAt = null,
+            files = listOf(ProjectFileSnapshot(null, "script.py", pythonLanguage, "print('hello')")),
+            entryFilePath = "script.py"
+        )
+        assertErrorOnSave(user1.id!!, fakeSnapshot, ErrorCode.PROJECT_NOT_FOUND)
+    }
+
+    @Test
+    fun saveProject_entryFilePathNotInFiles_returnsError() {
+        val snapshot = submitGetProjectSnapshot(existingProject.id, user1.id!!)
+        assertErrorOnSave(user1.id!!, snapshot.copy(entryFilePath = "nonexistent.py"), ErrorCode.NO_DELETE_ENTRY_FILE)
+    }
+
+    @Test
+    fun saveProject_fileContentExceedsLimit_returnsError() {
+        val snapshot = submitGetProjectSnapshot(existingProject.id, user1.id!!)
+        val oversizedFiles = snapshot.files.mapIndexed { i, file ->
+            if (i == 0) file.copy(content = "x".repeat(512_001)) else file
+        }
+        assertErrorOnSave(user1.id!!, snapshot.copy(files = oversizedFiles), ErrorCode.FILE_TOO_LARGE)
+    }
+
+    @Test
+    fun duplicateProject_otherUsersPrivateProject_returnsError() {
+        // existingProject is PRIVATE by default
+        assertErrorOnDuplicate(existingProject.id, user2.id!!, ErrorCode.NOT_OWN_PROJECT)
+    }
+
+    @Test
+    fun duplicateProject_deleteOriginalAfterDuplicate_duplicateStillAccessible() {
+        val duplicatedId = submitPostDuplicateProject(existingProject.id, user1.id!!)
+
+        submitDeleteProject(existingProject.id, user1.id!!)
+
+        assertErrorOnGet(existingProject.id, user1.id!!, ErrorCode.PROJECT_NOT_FOUND)
+
+        val duplicatedSnapshot = submitGetProjectSnapshot(duplicatedId, user1.id!!)
+        assertThat(duplicatedSnapshot.files).hasSize(2)
+        assertThat(duplicatedSnapshot.files.map { it.content })
+            .containsExactlyInAnyOrder("print('hello world!')", "print('bye world!')")
+    }
+
     private fun newProjectRequest(name: String, filePath: String, language: String, content: String): CreateProjectRequest =
         CreateProjectRequest(
             projectName = name,
@@ -231,5 +360,14 @@ class UserProjectIT : AbstractIntegrationTest() {
 
     private fun assertErrorOnSave(userId: UUID, snapshot: ProjectSnapshot, errorCode: ErrorCode): ValidatableResponse =
         TestRestClient.assertError("PUT", ApiPaths.PROJECTS.byId(snapshot.projectId), userId, snapshot, errorCode)
+
+    private fun submitPostDuplicateProject(pid: UUID, userId: UUID): UUID =
+        TestRestClient.postOk(ApiPaths.PROJECTS.duplicateById(pid), userId, null, UUID::class.java)
+
+    private fun assertErrorOnDuplicate(pid: UUID, userId: UUID, errorCode: ErrorCode): ValidatableResponse =
+        TestRestClient.assertError("POST", ApiPaths.PROJECTS.duplicateById(pid), userId, null, errorCode)
+
+    private fun assertErrorOnDelete(pid: UUID, userId: UUID, errorCode: ErrorCode): ValidatableResponse =
+        TestRestClient.assertError("DELETE", ApiPaths.PROJECTS.byId(pid), userId, null, errorCode)
 
 }
