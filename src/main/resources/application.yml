@@ -97,6 +97,9 @@ app:
   frontend-url: ${FRONTEND_URL}
   gcs-host:
 
+maintenance:
+  enabled: ${MAINTENANCE_ENABLED:false}
+
 # mode: local, s3, gcs
 storage:
   mode: ${STORAGE_MODE:local}

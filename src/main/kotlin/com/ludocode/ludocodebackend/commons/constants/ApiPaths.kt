@@ -180,6 +180,10 @@ object ApiPaths {
         const val CAREERS = "/careers"
     }
 
+    object MAINTENANCE {
+        const val BASE = "$API_PREFIX/maintenance"
+    }
+
     object USERS {
         const val BASE = "$API_PREFIX/users"
         const val ME = "/me"
