@@ -29,7 +29,7 @@ class AwsS3ClientConfig(
                 .endpointOverride(URI.create(endpoint))
                 .serviceConfiguration(
                     S3Configuration.builder()
-                        .pathStyleAccessEnabled(true)
+                        .pathStyleAccessEnabled(false)
                         .build()
                 )
         }
