@@ -112,7 +112,6 @@ storage:
   s3:
     region: ${AWS_REGION:eu-central-1}
     bucket: ${S3_BUCKET_NAME}
-    endpoint: ${S3_ENDPOINT}
   local:
     bucket-name: ${LOCAL_BUCKET_NAME:/data/local-bucket}
 
