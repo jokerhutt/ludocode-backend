@@ -30,6 +30,9 @@ spring:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     contexts: test
 
+maintenance:
+  enabled: ${MAINTENANCE_ENABLED:false}
+
 server:
   port: 18080
 

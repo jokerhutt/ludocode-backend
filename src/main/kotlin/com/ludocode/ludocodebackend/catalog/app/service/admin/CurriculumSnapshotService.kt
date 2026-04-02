@@ -20,10 +20,8 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
-import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.HeaderBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ParagraphBlock
-import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
 import com.ludocode.ludocodebackend.lesson.domain.entity.Exercise
 import com.ludocode.ludocodebackend.lesson.domain.entity.Lesson
 import com.ludocode.ludocodebackend.lesson.domain.entity.LessonExercise
@@ -36,16 +34,12 @@ import com.ludocode.ludocodebackend.lesson.domain.jsonb.InstructionsBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.TestType
 import com.ludocode.ludocodebackend.lesson.infra.repository.*
 import com.ludocode.ludocodebackend.progress.infra.repository.CourseProgressRepository
-import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
-import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
-import com.ludocode.ludocodebackend.projects.domain.enums.Visibility
 import com.ludocode.ludocodebackend.tag.api.dto.TagMetadata
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Caching
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
 import java.util.*
@@ -61,9 +55,7 @@ class CurriculumSnapshotService(
     private val courseMapper: CourseMapper,
     private val lessonRepository: LessonRepository,
     private val courseProgressRepository: CourseProgressRepository,
-    private val codeLanguagesRepository: CodeLanguagesRepository,
     private val courseTagRepository: CourseTagRepository,
-    private val languagesMapper: LanguagesMapper,
 ) {
 
     private val logger = LoggerFactory.getLogger(CurriculumSnapshotService::class.java)
@@ -146,29 +138,8 @@ class CurriculumSnapshotService(
                     )
 
                     if (lesson.lessonType == LessonType.GUIDED) {
-
-                        val courses = courseRepository.findAllWithLanguagesIncludingDraft()
-                        val course = courses.find { it -> it.id == courseId } ?: throw ApiException(ErrorCode.COURSE_NOT_FOUND)
-                        val language = course.language ?: throw ApiException(ErrorCode.LANGUAGE_NOT_FOUND, "Guided lessons course must have a language")
-
-                        val initialFileId = UUID.randomUUID()
-
-                        val initialFile = ProjectFileSnapshot(
-                            id = initialFileId,
-                            path = "${language.base}${language.base}",
-                            language = languagesMapper.toLanguageMetadata(language),
-                            content = ""
-                        )
-
-                        lesson.projectSnapshot = ProjectSnapshot(
-                            projectId = UUID.randomUUID(),
-                            projectName = "printing hello world",
-                            projectLanguage = languagesMapper.toLanguageMetadata(language),
-                            updatedAt = OffsetDateTime.now(),
-                            deleteAt = null,
-                            files = listOf(initialFile),
-                            entryFileId = initialFileId,
-                        )
+                        lesson.projectSnapshot = lessonSnapshot.projectSnapshot
+                            ?: throw ApiException(ErrorCode.GUIDED_LESSON_NEEDS_SNAPSHOT)
                     }
 
                 }
@@ -284,20 +255,15 @@ class CurriculumSnapshotService(
         val newModuleId = UUID.randomUUID()
         val newLessonId = UUID.randomUUID()
         val newExerciseId = UUID.randomUUID()
-
-
-        val codeLanguage =
-            request.languageId?.let { id ->
-                codeLanguagesRepository.findByIdOrNull(id)
-                    ?: throw ApiException(ErrorCode.LANGUAGE_NOT_FOUND)
-            }
+        val courseLanguage = request.language
+            ?: throw ApiException(ErrorCode.LANGUAGE_NOT_FOUND)
 
         val newCourse = Course(
             id = newCourseId,
             title = newCourseName,
             requestHash = newCourseHash,
             courseType = newCourseType,
-            language = codeLanguage,
+            language = courseLanguage,
             courseIcon = newCourseIcon,
             description = newCourseDescription,
             courseStatus = CourseStatus.DRAFT
@@ -386,6 +352,7 @@ class CurriculumSnapshotService(
                 id = lesson.id,
                 title = lesson.title,
                 lessonType = lesson.lessonType,
+                projectSnapshot = lesson.projectSnapshot,
             )
         }
 

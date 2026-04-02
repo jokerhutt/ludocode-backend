@@ -2,10 +2,8 @@ package com.ludocode.ludocodebackend.catalog.domain.entity
 
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseStatus
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
-import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
 import jakarta.persistence.*
 import org.hibernate.annotations.JdbcTypeCode
-import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.Where
 import org.hibernate.type.SqlTypes
 import java.util.*
@@ -38,9 +36,8 @@ class Course(
     @Column(name = "course_icon")
     var courseIcon: String,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "code_language_id", nullable = true)
-    var language: CodeLanguages?,
+    @Column(name = "code_language", nullable = true)
+    var language: String,
 
     @Column(name = "request_hash")
     val requestHash: UUID = UUID.randomUUID()

@@ -29,6 +29,7 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     ENTRY_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "This project lacks an entry file"),
     NO_DELETE_ENTRY_FILE(HttpStatus.BAD_REQUEST, "Can not delete an entry file"),
     INVALID_PROJECT_FILE_REFERENCE(HttpStatus.BAD_REQUEST, "Invalid project files reference"),
+    INVALID_FILE_PATH(HttpStatus.BAD_REQUEST, "Invalid file path"),
 
     DISCUSSION_NOT_FOUND(HttpStatus.NOT_FOUND, "This discussion was not found"),
     ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "This entity does not exist"),
@@ -80,6 +81,8 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     GCS_GET_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to get project files from cloud storage"),
     STORAGE_OBJECT_NOT_FOUND(HttpStatus.NOT_FOUND, "Storage object not found"),
     GCS_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload project files to cloud storage"),
+    GCS_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete project files from cloud storage"),
+    GCS_RESTORE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to restore project files to cloud storage"),
 
     PROJECT_FILE_ID_NULL(HttpStatus.BAD_REQUEST, "The Project File Id is null"),
     PROJECT_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "Could not find the given project file"),

@@ -13,8 +13,6 @@ import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleLessonsRepository
 import com.ludocode.ludocodebackend.catalog.infra.repository.ModuleRepository
 import com.ludocode.ludocodebackend.tag.infra.repository.TagRepository
-import com.ludocode.ludocodebackend.commons.exception.ApiException
-import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.config.*
 import com.ludocode.ludocodebackend.config.security.TestSecurityConfig
 import com.ludocode.ludocodebackend.config.time.MutableClock
@@ -29,9 +27,6 @@ import com.ludocode.ludocodebackend.lesson.domain.jsonb.InteractionFile
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.ExerciseSnap
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.ParagraphBlock
 import com.ludocode.ludocodebackend.lesson.domain.jsonb.SelectInteraction
-import com.ludocode.ludocodebackend.languages.app.mapper.LanguagesMapper
-import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
-import com.ludocode.ludocodebackend.languages.infra.CodeLanguagesRepository
 import com.ludocode.ludocodebackend.lesson.api.dto.snapshot.LessonSnap
 import com.ludocode.ludocodebackend.lesson.domain.entity.*
 import com.ludocode.ludocodebackend.lesson.domain.entity.embeddable.ExerciseId
@@ -60,7 +55,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -83,13 +77,7 @@ abstract class AbstractIntegrationTest {
     private lateinit var careerPreferencesRepository: CareerPreferencesRepository
 
     @Autowired
-    private lateinit var languagesMapper: LanguagesMapper
-
-    @Autowired
     private lateinit var tagRepository: TagRepository
-
-    @Autowired
-    private lateinit var codeLanguagesRepository: CodeLanguagesRepository
     var pythonId = UUID.randomUUID()
     var swiftId = UUID.randomUUID()
 
@@ -120,15 +108,15 @@ abstract class AbstractIntegrationTest {
     lateinit var demoUser1: User
     val demoToken: String = "9d495788fdc9fe95627f04ab32cc839e"
 
-    lateinit var pythonLanguage: CodeLanguages
-    lateinit var swiftLanguage: CodeLanguages
-    lateinit var luaLanguage: CodeLanguages
-    lateinit var jsLanguage: CodeLanguages
-
     lateinit var pythonTag: Tag
     lateinit var swiftTag: Tag
 
     lateinit var dataPath: CareerPreference
+
+    protected val pythonLanguage = "python"
+    protected val swiftLanguage = "swift"
+    protected val luaLanguage = "lua"
+    protected val jsLanguage = "javascript"
 
 
     init {
@@ -239,7 +227,6 @@ abstract class AbstractIntegrationTest {
           course,
           tag,
           course_tag,
-          code_languages,
           subscription_plan,
           user_preferences,
           analytics_event,
@@ -261,19 +248,13 @@ abstract class AbstractIntegrationTest {
 
         snaps.forEach { cs ->
 
-            val language =
-                cs.language?.languageId?.let { id ->
-                    codeLanguagesRepository.findByIdOrNull(id)
-                        ?: throw ApiException(ErrorCode.LANGUAGE_NOT_FOUND)
-                }
-
             courseRepository.save(
                 Course(
                     id = cs.courseId,
                     title = cs.title,
                     courseType = cs.courseType,
                     courseIcon = "STAR",
-                    language = language,
+                    language = cs.language ?: pythonLanguage,
                     description = "cool course",
                     courseStatus = CourseStatus.PUBLISHED
                 )
@@ -389,55 +370,7 @@ abstract class AbstractIntegrationTest {
 
     @Transactional
     fun initializeLanguages() {
-        pythonLanguage = codeLanguagesRepository.save(
-            CodeLanguages(
-                slug = "py",
-                name = "python",
-                editorId = "python",
-                initialScript = "print('Hello World!')",
-                base = "script",
-                extension = ".py",
-                pistonId = "python",
-                iconName = "Python"
-            )
-        )
-        swiftLanguage = codeLanguagesRepository.save(
-            CodeLanguages(
-                slug = "swift",
-                name = "swift",
-                editorId = "swift",
-                initialScript = "print('Hello World!')",
-                base = "script",
-                extension = ".swift",
-                pistonId = "swift",
-                iconName = "Swift"
-            )
-        )
-        luaLanguage = codeLanguagesRepository.save(
-            CodeLanguages(
-                slug = "lua",
-                name = "Lua",
-                editorId = "lua",
-                initialScript = "print('Hello World!')",
-                base = "script",
-                extension = ".lua",
-                pistonId = "lua",
-                iconName = "Lua"
-            )
-        )
-        jsLanguage = codeLanguagesRepository.save(
-            CodeLanguages(
-                slug = "js",
-                name = "Javascript",
-                editorId = "js",
-                initialScript = "console.log('Hello World!')",
-                base = "script",
-                extension = ".js",
-                pistonId = "js",
-                iconName = "Javascript"
-            )
-        )
-
+        // No-op: languages are now represented as plain strings.
     }
 
     @Transactional
@@ -630,9 +563,6 @@ abstract class AbstractIntegrationTest {
             ModuleSnap(moduleId = swMod1Id, title = "Variables", lessons = swMod1Lessons),
         )
 
-        val pythonLanguageMetadata = languagesMapper.toLanguageMetadata(pythonLanguage)
-        val swiftLanguageMetadata = languagesMapper.toLanguageMetadata(swiftLanguage)
-
         val snaps = listOf(
             CourseSnap(
                 courseId = pythonId,
@@ -640,7 +570,7 @@ abstract class AbstractIntegrationTest {
                 courseIcon = "Star",
                 courseType = CourseType.COURSE,
                 modules = pythonModules,
-                language = pythonLanguageMetadata
+                language = pythonLanguage
             ),
             CourseSnap(
                 courseId = swiftId,
@@ -648,7 +578,7 @@ abstract class AbstractIntegrationTest {
                 courseIcon = "Star",
                 courseType = CourseType.COURSE,
                 modules = swiftModules,
-                language = swiftLanguageMetadata
+                language = swiftLanguage
             )
         )
 

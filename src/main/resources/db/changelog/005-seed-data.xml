@@ -37,89 +37,6 @@
         </sql>
     </changeSet>
 
-    <changeSet id="005-03-00-code-languages" author="dave" context="dev" dbms="postgresql">
-        <sql><![CDATA[
-            INSERT INTO code_languages
-            (slug, name, editor_id, piston_id, base, icon_name, extension, initial_script, runtime_version)
-            VALUES
-                ('python', 'Python', 'python', 'python', 'script', 'Python', '.py',
-                 'print("Hello, world!")',
-                 '3.12.0'),
-
-                ('javascript', 'JavaScript', 'javascript', 'javascript', 'script', 'Javascript', '.js',
-                 'console.log("Hello, world!");',
-                 '20.11.1'),
-
-                ('lua', 'Lua', 'lua', 'lua', 'script', 'Lua', '.lua',
-                 'print("Hello, world!")',
-                 '5.4.4'),
-
-                ('go', 'Go', 'go', 'go', 'program', 'Golang', '.go',
-'package main
-
-import "fmt"
-
-func main() {
- fmt.Println("Hello, world!")
-}',
-                 '1.16.2'),
-
-                ('swift', 'Swift', 'swift', 'swift', 'program', 'Swift', '.swift',
-                 'print("Hello, world!")',
-                 '5.3.3'),
-
-                ('typescript', 'TypeScript', 'typescript', 'typescript', 'script', 'Typescript', '.ts',
-                 'console.log("Hello, world!");',
-                 '5.0.3'),
-
-                ('rust', 'Rust', 'rust', 'rust', 'program', 'Rust', '.rs',
-'fn main() {
- println!("Hello, world!");
-}',
-                 '1.68.2'),
-
-                ('php', 'PHP', 'php', 'php', 'script', 'PHP', '.php',
-'<?php
-    echo "Hello, world!";
-?>',
-                 '8.2.3'),
-
-                ('kotlin', 'Kotlin', 'kotlin', 'kotlin', 'program', 'Kotlin', '.kt',
-'fun main() {
-  println("Hello, world!")
-}',
-                 '1.8.20'),
-
-                ('c', 'C', 'c', 'c', 'program', 'C', '.c',
-'#include <stdio.h>
-
-int main() {
-  printf("Hello, world!\n");
-  return 0;
-}',
-                 '10.2.0'),
-
-                ('cpp', 'C++', 'cpp', 'cpp', 'program', 'CPP', '.cpp',
-'#include <iostream>
-
-int main() {
-  std::cout << "Hello, world!" << std::endl;
-  return 0;
-}',
-                 '10.2.0'),
-
-                ('java', 'Java', 'java', 'java', 'program', 'Java', '.java',
-'public class Main {
-  public static void main(String[] args) {
-      System.out.println("Hello, world!");
-  }
-}',
-                 '15.0.2')
-
-            ON CONFLICT (slug) DO NOTHING;
-            ]]></sql>
-    </changeSet>
-
     <changeSet id="005-03-01-tags" author="dave" context="dev" dbms="postgresql">
         <sql>
             INSERT INTO tag (slug, name)
@@ -140,20 +57,19 @@ int main() {
                 course_type,
                 course_icon,
                 course_status,
-                code_language_id
+                code_language
             )
-            SELECT
-                '75975805-3f02-43c2-9106-c990d944dfd2',
-                'Python',
-                'Simple and Versatile language',
-                NULL,
-                '6873b087-9f85-4f1d-8bc9-04a84e704a29',
-                'COURSE',
-                'Python',
-                'PUBLISHED',
-                cl.id
-            FROM code_languages cl
-            WHERE cl.slug = 'python'
+            VALUES (
+                       '75975805-3f02-43c2-9106-c990d944dfd2',
+                       'Python',
+                       'Simple and Versatile language',
+                       NULL,
+                       '6873b087-9f85-4f1d-8bc9-04a84e704a29',
+                       'COURSE',
+                       'Python',
+                       'PUBLISHED',
+                       'python'
+                   )
             ON CONFLICT (id) DO NOTHING;
         </sql>
     </changeSet>

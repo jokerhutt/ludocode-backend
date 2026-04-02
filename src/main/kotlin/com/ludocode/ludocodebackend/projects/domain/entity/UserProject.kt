@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.projects.domain.entity
 
-import com.ludocode.ludocodebackend.languages.entity.CodeLanguages
+import com.ludocode.ludocodebackend.projects.domain.enums.ProjectType
 import com.ludocode.ludocodebackend.projects.domain.enums.Visibility
 import jakarta.persistence.*
 import org.hibernate.annotations.JdbcTypeCode
@@ -24,15 +24,15 @@ class UserProject(
     @Column(name = "request_hash")
     val requestHash: UUID,
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "project_type")
+    val projectType: ProjectType,
+
     @Column(name = "delete_at")
     var deleteAt: OffsetDateTime? = null,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "code_language_id", nullable = false)
-    val codeLanguage: CodeLanguages,
-
-    @Column(name = "entry_file_id")
-    var entryFileId: UUID? = null,
+    @Column(name = "entry_file_path")
+    var entryFilePath: String? = null,
 
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "project_visibility")

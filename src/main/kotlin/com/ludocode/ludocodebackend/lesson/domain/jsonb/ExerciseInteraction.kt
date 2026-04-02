@@ -1,9 +1,6 @@
 package com.ludocode.ludocodebackend.lesson.domain.jsonb
-
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.ludocode.ludocodebackend.languages.api.dto.LanguageMetadata
-import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
 
 import java.util.UUID
 

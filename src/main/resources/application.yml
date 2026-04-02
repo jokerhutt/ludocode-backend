@@ -97,6 +97,9 @@ app:
   frontend-url: ${FRONTEND_URL}
   gcs-host:
 
+maintenance:
+  enabled: ${MAINTENANCE_ENABLED:false}
+
 # mode: local, s3, gcs
 storage:
   mode: ${STORAGE_MODE:local}
@@ -109,7 +112,6 @@ storage:
   s3:
     region: ${AWS_REGION:eu-central-1}
     bucket: ${S3_BUCKET_NAME}
-    endpoint: ${S3_ENDPOINT}
   local:
     bucket-name: ${LOCAL_BUCKET_NAME:/data/local-bucket}
 

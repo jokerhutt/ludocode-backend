@@ -25,7 +25,7 @@ class DeleteCourseIT : AbstractIntegrationTest() {
         val newCourseName = "Draft To Delete"
         val requestHash = UUID.randomUUID()
 
-        val req = CreateCourseRequest(newCourseName, requestHash, "A draft course", CourseType.COURSE, "Star", pythonLanguage.id)
+        val req = CreateCourseRequest(newCourseName, requestHash, "A draft course", CourseType.COURSE, "Star", pythonLanguage)
         val coursesAfterCreate = submitPostCreateCourse(req)
 
         courseRepository.flush()
@@ -50,14 +50,14 @@ class DeleteCourseIT : AbstractIntegrationTest() {
 
         val publishedCourseId = publishedCourses[0].id
 
-        assertErrorOnDelete(publishedCourseId, ErrorCode.NO_DELETE_NON_DRAFT_COURSE)
+        assertErrorOnDelete(publishedCourseId)
     }
 
     private fun submitPostCreateCourse(req: CreateCourseRequest): List<CourseResponse> =
         TestRestClient
             .postOk(
                 "${ApiPaths.SNAPSHOTS.ADMIN_BASE}${ApiPaths.SNAPSHOTS.COURSE}",
-                user1.id!!,
+                user1.id,
                 req,
                 Array<CourseResponse>::class.java
             )
@@ -67,13 +67,13 @@ class DeleteCourseIT : AbstractIntegrationTest() {
         TestRestClient
             .deleteOk(
                 ApiPaths.SNAPSHOTS.byCourseAdmin(courseId),
-                user1.id!!,
+                user1.id,
                 Array<CourseResponse>::class.java
             )
             .toList()
 
-    private fun assertErrorOnDelete(courseId: UUID, errorCode: ErrorCode): ValidatableResponse {
-        return TestRestClient.assertError("DELETE", ApiPaths.SNAPSHOTS.byCourseAdmin(courseId), user1.id!!, null, errorCode)
+    private fun assertErrorOnDelete(courseId: UUID): ValidatableResponse {
+        return TestRestClient.assertError("DELETE", ApiPaths.SNAPSHOTS.byCourseAdmin(courseId), user1.id, null, ErrorCode.NO_DELETE_NON_DRAFT_COURSE)
     }
 
     fun buildCourseSnapshotByTitle(title: String): CourseSnap {
@@ -87,7 +87,7 @@ class DeleteCourseIT : AbstractIntegrationTest() {
         TestRestClient
             .getOk(
                 "${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.COURSES}",
-                user1.id!!,
+                user1.id,
                 Array<CourseResponse>::class.java
             )
             .toList()

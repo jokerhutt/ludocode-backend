@@ -23,7 +23,6 @@ class StorageProperties(
     data class S3(
         var region: String = "eu-central-1",
         var bucket: String = "",
-        var endpoint: String = ""
     )
 
 

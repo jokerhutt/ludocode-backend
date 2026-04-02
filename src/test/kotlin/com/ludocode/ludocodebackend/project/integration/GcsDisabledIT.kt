@@ -2,6 +2,8 @@ package com.ludocode.ludocodebackend.project.integration
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.projects.api.dto.request.CreateProjectRequest
+import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
+import com.ludocode.ludocodebackend.projects.domain.enums.ProjectType
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
@@ -21,7 +23,16 @@ class GcsDisabledIT : AbstractIntegrationTest() {
         val uid = user1.id!!
         val newProjectRequest = CreateProjectRequest(
             projectName = "Test Project",
-            projectLanguageId = pythonLanguage.id,
+            projectType = ProjectType.CODE,
+            files = listOf(
+                ProjectFileSnapshot(
+                    id = null,
+                    path = "script.py",
+                    language = pythonLanguage,
+                    content = "print('Hello World!')"
+                )
+            ),
+            entryFilePath = "script.py",
             requestHash = UUID.randomUUID()
         )
 

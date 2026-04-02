@@ -79,18 +79,6 @@ object ApiPaths {
         fun byIdAdmin(bannerId: Long): String = "$ADMIN_BASE/$bannerId"
     }
 
-    object LANGUAGES {
-        const val BASE = "$API_PREFIX/languages"
-        const val ADMIN_BASE = "$API_PREFIX$ADMIN_PREFIX/languages"
-        const val ID = "/{id}"
-        const val VISIBILITY = "/visibility"
-        const val DISABLED_MESSAGE = "/disabled-message"
-        fun byId(id: Long): String = "$BASE/$id"
-        fun byIdAdmin(id: Long): String = "$ADMIN_BASE/$id"
-        fun byIdAdminVisibility(id: Long): String = "$ADMIN_BASE/$id/visibility"
-        fun byIdAdminDisabledMessage(id: Long): String = "$ADMIN_BASE/$id/disabled-message"
-    }
-
     object LESSONS {
         const val BASE = "$API_PREFIX/lessons"
         const val ADMIN_BASE = "$API_PREFIX$ADMIN_PREFIX/lessons"
@@ -190,6 +178,10 @@ object ApiPaths {
     object PREFERENCES {
         const val BASE = "$API_PREFIX/preferences"
         const val CAREERS = "/careers"
+    }
+
+    object MAINTENANCE {
+        const val BASE = "$API_PREFIX/maintenance"
     }
 
     object USERS {

@@ -205,7 +205,6 @@ class UserService(
 
     }
 
-
     private fun hasOnboarded(userId: UUID): Boolean {
         val user = userRepository.findById(userId).orElseThrow()
         return hasOnboarded(user)

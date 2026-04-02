@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="045-001-add-entry-file-path-to-user-project" author="copilot">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_project" columnName="entry_file_path"/>
+            </not>
+        </preConditions>
+
+        <addColumn tableName="user_project">
+            <column name="entry_file_path" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="045-002-set-entry-file-path-script-py" author="david" dbms="postgresql">
+        <sql>
+            UPDATE user_project
+            SET entry_file_path = 'script.py'
+            WHERE entry_file_path IS NULL;
+        </sql>
+    </changeSet>
+
+    <changeSet id="045-003-add-entry-file-path-index" author="copilot">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists tableName="user_project" indexName="idx_user_project_entry_file_path"/>
+            </not>
+        </preConditions>
+
+        <createIndex tableName="user_project" indexName="idx_user_project_entry_file_path">
+            <column name="entry_file_path"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
+

@@ -12,22 +12,11 @@ interface CourseRepository : JpaRepository<Course, UUID> {
         """
     select distinct c
     from Course c
-    left join fetch c.language l
     where c.isDeleted = false
     and c.courseStatus != 'DRAFT'
 """
     )
-    fun findAllWithLanguage(): List<Course>
-
-    @Query(
-        """
-    select distinct c
-    from Course c
-    left join fetch c.language l
-    where c.isDeleted = false
-"""
-    )
-    fun findAllWithLanguagesIncludingDraft(): List<Course>
+    fun findAllNonDraft(): List<Course>
 
     fun countByCourseStatusAndIsDeletedFalse(courseStatus: CourseStatus): Long
 

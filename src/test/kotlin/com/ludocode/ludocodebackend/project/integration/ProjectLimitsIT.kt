@@ -4,11 +4,13 @@ import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.jobs.ProjectCleanupJob
 import com.ludocode.ludocodebackend.projects.api.dto.request.CreateProjectRequest
+import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardListResponse
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardResponse
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectListResponse
 import com.ludocode.ludocodebackend.projects.app.service.ProjectPlanEnforcer
+import com.ludocode.ludocodebackend.projects.domain.enums.ProjectType
 import com.ludocode.ludocodebackend.subscription.configuration.PlanDefinitions
 import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
@@ -49,15 +51,21 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
     @Test
     fun overPlanLimit_attemptCreateProject_throwsError () {
-        val (projects, files) = ProjectTestUtil.spawnProjects(6, user1.id, pythonLanguage, clock, storage, bucketName, 2)
+        val (projects, files) = ProjectTestUtil.spawnProjects(
+            amount = 6,
+            userId = user1.id,
+            language = pythonLanguage,
+            extension = ".py",
+            starterContent = "print('Hello World!')",
+            clock = clock,
+            storage = storage,
+            bucketName = bucketName,
+            startDaysAgo = 2
+        )
         projectFileRepository.saveAll(files)
         userProjectRepository.saveAll(projects)
 
-        val newProjectRequest = CreateProjectRequest(
-            projectName = "Seventh Project",
-            projectLanguageId = pythonLanguage.id,
-            requestHash = UUID.randomUUID()
-        )
+        val newProjectRequest = newProjectRequest("Seventh Project")
 
         assertErrorOnPost(newProjectRequest, userId = user1.id, ErrorCode.PROJECT_LIMIT_EXCEEDED)
 
@@ -65,15 +73,21 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
     @Test
     fun createTwoProjects_firstUnderPlanLimit_secondOverLimit_firstSucceeds_secondThrows () {
-        val (projects, files) = ProjectTestUtil.spawnProjects(5, user1.id, pythonLanguage, clock, storage, bucketName, 2)
+        val (projects, files) = ProjectTestUtil.spawnProjects(
+            amount = 5,
+            userId = user1.id,
+            language = pythonLanguage,
+            extension = ".py",
+            starterContent = "print('Hello World!')",
+            clock = clock,
+            storage = storage,
+            bucketName = bucketName,
+            startDaysAgo = 2
+        )
         projectFileRepository.saveAll(files)
         userProjectRepository.saveAll(projects)
 
-        val newProjectRequest = CreateProjectRequest(
-            projectName = "Second Project",
-            projectLanguageId = pythonLanguage.id,
-            requestHash = UUID.randomUUID()
-        )
+        val newProjectRequest = newProjectRequest("Second Project")
 
         submitPostCreateProject(newProjectRequest, user1.id)
         val res = submitGetUserProjects(user1.id)
@@ -82,11 +96,7 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
         val stillMarked = res.projects.filter { it.deleteAt != null }
         assertThat(stillMarked).isEmpty()
 
-        val secondProjectRequest = CreateProjectRequest(
-            projectName = "Seventh Project",
-            projectLanguageId = pythonLanguage.id,
-            requestHash = UUID.randomUUID()
-        )
+        val secondProjectRequest = newProjectRequest("Seventh Project")
 
         assertErrorOnPost(secondProjectRequest, userId = user1.id, ErrorCode.PROJECT_LIMIT_EXCEEDED)
 
@@ -94,7 +104,17 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
     @Test
     fun downGraded_marksDeletedAt() {
-        val (projects, files) = ProjectTestUtil.spawnProjects(7, user1.id, pythonLanguage, clock, storage, bucketName, 2)
+        val (projects, files) = ProjectTestUtil.spawnProjects(
+            amount = 7,
+            userId = user1.id,
+            language = pythonLanguage,
+            extension = ".py",
+            starterContent = "print('Hello World!')",
+            clock = clock,
+            storage = storage,
+            bucketName = bucketName,
+            startDaysAgo = 2
+        )
         projectFileRepository.saveAll(files)
         userProjectRepository.saveAll(projects)
 
@@ -123,7 +143,17 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
         val now = OffsetDateTime.now(clock)
 
-        val (projects, files) = ProjectTestUtil.spawnProjects(7, user1.id, pythonLanguage, clock, storage, bucketName, 2)
+        val (projects, files) = ProjectTestUtil.spawnProjects(
+            amount = 7,
+            userId = user1.id,
+            language = pythonLanguage,
+            extension = ".py",
+            starterContent = "print('Hello World!')",
+            clock = clock,
+            storage = storage,
+            bucketName = bucketName,
+            startDaysAgo = 2
+        )
         projectFileRepository.saveAll(files)
         userProjectRepository.saveAll(projects)
 
@@ -163,7 +193,17 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
         val now = OffsetDateTime.now(clock)
 
-        val (projects, files) = ProjectTestUtil.spawnProjects(7, user1.id, pythonLanguage, clock, storage, bucketName, 2)
+        val (projects, files) = ProjectTestUtil.spawnProjects(
+            amount = 7,
+            userId = user1.id,
+            language = pythonLanguage,
+            extension = ".py",
+            starterContent = "print('Hello World!')",
+            clock = clock,
+            storage = storage,
+            bucketName = bucketName,
+            startDaysAgo = 2
+        )
         projectFileRepository.saveAll(files)
         userProjectRepository.saveAll(projects)
 
@@ -195,6 +235,22 @@ class ProjectLimitsIT : AbstractIntegrationTest() {
 
     private fun submitPostCreateProject(request: CreateProjectRequest, userId: UUID) =
         TestRestClient.postNoContent(ApiPaths.PROJECTS.BASE, userId, request)
+
+    private fun newProjectRequest(name: String): CreateProjectRequest =
+        CreateProjectRequest(
+            projectName = name,
+            projectType = ProjectType.CODE,
+            files = listOf(
+                ProjectFileSnapshot(
+                    id = null,
+                    path = "script.py",
+                    language = pythonLanguage,
+                    content = "print('Hello World!')"
+                )
+            ),
+            entryFilePath = "script.py",
+            requestHash = UUID.randomUUID()
+        )
 
 
 

@@ -72,8 +72,8 @@ class CatalogAdminController(
         @RequestBody req: ChangeLanguageRequest,
         @PathVariable courseId: UUID
     ): ResponseEntity<List<CourseResponse>> {
-        val languageId = req.languageId
-        catalogService.updateCourseLanguage(courseId, languageId)
+        val languageName = req.languageName
+        catalogService.updateCourseLanguage(courseId, languageName)
         return ResponseEntity.ok(catalogService.getAllCourses())
     }
 
