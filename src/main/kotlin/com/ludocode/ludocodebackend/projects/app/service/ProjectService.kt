@@ -556,6 +556,7 @@ class ProjectService(
                     kv(LogFields.FILE_COUNT, restoreRequests.size),
                     e
                 )
+                throw ApiException(ErrorCode.GCS_RESTORE_FAILED, "Failed to restore project files to storage after a failed save: ${e.message}")
             }
         }
     }
@@ -580,6 +581,7 @@ class ProjectService(
                 kv(LogFields.FILE_COUNT, toDeletePaths.size),
                 e
             )
+            throw ApiException(ErrorCode.GCS_DELETE_FAILED, "Failed to delete files from storage: ${e.message}")
         }
 
     }
