@@ -18,20 +18,11 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id="045-002-backfill-entry-file-path-from-entry-file-id" author="copilot">
-        <preConditions onFail="MARK_RAN">
-            <and>
-                <columnExists tableName="user_project" columnName="entry_file_id"/>
-                <columnExists tableName="user_project" columnName="entry_file_path"/>
-            </and>
-        </preConditions>
-
+    <changeSet id="045-002-set-entry-file-path-script-py" author="david" dbms="postgresql">
         <sql>
-            UPDATE user_project up
-            SET entry_file_path = pf.file_path
-            FROM project_file pf
-            WHERE up.entry_file_id = pf.id
-              AND up.entry_file_path IS NULL;
+            UPDATE user_project
+            SET entry_file_path = 'script.py'
+            WHERE entry_file_path IS NULL;
         </sql>
     </changeSet>
 
