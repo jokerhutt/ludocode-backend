@@ -111,7 +111,9 @@ object ApiPaths {
 
         object STREAK {
             const val BASE = "${PROGRESS.BASE}/streak"
-            fun weekly() = "$BASE?mode=weekly"
+            fun weekly(weeks: Int? = null): String =
+                if (weeks != null) "$BASE?mode=weekly&weeks=$weeks"
+                else "$BASE?mode=weekly"
         }
 
     }

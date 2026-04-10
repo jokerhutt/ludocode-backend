@@ -63,19 +63,24 @@ class StreakService(
         return StreakResponsePacket(action = StreakAction.INCREMENT, response = updateStreak(userId, nowUtc, userZone))
     }
 
-    internal fun getPastWeekMondayToSunday(
+    fun getPastWeeks(
         userId: UUID,
+        weeks: Int = 1
     ): List<DailyGoalResponse> {
 
         val today = LocalDate.now(clock)
 
-        val monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-        val week = (0..6).map { monday.plusDays(it.toLong()) }
+        val startOfCurrentWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val start = startOfCurrentWeek.minusWeeks(weeks.toLong() - 1)
 
-        val completions = userDailyGoalRepository.findRecentCompletions(userId, 7)
+        val totalDays = weeks * 7
+
+        val days = (0 until totalDays).map { start.plusDays(it.toLong()) }
+
+        val completions = userDailyGoalRepository.findRecentCompletions(userId, totalDays)
         val completedDates = completions.map { it.userDailyGoalId.localDate }.toSet()
 
-        return week.map { date ->
+        return days.map { date ->
             DailyGoalResponse(date, completedDates.contains(date))
         }
     }
