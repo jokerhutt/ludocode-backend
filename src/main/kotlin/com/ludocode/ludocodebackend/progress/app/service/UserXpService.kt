@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.progress.app.service
 
+import com.ludocode.ludocodebackend.progress.api.dto.response.DailyXpHistoryResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserXpResponse
 import com.ludocode.ludocodebackend.progress.app.mapper.UserXpMapper
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserXpPortForAuth
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.Clock
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -70,6 +72,22 @@ class UserXpService(
         )
 
         return userXpMapper.toUserXpResponse(newStats)
+    }
+
+    fun getXpHistory(userId: UUID, days: Int = 7): List<DailyXpHistoryResponse> {
+        val today = LocalDate.now(clock)
+        val startDate = today.minusDays(days.toLong() - 1)
+        val allDays = (0 until days).map { startDate.plusDays(it.toLong()) }
+
+        val transactions = xpTransactionRepository.findAllByUserIdOrderByCreatedAtDesc(userId)
+
+        val xpByDate = transactions
+            .groupBy { it.createdAt.toLocalDate() }
+            .mapValues { (_, txs) -> txs.sumOf { it.amount } }
+
+        return allDays.map { date ->
+            DailyXpHistoryResponse(date = date, xp = xpByDate[date] ?: 0)
+        }
     }
 
 }
