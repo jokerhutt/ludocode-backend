@@ -1,12 +1,9 @@
 package com.ludocode.ludocodebackend.preferences.domain.entity
 
-import com.ludocode.ludocodebackend.preferences.domain.enums.DesiredPath
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import org.hibernate.annotations.JdbcTypeCode
-import org.hibernate.type.SqlTypes
 import java.util.UUID
 
 @Entity

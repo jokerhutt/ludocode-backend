@@ -1,7 +1,6 @@
-package com.ludocode.ludocodebackend.user.api.dto.request
+package com.ludocode.ludocodebackend.preferences.api.dto.request
 
-import com.ludocode.ludocodebackend.preferences.domain.enums.DesiredPath
-import java.util.*
+import java.util.UUID
 
 data class OnboardingSubmission(
     val chosenPath: String,
@@ -9,4 +8,3 @@ data class OnboardingSubmission(
     val hasProgrammingExperience: Boolean,
     val selectedUsername: String,
 )
-

@@ -1,10 +1,10 @@
 package com.ludocode.ludocodebackend.preferences.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.preferences.api.dto.CareerResponse
-import com.ludocode.ludocodebackend.preferences.api.dto.TogglePreferencesRequest
+import com.ludocode.ludocodebackend.preferences.api.dto.response.CareerResponse
+import com.ludocode.ludocodebackend.preferences.api.dto.request.TogglePreferencesRequest
 import com.ludocode.ludocodebackend.preferences.app.service.PreferencesService
-import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
+import com.ludocode.ludocodebackend.preferences.api.dto.request.OnboardingSubmission
 import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
 import com.ludocode.ludocodebackend.preferences.domain.entity.UserPreferences
 import io.swagger.v3.oas.annotations.Operation

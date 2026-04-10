@@ -1,23 +1,21 @@
 package com.ludocode.ludocodebackend.preferences.app.service
 
-import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
-import com.ludocode.ludocodebackend.preferences.api.dto.CareerResponse
-import com.ludocode.ludocodebackend.preferences.api.dto.PreferenceRequestKey
+import com.ludocode.ludocodebackend.preferences.api.dto.response.CareerResponse
+import com.ludocode.ludocodebackend.preferences.api.dto.request.PreferenceRequestKey
 
-import com.ludocode.ludocodebackend.preferences.api.dto.TogglePreferencesRequest
+import com.ludocode.ludocodebackend.preferences.api.dto.request.TogglePreferencesRequest
 import com.ludocode.ludocodebackend.preferences.api.infra.repository.CareerPreferencesRepository
 import com.ludocode.ludocodebackend.preferences.api.infra.repository.UserPreferencesRepository
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
-import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
+import com.ludocode.ludocodebackend.preferences.api.dto.request.OnboardingSubmission
 import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForOnboarding
 import com.ludocode.ludocodebackend.preferences.domain.entity.UserPreferences
-import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import jakarta.transaction.Transactional
 import net.logstash.logback.argument.StructuredArguments.kv
 import org.slf4j.LoggerFactory

@@ -63,27 +63,4 @@ interface ModuleRepository : JpaRepository<Module, UUID> {
     )
     fun findActiveIdsByCourse(@Param("courseId") courseId: UUID): List<UUID>
 
-
-    @Modifying
-    @Query(
-        value = """
-        UPDATE module
-        SET is_deleted = true
-        WHERE id = :id
-        """, nativeQuery = true
-    )
-    fun softDeleteModulesByModuleId(@Param("id") id: UUID): Int
-
-    @Modifying
-    @Query(
-        value = """
-        UPDATE module
-        SET order_index = order_index + 1000
-        WHERE course_id = :courseId
-        AND is_deleted = false
-        """, nativeQuery = true
-    )
-    fun bumpAllModuleOrderIndexesInCourse(@Param("courseId") courseId: UUID)
-
-
 }

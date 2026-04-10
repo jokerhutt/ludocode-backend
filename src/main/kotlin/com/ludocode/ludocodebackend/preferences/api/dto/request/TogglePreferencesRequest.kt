@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.preferences.api.dto
+package com.ludocode.ludocodebackend.preferences.api.dto.request
 
 data class TogglePreferencesRequest(val value: Boolean, val key: PreferenceRequestKey)
 
