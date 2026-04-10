@@ -129,14 +129,96 @@ class StreakIT : AbstractIntegrationTest() {
 
     }
 
+    @Test
+    fun submitGetStreakHistory_multipleWeeks_returnsTwoWeeks() {
+        val userId = user1.id!!
+        userCoinsRepository.save(UserCoins(userId, 0))
+
+        clock.set(TestClocks.FIXED_NOON_UTC_MONDAY.instant())
+
+        // complete every day for 2 weeks (Mon-Sun, Mon-Sun)
+        for (i in 0 until 14) {
+            val today = LocalDate.now(clock)
+            userDailyGoalRepository.save(UserDailyGoal(UserDailyGoalId(userId, today)))
+            clock.set(clock.instant().plus(1, ChronoUnit.DAYS))
+        }
+
+        // clock is now on the Monday after 2 full weeks
+        // query for 3 weeks: the 2 completed + the current (empty) week
+        val res = submitGetPastStreakWeek(userId, weeks = 3)
+
+        assertThat(res).hasSize(21)
+        assertThat(res.count { it.met }).isEqualTo(14)
+        assertThat(res.first().date.dayOfWeek.name).isEqualTo("MONDAY")
+        assertThat(res.last().date.dayOfWeek.name).isEqualTo("SUNDAY")
+    }
+
+    @Test
+    fun submitGetStreakHistory_weeksParamDefaultsToOneWeek() {
+        val userId = user1.id!!
+        userCoinsRepository.save(UserCoins(userId, 0))
+
+        clock.set(TestClocks.FIXED_NOON_UTC_MONDAY.instant())
+
+        // no weeks param → default 1 week → 7 days
+        val res = submitGetPastStreakWeek(userId)
+
+        assertThat(res).hasSize(7)
+        assertThat(res.count { it.met }).isEqualTo(0)
+        assertThat(res.first().date.dayOfWeek.name).isEqualTo("MONDAY")
+        assertThat(res.last().date.dayOfWeek.name).isEqualTo("SUNDAY")
+    }
+
+    @Test
+    fun submitGetStreakHistory_fiveWeeks_returnsThirtyFiveDays() {
+        val userId = user1.id!!
+        userCoinsRepository.save(UserCoins(userId, 0))
+
+        clock.set(TestClocks.FIXED_NOON_UTC_MONDAY.instant())
+
+        val res = submitGetPastStreakWeek(userId, weeks = 5)
+
+        assertThat(res).hasSize(35)
+        assertThat(res.count { it.met }).isEqualTo(0)
+        assertThat(res.first().date.dayOfWeek.name).isEqualTo("MONDAY")
+        assertThat(res.last().date.dayOfWeek.name).isEqualTo("SUNDAY")
+    }
+
+    @Test
+    fun submitGetStreakHistory_completionsOnlyInOlderWeek_showsInMultiWeekQuery() {
+        val userId = user1.id!!
+        userCoinsRepository.save(UserCoins(userId, 0))
+
+        // Start on a Monday, complete 3 days
+        clock.set(TestClocks.FIXED_NOON_UTC_MONDAY.instant())
+        for (i in 0 until 3) {
+            val today = LocalDate.now(clock)
+            userDailyGoalRepository.save(UserDailyGoal(UserDailyGoalId(userId, today)))
+            clock.set(clock.instant().plus(1, ChronoUnit.DAYS))
+        }
+
+        // Advance to the next Monday (skip remaining 4 days)
+        clock.set(clock.instant().plus(4, ChronoUnit.DAYS))
+
+        // 1 week query = current (empty) week only
+        val oneWeek = submitGetPastStreakWeek(userId, weeks = 1)
+        assertThat(oneWeek).hasSize(7)
+        assertThat(oneWeek.count { it.met }).isEqualTo(0)
+
+        // 2 weeks query = current week + previous week that had 3 completions
+        val twoWeeks = submitGetPastStreakWeek(userId, weeks = 2)
+        assertThat(twoWeeks).hasSize(14)
+        assertThat(twoWeeks.count { it.met }).isEqualTo(3)
+    }
+
     private fun submitGetStreak(userId: UUID): UserStreakResponse =
         TestRestClient.getOk(ApiPaths.PROGRESS.STREAK.BASE, userId, UserStreakResponse::class.java)
 
-    private fun submitGetPastStreakWeek(userId: UUID): List<DailyGoalResponse> =
+    private fun submitGetPastStreakWeek(userId: UUID, weeks: Int? = null): List<DailyGoalResponse> =
         TestRestClient
             .getOk(
-                ApiPaths.PROGRESS.STREAK.weekly(),
-                user1.id!!,
+                ApiPaths.PROGRESS.STREAK.weekly(weeks),
+                userId,
                 Array<DailyGoalResponse>::class.java
             )
             .toList()
