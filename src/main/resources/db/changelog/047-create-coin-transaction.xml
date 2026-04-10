@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="047-001-create-coin-transaction" author="david">
+        <createTable tableName="coin_transaction">
+
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="amount" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="balance_after" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="transaction_type" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="reference_id" type="UUID"/>
+
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <addForeignKeyConstraint
+                constraintName="fk_coin_transaction_user"
+                baseTableName="coin_transaction"
+                baseColumnNames="user_id"
+                referencedTableName="ludo_user"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <createIndex indexName="idx_coin_transaction_user_id"
+                     tableName="coin_transaction">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_coin_transaction_created_at"
+                     tableName="coin_transaction">
+            <column name="created_at" descending="true"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
+

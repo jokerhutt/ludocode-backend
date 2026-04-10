@@ -10,6 +10,7 @@ import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionPa
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.StreakResponsePacket
 import com.ludocode.ludocodebackend.progress.app.support.component.LessonScoreService
+import com.ludocode.ludocodebackend.progress.domain.enums.CoinTransactionType
 import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
 import jakarta.transaction.Transactional
@@ -67,7 +68,12 @@ class LessonCompletionService(
 
         val nowUtc = OffsetDateTime.now(clock)
         val newStreak: StreakResponsePacket = streakService.recordGoalMet(userId, nowUtc)
-        val newStats = userCoinsService.apply(PointsDelta(userId = userId, pointsDelta = scoreForLesson))
+        val newStats = userCoinsService.apply(PointsDelta(
+            userId = userId,
+            pointsDelta = scoreForLesson,
+            transactionType = CoinTransactionType.LESSON_REWARD,
+            referenceId = completedLessonId
+        ))
         val responseContent = LessonCompletionResponse(
             newStats,
             newStreak.response,
