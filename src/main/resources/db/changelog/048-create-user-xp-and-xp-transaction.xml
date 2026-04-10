@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <!-- ===================== user_xp ===================== -->
+    <changeSet id="048-001-create-user-xp" author="david">
+        <createTable tableName="user_xp">
+            <column name="user_id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="xp" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                constraintName="fk_user_xp_user"
+                baseTableName="user_xp"
+                baseColumnNames="user_id"
+                referencedTableName="ludo_user"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+    <!-- ===================== xp_transaction ===================== -->
+    <changeSet id="048-002-create-xp-transaction" author="david">
+        <createTable tableName="xp_transaction">
+
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="amount" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="balance_after" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <addForeignKeyConstraint
+                constraintName="fk_xp_transaction_user"
+                baseTableName="xp_transaction"
+                baseColumnNames="user_id"
+                referencedTableName="ludo_user"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <createIndex indexName="idx_xp_transaction_user_id"
+                     tableName="xp_transaction">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_xp_transaction_created_at"
+                     tableName="xp_transaction">
+            <column name="created_at" descending="true"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
+
