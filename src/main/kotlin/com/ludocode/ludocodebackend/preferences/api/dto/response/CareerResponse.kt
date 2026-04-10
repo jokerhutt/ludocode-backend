@@ -1,4 +1,5 @@
-package com.ludocode.ludocodebackend.preferences.api.dto
+package com.ludocode.ludocodebackend.preferences.api.dto.response
+
 import java.util.UUID
 
 data class CareerResponse(

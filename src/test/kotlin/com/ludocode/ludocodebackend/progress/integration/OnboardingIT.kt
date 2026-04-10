@@ -1,11 +1,11 @@
 package com.ludocode.ludocodebackend.progress.integration
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.preferences.api.dto.PreferenceRequestKey
-import com.ludocode.ludocodebackend.preferences.api.dto.TogglePreferencesRequest
+import com.ludocode.ludocodebackend.preferences.api.dto.request.PreferenceRequestKey
+import com.ludocode.ludocodebackend.preferences.api.dto.request.TogglePreferencesRequest
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
-import com.ludocode.ludocodebackend.user.api.dto.request.OnboardingSubmission
+import com.ludocode.ludocodebackend.preferences.api.dto.request.OnboardingSubmission
 import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse
 import com.ludocode.ludocodebackend.preferences.domain.entity.UserPreferences
 import org.assertj.core.api.Assertions.assertThat
