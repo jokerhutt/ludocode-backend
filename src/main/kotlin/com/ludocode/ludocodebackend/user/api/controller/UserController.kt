@@ -1,7 +1,6 @@
 package com.ludocode.ludocodebackend.user.api.controller
 
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
-import com.ludocode.ludocodebackend.user.api.dto.request.EditProfileRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.AvatarInfo
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.service.UserService
@@ -45,22 +44,6 @@ class UserController(private val userService: UserService) {
         @AuthenticationPrincipal(expression = "userId") userId: UUID
     ): ResponseEntity<UserResponse> {
         return ResponseEntity.ok(userService.changeUserAvatar(userId, req))
-    }
-
-    @Operation(
-        summary = "Update current user profile",
-        description = """
-        Updates the currently authenticated user's display name and/or avatar index and returns the updated user.
-        Requires a valid session cookie to be present.
-        """
-    )
-    @SecurityRequirement(name = "sessionAuth")
-    @PutMapping(ApiPaths.USERS.ME)
-    fun editUserProfile(
-        @RequestBody req: EditProfileRequest,
-        @AuthenticationPrincipal(expression = "userId") userId: UUID
-    ): ResponseEntity<UserResponse> {
-        return ResponseEntity.ok(userService.editUser(userId, req))
     }
 
     @Operation(

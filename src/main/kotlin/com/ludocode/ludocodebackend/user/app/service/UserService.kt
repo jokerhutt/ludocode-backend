@@ -10,7 +10,6 @@ import com.ludocode.ludocodebackend.preferences.api.infra.repository.UserPrefere
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
 import com.ludocode.ludocodebackend.projects.app.service.ProjectService
 import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForUser
-import com.ludocode.ludocodebackend.user.api.dto.request.EditProfileRequest
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.AvatarInfo
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
@@ -144,24 +143,6 @@ class UserService(
         val index = Random.nextInt(1, avatarConfig.count + 1)
         val version = avatarConfig.version
         return AvatarInfo(version, index)
-    }
-
-    @Transactional
-    internal fun editUser(userId: UUID, request: EditProfileRequest): UserResponse {
-        val user = userRepository.findById(userId).orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
-        if ((user.displayName != request.username) && request.username.isNotEmpty()) {
-            val oldName = user.displayName
-            user.displayName = request.username
-            logger.info(
-                LogEvents.USERNAME_CHANGED + " {} {}",
-                kv(LogFields.OLD_USERNAME, oldName ?: "null"),
-                kv(LogFields.NEW_USERNAME, request.username)
-            )
-        }
-        userRepository.save(user)
-
-        val res = changeUserAvatar(user, request.avatarInfo)
-        return res
     }
 
     @Transactional
