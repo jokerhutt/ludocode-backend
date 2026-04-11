@@ -187,6 +187,189 @@
         </sql>
     </changeSet>
 
+
+    <changeSet id="005-10b-py-m1-guided-lesson" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO lesson (id, title, is_deleted, lesson_type, project_snapshot)
+            VALUES (
+                       'c3eeaddd-2d87-495e-bd40-24cfd9f06b4b',
+                       'Build a Greeting Script',
+                       false,
+                       'GUIDED',
+                       '{
+                           "projectId": "80bbb000-0000-4000-a000-000000000001",
+                           "projectName": "Greeting Script",
+                           "projectType": "CODE",
+                           "entryFilePath": "greeting.py",
+                           "files": [
+                               {
+                                   "path": "greeting.py",
+                                   "language": "python",
+                                   "content": "# Build your greeting script here\n"
+                               }
+                           ]
+                       }'::jsonb
+                   )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-10c-py-m1-guided-module-lessons" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO module_lessons (module_id, lesson_id, order_index)
+            VALUES (
+                       'a99d4abd-895f-4a4b-b4ea-570fac609f6f',
+                       'c3eeaddd-2d87-495e-bd40-24cfd9f06b4b',
+                       2
+                   )
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-10d-py-m1-guided-exercises" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO exercise (id, version_number, is_deleted, blocks, interaction)
+            VALUES
+                (
+                    'ed00de96-49ef-4bed-8bd7-2a05ff1b2001',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "92100000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Step 1: Print a Greeting"
+                        },
+                        {
+                            "clientId": "92100000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "The `print()` function is used to display output in Python. It is the first thing most programmers learn!"
+                        },
+                        {
+                            "clientId": "92100000-0003-4000-a000-000000000000",
+                            "type": "instructions",
+                            "instructions": [
+                                "Use `print()` to output the text `Hello, World!` exactly as shown"
+                            ]
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "EXECUTABLE",
+                        "clientId": "b2100000-0000-4000-a000-000000000000",
+                        "solution": "print(\"Hello, World!\")",
+                        "tests": [
+                            {
+                                "type": "OUTPUT_CONTAINS",
+                                "expected": "Hello, World!",
+                                "feedback": "Use print() with the text Hello, World! inside quotes."
+                            }
+                        ],
+                        "showOutput": true
+                    }'::jsonb
+                ),
+                (
+                    'ed00de96-49ef-4bed-8bd7-2a05ff1b2002',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "92200000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Step 2: Print Multiple Lines"
+                        },
+                        {
+                            "clientId": "92200000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "You can call `print()` as many times as you like. Each call outputs a new line."
+                        },
+                        {
+                            "clientId": "92200000-0003-4000-a000-000000000000",
+                            "type": "instructions",
+                            "instructions": [
+                                "Print `Hello, World!` on the first line",
+                                "Print `Welcome to Python!` on the second line"
+                            ]
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "EXECUTABLE",
+                        "clientId": "b2200000-0000-4000-a000-000000000000",
+                        "solution": "print(\"Hello, World!\")\nprint(\"Welcome to Python!\")",
+                        "tests": [
+                            {
+                                "type": "OUTPUT_CONTAINS",
+                                "expected": "Hello, World!",
+                                "feedback": "Make sure you print Hello, World! on its own line."
+                            },
+                            {
+                                "type": "OUTPUT_CONTAINS",
+                                "expected": "Welcome to Python!",
+                                "feedback": "Make sure you also print Welcome to Python! on a second line."
+                            }
+                        ],
+                        "showOutput": true
+                    }'::jsonb
+                ),
+                (
+                    'ed00de96-49ef-4bed-8bd7-2a05ff1b2003',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "92300000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Step 3: Personalise Your Greeting"
+                        },
+                        {
+                            "clientId": "92300000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "You can combine variables and strings inside `print()` using an f-string — just prefix the string with `f` and wrap the variable in curly braces."
+                        },
+                        {
+                            "clientId": "92300000-0003-4000-a000-000000000000",
+                            "type": "code",
+                            "language": "python",
+                            "content": "name = \"Alice\"\nprint(f\"Hello, {name}!\")",
+                            "output": "Hello, Alice!"
+                        },
+                        {
+                            "clientId": "92300000-0004-4000-a000-000000000000",
+                            "type": "instructions",
+                            "instructions": [
+                                "Create a variable called `name` and set it to your name as a string",
+                                "Use an f-string to print `Hello, &lt;your name&gt;!`"
+                            ]
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "EXECUTABLE",
+                        "clientId": "b2300000-0000-4000-a000-000000000000",
+                        "solution": "name = \"Alice\"\nprint(f\"Hello, {name}!\")",
+                        "tests": [
+                            {
+                                "type": "OUTPUT_CONTAINS",
+                                "expected": "Hello,",
+                                "feedback": "Use an f-string: print(f\"Hello, {name}!\") where name is a variable holding a string."
+                            }
+                        ],
+                        "showOutput": true
+                    }'::jsonb
+                )
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-10e-py-m1-guided-lesson-exercises" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO lesson_exercises (lesson_id, exercise_id, exercise_version, order_index)
+            VALUES
+                ('c3eeaddd-2d87-495e-bd40-24cfd9f06b4b', 'ed00de96-49ef-4bed-8bd7-2a05ff1b2001', 1, 1),
+                ('c3eeaddd-2d87-495e-bd40-24cfd9f06b4b', 'ed00de96-49ef-4bed-8bd7-2a05ff1b2002', 1, 2),
+                ('c3eeaddd-2d87-495e-bd40-24cfd9f06b4b', 'ed00de96-49ef-4bed-8bd7-2a05ff1b2003', 1, 3)
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
     <!-- ===================== PREFS ===================== -->
     <changeSet id="005-11-01-career-preferences" author="dave" context="dev" dbms="postgresql">
         <sql>
