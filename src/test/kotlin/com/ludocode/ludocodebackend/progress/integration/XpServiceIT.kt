@@ -36,7 +36,11 @@ class XpServiceIT : AbstractIntegrationTest() {
 
         assertThat(result.xp).isEqualTo(0)
 
-        val transactions = xpTransactionRepository.findAllByUserIdOrderByCreatedAtDesc(userId)
+        val transactions = xpTransactionRepository
+            .findByUserIdAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(
+                userId,
+                OffsetDateTime.now(clock).minusDays(3650)
+            )
         assertThat(transactions).isEmpty()
     }
 
@@ -49,7 +53,11 @@ class XpServiceIT : AbstractIntegrationTest() {
 
         assertThat(result.xp).isEqualTo(10)
 
-        val transactions = xpTransactionRepository.findAllByUserIdOrderByCreatedAtDesc(userId)
+        val transactions = xpTransactionRepository
+            .findByUserIdAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(
+                userId,
+                OffsetDateTime.now(clock).minusDays(3650)
+            )
         assertThat(transactions).hasSize(1)
         assertThat(transactions[0].amount).isEqualTo(10)
         assertThat(transactions[0].balanceAfter).isEqualTo(10)
@@ -66,7 +74,11 @@ class XpServiceIT : AbstractIntegrationTest() {
         assertThat(res1.xp).isEqualTo(5)
         assertThat(res2.xp).isEqualTo(15)
 
-        val transactions = xpTransactionRepository.findAllByUserIdOrderByCreatedAtDesc(userId)
+        val transactions = xpTransactionRepository
+            .findByUserIdAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(
+                userId,
+                OffsetDateTime.now(clock).minusDays(3650)
+            )
             .sortedBy { it.balanceAfter }
         assertThat(transactions).hasSize(2)
         assertThat(transactions[0].balanceAfter).isEqualTo(5)
@@ -119,7 +131,11 @@ class XpServiceIT : AbstractIntegrationTest() {
         assertThat(content.newXp.xp).isGreaterThan(0)
         assertThat(content.xpGained).isIn(5, 10)
 
-        val transactions = xpTransactionRepository.findAllByUserIdOrderByCreatedAtDesc(userId)
+        val transactions = xpTransactionRepository
+            .findByUserIdAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(
+                userId,
+                OffsetDateTime.now(clock).minusDays(3650)
+            )
         assertThat(transactions).hasSize(1)
         assertThat(transactions[0].amount).isEqualTo(content.xpGained)
         assertThat(transactions[0].balanceAfter).isEqualTo(content.newXp.xp)
@@ -149,7 +165,11 @@ class XpServiceIT : AbstractIntegrationTest() {
         val response2 = LessonSubmissionTestUtil.completeLesson(userId, lesson2, pythonId)
         val finalXp = response2.content!!.newXp.xp
 
-        val transactions = xpTransactionRepository.findAllByUserIdOrderByCreatedAtDesc(userId)
+        val transactions = xpTransactionRepository
+            .findByUserIdAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(
+                userId,
+                OffsetDateTime.now(clock).minusDays(3650)
+            )
             .sortedBy { it.balanceAfter }
         assertThat(transactions).hasSize(2)
         assertThat(transactions[1].balanceAfter).isEqualTo(finalXp)

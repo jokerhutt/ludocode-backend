@@ -54,10 +54,8 @@ class UserXpService(
 
     @Transactional
     internal fun apply(userId: UUID, amount: Int): UserXpResponse {
-        val stats = userXpRepository.findById(userId)
-            .orElseGet {
-                userXpRepository.save(UserXp(userId = userId, xp = 0))
-            }
+        val stats = userXpRepository.findByUserIdForUpdate(userId)
+            ?: userXpRepository.save(UserXp(userId = userId, xp = 0))
         stats.xp += amount
         val newStats = userXpRepository.save(stats)
 
@@ -78,8 +76,9 @@ class UserXpService(
         val today = LocalDate.now(clock)
         val startDate = today.minusDays(days.toLong() - 1)
         val allDays = (0 until days).map { startDate.plusDays(it.toLong()) }
-
-        val transactions = xpTransactionRepository.findAllByUserIdOrderByCreatedAtDesc(userId)
+        val cutoff = startDate.atStartOfDay().atOffset(OffsetDateTime.now(clock).offset)
+        val transactions = xpTransactionRepository
+            .findByUserIdAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(userId, cutoff)
 
         val xpByDate = transactions
             .groupBy { it.createdAt.toLocalDate() }
