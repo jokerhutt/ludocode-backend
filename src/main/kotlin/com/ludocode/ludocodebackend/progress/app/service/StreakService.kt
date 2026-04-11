@@ -2,6 +2,8 @@ package com.ludocode.ludocodebackend.progress.app.service
 
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.progress.api.dto.response.DailyGoalResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.StreakResponsePacket
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
@@ -67,6 +69,10 @@ class StreakService(
         userId: UUID,
         weeks: Int = 1
     ): List<DailyGoalResponse> {
+
+        if (weeks != null && weeks <= 0) {
+            throw ApiException(ErrorCode.MUST_BE_POSITIVE)
+        }
 
         val today = LocalDate.now(clock)
 

@@ -78,8 +78,9 @@ class UserXpService(
         val today = LocalDate.now(clock)
         val startDate = today.minusDays(days.toLong() - 1)
         val allDays = (0 until days).map { startDate.plusDays(it.toLong()) }
-
-        val transactions = xpTransactionRepository.findAllByUserIdOrderByCreatedAtDesc(userId)
+        val cutoff = startDate.atStartOfDay().atOffset(OffsetDateTime.now(clock).offset)
+        val transactions = xpTransactionRepository
+            .findByUserIdAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(userId, cutoff)
 
         val xpByDate = transactions
             .groupBy { it.createdAt.toLocalDate() }
