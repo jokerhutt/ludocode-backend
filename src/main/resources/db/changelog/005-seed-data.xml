@@ -336,8 +336,8 @@
                             "clientId": "92300000-0004-4000-a000-000000000000",
                             "type": "instructions",
                             "instructions": [
-                                "Create a variable called `name` and set it to your name as a string",
-                                "Use an f-string to print `Hello, &lt;your name&gt;!`"
+                                "Create a variable called `name` and set it to `Alice`",
+                                "Use an f-string to print `Hello, Alice!`"
                             ]
                         }
                     ]'::jsonb,
@@ -348,8 +348,8 @@
                         "tests": [
                             {
                                 "type": "OUTPUT_CONTAINS",
-                                "expected": "Hello,",
-                                "feedback": "Use an f-string: print(f\"Hello, {name}!\") where name is a variable holding a string."
+                                "expected": "Hello, Alice!",
+                                "feedback": "Set name = \"Alice\" and use an f-string: print(f\"Hello, {name}!\")"
                             }
                         ],
                         "showOutput": true
