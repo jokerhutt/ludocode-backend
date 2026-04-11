@@ -116,6 +116,14 @@ object ApiPaths {
                 else "$BASE?mode=weekly"
         }
 
+        object XP {
+            const val BASE = "${PROGRESS.BASE}/xp"
+            const val HISTORY = "/history"
+            fun history(days: Int? = null): String =
+                if (days != null) "$BASE$HISTORY?days=$days"
+                else "$BASE$HISTORY"
+        }
+
     }
 
     object PROJECTS {

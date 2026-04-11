@@ -286,4 +286,12 @@
         </sql>
     </changeSet>
 
+    <changeSet id="005-15-demo-user-xp" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO user_xp (user_id, xp)
+            VALUES ('598ccbea-4957-4569-81cb-ea901b62c329', 0)
+            ON CONFLICT (user_id) DO NOTHING;
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>

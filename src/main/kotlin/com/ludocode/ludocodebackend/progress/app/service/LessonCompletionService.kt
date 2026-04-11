@@ -29,6 +29,7 @@ class LessonCompletionService(
     private val clock: Clock,
     private val lessonCompletionRepository: LessonCompletionRepository,
     private val userCoinsService: UserCoinsService,
+    private val userXpService: UserXpService,
     private val courseProgressService: CourseProgressService,
     private val streakService: StreakService,
     private val lessonPortForProgress: LessonPortForProgress
@@ -74,12 +75,15 @@ class LessonCompletionService(
             transactionType = CoinTransactionType.LESSON_REWARD,
             referenceId = completedLessonId
         ))
+        val (newXp, xpGained) = userXpService.applyLessonXp(userId, lessonCompletion.accuracy)
         val responseContent = LessonCompletionResponse(
-            newStats,
-            newStreak.response,
-            newCourseProgress,
-            submittedLesson,
-            accuracy = lessonCompletion.accuracy
+            newCoins = newStats,
+            newStreak = newStreak.response,
+            newCourseProgress = newCourseProgress,
+            updatedCompletedLesson = submittedLesson,
+            accuracy = lessonCompletion.accuracy,
+            newXp = newXp,
+            xpGained = xpGained
         )
 
 
