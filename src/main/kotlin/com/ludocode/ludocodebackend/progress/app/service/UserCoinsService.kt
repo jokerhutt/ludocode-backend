@@ -44,9 +44,8 @@ class UserCoinsService(
 
     @Transactional
     internal fun apply(delta: PointsDelta): UserCoinsResponse {
-        val stats = userCoinsRepository.findById(delta.userId).orElseGet {
-            userCoinsRepository.save(UserCoins(delta.userId, 0))
-        }
+        val stats = userCoinsRepository.findByUserIdForUpdate(delta.userId)
+            ?: userCoinsRepository.save(UserCoins(delta.userId, 0))
         val oldCoins = stats.coins
         stats.coins += delta.pointsDelta
         val newStats = userCoinsRepository.save(stats)

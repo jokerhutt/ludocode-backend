@@ -54,10 +54,8 @@ class UserXpService(
 
     @Transactional
     internal fun apply(userId: UUID, amount: Int): UserXpResponse {
-        val stats = userXpRepository.findById(userId)
-            .orElseGet {
-                userXpRepository.save(UserXp(userId = userId, xp = 0))
-            }
+        val stats = userXpRepository.findByUserIdForUpdate(userId)
+            ?: userXpRepository.save(UserXp(userId = userId, xp = 0))
         stats.xp += amount
         val newStats = userXpRepository.save(stats)
 
