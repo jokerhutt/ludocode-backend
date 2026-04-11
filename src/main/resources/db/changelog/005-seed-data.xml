@@ -294,6 +294,201 @@
         </sql>
     </changeSet>
 
+    <!-- ===================== PYTHON GUIDED MODULE ===================== -->
+
+    <changeSet id="005-16-py-guided-module" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO module (id, title, order_index, is_deleted, course_id)
+            VALUES (
+                       'b99d4abd-895f-4a4b-b4ea-570fac609f6f',
+                       'Build a Tip Calculator',
+                       2,
+                       false,
+                       '75975805-3f02-43c2-9106-c990d944dfd2'
+                   )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-17-py-guided-lesson" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO lesson (id, title, is_deleted, lesson_type, project_snapshot)
+            VALUES (
+                       '8eeaaddd-2d87-495e-bd40-24cfd9f06b4b',
+                       'Build a Tip Calculator',
+                       false,
+                       'GUIDED',
+                       '{
+                           "projectId": "80aaa000-0000-4000-a000-000000000001",
+                           "projectName": "Tip Calculator",
+                           "projectType": "CODE",
+                           "entryFilePath": "tip_calculator.py",
+                           "files": [
+                               {
+                                   "path": "tip_calculator.py",
+                                   "language": "python",
+                                   "content": "# Build your tip calculator here\n"
+                               }
+                           ]
+                       }'::jsonb
+                   )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-17-02-py-guided-module-lessons" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO module_lessons (module_id, lesson_id, order_index)
+            VALUES (
+                       'b99d4abd-895f-4a4b-b4ea-570fac609f6f',
+                       '8eeaaddd-2d87-495e-bd40-24cfd9f06b4b',
+                       1
+                   )
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-18-py-guided-exercises" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO exercise (
+                id, version_number, is_deleted, blocks, interaction
+            )
+            VALUES
+                (
+                    'fd00de96-49ef-4bed-8bd7-2a05ff1b2001',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "91100000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Step 1: Calculate the Tip"
+                        },
+                        {
+                            "clientId": "91100000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "Create a function that calculates a tip amount from a bill total and a tip percentage."
+                        },
+                        {
+                            "clientId": "91100000-0003-4000-a000-000000000000",
+                            "type": "instructions",
+                            "instructions": [
+                                "Define a function called `calculate_tip` that takes `bill` and `percentage` as parameters",
+                                "Return `bill * percentage / 100`",
+                                "Call `calculate_tip(50, 20)` and print the result"
+                            ]
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "EXECUTABLE",
+                        "clientId": "a1100000-0000-4000-a000-000000000000",
+                        "solution": "def calculate_tip(bill, percentage):\n    return bill * percentage / 100\n\nprint(calculate_tip(50, 20))",
+                        "tests": [
+                            {
+                                "type": "OUTPUT_CONTAINS",
+                                "expected": "10.0",
+                                "feedback": "Make sure your function returns bill * percentage / 100 and you print calculate_tip(50, 20)."
+                            }
+                        ],
+                        "showOutput": true
+                    }'::jsonb
+                ),
+                (
+                    'fd00de96-49ef-4bed-8bd7-2a05ff1b2002',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "91200000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Step 2: Calculate the Total"
+                        },
+                        {
+                            "clientId": "91200000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "Now add a function that returns the total bill including the tip."
+                        },
+                        {
+                            "clientId": "91200000-0003-4000-a000-000000000000",
+                            "type": "instructions",
+                            "instructions": [
+                                "Keep the `calculate_tip` function from the previous step",
+                                "Define a function called `calculate_total` that takes `bill` and `percentage`",
+                                "Return `bill + calculate_tip(bill, percentage)`",
+                                "Call `calculate_total(50, 20)` and print the result"
+                            ]
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "EXECUTABLE",
+                        "clientId": "a1200000-0000-4000-a000-000000000000",
+                        "solution": "def calculate_tip(bill, percentage):\n    return bill * percentage / 100\n\ndef calculate_total(bill, percentage):\n    return bill + calculate_tip(bill, percentage)\n\nprint(calculate_total(50, 20))",
+                        "tests": [
+                            {
+                                "type": "OUTPUT_CONTAINS",
+                                "expected": "60.0",
+                                "feedback": "Make sure calculate_total returns bill + calculate_tip(bill, percentage) and you print calculate_total(50, 20)."
+                            }
+                        ],
+                        "showOutput": true
+                    }'::jsonb
+                ),
+                (
+                    'fd00de96-49ef-4bed-8bd7-2a05ff1b2003',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "91300000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Step 3: Split the Bill"
+                        },
+                        {
+                            "clientId": "91300000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "Finally, add a function that splits the total evenly between a group of people."
+                        },
+                        {
+                            "clientId": "91300000-0003-4000-a000-000000000000",
+                            "type": "instructions",
+                            "instructions": [
+                                "Keep both functions from the previous steps",
+                                "Define a function called `split_bill` that takes `bill`, `percentage`, and `people`",
+                                "Return `calculate_total(bill, percentage) / people`",
+                                "Call `split_bill(60, 15, 3)` and print the result"
+                            ]
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "EXECUTABLE",
+                        "clientId": "a1300000-0000-4000-a000-000000000000",
+                        "solution": "def calculate_tip(bill, percentage):\n    return bill * percentage / 100\n\ndef calculate_total(bill, percentage):\n    return bill + calculate_tip(bill, percentage)\n\ndef split_bill(bill, percentage, people):\n    return calculate_total(bill, percentage) / people\n\nprint(split_bill(60, 15, 3))",
+                        "tests": [
+                            {
+                                "type": "OUTPUT_CONTAINS",
+                                "expected": "23.0",
+                                "feedback": "Make sure split_bill returns calculate_total(bill, percentage) / people and you print split_bill(60, 15, 3)."
+                            }
+                        ],
+                        "showOutput": true
+                    }'::jsonb
+                )
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-19-py-guided-lesson-exercises" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO lesson_exercises (lesson_id, exercise_id, exercise_version, order_index)
+            VALUES
+                ('8eeaaddd-2d87-495e-bd40-24cfd9f06b4b', 'fd00de96-49ef-4bed-8bd7-2a05ff1b2001', 1, 1),
+                ('8eeaaddd-2d87-495e-bd40-24cfd9f06b4b', 'fd00de96-49ef-4bed-8bd7-2a05ff1b2002', 1, 2),
+                ('8eeaaddd-2d87-495e-bd40-24cfd9f06b4b', 'fd00de96-49ef-4bed-8bd7-2a05ff1b2003', 1, 3)
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <!-- ===================== JAVASCRIPT COURSE ===================== -->
 
     <changeSet id="005-20-js-tag" author="dave" context="dev" dbms="postgresql">
         <sql>
