@@ -188,6 +188,12 @@ abstract class AbstractIntegrationTest {
     lateinit var discussionRepository: DiscussionRepository
     @Autowired
     lateinit var discussionMessageRepository: DiscussionMessageRepository
+    @Autowired
+    lateinit var coinTransactionRepository: CoinTransactionRepository
+    @Autowired
+    lateinit var userXpRepository: UserXpRepository
+    @Autowired
+    lateinit var xpTransactionRepository: XpTransactionRepository
 
     @Autowired
     lateinit var storage: Storage
@@ -216,7 +222,10 @@ abstract class AbstractIntegrationTest {
           user_streak,
           lesson_completion,
           course_progress,
+          coin_transaction,
+          xp_transaction,
           user_coins,
+          user_xp,
           external_account,
           user_subscription,
           ludo_user,

@@ -10,6 +10,7 @@ import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionPa
 import com.ludocode.ludocodebackend.progress.api.dto.response.LessonCompletionResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.StreakResponsePacket
 import com.ludocode.ludocodebackend.progress.app.support.component.LessonScoreService
+import com.ludocode.ludocodebackend.progress.domain.enums.CoinTransactionType
 import com.ludocode.ludocodebackend.progress.domain.enums.LessonCompletionStatus
 import com.ludocode.ludocodebackend.progress.infra.repository.LessonCompletionRepository
 import jakarta.transaction.Transactional
@@ -28,6 +29,7 @@ class LessonCompletionService(
     private val clock: Clock,
     private val lessonCompletionRepository: LessonCompletionRepository,
     private val userCoinsService: UserCoinsService,
+    private val userXpService: UserXpService,
     private val courseProgressService: CourseProgressService,
     private val streakService: StreakService,
     private val lessonPortForProgress: LessonPortForProgress
@@ -67,13 +69,21 @@ class LessonCompletionService(
 
         val nowUtc = OffsetDateTime.now(clock)
         val newStreak: StreakResponsePacket = streakService.recordGoalMet(userId, nowUtc)
-        val newStats = userCoinsService.apply(PointsDelta(userId = userId, pointsDelta = scoreForLesson))
+        val newStats = userCoinsService.apply(PointsDelta(
+            userId = userId,
+            pointsDelta = scoreForLesson,
+            transactionType = CoinTransactionType.LESSON_REWARD,
+            referenceId = completedLessonId
+        ))
+        val (newXp, xpGained) = userXpService.applyLessonXp(userId, lessonCompletion.accuracy)
         val responseContent = LessonCompletionResponse(
-            newStats,
-            newStreak.response,
-            newCourseProgress,
-            submittedLesson,
-            accuracy = lessonCompletion.accuracy
+            newCoins = newStats,
+            newStreak = newStreak.response,
+            newCourseProgress = newCourseProgress,
+            updatedCompletedLesson = submittedLesson,
+            accuracy = lessonCompletion.accuracy,
+            newXp = newXp,
+            xpGained = xpGained
         )
 
 

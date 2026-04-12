@@ -2,6 +2,8 @@ package com.ludocode.ludocodebackend.progress.app.service
 
 import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.progress.api.dto.response.DailyGoalResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.StreakResponsePacket
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
@@ -63,19 +65,28 @@ class StreakService(
         return StreakResponsePacket(action = StreakAction.INCREMENT, response = updateStreak(userId, nowUtc, userZone))
     }
 
-    internal fun getPastWeekMondayToSunday(
+    fun getPastWeeks(
         userId: UUID,
+        weeks: Int = 1
     ): List<DailyGoalResponse> {
+
+        if (weeks != null && weeks <= 0) {
+            throw ApiException(ErrorCode.MUST_BE_POSITIVE)
+        }
 
         val today = LocalDate.now(clock)
 
-        val monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-        val week = (0..6).map { monday.plusDays(it.toLong()) }
+        val startOfCurrentWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val start = startOfCurrentWeek.minusWeeks(weeks.toLong() - 1)
 
-        val completions = userDailyGoalRepository.findRecentCompletions(userId, 7)
+        val totalDays = weeks * 7
+
+        val days = (0 until totalDays).map { start.plusDays(it.toLong()) }
+
+        val completions = userDailyGoalRepository.findRecentCompletions(userId, totalDays)
         val completedDates = completions.map { it.userDailyGoalId.localDate }.toSet()
 
-        return week.map { date ->
+        return days.map { date ->
             DailyGoalResponse(date, completedDates.contains(date))
         }
     }

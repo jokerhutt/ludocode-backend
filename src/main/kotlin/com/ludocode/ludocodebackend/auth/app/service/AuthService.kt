@@ -10,6 +10,7 @@ import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserCoinsPortForAuth
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStreakPortForAuth
+import com.ludocode.ludocodebackend.progress.app.port.`in`.UserXpPortForAuth
 import com.ludocode.ludocodebackend.user.api.dto.request.FindOrCreateUserRequest
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForAuth
@@ -28,6 +29,7 @@ class AuthService(
     private val authCookieService: AuthCookieService,
     private val userCoinsPortForAuth: UserCoinsPortForAuth,
     private val userStreakPortForAuth: UserStreakPortForAuth,
+    private val userXpPortForAuth: UserXpPortForAuth,
     private val demoProperties: DemoProperties,
     private val firebaseAuthPort: FirebaseAuthPort,
 ) {
@@ -86,9 +88,10 @@ class AuthService(
             logger.info(LogEvents.AUTH_LOGIN_SUCCESS)
             val coins = userCoinsPortForAuth.findOrCreateCoins(user.id)
             val streak = userStreakPortForAuth.getStreak(user.id)
+            val xp = userXpPortForAuth.findOrCreateXp(user.id)
             val jwt = jwtService.createToken(user.id, role = request.role)
             authCookieService.setJwt(response, jwt)
-            UserLoginResponse(user, coins, streak)
+            UserLoginResponse(user, coins, xp, streak)
         }
 
     }

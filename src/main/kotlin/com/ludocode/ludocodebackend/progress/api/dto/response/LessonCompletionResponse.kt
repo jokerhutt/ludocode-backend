@@ -8,5 +8,7 @@ data class LessonCompletionResponse(
     val newStreak: UserStreakResponse,
     val newCourseProgress: CourseProgressResponse,
     val updatedCompletedLesson: LessonResponse,
-    val accuracy: BigDecimal
+    val accuracy: BigDecimal,
+    val newXp: UserXpResponse,
+    val xpGained: Int
 )

@@ -1,0 +1,8 @@
+package com.ludocode.ludocodebackend.progress.app.port.`in`
+
+import com.ludocode.ludocodebackend.progress.api.dto.response.UserXpResponse
+import java.util.UUID
+
+interface UserXpPortForAuth {
+    fun findOrCreateXp(userId: UUID): UserXpResponse
+}

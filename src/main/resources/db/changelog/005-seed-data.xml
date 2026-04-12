@@ -187,6 +187,189 @@
         </sql>
     </changeSet>
 
+
+    <changeSet id="005-10b-py-m1-guided-lesson" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO lesson (id, title, is_deleted, lesson_type, project_snapshot)
+            VALUES (
+                       'c3eeaddd-2d87-495e-bd40-24cfd9f06b4b',
+                       'Build a Greeting Script',
+                       false,
+                       'GUIDED',
+                       '{
+                           "projectId": "80bbb000-0000-4000-a000-000000000001",
+                           "projectName": "Greeting Script",
+                           "projectType": "CODE",
+                           "entryFilePath": "greeting.py",
+                           "files": [
+                               {
+                                   "path": "greeting.py",
+                                   "language": "python",
+                                   "content": "# Build your greeting script here\n"
+                               }
+                           ]
+                       }'::jsonb
+                   )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-10c-py-m1-guided-module-lessons" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO module_lessons (module_id, lesson_id, order_index)
+            VALUES (
+                       'a99d4abd-895f-4a4b-b4ea-570fac609f6f',
+                       'c3eeaddd-2d87-495e-bd40-24cfd9f06b4b',
+                       2
+                   )
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-10d-py-m1-guided-exercises" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO exercise (id, version_number, is_deleted, blocks, interaction)
+            VALUES
+                (
+                    'ed00de96-49ef-4bed-8bd7-2a05ff1b2001',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "92100000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Step 1: Print a Greeting"
+                        },
+                        {
+                            "clientId": "92100000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "The `print()` function is used to display output in Python. It is the first thing most programmers learn!"
+                        },
+                        {
+                            "clientId": "92100000-0003-4000-a000-000000000000",
+                            "type": "instructions",
+                            "instructions": [
+                                "Use `print()` to output the text `Hello, World!` exactly as shown"
+                            ]
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "EXECUTABLE",
+                        "clientId": "b2100000-0000-4000-a000-000000000000",
+                        "solution": "print(\"Hello, World!\")",
+                        "tests": [
+                            {
+                                "type": "OUTPUT_CONTAINS",
+                                "expected": "Hello, World!",
+                                "feedback": "Use print() with the text Hello, World! inside quotes."
+                            }
+                        ],
+                        "showOutput": true
+                    }'::jsonb
+                ),
+                (
+                    'ed00de96-49ef-4bed-8bd7-2a05ff1b2002',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "92200000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Step 2: Print Multiple Lines"
+                        },
+                        {
+                            "clientId": "92200000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "You can call `print()` as many times as you like. Each call outputs a new line."
+                        },
+                        {
+                            "clientId": "92200000-0003-4000-a000-000000000000",
+                            "type": "instructions",
+                            "instructions": [
+                                "Print `Hello, World!` on the first line",
+                                "Print `Welcome to Python!` on the second line"
+                            ]
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "EXECUTABLE",
+                        "clientId": "b2200000-0000-4000-a000-000000000000",
+                        "solution": "print(\"Hello, World!\")\nprint(\"Welcome to Python!\")",
+                        "tests": [
+                            {
+                                "type": "OUTPUT_CONTAINS",
+                                "expected": "Hello, World!",
+                                "feedback": "Make sure you print Hello, World! on its own line."
+                            },
+                            {
+                                "type": "OUTPUT_CONTAINS",
+                                "expected": "Welcome to Python!",
+                                "feedback": "Make sure you also print Welcome to Python! on a second line."
+                            }
+                        ],
+                        "showOutput": true
+                    }'::jsonb
+                ),
+                (
+                    'ed00de96-49ef-4bed-8bd7-2a05ff1b2003',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "92300000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Step 3: Personalise Your Greeting"
+                        },
+                        {
+                            "clientId": "92300000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "You can combine variables and strings inside `print()` using an f-string — just prefix the string with `f` and wrap the variable in curly braces."
+                        },
+                        {
+                            "clientId": "92300000-0003-4000-a000-000000000000",
+                            "type": "code",
+                            "language": "python",
+                            "content": "name = \"Alice\"\nprint(f\"Hello, {name}!\")",
+                            "output": "Hello, Alice!"
+                        },
+                        {
+                            "clientId": "92300000-0004-4000-a000-000000000000",
+                            "type": "instructions",
+                            "instructions": [
+                                "Create a variable called `name` and set it to `Alice`",
+                                "Use an f-string to print `Hello, Alice!`"
+                            ]
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "EXECUTABLE",
+                        "clientId": "b2300000-0000-4000-a000-000000000000",
+                        "solution": "name = \"Alice\"\nprint(f\"Hello, {name}!\")",
+                        "tests": [
+                            {
+                                "type": "OUTPUT_CONTAINS",
+                                "expected": "Hello, Alice!",
+                                "feedback": "Set name = \"Alice\" and use an f-string: print(f\"Hello, {name}!\")"
+                            }
+                        ],
+                        "showOutput": true
+                    }'::jsonb
+                )
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-10e-py-m1-guided-lesson-exercises" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO lesson_exercises (lesson_id, exercise_id, exercise_version, order_index)
+            VALUES
+                ('c3eeaddd-2d87-495e-bd40-24cfd9f06b4b', 'ed00de96-49ef-4bed-8bd7-2a05ff1b2001', 1, 1),
+                ('c3eeaddd-2d87-495e-bd40-24cfd9f06b4b', 'ed00de96-49ef-4bed-8bd7-2a05ff1b2002', 1, 2),
+                ('c3eeaddd-2d87-495e-bd40-24cfd9f06b4b', 'ed00de96-49ef-4bed-8bd7-2a05ff1b2003', 1, 3)
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
     <!-- ===================== PREFS ===================== -->
     <changeSet id="005-11-01-career-preferences" author="dave" context="dev" dbms="postgresql">
         <sql>
@@ -283,6 +466,810 @@
             INSERT INTO user_streak (user_id, current_streak_days, best_streak_days)
             VALUES ('598ccbea-4957-4569-81cb-ea901b62c329', 0, 0)
             ON CONFLICT (user_id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-15-demo-user-xp" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO user_xp (user_id, xp)
+            VALUES ('598ccbea-4957-4569-81cb-ea901b62c329', 0)
+            ON CONFLICT (user_id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <!-- ===================== PYTHON GUIDED MODULE ===================== -->
+
+    <changeSet id="005-16-py-guided-module" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO module (id, title, order_index, is_deleted, course_id)
+            VALUES (
+                       'b99d4abd-895f-4a4b-b4ea-570fac609f6f',
+                       'Build a Tip Calculator',
+                       2,
+                       false,
+                       '75975805-3f02-43c2-9106-c990d944dfd2'
+                   )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-17-py-guided-lesson" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO lesson (id, title, is_deleted, lesson_type, project_snapshot)
+            VALUES (
+                       '8eeaaddd-2d87-495e-bd40-24cfd9f06b4b',
+                       'Build a Tip Calculator',
+                       false,
+                       'GUIDED',
+                       '{
+                           "projectId": "80aaa000-0000-4000-a000-000000000001",
+                           "projectName": "Tip Calculator",
+                           "projectType": "CODE",
+                           "entryFilePath": "tip_calculator.py",
+                           "files": [
+                               {
+                                   "path": "tip_calculator.py",
+                                   "language": "python",
+                                   "content": "# Build your tip calculator here\n"
+                               }
+                           ]
+                       }'::jsonb
+                   )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-17-02-py-guided-module-lessons" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO module_lessons (module_id, lesson_id, order_index)
+            VALUES (
+                       'b99d4abd-895f-4a4b-b4ea-570fac609f6f',
+                       '8eeaaddd-2d87-495e-bd40-24cfd9f06b4b',
+                       1
+                   )
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-18-py-guided-exercises" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO exercise (
+                id, version_number, is_deleted, blocks, interaction
+            )
+            VALUES
+                (
+                    'fd00de96-49ef-4bed-8bd7-2a05ff1b2001',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "91100000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Step 1: Calculate the Tip"
+                        },
+                        {
+                            "clientId": "91100000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "Create a function that calculates a tip amount from a bill total and a tip percentage."
+                        },
+                        {
+                            "clientId": "91100000-0003-4000-a000-000000000000",
+                            "type": "instructions",
+                            "instructions": [
+                                "Define a function called `calculate_tip` that takes `bill` and `percentage` as parameters",
+                                "Return `bill * percentage / 100`",
+                                "Call `calculate_tip(50, 20)` and print the result"
+                            ]
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "EXECUTABLE",
+                        "clientId": "a1100000-0000-4000-a000-000000000000",
+                        "solution": "def calculate_tip(bill, percentage):\n    return bill * percentage / 100\n\nprint(calculate_tip(50, 20))",
+                        "tests": [
+                            {
+                                "type": "OUTPUT_CONTAINS",
+                                "expected": "10.0",
+                                "feedback": "Make sure your function returns bill * percentage / 100 and you print calculate_tip(50, 20)."
+                            }
+                        ],
+                        "showOutput": true
+                    }'::jsonb
+                ),
+                (
+                    'fd00de96-49ef-4bed-8bd7-2a05ff1b2002',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "91200000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Step 2: Calculate the Total"
+                        },
+                        {
+                            "clientId": "91200000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "Now add a function that returns the total bill including the tip."
+                        },
+                        {
+                            "clientId": "91200000-0003-4000-a000-000000000000",
+                            "type": "instructions",
+                            "instructions": [
+                                "Keep the `calculate_tip` function from the previous step",
+                                "Define a function called `calculate_total` that takes `bill` and `percentage`",
+                                "Return `bill + calculate_tip(bill, percentage)`",
+                                "Call `calculate_total(50, 20)` and print the result"
+                            ]
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "EXECUTABLE",
+                        "clientId": "a1200000-0000-4000-a000-000000000000",
+                        "solution": "def calculate_tip(bill, percentage):\n    return bill * percentage / 100\n\ndef calculate_total(bill, percentage):\n    return bill + calculate_tip(bill, percentage)\n\nprint(calculate_total(50, 20))",
+                        "tests": [
+                            {
+                                "type": "OUTPUT_CONTAINS",
+                                "expected": "60.0",
+                                "feedback": "Make sure calculate_total returns bill + calculate_tip(bill, percentage) and you print calculate_total(50, 20)."
+                            }
+                        ],
+                        "showOutput": true
+                    }'::jsonb
+                ),
+                (
+                    'fd00de96-49ef-4bed-8bd7-2a05ff1b2003',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "91300000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Step 3: Split the Bill"
+                        },
+                        {
+                            "clientId": "91300000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "Finally, add a function that splits the total evenly between a group of people."
+                        },
+                        {
+                            "clientId": "91300000-0003-4000-a000-000000000000",
+                            "type": "instructions",
+                            "instructions": [
+                                "Keep both functions from the previous steps",
+                                "Define a function called `split_bill` that takes `bill`, `percentage`, and `people`",
+                                "Return `calculate_total(bill, percentage) / people`",
+                                "Call `split_bill(60, 15, 3)` and print the result"
+                            ]
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "EXECUTABLE",
+                        "clientId": "a1300000-0000-4000-a000-000000000000",
+                        "solution": "def calculate_tip(bill, percentage):\n    return bill * percentage / 100\n\ndef calculate_total(bill, percentage):\n    return bill + calculate_tip(bill, percentage)\n\ndef split_bill(bill, percentage, people):\n    return calculate_total(bill, percentage) / people\n\nprint(split_bill(60, 15, 3))",
+                        "tests": [
+                            {
+                                "type": "OUTPUT_CONTAINS",
+                                "expected": "23.0",
+                                "feedback": "Make sure split_bill returns calculate_total(bill, percentage) / people and you print split_bill(60, 15, 3)."
+                            }
+                        ],
+                        "showOutput": true
+                    }'::jsonb
+                )
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-19-py-guided-lesson-exercises" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO lesson_exercises (lesson_id, exercise_id, exercise_version, order_index)
+            VALUES
+                ('8eeaaddd-2d87-495e-bd40-24cfd9f06b4b', 'fd00de96-49ef-4bed-8bd7-2a05ff1b2001', 1, 1),
+                ('8eeaaddd-2d87-495e-bd40-24cfd9f06b4b', 'fd00de96-49ef-4bed-8bd7-2a05ff1b2002', 1, 2),
+                ('8eeaaddd-2d87-495e-bd40-24cfd9f06b4b', 'fd00de96-49ef-4bed-8bd7-2a05ff1b2003', 1, 3)
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <!-- ===================== JAVASCRIPT COURSE ===================== -->
+
+    <changeSet id="005-20-js-tag" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO tag (slug, name)
+            VALUES ('javascript', 'JavaScript')
+            ON CONFLICT (slug) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-21-js-course" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO course (
+                id, title, description, img_src, request_hash,
+                course_type, course_icon, course_status, code_language
+            )
+            VALUES (
+                       '10aaa000-0000-4000-a000-000000000001',
+                       'JavaScript',
+                       'The language of the web',
+                       NULL,
+                       '10aaa000-0000-4000-a000-000000000099',
+                       'COURSE',
+                       'JavaScript',
+                       'PUBLISHED',
+                       'javascript'
+                   )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-22-js-course-tag" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO course_tag (course_id, tag_id)
+            SELECT '10aaa000-0000-4000-a000-000000000001', id
+            FROM tag WHERE slug = 'javascript'
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-23-js-module-1" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO module (id, title, order_index, is_deleted, course_id)
+            VALUES (
+                       '20aaa000-0000-4000-a000-000000000001',
+                       'Variables and Data Types',
+                       1,
+                       false,
+                       '10aaa000-0000-4000-a000-000000000001'
+                   )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-24-js-module-2" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO module (id, title, order_index, is_deleted, course_id)
+            VALUES (
+                       '20aaa000-0000-4000-a000-000000000002',
+                       'Build a Calculator',
+                       2,
+                       false,
+                       '10aaa000-0000-4000-a000-000000000001'
+                   )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-25-js-lesson-1" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO lesson (id, title, is_deleted, lesson_type)
+            VALUES (
+                       '30aaa000-0000-4000-a000-000000000001',
+                       'Variables and Constants',
+                       false,
+                       'NORMAL'
+                   )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-26-js-lesson-2" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO lesson (id, title, is_deleted, lesson_type)
+            VALUES (
+                       '30aaa000-0000-4000-a000-000000000002',
+                       'Working with Data Types',
+                       false,
+                       'NORMAL'
+                   )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-27-js-lesson-3-guided" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO lesson (id, title, is_deleted, lesson_type, project_snapshot)
+            VALUES (
+                       '30aaa000-0000-4000-a000-000000000003',
+                       'Build a Simple Calculator',
+                       false,
+                       'GUIDED',
+                       '{
+                           "projectId": "70aaa000-0000-4000-a000-000000000001",
+                           "projectName": "Simple Calculator",
+                           "projectType": "CODE",
+                           "entryFilePath": "calculator.js",
+                           "files": [
+                               {
+                                   "path": "calculator.js",
+                                   "language": "javascript",
+                                   "content": "// Build your calculator here\n"
+                               }
+                           ]
+                       }'::jsonb
+                   )
+            ON CONFLICT (id) DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-28-js-module-lessons" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO module_lessons (module_id, lesson_id, order_index)
+            VALUES
+                ('20aaa000-0000-4000-a000-000000000001', '30aaa000-0000-4000-a000-000000000001', 1),
+                ('20aaa000-0000-4000-a000-000000000001', '30aaa000-0000-4000-a000-000000000002', 2),
+                ('20aaa000-0000-4000-a000-000000000002', '30aaa000-0000-4000-a000-000000000003', 1)
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-29-js-exercises-lesson-1" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO exercise (
+                id, version_number, is_deleted, blocks, interaction
+            )
+            VALUES
+                (
+                    '40aaa000-0000-4000-a000-000000000001',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "50100000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Welcome to JavaScript!"
+                        },
+                        {
+                            "clientId": "50100000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "JavaScript is the most popular programming language for web development. In this lesson you will learn how to store data using variables and constants."
+                        }
+                    ]'::jsonb,
+                    NULL
+                ),
+                (
+                    '40aaa000-0000-4000-a000-000000000002',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "50200000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Declaring Variables"
+                        },
+                        {
+                            "clientId": "50200000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "In modern JavaScript we use `let` to declare variables that can be reassigned, and `const` for values that never change."
+                        },
+                        {
+                            "clientId": "50200000-0003-4000-a000-000000000000",
+                            "type": "code",
+                            "language": "javascript",
+                            "content": "let score = 0;\nscore = 10;\nconsole.log(score);",
+                            "output": "10"
+                        },
+                        {
+                            "clientId": "50200000-0004-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "Which keyword declares a variable that can be reassigned?"
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "SELECT",
+                        "clientId": "60200000-0000-4000-a000-000000000000",
+                        "items": ["let", "const", "var", "function"],
+                        "correctValue": "let"
+                    }'::jsonb
+                ),
+                (
+                    '40aaa000-0000-4000-a000-000000000003',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "50300000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Creating a Constant"
+                        },
+                        {
+                            "clientId": "50300000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "Use `const` when you know the value should never change after it is assigned."
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "CLOZE",
+                        "clientId": "60300000-0000-4000-a000-000000000000",
+                        "file": {
+                            "language": "javascript",
+                            "content": "___ PI = 3.14159;"
+                        },
+                        "blanks": [
+                            {
+                                "index": 0,
+                                "correctOptions": ["const"]
+                            }
+                        ],
+                        "options": ["let", "const", "var"]
+                    }'::jsonb
+                ),
+                (
+                    '40aaa000-0000-4000-a000-000000000004',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "50400000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Variable Naming"
+                        },
+                        {
+                            "clientId": "50400000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "Variable names can contain letters, digits, underscores, and dollar signs. They must begin with a letter, underscore, or dollar sign."
+                        },
+                        {
+                            "clientId": "50400000-0003-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "Which of these is a valid variable name?"
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "SELECT",
+                        "clientId": "60400000-0000-4000-a000-000000000000",
+                        "items": ["myScore", "2fast", "my-var", "class"],
+                        "correctValue": "myScore"
+                    }'::jsonb
+                ),
+                (
+                    '40aaa000-0000-4000-a000-000000000005',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "50500000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Using Variables"
+                        },
+                        {
+                            "clientId": "50500000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "Variables can store the results of expressions and be updated over time."
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "CLOZE",
+                        "clientId": "60500000-0000-4000-a000-000000000000",
+                        "file": {
+                            "language": "javascript",
+                            "content": "let width = 10;\nlet height = 5;\nlet area = width ___ height;\nconsole.log(area);"
+                        },
+                        "blanks": [
+                            {
+                                "index": 0,
+                                "correctOptions": ["*"]
+                            }
+                        ],
+                        "options": ["*", "+", "/", "="],
+                        "output": "50"
+                    }'::jsonb
+                )
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-30-js-exercises-lesson-2" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO exercise (
+                id, version_number, is_deleted, blocks, interaction
+            )
+            VALUES
+                (
+                    '40aaa000-0000-4000-a000-000000000006',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "50600000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Data Types in JavaScript"
+                        },
+                        {
+                            "clientId": "50600000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "Every value in JavaScript has a type. The main types are: string, number, boolean, null, and undefined. Understanding types helps you write bug-free code."
+                        }
+                    ]'::jsonb,
+                    NULL
+                ),
+                -- E7: Strings (SELECT)
+                (
+                    '40aaa000-0000-4000-a000-000000000007',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "50700000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Strings"
+                        },
+                        {
+                            "clientId": "50700000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "Strings represent text. You can create them with double quotes, single quotes, or backticks."
+                        },
+                        {
+                            "clientId": "50700000-0003-4000-a000-000000000000",
+                            "type": "code",
+                            "language": "javascript",
+                            "content": "let greeting = \"Hello!\";\nconsole.log(typeof greeting);",
+                            "output": "string"
+                        },
+                        {
+                            "clientId": "50700000-0004-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "What does `typeof 42` return?"
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "SELECT",
+                        "clientId": "60700000-0000-4000-a000-000000000000",
+                        "items": ["number", "string", "integer", "float"],
+                        "correctValue": "number"
+                    }'::jsonb
+                ),
+                -- E8: The typeof Operator (CLOZE)
+                (
+                    '40aaa000-0000-4000-a000-000000000008',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "50800000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "The typeof Operator"
+                        },
+                        {
+                            "clientId": "50800000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "The `typeof` operator returns a string that describes the type of a value."
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "CLOZE",
+                        "clientId": "60800000-0000-4000-a000-000000000000",
+                        "file": {
+                            "language": "javascript",
+                            "content": "let active = true;\nconsole.log(___ active);"
+                        },
+                        "blanks": [
+                            {
+                                "index": 0,
+                                "correctOptions": ["typeof"]
+                            }
+                        ],
+                        "options": ["typeof", "type", "typeOf", "class"],
+                        "output": "boolean"
+                    }'::jsonb
+                ),
+                -- E9: Booleans (SELECT)
+                (
+                    '40aaa000-0000-4000-a000-000000000009',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "50900000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Booleans"
+                        },
+                        {
+                            "clientId": "50900000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "Booleans represent `true` or `false`. They are commonly used in conditions and comparisons."
+                        },
+                        {
+                            "clientId": "50900000-0003-4000-a000-000000000000",
+                            "type": "code",
+                            "language": "javascript",
+                            "content": "let x = 10;\nlet y = 5;\nconsole.log(x > y);"
+                        },
+                        {
+                            "clientId": "50900000-0004-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "What will `x > y` evaluate to?"
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "SELECT",
+                        "clientId": "60900000-0000-4000-a000-000000000000",
+                        "items": ["true", "false", "undefined", "null"],
+                        "correctValue": "true"
+                    }'::jsonb
+                ),
+                -- E10: String Concatenation (CLOZE)
+                (
+                    '40aaa000-0000-4000-a000-00000000000a',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "50a00000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "String Concatenation"
+                        },
+                        {
+                            "clientId": "50a00000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "You can combine strings together using the `+` operator."
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "CLOZE",
+                        "clientId": "60a00000-0000-4000-a000-000000000000",
+                        "file": {
+                            "language": "javascript",
+                            "content": "let first = \"Hello\";\nlet second = \"World\";\nlet result = first + \" \" ___ second;\nconsole.log(result);"
+                        },
+                        "blanks": [
+                            {
+                                "index": 0,
+                                "correctOptions": ["+"]
+                            }
+                        ],
+                        "options": ["+", "-", "*", "="],
+                        "output": "Hello World"
+                    }'::jsonb
+                )
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-31-js-exercises-lesson-3-guided" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO exercise (
+                id, version_number, is_deleted, blocks, interaction
+            )
+            VALUES
+                (
+                    '40aaa000-0000-4000-a000-00000000000b',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "50b00000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Step 1: The Add Function"
+                        },
+                        {
+                            "clientId": "50b00000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "Create a function that adds two numbers and prints the result."
+                        },
+                        {
+                            "clientId": "50b00000-0003-4000-a000-000000000000",
+                            "type": "instructions",
+                            "instructions": [
+                                "Create a function called `add` that takes parameters `a` and `b`",
+                                "Return the sum of `a` and `b`",
+                                "Call `add(3, 5)` and print the result with `console.log`"
+                            ]
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "EXECUTABLE",
+                        "clientId": "60b00000-0000-4000-a000-000000000000",
+                        "solution": "function add(a, b) {\n  return a + b;\n}\nconsole.log(add(3, 5));",
+                        "tests": [
+                            {
+                                "type": "OUTPUT_CONTAINS",
+                                "expected": "8",
+                                "feedback": "Make sure your add function returns a + b and you print the result of add(3, 5)."
+                            }
+                        ],
+                        "showOutput": true
+                    }'::jsonb
+                ),
+                (
+                    '40aaa000-0000-4000-a000-00000000000c',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "50c00000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Step 2: The Subtract Function"
+                        },
+                        {
+                            "clientId": "50c00000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "Now add a subtract function to your calculator."
+                        },
+                        {
+                            "clientId": "50c00000-0003-4000-a000-000000000000",
+                            "type": "instructions",
+                            "instructions": [
+                                "Create a function called `subtract` that takes parameters `a` and `b`",
+                                "Return the result of `a - b`",
+                                "Call `subtract(10, 4)` and print the result"
+                            ]
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "EXECUTABLE",
+                        "clientId": "60c00000-0000-4000-a000-000000000000",
+                        "solution": "function add(a, b) {\n  return a + b;\n}\n\nfunction subtract(a, b) {\n  return a - b;\n}\nconsole.log(subtract(10, 4));",
+                        "tests": [
+                            {
+                                "type": "OUTPUT_CONTAINS",
+                                "expected": "6",
+                                "feedback": "Make sure your subtract function returns a - b and you print the result of subtract(10, 4)."
+                            }
+                        ],
+                        "showOutput": true
+                    }'::jsonb
+                ),
+                (
+                    '40aaa000-0000-4000-a000-00000000000d',
+                    1,
+                    false,
+                    '[
+                        {
+                            "clientId": "50d00000-0001-4000-a000-000000000000",
+                            "type": "header",
+                            "content": "Step 3: The Multiply Function"
+                        },
+                        {
+                            "clientId": "50d00000-0002-4000-a000-000000000000",
+                            "type": "paragraph",
+                            "content": "Complete your calculator with a multiply function."
+                        },
+                        {
+                            "clientId": "50d00000-0003-4000-a000-000000000000",
+                            "type": "instructions",
+                            "instructions": [
+                                "Create a function called `multiply` that takes parameters `a` and `b`",
+                                "Return the product of `a` and `b`",
+                                "Call `multiply(7, 6)` and print the result"
+                            ]
+                        }
+                    ]'::jsonb,
+                    '{
+                        "type": "EXECUTABLE",
+                        "clientId": "60d00000-0000-4000-a000-000000000000",
+                        "solution": "function add(a, b) {\n  return a + b;\n}\n\nfunction subtract(a, b) {\n  return a - b;\n}\n\nfunction multiply(a, b) {\n  return a * b;\n}\nconsole.log(multiply(7, 6));",
+                        "tests": [
+                            {
+                                "type": "OUTPUT_CONTAINS",
+                                "expected": "42",
+                                "feedback": "Make sure your multiply function returns a * b and you print the result of multiply(7, 6)."
+                            }
+                        ],
+                        "showOutput": true
+                    }'::jsonb
+                )
+            ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="005-32-js-lesson-exercises" author="dave" context="dev" dbms="postgresql">
+        <sql>
+            INSERT INTO lesson_exercises (lesson_id, exercise_id, exercise_version, order_index)
+            VALUES
+                ('30aaa000-0000-4000-a000-000000000001', '40aaa000-0000-4000-a000-000000000001', 1, 1),
+                ('30aaa000-0000-4000-a000-000000000001', '40aaa000-0000-4000-a000-000000000002', 1, 2),
+                ('30aaa000-0000-4000-a000-000000000001', '40aaa000-0000-4000-a000-000000000003', 1, 3),
+                ('30aaa000-0000-4000-a000-000000000001', '40aaa000-0000-4000-a000-000000000004', 1, 4),
+                ('30aaa000-0000-4000-a000-000000000001', '40aaa000-0000-4000-a000-000000000005', 1, 5),
+                ('30aaa000-0000-4000-a000-000000000002', '40aaa000-0000-4000-a000-000000000006', 1, 1),
+                ('30aaa000-0000-4000-a000-000000000002', '40aaa000-0000-4000-a000-000000000007', 1, 2),
+                ('30aaa000-0000-4000-a000-000000000002', '40aaa000-0000-4000-a000-000000000008', 1, 3),
+                ('30aaa000-0000-4000-a000-000000000002', '40aaa000-0000-4000-a000-000000000009', 1, 4),
+                ('30aaa000-0000-4000-a000-000000000002', '40aaa000-0000-4000-a000-00000000000a', 1, 5),
+                ('30aaa000-0000-4000-a000-000000000003', '40aaa000-0000-4000-a000-00000000000b', 1, 1),
+                ('30aaa000-0000-4000-a000-000000000003', '40aaa000-0000-4000-a000-00000000000c', 1, 2),
+                ('30aaa000-0000-4000-a000-000000000003', '40aaa000-0000-4000-a000-00000000000d', 1, 3)
+            ON CONFLICT DO NOTHING;
         </sql>
     </changeSet>
 

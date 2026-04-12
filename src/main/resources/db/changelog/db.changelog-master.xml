@@ -51,6 +51,8 @@
     <include file="/db/changelog/044-add-project-type-runtime-and-language-uniques.xml"/>
     <include file="/db/changelog/045-project-entry-file-path.xml"/>
     <include file="/db/changelog/046-remove-language-fks-use-code-language-string.xml"/>
+    <include file="/db/changelog/047-create-coin-transaction.xml"/>
+    <include file="/db/changelog/048-create-user-xp-and-xp-transaction.xml"/>
 
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>

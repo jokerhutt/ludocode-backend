@@ -35,11 +35,12 @@ class StreakController(private val streakService: StreakService) {
     @GetMapping
     fun getUserStreak(
         @RequestParam(required = false) mode: String?,
+        @RequestParam(required = false) weeks: Int?,
         @AuthenticationPrincipal(expression = "userId") userId: UUID
     ): ResponseEntity<*> {
         return when (mode) {
             "weekly" ->
-                ResponseEntity.ok(streakService.getPastWeekMondayToSunday(userId))
+                ResponseEntity.ok(streakService.getPastWeeks(userId, weeks ?: 1))
 
             null ->
                 ResponseEntity.ok(streakService.getStreak(userId))
