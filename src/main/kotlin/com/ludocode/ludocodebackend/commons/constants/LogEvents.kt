@@ -21,6 +21,7 @@ object LogEvents {
     const val AUTH_JWT_INVALID = "auth_jwt_invalid"
     const val AUTH_DEMO_AUTO_LOGIN_FAILED = "auth_demo_auto_login_failed"
     const val AUTH_FILTER_SHOULD_NOT_FILTER = "auth_filter_should_not_filter"
+    const val AUTH_GUEST_LOGIN_REQUESTED = "auth_guest_login_requested"
 
     const val GCS_GET_FAILED = "gcs_get_failed"
     const val STORAGE_DELETE_FAILED = "storage_delete_failed"

@@ -10,5 +10,5 @@ data class UserResponse(
     val avatarIndex: Int,
     val email: String,
     val createdAt: OffsetDateTime,
-    val hasOnboarded: Boolean
+    var hasOnboarded: Boolean
 )

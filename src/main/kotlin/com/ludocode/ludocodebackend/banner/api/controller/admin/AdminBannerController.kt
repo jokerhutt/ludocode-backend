@@ -30,7 +30,10 @@ class AdminBannerController(
 
     @Operation(
         summary = "Create banner",
-        description = "Creates a new active banner. Only one active banner per type is allowed."
+        description = """
+        Creates a new active banner. Only one active banner per type is allowed.
+        Requires the request to be authenticated with admin privileges.
+        """
     )
     @SecurityRequirement(name = "sessionAuth")
     @PostMapping
@@ -40,7 +43,10 @@ class AdminBannerController(
 
     @Operation(
         summary = "Delete banner",
-        description = "Soft deletes the banner by setting isActive=false."
+        description = """
+        Soft deletes the banner by setting isActive=false.
+        Requires the request to be authenticated with admin privileges. 
+        """
     )
     @SecurityRequirement(name = "sessionAuth")
     @DeleteMapping(ApiPaths.BANNERS.ID)
@@ -50,7 +56,10 @@ class AdminBannerController(
 
     @Operation(
         summary = "List banners",
-        description = "Returns all banners including inactive ones."
+        description = """
+        Returns all banners including inactive ones.
+        Requires the request to be authenticated with admin privileges.
+        """
     )
     @SecurityRequirement(name = "sessionAuth")
     @GetMapping
