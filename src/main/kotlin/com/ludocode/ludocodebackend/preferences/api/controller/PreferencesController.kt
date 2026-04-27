@@ -48,7 +48,6 @@ class PreferencesController(private val preferencesService: PreferencesService) 
         Includes basic career metadata such as ID and title. 
         """
     )
-    @SecurityRequirement(name = "sessionAuth")
     @GetMapping(ApiPaths.PREFERENCES.CAREERS)
     fun getCareerChoices() : ResponseEntity<List<CareerResponse>> {
         return ResponseEntity.ok(preferencesService.getCareerPreferences())
