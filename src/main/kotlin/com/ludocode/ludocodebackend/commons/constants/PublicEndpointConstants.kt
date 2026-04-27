@@ -6,6 +6,7 @@ object PublicEndpointConstants {
     val PUBLIC_ENDPOINTS = arrayOf(
         "/actuator/**",
         "${ApiPaths.AUTH.BASE}${ApiPaths.AUTH.FIREBASE}",
+        "${ApiPaths.AUTH.BASE}${ApiPaths.AUTH.GUEST}",
         ApiPaths.FEATURES.BASE,
         "${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.MODULES}",
         "${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.COURSES}",
