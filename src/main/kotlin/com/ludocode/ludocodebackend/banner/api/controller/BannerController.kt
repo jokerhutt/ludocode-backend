@@ -22,7 +22,7 @@ class BannerController(
 
     @Operation(
         summary = "Get active banners",
-        description = "Returns the list of active banners for non-admin clients."
+        description = "Returns the list of currently active banners."
     )
     @GetMapping
     fun getActiveBanners(): ResponseEntity<List<BannerActiveRequest>> {

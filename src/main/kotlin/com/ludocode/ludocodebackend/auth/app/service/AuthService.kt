@@ -8,6 +8,8 @@ import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
+import com.ludocode.ludocodebackend.preferences.api.dto.request.OnboardingSubmission
+import com.ludocode.ludocodebackend.preferences.app.service.PreferencesService
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserCoinsPortForAuth
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStreakPortForAuth
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserXpPortForAuth
@@ -32,6 +34,7 @@ class AuthService(
     private val userXpPortForAuth: UserXpPortForAuth,
     private val demoProperties: DemoProperties,
     private val firebaseAuthPort: FirebaseAuthPort,
+    private val preferencesService: PreferencesService,
 ) {
 
     private val logger = LoggerFactory.getLogger(AuthService::class.java)
@@ -75,6 +78,31 @@ class AuthService(
             role = "admin"
         )
         return buildLoginResponse(request, response)
+    }
+
+    fun loginAsGuest(response: HttpServletResponse): UserLoginResponse {
+
+        logger.info(LogEvents.AUTH_GUEST_LOGIN_REQUESTED)
+
+        val randomId = UUID.randomUUID().toString()
+
+        val username = "user_" + randomId.take(8)
+
+        val request = FindOrCreateUserRequest(
+            provider = AuthProvider.GUEST,
+            providerUserId = randomId,
+            email = "${randomId}_guest@ludocode.dev",
+
+            displayName = username,
+
+            avatarUrl = null,
+
+            role = "guest"
+
+        )
+
+        return buildLoginResponse(request, response)
+
     }
 
     @Transactional

@@ -8,7 +8,7 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
     BAD_REQ(HttpStatus.BAD_REQUEST, "Bad Request"),
     EMAIL_IN_USE(HttpStatus.CONFLICT, "Email is already in use"),
     EMAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "Email not found"),
-
+    USER_NAME_NOT_FOUND(HttpStatus.NOT_FOUND, "Username not found"),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found"),
     TREE_NOT_FOUND(HttpStatus.NOT_FOUND, "Tree not found"),
     LESSON_NOT_FOUND(HttpStatus.NOT_FOUND, "Lesson not found"),
