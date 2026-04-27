@@ -10,6 +10,7 @@ import com.ludocode.ludocodebackend.preferences.api.dto.request.OnboardingSubmis
 import com.ludocode.ludocodebackend.preferences.app.service.PreferencesService
 import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
+import com.ludocode.ludocodebackend.user.app.service.UserService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -30,7 +31,8 @@ class AuthController(
     private val authService: AuthService,
     private val cookieConfig: AuthCookieProperties,
     private val subscriptionService: SubscriptionService,
-    private val preferencesService: PreferencesService
+    private val preferencesService: PreferencesService,
+    private val userService: UserService
 ) {
 
     @Operation(
@@ -62,9 +64,11 @@ class AuthController(
     @PostMapping(ApiPaths.AUTH.GUEST)
     fun guestLogin(@RequestBody onboardingData: OnboardingSubmission, res: HttpServletResponse): UserLoginResponse {
         val guestUserLoginResponse = authService.loginAsGuest(res)
-        onboardingData.selectedUsername = guestUserLoginResponse.user.displayName ?: throw ApiException(ErrorCode.USER_NAME_NOT_FOUND)
-        preferencesService.createPreferences(onboardingData, guestUserLoginResponse.user.id)
-        guestUserLoginResponse.user.hasOnboarded = true
+        if (!guestUserLoginResponse.user.hasOnboarded) {
+            onboardingData.selectedUsername = guestUserLoginResponse.user.displayName ?: throw ApiException(ErrorCode.USER_NAME_NOT_FOUND)
+            preferencesService.createPreferences(onboardingData, guestUserLoginResponse.user.id)
+            guestUserLoginResponse.user.hasOnboarded = true
+        }
         return guestUserLoginResponse
     }
 
