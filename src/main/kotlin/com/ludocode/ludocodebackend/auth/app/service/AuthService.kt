@@ -8,6 +8,8 @@ import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
+import com.ludocode.ludocodebackend.preferences.api.dto.request.OnboardingSubmission
+import com.ludocode.ludocodebackend.preferences.app.service.PreferencesService
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserCoinsPortForAuth
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserStreakPortForAuth
 import com.ludocode.ludocodebackend.progress.app.port.`in`.UserXpPortForAuth
@@ -32,6 +34,7 @@ class AuthService(
     private val userXpPortForAuth: UserXpPortForAuth,
     private val demoProperties: DemoProperties,
     private val firebaseAuthPort: FirebaseAuthPort,
+    private val preferencesService: PreferencesService,
 ) {
 
     private val logger = LoggerFactory.getLogger(AuthService::class.java)

@@ -6,6 +6,8 @@ import com.ludocode.ludocodebackend.auth.configuration.cookie.AuthCookieProperti
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.preferences.api.dto.request.OnboardingSubmission
+import com.ludocode.ludocodebackend.preferences.app.service.PreferencesService
 import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -27,7 +29,8 @@ import java.util.*
 class AuthController(
     private val authService: AuthService,
     private val cookieConfig: AuthCookieProperties,
-    private val subscriptionService: SubscriptionService
+    private val subscriptionService: SubscriptionService,
+    private val preferencesService: PreferencesService
 ) {
 
     @Operation(
@@ -57,7 +60,9 @@ class AuthController(
     }
 
     @PostMapping(ApiPaths.AUTH.GUEST)
-    fun guestLogin(res: HttpServletResponse): UserLoginResponse {
+    fun guestLogin(onboardingData: OnboardingSubmission, res: HttpServletResponse): UserLoginResponse {
+        val guestUserLoginResponse = authService.loginAsGuest(res)
+        preferencesService.createPreferences(onboardingData, guestUserLoginResponse.user.id)
         return authService.loginAsGuest(res)
     }
 
