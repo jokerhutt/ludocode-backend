@@ -64,7 +64,8 @@ class AuthController(
         val guestUserLoginResponse = authService.loginAsGuest(res)
         onboardingData.selectedUsername = guestUserLoginResponse.user.displayName ?: throw ApiException(ErrorCode.USER_NAME_NOT_FOUND)
         preferencesService.createPreferences(onboardingData, guestUserLoginResponse.user.id)
-        return authService.loginAsGuest(res)
+        guestUserLoginResponse.user.hasOnboarded = true
+        return guestUserLoginResponse
     }
 
     @Operation(
