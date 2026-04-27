@@ -56,6 +56,11 @@ class AuthController(
 
     }
 
+    @PostMapping(ApiPaths.AUTH.GUEST)
+    fun guestLogin(res: HttpServletResponse): UserLoginResponse {
+        return authService.loginAsGuest(res)
+    }
+
     @Operation(
         summary = "Get current authenticated user",
         description = """

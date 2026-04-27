@@ -77,6 +77,31 @@ class AuthService(
         return buildLoginResponse(request, response)
     }
 
+    fun loginAsGuest(response: HttpServletResponse): UserLoginResponse {
+
+        logger.info(LogEvents.AUTH_GUEST_LOGIN_REQUESTED)
+
+        val randomId = UUID.randomUUID().toString()
+
+        val username = "user_" + randomId.take(8)
+
+        val request = FindOrCreateUserRequest(
+            provider = AuthProvider.GUEST,
+            providerUserId = randomId,
+            email = "${randomId}_guest@ludocode.dev",
+
+            displayName = username,
+
+            avatarUrl = null,
+
+            role = "guest"
+
+        )
+
+        return buildLoginResponse(request, response)
+
+    }
+
     @Transactional
      fun buildLoginResponse(
         request: FindOrCreateUserRequest,
