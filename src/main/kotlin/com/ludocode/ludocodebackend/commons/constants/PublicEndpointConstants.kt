@@ -7,7 +7,7 @@ object PublicEndpointConstants {
         "/actuator/**",
         "${ApiPaths.AUTH.BASE}${ApiPaths.AUTH.FIREBASE}",
         "${ApiPaths.AUTH.BASE}${ApiPaths.AUTH.GUEST}",
-        "${ApiPaths.PREFERENCES}${ApiPaths.PREFERENCES.CAREERS}",
+        "${ApiPaths.PREFERENCES.BASE}${ApiPaths.PREFERENCES.CAREERS}",
         ApiPaths.FEATURES.BASE,
         "${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.MODULES}",
         "${ApiPaths.CATALOG.BASE}${ApiPaths.CATALOG.COURSES}",
