@@ -6,5 +6,5 @@ data class OnboardingSubmission(
     val chosenPath: String,
     val chosenCourse: UUID,
     val hasProgrammingExperience: Boolean,
-    val selectedUsername: String,
+    var selectedUsername: String,
 )
