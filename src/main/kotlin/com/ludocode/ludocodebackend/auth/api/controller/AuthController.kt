@@ -60,7 +60,7 @@ class AuthController(
     }
 
     @PostMapping(ApiPaths.AUTH.GUEST)
-    fun guestLogin(onboardingData: OnboardingSubmission, res: HttpServletResponse): UserLoginResponse {
+    fun guestLogin(@RequestBody onboardingData: OnboardingSubmission, res: HttpServletResponse): UserLoginResponse {
         val guestUserLoginResponse = authService.loginAsGuest(res)
         onboardingData.selectedUsername = guestUserLoginResponse.user.displayName ?: throw ApiException(ErrorCode.USER_NAME_NOT_FOUND)
         preferencesService.createPreferences(onboardingData, guestUserLoginResponse.user.id)
