@@ -41,6 +41,9 @@ class User(
     @Column(name = "time_zone")
     val timeZone: String = "UTC",
 
+    @Column(name = "is_guest")
+    val isGuest: Boolean = false,
+
     @Column(name = "is_deleted")
     var isDeleted: Boolean = false,
 

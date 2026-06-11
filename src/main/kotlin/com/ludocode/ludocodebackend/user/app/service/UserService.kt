@@ -57,6 +57,7 @@ class UserService(
             .map { UserSummary(it.id, it.displayName ?: "Anonymous") }
     }
 
+
     fun getSummaryById(id: UUID): UserSummary {
         val user = userRepository.findById(id).orElseThrow { ApiException(ErrorCode.USER_NOT_FOUND) }
         return UserSummary(user.id, user.displayName ?: "Anonymous")
@@ -66,14 +67,16 @@ class UserService(
         return userRepository.findUserTimeZone(userId)
     }
 
+    override fun isGuestUser(userId: UUID): Boolean {
+        return userRepository.existsByIdAndIsGuestTrue(userId)
+    }
+
     @Transactional
     internal fun deleteUser(userId: UUID) {
         var existingUser = userRepository.findById(userId).orElseThrow()
         subscriptionPortForUser.cancelSubscription(userId)
         val ext = externalAccountRepository.findByUserId(userId)
             ?: throw ApiException(ErrorCode.USER_NOT_FOUND, "Could not find external account for user")
-
-
 
         projectService.deleteUserProjects(userId)
 
@@ -86,7 +89,6 @@ class UserService(
         existingUser.displayName = null
         existingUser.isDeleted = true
         existingUser.deletedAt = OffsetDateTime.now(clock)
-
 
     }
 
@@ -118,7 +120,8 @@ class UserService(
                 displayName = displayName,
                 avatarIndex = assignedAvatar.index,
                 avatarVersion = assignedAvatar.version,
-                createdAt = OffsetDateTime.now(clock)
+                createdAt = OffsetDateTime.now(clock),
+                isGuest = true
             )
         )
 
