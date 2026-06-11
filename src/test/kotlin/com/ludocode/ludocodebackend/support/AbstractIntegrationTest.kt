@@ -361,6 +361,15 @@ abstract class AbstractIntegrationTest {
 
         externalAccountRepository.save(
             ExternalAccount(
+                userId = user2.id!!,
+                provider = AuthProvider.FIREBASE,
+                providerUserId = MockOauthConstants.USER_2_GOOGLE_SUB,
+                createdAt = Instant.from(OffsetDateTime.now(clock))
+            )
+        )
+
+        externalAccountRepository.save(
+            ExternalAccount(
                 userId = demoUser1.id!!,
                 provider = AuthProvider.DEMO,
                 providerUserId = demoUser1.id.toString(),
