@@ -18,7 +18,8 @@ class UserMapper(private val basicMapper: BasicMapper) {
                 avatarIndex = it.avatarIndex,
                 email = it.email!!,
                 createdAt = it.createdAt!!,
-                hasOnboarded = hasOnboarded
+                hasOnboarded = hasOnboarded,
+                isGuest = it.isGuest
             )
         }
 
