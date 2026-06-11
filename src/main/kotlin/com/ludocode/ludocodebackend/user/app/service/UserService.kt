@@ -121,7 +121,7 @@ class UserService(
                 avatarIndex = assignedAvatar.index,
                 avatarVersion = assignedAvatar.version,
                 createdAt = OffsetDateTime.now(clock),
-                isGuest = true
+                isGuest = req.isGuest
             )
         )
 
