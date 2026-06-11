@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service
 import java.time.Clock
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.temporal.TemporalAdjusters
+import java.util.UUID
 
 @Service
 class LeaderboardService (
@@ -16,7 +18,7 @@ class LeaderboardService (
     private val xpTransactionRepository: XpTransactionRepository,
 ) {
 
-    fun getWeeklyLeaderboardStats() : WeeklyLeaderboardResponse {
+    fun getWeeklyLeaderboardStats(userId: UUID) : WeeklyLeaderboardResponse {
 
         val today = LocalDate.now(clock)
         val startDate = today.with(
@@ -27,6 +29,10 @@ class LeaderboardService (
 
         val startDateTime = startDate.atStartOfDay().atOffset(ZoneOffset.UTC)
         val endDateTime = startDate.plusWeeks(1).atStartOfDay().atOffset(ZoneOffset.UTC)
+
+        if (!userQualifies(userId = userId, startDateTime, endDateTime)) {
+            return WeeklyLeaderboardResponse(startDate, endDate, userQualifies = false, emptyList())
+        }
 
         val weeklyLeaderboardUsers = xpTransactionRepository.findWeeklyLeaderboard(startDateTime, endDateTime)
             .mapIndexed { index, row ->
@@ -40,8 +46,13 @@ class LeaderboardService (
                 )
             }
 
-        return WeeklyLeaderboardResponse(startDate, endDate, weeklyLeaderboardUsers)
+        return WeeklyLeaderboardResponse(startDate, endDate, userQualifies = true, weeklyLeaderboardUsers)
 
+    }
+
+    // have they gotten at least some xp this week
+    private fun userQualifies(userId: UUID, startDateTime: OffsetDateTime, endDateTime: OffsetDateTime) : Boolean {
+        return xpTransactionRepository.existsByUserIdAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(userId, startDateTime, endDateTime)
     }
 
 

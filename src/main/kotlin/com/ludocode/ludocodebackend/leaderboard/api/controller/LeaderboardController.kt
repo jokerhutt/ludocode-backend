@@ -5,9 +5,11 @@ import com.ludocode.ludocodebackend.leaderboard.api.dto.WeeklyLeaderboardRespons
 import com.ludocode.ludocodebackend.leaderboard.app.service.LeaderboardService
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 @Tag(
     name = "Leaderboard",
@@ -19,9 +21,10 @@ class LeaderboardController(private val leaderboardService: LeaderboardService) 
 
 
     @GetMapping
-    fun getWeeklyLeaderboard(): ResponseEntity<WeeklyLeaderboardResponse> {
-       return ResponseEntity.ok(leaderboardService.getWeeklyLeaderboardStats())
+    fun getWeeklyLeaderboard(@AuthenticationPrincipal(expression = "userId") userId: UUID): ResponseEntity<WeeklyLeaderboardResponse> {
+        return ResponseEntity.ok(leaderboardService.getWeeklyLeaderboardStats(userId))
     }
+
 
 
 }

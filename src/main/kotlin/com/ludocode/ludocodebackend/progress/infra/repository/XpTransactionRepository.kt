@@ -9,6 +9,11 @@ import java.util.UUID
 
 interface XpTransactionRepository : JpaRepository<XpTransaction, UUID> {
 
+    fun existsByUserIdAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(
+        userId: UUID,
+        start: OffsetDateTime,
+        end: OffsetDateTime
+    ): Boolean
 
     fun findByUserIdAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(
         userId: UUID,
