@@ -30,7 +30,9 @@ interface XpTransactionRepository : JpaRepository<XpTransaction, UUID> {
         u.displayName,
         u.avatarVersion,
         u.avatarIndex
-    ORDER BY SUM(xt.amount) DESC
+    ORDER BY 
+        SUM(xt.amount) DESC,
+        MAX(xt.createdAt) DESC
     """)
     fun findWeeklyLeaderboard(
         start: OffsetDateTime,
