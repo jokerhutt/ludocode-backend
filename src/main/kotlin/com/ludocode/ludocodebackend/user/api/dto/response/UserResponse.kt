@@ -11,4 +11,5 @@ data class UserResponse(
     val email: String,
     val createdAt: OffsetDateTime,
     var hasOnboarded: Boolean
+    val isGuest: Boolean
 )
