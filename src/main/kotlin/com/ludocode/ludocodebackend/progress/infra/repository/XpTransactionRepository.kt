@@ -19,6 +19,7 @@ interface XpTransactionRepository : JpaRepository<XpTransaction, UUID> {
         userId: UUID,
         cutoff: OffsetDateTime
     ): List<XpTransaction>
+
     @Query("""
     SELECT
         u.id as userId,
@@ -30,6 +31,7 @@ interface XpTransactionRepository : JpaRepository<XpTransaction, UUID> {
     JOIN User u ON u.id = xt.userId
     WHERE xt.createdAt >= :start
       AND xt.createdAt < :end
+      AND (:filterGuests = false OR u.isGuest = false)
     GROUP BY
         u.id,
         u.displayName,
@@ -41,7 +43,8 @@ interface XpTransactionRepository : JpaRepository<XpTransaction, UUID> {
     """)
     fun findWeeklyLeaderboard(
         start: OffsetDateTime,
-        end: OffsetDateTime
+        end: OffsetDateTime,
+        filterGuests: Boolean? = false
     ): List<LeaderboardRowProjection>
 
 }

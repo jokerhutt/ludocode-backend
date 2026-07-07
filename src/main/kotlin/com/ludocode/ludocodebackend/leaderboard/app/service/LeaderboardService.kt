@@ -36,7 +36,7 @@ class LeaderboardService (
             return WeeklyLeaderboardResponse(startDate, endDate, userQualifies = false, emptyList())
         }
 
-        val weeklyLeaderboardUsers = xpTransactionRepository.findWeeklyLeaderboard(startDateTime, endDateTime)
+        val weeklyLeaderboardUsers = xpTransactionRepository.findWeeklyLeaderboard(startDateTime, endDateTime, filterGuests = true)
             .mapIndexed { index, row ->
                 LeaderboardUserResponse(
                     rank = index + 1, // They are ordered so like first in list is first place on lb
