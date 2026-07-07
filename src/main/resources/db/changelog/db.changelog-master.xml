@@ -53,6 +53,7 @@
     <include file="/db/changelog/046-remove-language-fks-use-code-language-string.xml"/>
     <include file="/db/changelog/047-create-coin-transaction.xml"/>
     <include file="/db/changelog/048-create-user-xp-and-xp-transaction.xml"/>
+    <include file="/db/changelog/049-add-is-guest-column.xml"/>
 
     <!-- ===== SEED DATA  ===== -->
     <include file="/db/changelog/005-seed-data.xml"/>

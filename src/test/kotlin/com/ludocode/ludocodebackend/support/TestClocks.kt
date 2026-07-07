@@ -21,4 +21,7 @@ object TestClocks {
     val FIXED_NOON_UTC_MONDAY =
         Clock.fixed(Instant.parse("2025-01-06T12:00:00Z"), ZoneOffset.UTC)
 
+    val FIXED_NOON_UTC_WEDNESDAY =
+        Clock.fixed(Instant.parse("2025-01-08T12:00:00Z"), ZoneOffset.UTC)
+
 }

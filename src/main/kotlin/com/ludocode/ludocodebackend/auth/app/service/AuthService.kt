@@ -92,13 +92,10 @@ class AuthService(
             provider = AuthProvider.GUEST,
             providerUserId = randomId,
             email = "${randomId}_guest@ludocode.dev",
-
             displayName = username,
-
             avatarUrl = null,
-
-            role = "guest"
-
+            role = "guest",
+            isGuest = true
         )
 
         return buildLoginResponse(request, response)

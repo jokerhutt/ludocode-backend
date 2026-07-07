@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="049-001-add-is-guest-column" author="david">
+
+        <addColumn tableName="ludo_user">
+            <column name="is_guest" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <sql>
+            UPDATE ludo_user
+            SET is_guest = TRUE
+            WHERE email LIKE '%_guest@ludocode.dev';
+        </sql>
+
+        <sql>
+            UPDATE ludo_user
+            SET is_guest = FALSE
+            WHERE is_guest IS NULL;
+        </sql>
+
+        <addNotNullConstraint
+                tableName="ludo_user"
+                columnName="is_guest"
+                columnDataType="BOOLEAN"/>
+        <addDefaultValue
+                tableName="ludo_user"
+                columnName="is_guest"
+                defaultValueBoolean="false"/>
+
+    </changeSet>
+
+</databaseChangeLog>

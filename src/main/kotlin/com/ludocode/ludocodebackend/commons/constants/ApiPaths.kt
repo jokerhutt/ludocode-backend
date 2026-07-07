@@ -80,6 +80,10 @@ object ApiPaths {
         fun byIdAdmin(bannerId: Long): String = "$ADMIN_BASE/$bannerId"
     }
 
+    object LEADERBOARD {
+        const val BASE = "$API_PREFIX/leaderboard"
+    }
+
     object LESSONS {
         const val BASE = "$API_PREFIX/lessons"
         const val ADMIN_BASE = "$API_PREFIX$ADMIN_PREFIX/lessons"
