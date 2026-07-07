@@ -4,4 +4,5 @@ import java.util.*
 
 interface UserPortForProgress {
     fun getUserTimezone(userId: UUID): String?
+    fun isGuestUser(userId: UUID): Boolean
 }

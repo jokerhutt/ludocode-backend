@@ -3,6 +3,7 @@ package com.ludocode.ludocodebackend.leaderboard.app.service
 import com.ludocode.ludocodebackend.leaderboard.api.dto.LeaderboardUserResponse
 import com.ludocode.ludocodebackend.leaderboard.api.dto.WeeklyLeaderboardResponse
 import com.ludocode.ludocodebackend.progress.infra.repository.XpTransactionRepository
+import com.ludocode.ludocodebackend.user.app.port.`in`.UserPortForProgress
 import org.springframework.stereotype.Service
 import java.time.Clock
 import java.time.DayOfWeek
@@ -16,6 +17,7 @@ import java.util.UUID
 class LeaderboardService (
     private val clock: Clock,
     private val xpTransactionRepository: XpTransactionRepository,
+    private val userPortForProgress: UserPortForProgress,
 ) {
 
     fun getWeeklyLeaderboardStats(userId: UUID) : WeeklyLeaderboardResponse {
@@ -34,7 +36,7 @@ class LeaderboardService (
             return WeeklyLeaderboardResponse(startDate, endDate, userQualifies = false, emptyList())
         }
 
-        val weeklyLeaderboardUsers = xpTransactionRepository.findWeeklyLeaderboard(startDateTime, endDateTime)
+        val weeklyLeaderboardUsers = xpTransactionRepository.findWeeklyLeaderboard(startDateTime, endDateTime, filterGuests = true)
             .mapIndexed { index, row ->
                 LeaderboardUserResponse(
                     rank = index + 1, // They are ordered so like first in list is first place on lb
@@ -52,7 +54,13 @@ class LeaderboardService (
 
     // have they gotten at least some xp this week
     private fun userQualifies(userId: UUID, startDateTime: OffsetDateTime, endDateTime: OffsetDateTime) : Boolean {
-        return xpTransactionRepository.existsByUserIdAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(userId, startDateTime, endDateTime)
+
+        if (userPortForProgress.isGuestUser(userId)) {
+            return false;
+        }
+
+        val hasXpThisWeek = xpTransactionRepository.existsByUserIdAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(userId, startDateTime, endDateTime)
+        return hasXpThisWeek
     }
 
 

@@ -20,6 +20,8 @@ interface UserRepository : JpaRepository<User, UUID> {
     )
     fun findUserTimeZone(@Param("userId") userId: UUID): String?
 
+    fun existsByIdAndIsGuestTrue(id: UUID): Boolean
+
     fun existsByIdAndIsDeletedFalse(id: UUID): Boolean
 
     fun findByEmail(email: String): User?

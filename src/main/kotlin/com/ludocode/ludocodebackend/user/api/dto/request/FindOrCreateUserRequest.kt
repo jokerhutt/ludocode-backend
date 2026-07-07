@@ -9,5 +9,6 @@ data class FindOrCreateUserRequest(
     val email: String,
     val displayName: String?,
     val avatarUrl: String?,
-    val role: String?
+    val role: String?,
+    val isGuest: Boolean = false
 )
