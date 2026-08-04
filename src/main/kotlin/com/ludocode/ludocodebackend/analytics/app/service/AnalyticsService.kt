@@ -3,7 +3,7 @@ package com.ludocode.ludocodebackend.analytics.app.service
 import com.ludocode.ludocodebackend.analytics.api.dto.AnalyticsEventRequest
 import com.ludocode.ludocodebackend.analytics.domain.entity.AnalyticsEvent
 import com.ludocode.ludocodebackend.analytics.domain.enums.AnalyticsEventKey
-import com.ludocode.ludocodebackend.analytics.infra.http.AnalyticsEventRepository
+import com.ludocode.ludocodebackend.analytics.infra.repository.AnalyticsEventRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 

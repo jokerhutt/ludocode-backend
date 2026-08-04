@@ -1,9 +1,9 @@
 package com.ludocode.ludocodebackend.user.integration
 
-import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
+import com.ludocode.ludocodebackend.auth.api.dto.response.UserLoginResponse
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.subscription.api.dto.response.UserSubscriptionResponse
-import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
+import com.ludocode.ludocodebackend.subscription.domain.enums.Plan
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.user.api.dto.response.UserResponse

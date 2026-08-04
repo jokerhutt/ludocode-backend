@@ -8,8 +8,8 @@ import com.ludocode.ludocodebackend.preferences.api.dto.response.CareerResponse
 import com.ludocode.ludocodebackend.preferences.api.dto.request.PreferenceRequestKey
 
 import com.ludocode.ludocodebackend.preferences.api.dto.request.TogglePreferencesRequest
-import com.ludocode.ludocodebackend.preferences.api.infra.repository.CareerPreferencesRepository
-import com.ludocode.ludocodebackend.preferences.api.infra.repository.UserPreferencesRepository
+import com.ludocode.ludocodebackend.preferences.infra.repository.CareerPreferencesRepository
+import com.ludocode.ludocodebackend.preferences.infra.repository.UserPreferencesRepository
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
 import com.ludocode.ludocodebackend.preferences.api.dto.request.OnboardingSubmission
 import com.ludocode.ludocodebackend.user.api.dto.response.OnboardingResponse

@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.support
 
 import com.google.cloud.storage.Storage
-import com.ludocode.ludocodebackend.analytics.infra.http.AnalyticsEventRepository
+import com.ludocode.ludocodebackend.analytics.infra.repository.AnalyticsEventRepository
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
@@ -35,7 +35,7 @@ import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
 import com.ludocode.ludocodebackend.lesson.infra.repository.*
 import com.ludocode.ludocodebackend.projects.infra.repository.ProjectFileRepository
 import com.ludocode.ludocodebackend.projects.infra.repository.UserProjectRepository
-import com.ludocode.ludocodebackend.preferences.api.infra.repository.CareerPreferencesRepository
+import com.ludocode.ludocodebackend.preferences.infra.repository.CareerPreferencesRepository
 import com.ludocode.ludocodebackend.preferences.domain.entity.CareerPreference
 import com.ludocode.ludocodebackend.progress.infra.repository.*
 import com.ludocode.ludocodebackend.subscription.infra.repository.SubscriptionPlanRepository

@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.lesson.infra.repository
+package com.ludocode.ludocodebackend.lesson.infra.projection
 
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import java.util.*

@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.auth.api.controller
 
-import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
+import com.ludocode.ludocodebackend.auth.api.dto.response.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.app.service.AuthService
 import com.ludocode.ludocodebackend.auth.configuration.cookie.AuthCookieProperties
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
