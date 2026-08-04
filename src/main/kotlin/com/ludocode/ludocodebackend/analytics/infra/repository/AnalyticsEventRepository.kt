@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.analytics.infra.http
+package com.ludocode.ludocodebackend.analytics.infra.repository
 
 import com.ludocode.ludocodebackend.analytics.domain.entity.AnalyticsEvent
 import org.springframework.data.jpa.repository.JpaRepository

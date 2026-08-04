@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.languages.api.dto
+package com.ludocode.ludocodebackend.languages.domain
 
 object Languages {
 

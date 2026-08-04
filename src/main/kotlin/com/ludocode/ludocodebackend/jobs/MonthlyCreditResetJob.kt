@@ -2,7 +2,7 @@ package com.ludocode.ludocodebackend.jobs
 import com.ludocode.ludocodebackend.ai.app.port.out.AiCreditPortForSubscription
 import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import com.ludocode.ludocodebackend.subscription.configuration.PlanDefinitions
-import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
+import com.ludocode.ludocodebackend.subscription.domain.enums.Plan
 import com.ludocode.ludocodebackend.user.infra.repository.UserRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Component

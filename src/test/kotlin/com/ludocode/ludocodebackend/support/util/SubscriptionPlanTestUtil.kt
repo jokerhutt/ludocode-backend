@@ -2,7 +2,7 @@ package com.ludocode.ludocodebackend.support.util
 
 import com.ludocode.ludocodebackend.config.time.MutableClock
 import com.ludocode.ludocodebackend.subscription.domain.entity.SubscriptionPlan
-import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
+import com.ludocode.ludocodebackend.subscription.domain.enums.Plan
 import java.math.BigDecimal
 import java.time.OffsetDateTime
 import java.util.UUID

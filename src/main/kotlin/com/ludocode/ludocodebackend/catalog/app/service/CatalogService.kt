@@ -19,7 +19,7 @@ import com.ludocode.ludocodebackend.commons.constants.LogEvents
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
-import com.ludocode.ludocodebackend.languages.api.dto.Languages
+import com.ludocode.ludocodebackend.languages.domain.Languages
 import com.ludocode.ludocodebackend.lesson.infra.repository.LessonRepository
 import com.ludocode.ludocodebackend.tag.api.dto.TagMetadata
 import com.ludocode.ludocodebackend.tag.infra.repository.TagRepository

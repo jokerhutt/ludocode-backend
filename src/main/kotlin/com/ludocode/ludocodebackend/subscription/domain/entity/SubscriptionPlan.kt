@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.subscription.domain.entity
 
-import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
+import com.ludocode.ludocodebackend.subscription.domain.enums.Plan
 import jakarta.persistence.*
 import java.math.BigDecimal
 import java.time.OffsetDateTime

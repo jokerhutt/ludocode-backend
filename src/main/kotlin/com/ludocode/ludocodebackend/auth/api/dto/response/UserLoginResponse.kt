@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.auth.api.dto
+package com.ludocode.ludocodebackend.auth.api.dto.response
 
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserCoinsResponse
 import com.ludocode.ludocodebackend.progress.api.dto.response.UserStreakResponse
