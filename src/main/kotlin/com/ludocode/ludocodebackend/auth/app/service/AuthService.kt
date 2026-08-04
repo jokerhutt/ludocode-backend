@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.auth.app.service
 
-import com.ludocode.ludocodebackend.auth.api.dto.UserLoginResponse
+import com.ludocode.ludocodebackend.auth.api.dto.response.UserLoginResponse
 import com.ludocode.ludocodebackend.auth.app.port.out.FirebaseAuthPort
 import com.ludocode.ludocodebackend.auth.configuration.demo.DemoProperties
 import com.ludocode.ludocodebackend.commons.constants.LogEvents

@@ -12,7 +12,7 @@ import com.ludocode.ludocodebackend.lesson.app.port.`in`.LessonPortForProgress
 import com.ludocode.ludocodebackend.lesson.infra.repository.ExerciseRepository
 import com.ludocode.ludocodebackend.lesson.infra.repository.LessonExercisesRepository
 import com.ludocode.ludocodebackend.lesson.infra.repository.LessonRepository
-import com.ludocode.ludocodebackend.lesson.infra.repository.UserLessonProjection
+import com.ludocode.ludocodebackend.lesson.infra.projection.UserLessonProjection
 import net.logstash.logback.argument.StructuredArguments
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable

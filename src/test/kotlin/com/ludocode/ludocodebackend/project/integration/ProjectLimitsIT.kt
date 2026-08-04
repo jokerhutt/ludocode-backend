@@ -12,7 +12,7 @@ import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectListRespons
 import com.ludocode.ludocodebackend.projects.app.service.ProjectPlanEnforcer
 import com.ludocode.ludocodebackend.projects.domain.enums.ProjectType
 import com.ludocode.ludocodebackend.subscription.configuration.PlanDefinitions
-import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
+import com.ludocode.ludocodebackend.subscription.domain.enums.Plan
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import com.ludocode.ludocodebackend.support.util.ProjectTestUtil

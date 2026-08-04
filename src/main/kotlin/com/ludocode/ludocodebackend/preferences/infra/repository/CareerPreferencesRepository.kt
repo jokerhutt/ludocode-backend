@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.preferences.api.infra.repository
+package com.ludocode.ludocodebackend.preferences.infra.repository
 
 import com.ludocode.ludocodebackend.preferences.domain.entity.CareerPreference
 import org.springframework.data.jpa.repository.JpaRepository

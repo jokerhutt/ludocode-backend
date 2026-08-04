@@ -2,7 +2,7 @@ package com.ludocode.ludocodebackend.subscription.api.dto.response
 
 import com.ludocode.ludocodebackend.subscription.configuration.Feature
 import com.ludocode.ludocodebackend.subscription.configuration.PlanLimits
-import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
+import com.ludocode.ludocodebackend.subscription.domain.enums.Plan
 import java.math.BigDecimal
 
 data class SubscriptionPlanOverviewResponse(

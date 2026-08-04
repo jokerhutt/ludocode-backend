@@ -1,7 +1,7 @@
 package com.ludocode.ludocodebackend.subscription.infra.repository
 
 import com.ludocode.ludocodebackend.subscription.domain.entity.SubscriptionPlan
-import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
+import com.ludocode.ludocodebackend.subscription.domain.enums.Plan
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 

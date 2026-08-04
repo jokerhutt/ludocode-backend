@@ -8,7 +8,7 @@ import com.ludocode.ludocodebackend.subscription.app.service.SubscriptionService
 import com.ludocode.ludocodebackend.subscription.configuration.PlanDefinitions
 import com.ludocode.ludocodebackend.subscription.domain.entity.SubscriptionPlan
 import com.ludocode.ludocodebackend.subscription.domain.entity.UserSubscription
-import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
+import com.ludocode.ludocodebackend.subscription.domain.enums.Plan
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestClocks.FIXED_AMS
 import com.ludocode.ludocodebackend.support.TestRestClient

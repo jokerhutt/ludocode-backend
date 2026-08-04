@@ -7,7 +7,7 @@ import com.ludocode.ludocodebackend.subscription.configuration.Feature
 import com.ludocode.ludocodebackend.subscription.configuration.PlanDefinitions
 import com.ludocode.ludocodebackend.subscription.domain.entity.SubscriptionPlan
 import com.ludocode.ludocodebackend.subscription.domain.entity.UserSubscription
-import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
+import com.ludocode.ludocodebackend.subscription.domain.enums.Plan
 import com.ludocode.ludocodebackend.support.AbstractIntegrationTest
 import com.ludocode.ludocodebackend.support.TestRestClient
 import org.assertj.core.api.Assertions.assertThat

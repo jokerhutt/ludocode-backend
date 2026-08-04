@@ -6,7 +6,7 @@ import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.discussion.api.dto.UserSummary
-import com.ludocode.ludocodebackend.preferences.api.infra.repository.UserPreferencesRepository
+import com.ludocode.ludocodebackend.preferences.infra.repository.UserPreferencesRepository
 import com.ludocode.ludocodebackend.progress.app.port.`in`.CourseProgressPortForUser
 import com.ludocode.ludocodebackend.projects.app.service.ProjectService
 import com.ludocode.ludocodebackend.subscription.app.port.out.SubscriptionPortForUser

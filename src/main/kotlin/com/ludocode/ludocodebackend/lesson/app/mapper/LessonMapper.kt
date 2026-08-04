@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ludocode.ludocodebackend.commons.mapper.BasicMapper
 import com.ludocode.ludocodebackend.lesson.api.dto.response.LessonResponse
 import com.ludocode.ludocodebackend.lesson.domain.enums.LessonType
-import com.ludocode.ludocodebackend.lesson.infra.repository.UserLessonProjection
+import com.ludocode.ludocodebackend.lesson.infra.projection.UserLessonProjection
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
 import org.springframework.stereotype.Component
 

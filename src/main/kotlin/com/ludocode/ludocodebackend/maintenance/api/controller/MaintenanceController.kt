@@ -1,4 +1,4 @@
-package com.ludocode.ludocodebackend.maintenance
+package com.ludocode.ludocodebackend.maintenance.api.controller
 
 import com.ludocode.ludocodebackend.commons.configuration.app.MaintenanceProperties
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths

@@ -1,6 +1,6 @@
 package com.ludocode.ludocodebackend.subscription.api.dto.response
 
-import com.ludocode.ludocodebackend.subscription.domain.enum.Plan
+import com.ludocode.ludocodebackend.subscription.domain.enums.Plan
 import java.time.OffsetDateTime
 import java.util.*
 
