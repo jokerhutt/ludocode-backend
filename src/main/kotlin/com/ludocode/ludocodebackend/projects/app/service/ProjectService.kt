@@ -364,7 +364,7 @@ class ProjectService(
 
     @Transactional
     internal fun deleteProjectForUser(projectId: UUID, userId: UUID) {
-        val existingProject = userProjectRepository.findById(projectId).orElseThrow()
+        val existingProject = userProjectRepository.findById(projectId).orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
         val existingFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
 
         if (existingProject.userId != userId) {
@@ -390,7 +390,7 @@ class ProjectService(
     }
 
     private fun refreshUpdatedAt(existingId: UUID) {
-        var existingProject = userProjectRepository.findById(existingId).orElseThrow()
+        var existingProject = userProjectRepository.findById(existingId).orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
         existingProject.updatedAt = OffsetDateTime.now(clock)
         userProjectRepository.save(existingProject)
     }
@@ -413,7 +413,7 @@ class ProjectService(
             throw ApiException(ErrorCode.INVALID_PROJECT_NAME)
         }
 
-        var existingProject = userProjectRepository.findById(projectId).orElseThrow()
+        var existingProject = userProjectRepository.findById(projectId).orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
 
         if (existingProject.userId != userId) {
             throw ApiException(ErrorCode.NOT_OWN_PROJECT)
@@ -444,7 +444,7 @@ class ProjectService(
             throw ApiException(ErrorCode.INVALID_PROJECT_DESCRIPTION)
         }
 
-        var existingProject = userProjectRepository.findById(projectId).orElseThrow()
+        var existingProject = userProjectRepository.findById(projectId).orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
 
         if (existingProject.userId != userId) {
             throw ApiException(ErrorCode.NOT_OWN_PROJECT)
