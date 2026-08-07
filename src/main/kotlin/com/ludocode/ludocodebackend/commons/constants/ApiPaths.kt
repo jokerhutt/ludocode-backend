@@ -142,6 +142,7 @@ object ApiPaths {
         const val BY_ID_LIKE = "/{projectId}/like"
         const val VISIBILITY = "/visibility"
         const val NAME = "/{projectId}/name"
+        const val DESCRIPTION = "/{projectId}/description"
         fun byId(projectId: UUID): String = "$BASE/$projectId"
         fun visibilityById(projectId: UUID): String = "$BASE/$projectId/visibility"
         fun duplicateById(projectId: UUID): String = "$BASE/$projectId/duplicate"
@@ -152,6 +153,7 @@ object ApiPaths {
                 separator = "&projectIds="
             ) { it.toString() }
         fun name(projectId: UUID): String = "$BASE/$projectId/name"
+        fun description(projectId: UUID): String = "$BASE/$projectId/description"
     }
 
     object RUNNER {

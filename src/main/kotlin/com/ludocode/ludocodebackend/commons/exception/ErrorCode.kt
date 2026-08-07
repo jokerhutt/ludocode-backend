@@ -79,6 +79,8 @@ enum class ErrorCode(val status: HttpStatus, val defaultMessage: String) {
 
     NOT_OWN_PROJECT(HttpStatus.UNAUTHORIZED, "User is not allowed to view/modify this project"),
     NOT_ALLOWED(HttpStatus.UNAUTHORIZED, "Not allowed to retrieve content"),
+    INVALID_PROJECT_NAME(HttpStatus.BAD_REQUEST, "Project name is invalid"),
+    INVALID_PROJECT_DESCRIPTION(HttpStatus.BAD_REQUEST, "Project description is invalid"),
 
     GCS_GET_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to get project files from cloud storage"),
     STORAGE_OBJECT_NOT_FOUND(HttpStatus.NOT_FOUND, "Storage object not found"),

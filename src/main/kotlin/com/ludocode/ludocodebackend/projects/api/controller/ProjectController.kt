@@ -4,6 +4,7 @@ import com.ludocode.ludocodebackend.auth.api.security.principal.AuthUser
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.constants.LogFields
 import com.ludocode.ludocodebackend.commons.logging.withMdc
+import com.ludocode.ludocodebackend.projects.api.dto.request.ChangeProjectDescriptionRequest
 import com.ludocode.ludocodebackend.projects.api.dto.request.ChangeVisibilityRequest
 import com.ludocode.ludocodebackend.projects.api.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
@@ -129,6 +130,27 @@ class ProjectController(
     ): ResponseEntity<Void> {
         return withMdc(LogFields.PROJECT_ID to projectId.toString()) {
             projectService.renameProject(request, userId)
+            ResponseEntity.noContent().build()
+        }
+    }
+
+    @Operation(
+        summary = "Change project description",
+        description = """
+        Updates the description of an existing project owned by the currently authenticated user.
+        Only the project description is modified; all other project data remains unchanged.
+        Returns the updated list of the user's projects.
+        Requires a valid session cookie to be present.
+        """
+    )
+    @PatchMapping(ApiPaths.PROJECTS.NAME)
+    fun changeProjectDescription(
+        @PathVariable projectId: UUID,
+        @RequestBody request: ChangeProjectDescriptionRequest,
+        @AuthenticationPrincipal(expression = "userId") userId: UUID
+    ): ResponseEntity<Void> {
+        return withMdc(LogFields.PROJECT_ID to projectId.toString()) {
+            projectService.changeProjectDescription(request, userId)
             ResponseEntity.noContent().build()
         }
     }
