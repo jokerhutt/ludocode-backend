@@ -118,7 +118,7 @@ class ProjectController(
         description = """
         Updates the name of an existing project owned by the currently authenticated user.
         Only the project name is modified; all other project data remains unchanged.
-        Returns the updated list of the user's projects.
+        Returns no content.
         Requires a valid session cookie to be present.
         """
     )
@@ -139,7 +139,7 @@ class ProjectController(
         description = """
         Updates the description of an existing project owned by the currently authenticated user.
         Only the project description is modified; all other project data remains unchanged.
-        Returns the updated list of the user's projects.
+        Returns no content.
         Requires a valid session cookie to be present.
         """
     )
