@@ -433,13 +433,13 @@ class ProjectService(
 
         logger.info(
             LogEvents.PROJECT_DESCRIPTION_CHANGE_REQUESTED + " {}",
-            kv(LogFields.NAME_LENGTH, newDescription.length)
+            kv(LogFields.DESCRIPTION_LENGTH, newDescription.length)
         )
 
         if (newDescription.isBlank()) {
             logger.warn(
                 LogEvents.PROJECT_DESCRIPTION_EMPTY + " {}",
-                kv(LogFields.NAME_LENGTH, newDescription.length)
+                kv(LogFields.DESCRIPTION_LENGTH, newDescription.length)
             )
             throw ApiException(ErrorCode.INVALID_PROJECT_DESCRIPTION)
         }
