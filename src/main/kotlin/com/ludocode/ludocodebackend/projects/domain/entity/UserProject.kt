@@ -18,6 +18,9 @@ class UserProject(
     @Column(name = "name")
     var name: String,
 
+    @Column(name = "description")
+    var description: String = "No description provided",
+
     @Column(name = "user_id")
     val userId: UUID,
 

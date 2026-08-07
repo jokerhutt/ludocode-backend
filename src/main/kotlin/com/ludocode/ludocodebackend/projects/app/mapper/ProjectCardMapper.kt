@@ -41,6 +41,7 @@ class ProjectCardMapper(private val basicMapper: BasicMapper) {
                 .distinctBy { it.lowercase() }
                 .map { languageName -> languageName },
             deleteAt = projectCardProjection.getDeleteAt(),
+            description = projectCardProjection.getDescription(),
         )
     }
 

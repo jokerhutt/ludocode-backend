@@ -16,6 +16,7 @@ data class ProjectCardResponse (
     val projectType: ProjectType,
     val technologies: List<String>,
     val deleteAt: OffsetDateTime?,
+    val description: String?,
 )
 
 data class ProjectCardListResponse (

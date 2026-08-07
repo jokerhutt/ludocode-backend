@@ -54,6 +54,8 @@ object LogEvents {
     const val PROJECT_CLEANUP_STARTED = "project_cleanup_started"
     const val PROJECT_CLEANUP_COMPLETED = "project_cleanup_completed"
     const val PROJECT_CLEANUP_FAILED = "project_cleanup_failed"
+    const val PROJECT_NAME_EMPTY = "project_name_empty"
+    const val PROJECT_DESCRIPTION_EMPTY = "project_description_empty"
 
 
     const val COURSE_CREATED = "course_created"
@@ -88,6 +90,7 @@ object LogEvents {
 
     const val PROJECT_SNAPSHOT_LOADED = "project_snapshot_loaded"
     const val PROJECT_RENAME_REQUESTED = "project_rename_requested"
+    const val PROJECT_DESCRIPTION_CHANGE_REQUESTED = "project_description_change_requested"
     const val PROJECT_SNAPSHOT_DIFF = "project_snapshot_diff"
     const val PROJECT_SNAPSHOT_LIST_LOADED = "project_snapshot_list_loaded"
     const val PROJECT_CARD_LIST_LOADED = "project_card_list_loaded"

@@ -4,6 +4,7 @@ import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.BucketInfo
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
+import com.ludocode.ludocodebackend.projects.api.dto.request.ChangeProjectDescriptionRequest
 import com.ludocode.ludocodebackend.projects.api.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.projects.api.dto.request.RenameProjectRequest
 import com.ludocode.ludocodebackend.projects.api.dto.response.ProjectCardListResponse
@@ -129,6 +130,19 @@ class UserProjectIT : AbstractIntegrationTest() {
     }
 
     @Test
+    fun changeProjectDescription_changesDescription_returnsChanged() {
+        val request = ChangeProjectDescriptionRequest(targetId = existingProject.id, newDescription = "This is a new description")
+        submitPatchChangeProjectDescription(request, user1.id)
+
+        val res = submitGetUserProjects(user1.id)
+        assertThat(res.projects).hasSize(1)
+        assertThat(res.projects[0].projectId).isEqualTo(existingProject.id)
+        assertThat(res.projects[0].description).isEqualTo(request.newDescription)
+    }
+
+
+
+    @Test
     fun saveProject_deleteAddAndRename_returnsSuccess() {
         val snapshot = submitGetProjectSnapshot(existingProject.id, user1.id!!)
         val modifiedFiles = snapshot.files.toMutableList()
@@ -165,6 +179,18 @@ class UserProjectIT : AbstractIntegrationTest() {
         modifiedFiles[1].path = modifiedFiles[0].path
 
         assertErrorOnSave(user1.id!!, snapshot.copy(files = modifiedFiles), ErrorCode.DUPLICATE_FILE_NAME)
+    }
+
+    @Test
+    fun changeProjectDescription_blankDescription_returnsError() {
+        val request = ChangeProjectDescriptionRequest(targetId = existingProject.id, newDescription = " ")
+        assertErrorOnPatchDescription(request, user1.id, ErrorCode.INVALID_PROJECT_DESCRIPTION)
+    }
+
+    @Test
+    fun renameProject_blankName_returnsError() {
+        val request = RenameProjectRequest(targetId = existingProject.id, newName = " ")
+        assertErrorOnPatchName(request, user1.id!!, ErrorCode.INVALID_PROJECT_NAME)
     }
 
     @Test
@@ -351,6 +377,16 @@ class UserProjectIT : AbstractIntegrationTest() {
     private fun submitPatchRenameProject(request: RenameProjectRequest, userId: UUID) {
         TestRestClient.patchNoContent(ApiPaths.PROJECTS.name(request.targetId), userId, request)
     }
+
+    private fun submitPatchChangeProjectDescription(request: ChangeProjectDescriptionRequest, userId: UUID) {
+        TestRestClient.patchNoContent(ApiPaths.PROJECTS.description(request.targetId), userId, request)
+    }
+
+    private fun assertErrorOnPatchDescription(request: ChangeProjectDescriptionRequest, userId: UUID, errorCode: ErrorCode) =
+        TestRestClient.assertError("PATCH", ApiPaths.PROJECTS.description(request.targetId), userId, request, errorCode)
+
+    private fun assertErrorOnPatchName(request: RenameProjectRequest, userId: UUID, errorCode: ErrorCode) =
+        TestRestClient.assertError("PATCH", ApiPaths.PROJECTS.name(request.targetId), userId, request, errorCode)
 
     private fun assertErrorOnGet(pid: UUID, userId: UUID, errorCode: ErrorCode): ValidatableResponse =
         TestRestClient.assertError("GET", ApiPaths.PROJECTS.byId(pid), userId, null, errorCode)

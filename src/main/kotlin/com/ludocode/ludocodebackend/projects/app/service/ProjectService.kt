@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.commons.exception.ApiException
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.commons.logging.withMdc
 import com.ludocode.ludocodebackend.languages.domain.Languages
+import com.ludocode.ludocodebackend.projects.api.dto.request.ChangeProjectDescriptionRequest
 import com.ludocode.ludocodebackend.projects.api.dto.request.CreateProjectRequest
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectFileSnapshot
 import com.ludocode.ludocodebackend.projects.api.dto.snapshot.ProjectSnapshot
@@ -167,6 +168,7 @@ class ProjectService(
                 id = UUID.randomUUID(),
                 name = projectName,
                 userId = userId,
+                description = "No description provided",
                 projectType = projectType,
                 requestHash = requestHash,
                 entryFilePath = normalizedEntryFilePath,
@@ -362,7 +364,7 @@ class ProjectService(
 
     @Transactional
     internal fun deleteProjectForUser(projectId: UUID, userId: UUID) {
-        val existingProject = userProjectRepository.findById(projectId).orElseThrow()
+        val existingProject = userProjectRepository.findById(projectId).orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
         val existingFiles = projectFileRepository.findAllProjectFilesByProjectId(projectId)
 
         if (existingProject.userId != userId) {
@@ -388,7 +390,7 @@ class ProjectService(
     }
 
     private fun refreshUpdatedAt(existingId: UUID) {
-        var existingProject = userProjectRepository.findById(existingId).orElseThrow()
+        var existingProject = userProjectRepository.findById(existingId).orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
         existingProject.updatedAt = OffsetDateTime.now(clock)
         userProjectRepository.save(existingProject)
     }
@@ -403,13 +405,52 @@ class ProjectService(
             kv(LogFields.NAME_LENGTH, newName.length)
         )
 
-        var existingProject = userProjectRepository.findById(projectId).orElseThrow()
+        if (newName.isBlank()) {
+            logger.warn(
+                LogEvents.PROJECT_NAME_EMPTY + " {}",
+                kv(LogFields.NAME_LENGTH, newName.length)
+            )
+            throw ApiException(ErrorCode.INVALID_PROJECT_NAME)
+        }
+
+        var existingProject = userProjectRepository.findById(projectId).orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
 
         if (existingProject.userId != userId) {
             throw ApiException(ErrorCode.NOT_OWN_PROJECT)
         }
 
         existingProject.name = newName
+        existingProject = refreshUpdatedAt(existingProject)
+        userProjectRepository.save(existingProject)
+
+    }
+
+    @Transactional
+    internal fun changeProjectDescription(changeProjectDescriptionRequest: ChangeProjectDescriptionRequest, userId: UUID) {
+
+        val projectId = changeProjectDescriptionRequest.targetId
+        val newDescription = changeProjectDescriptionRequest.newDescription
+
+        logger.info(
+            LogEvents.PROJECT_DESCRIPTION_CHANGE_REQUESTED + " {}",
+            kv(LogFields.DESCRIPTION_LENGTH, newDescription.length)
+        )
+
+        if (newDescription.isBlank()) {
+            logger.warn(
+                LogEvents.PROJECT_DESCRIPTION_EMPTY + " {}",
+                kv(LogFields.DESCRIPTION_LENGTH, newDescription.length)
+            )
+            throw ApiException(ErrorCode.INVALID_PROJECT_DESCRIPTION)
+        }
+
+        var existingProject = userProjectRepository.findById(projectId).orElseThrow { ApiException(ErrorCode.PROJECT_NOT_FOUND) }
+
+        if (existingProject.userId != userId) {
+            throw ApiException(ErrorCode.NOT_OWN_PROJECT)
+        }
+
+        existingProject.description = newDescription
         existingProject = refreshUpdatedAt(existingProject)
         userProjectRepository.save(existingProject)
 

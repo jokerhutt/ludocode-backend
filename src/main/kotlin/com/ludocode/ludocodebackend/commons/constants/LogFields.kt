@@ -9,6 +9,7 @@ object LogFields {
     const val FILE_ID = "fileId"
     const val FILE_NAMES = "fileNames"
     const val NAME_LENGTH = "nameLength"
+    const val DESCRIPTION_LENGTH = "descriptionLength"
     const val EXIT_CODE = "exitCode"
 
     const val CHAT_TYPE = "chatType"
