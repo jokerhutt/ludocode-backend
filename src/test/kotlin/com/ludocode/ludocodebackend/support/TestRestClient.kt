@@ -306,6 +306,7 @@ object TestRestClient {
             "GET" -> spec.`when`().get(url)
             "POST" -> spec.`when`().post(url)
             "PUT" -> spec.`when`().put(url)
+            "PATCH" -> spec.`when`().patch(url)
             "DELETE" -> spec.`when`().delete(url)
             else -> error("Unsupported method: $method")
         }

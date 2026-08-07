@@ -189,8 +189,8 @@ class UserProjectIT : AbstractIntegrationTest() {
 
     @Test
     fun renameProject_blankName_returnsError() {
-        val request = ChangeProjectDescriptionRequest(targetId = existingProject.id, newDescription = " ")
-        assertErrorOnPatchDescription(request, user1.id, ErrorCode.INVALID_PROJECT_DESCRIPTION)
+        val request = RenameProjectRequest(targetId = existingProject.id, newName = " ")
+        assertErrorOnPatchName(request, user1.id!!, ErrorCode.INVALID_PROJECT_NAME)
     }
 
     @Test

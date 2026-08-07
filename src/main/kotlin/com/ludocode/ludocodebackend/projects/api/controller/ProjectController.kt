@@ -143,7 +143,7 @@ class ProjectController(
         Requires a valid session cookie to be present.
         """
     )
-    @PatchMapping(ApiPaths.PROJECTS.NAME)
+    @PatchMapping(ApiPaths.PROJECTS.DESCRIPTION)
     fun changeProjectDescription(
         @PathVariable projectId: UUID,
         @RequestBody request: ChangeProjectDescriptionRequest,
