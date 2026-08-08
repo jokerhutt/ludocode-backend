@@ -17,7 +17,9 @@
 
     "courseType": {
       "type": "string",
-      "enum": ["COURSE", "SKILL_PATH"]
+      "enum": ["COURSE", "SKILL_PATH"],
+      "title": "Course type",
+      "description": "Fixed once the course exists. Changing it on an existing course is rejected on import."
     },
 
     "courseIcon": {

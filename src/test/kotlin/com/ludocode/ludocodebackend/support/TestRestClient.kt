@@ -287,6 +287,38 @@ object TestRestClient {
             .statusCode(204)
     }
 
+    fun assertErrorYaml(
+        method: String,
+        url: String,
+        userId: UUID,
+        body: Any? = null,
+        expected: ErrorCode
+    ): ValidatableResponse {
+
+        val spec = given()
+            .config(
+                RestAssured.config().encoderConfig(
+                    encoderConfig().encodeContentTypeAs("application/x-yaml", ContentType.TEXT)
+                )
+            )
+            .header("X-Test-User-Id", userId.toString())
+            .contentType("application/x-yaml")
+            .accept(ContentType.JSON)
+
+        if (body != null) spec.body(yamlMapper.writeValueAsString(body))
+
+        val response = when (method.uppercase()) {
+            "POST" -> spec.`when`().post(url)
+            "PUT" -> spec.`when`().put(url)
+            else -> error("Unsupported method: $method")
+        }
+
+        return response.then()
+            .statusCode(expected.status.value())
+            .body("code", equalTo(expected.name))
+            .body("title", equalTo(expected.name))
+    }
+
     fun assertError(
         method: String,
         url: String,

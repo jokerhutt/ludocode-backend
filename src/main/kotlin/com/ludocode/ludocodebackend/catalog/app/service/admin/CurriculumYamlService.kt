@@ -18,6 +18,8 @@ import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlRoot
 import com.ludocode.ludocodebackend.catalog.app.service.CatalogService
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.commons.configuration.web.YamlProperties
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.lesson.app.service.admin.LessonSnapshotService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -49,9 +51,7 @@ class CurriculumYamlService(
     fun importYaml(courseId: UUID? = null, root: CurriculumYamlRoot) {
 
         val resolvedCourseId = if (courseId != null) {
-            // The description is only carried over on create, so an existing course has to be updated explicitly.
-            // A missing key leaves the current description alone, an explicit one overwrites it.
-            root.description?.let { catalogService.updateCourseDescription(courseId, it) }
+            applyCourseMetadata(courseId, root)
             courseId
         } else {
             curriculumSnapshotService.createCourse(CreateCourseRequest(
@@ -104,6 +104,21 @@ class CurriculumYamlService(
                 )
             }
         }
+    }
+
+    private fun applyCourseMetadata(courseId: UUID, root: CurriculumYamlRoot) {
+
+        val course = courseRepository.findById(courseId)
+            .orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
+
+        if (root.courseType != course.courseType) {
+            throw ApiException(ErrorCode.NO_CHANGING_COURSE_TYPE)
+        }
+
+        catalogService.updateCourseTitle(courseId, root.title)
+        catalogService.updateCourseIcon(courseId, root.courseIcon)
+        root.description?.let { catalogService.updateCourseDescription(courseId, it) }
+        root.language?.let { catalogService.updateCourseLanguage(courseId, it) }
     }
 
     fun exportYaml(courseId: UUID): String {
