@@ -8,7 +8,7 @@ import java.util.UUID
 
 data class CurriculumYamlRoot (
     val title: String,
-    val description: String? = "",
+    val description: String? = null,
     val courseType: CourseType,
     val courseIcon: String,
     val language: String?,

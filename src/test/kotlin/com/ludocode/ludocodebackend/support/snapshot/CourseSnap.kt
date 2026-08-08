@@ -9,5 +9,6 @@ data class CourseSnap(
     val courseType: CourseType,
     val courseIcon: String,
     val language: String?,
-    val modules: List<ModuleSnap>
+    val modules: List<ModuleSnap>,
+    val description: String = ""
 )

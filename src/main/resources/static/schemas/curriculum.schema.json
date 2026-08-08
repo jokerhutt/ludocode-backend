@@ -10,7 +10,9 @@
     "title": { "type": "string" },
 
     "description": {
-      "type": ["string", "null"]
+      "type": ["string", "null"],
+      "title": "Course description",
+      "description": "Editable on import. Omit the key to keep the current description, an empty value falls back to \"No description\"."
     },
 
     "courseType": {
@@ -50,7 +52,9 @@
         },
 
         "description": {
-          "type": ["string", "null"]
+          "type": ["string", "null"],
+          "title": "Module description",
+          "description": "Optional blurb for the module."
         },
 
         "lessons": {

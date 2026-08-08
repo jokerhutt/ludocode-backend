@@ -44,6 +44,10 @@ class CatalogService(
     private val courseTagRepository: CourseTagRepository,
 ) : CatalogPortForProgress {
 
+    companion object {
+        const val DEFAULT_COURSE_DESCRIPTION = "No description"
+    }
+
     private val logger = LoggerFactory.getLogger(CatalogService::class.java)
 
 
@@ -147,6 +151,17 @@ class CatalogService(
     fun updateCourseIcon(courseId: UUID, iconName: String) {
         val course = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
         course.courseIcon = iconName
+    }
+
+    @Caching(
+        evict = [
+            CacheEvict(cacheNames = [CacheNames.COURSE_LIST], allEntries = true),
+        ]
+    )
+    @Transactional
+    fun updateCourseDescription(courseId: UUID, description: String?) {
+        val course = courseRepository.findById(courseId).orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
+        course.description = description?.takeIf { it.isNotBlank() } ?: DEFAULT_COURSE_DESCRIPTION
     }
 
     @Caching(

@@ -15,6 +15,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlLesson
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlModule
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlRoot
+import com.ludocode.ludocodebackend.catalog.app.service.CatalogService
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.commons.configuration.web.YamlProperties
 import com.ludocode.ludocodebackend.lesson.app.service.admin.LessonSnapshotService
@@ -27,6 +28,7 @@ class CurriculumYamlService(
     private val curriculumSnapshotService: CurriculumSnapshotService,
     private val lessonSnapshotService: LessonSnapshotService,
     private val courseRepository: CourseRepository,
+    private val catalogService: CatalogService,
     private val yamlProperties: YamlProperties,
 ) {
 
@@ -46,7 +48,12 @@ class CurriculumYamlService(
     @Transactional
     fun importYaml(courseId: UUID? = null, root: CurriculumYamlRoot) {
 
-        val resolvedCourseId = courseId ?:
+        val resolvedCourseId = if (courseId != null) {
+            // The description is only carried over on create, so an existing course has to be updated explicitly.
+            // A missing key leaves the current description alone, an explicit one overwrites it.
+            root.description?.let { catalogService.updateCourseDescription(courseId, it) }
+            courseId
+        } else {
             curriculumSnapshotService.createCourse(CreateCourseRequest(
                 courseTitle = root.title,
                 requestHash = UUID.randomUUID(),
@@ -55,6 +62,7 @@ class CurriculumYamlService(
                 courseIcon = root.courseIcon,
                 language = root.language
             ))
+        }
 
         val lessonIdMap = mutableMapOf<CurriculumYamlLesson, UUID>()
 

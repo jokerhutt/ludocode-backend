@@ -43,7 +43,8 @@ class TestSnapshotService(
             courseType = course.courseType,
             courseIcon = course.courseIcon,
             codeLanguage,
-            moduleSnapshots
+            moduleSnapshots,
+            description = course.description
         )
 
 

@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.api.controller.admin
 import com.ludocode.ludocodebackend.catalog.api.dto.internal.ChangeCourseTagsRequest
+import com.ludocode.ludocodebackend.catalog.api.dto.request.ChangeDescriptionRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.request.ChangeIconRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.request.ChangeLanguageRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.request.ChangeTitleRequest
@@ -96,6 +97,15 @@ class CatalogAdminController(
         catalogService.updateCourseTitle(courseId, newTitle)
         return ResponseEntity.ok(catalogService.getAllCourses())
 
+    }
+
+    @PutMapping(ApiPaths.SNAPSHOTS.COURSE_DESCRIPTION)
+    fun changeDescription(
+        @RequestBody req: ChangeDescriptionRequest,
+        @PathVariable courseId: UUID
+    ) : ResponseEntity<List<CourseResponse>> {
+        catalogService.updateCourseDescription(courseId, req.description)
+        return ResponseEntity.ok(catalogService.getAllCourses())
     }
 
     @PutMapping(ApiPaths.SNAPSHOTS.BY_COURSE_CURRICULUM, params = ["mode!=yaml"])

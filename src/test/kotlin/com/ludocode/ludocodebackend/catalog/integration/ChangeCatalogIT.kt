@@ -1,5 +1,6 @@
 package com.ludocode.ludocodebackend.catalog.integration
 
+import com.ludocode.ludocodebackend.catalog.api.dto.request.ChangeDescriptionRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.request.ChangeTitleRequest
 import com.ludocode.ludocodebackend.catalog.api.dto.response.CourseResponse
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnapshot
@@ -7,6 +8,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonCurriculumDra
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlLesson
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlModule
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlRoot
+import com.ludocode.ludocodebackend.catalog.app.service.CatalogService
 import com.ludocode.ludocodebackend.catalog.domain.enums.CourseType
 import com.ludocode.ludocodebackend.commons.constants.ApiPaths
 import com.ludocode.ludocodebackend.commons.exception.ErrorCode
@@ -39,6 +41,10 @@ import java.util.*
 
 class ChangeCatalogIT : AbstractIntegrationTest() {
 
+    private companion object {
+        const val MODULE_DESCRIPTION = "Everything about printing"
+    }
+
     @Autowired
     private lateinit var testSnapshotService: TestSnapshotService
 
@@ -69,6 +75,53 @@ class ChangeCatalogIT : AbstractIntegrationTest() {
 
         assertPutCourseTitleError(ChangeTitleRequest(newTitle), pythonId, ErrorCode.COURSE_TITLE_IN_USE)
 
+    }
+
+    @Test
+    fun submitCourseDescriptionChange_returnsChanged() {
+        val pythonId = pythonId
+        val newDescription = "Everything you need to get started with Python"
+
+        val res = submitPutUpdateDescription(ChangeDescriptionRequest(newDescription), pythonId)
+
+        courseRepository.flush()
+
+        assertThat(res.first { it.id == pythonId }.description).isEqualTo(newDescription)
+        assertThat(testSnapshotService.buildCourseSnapshot(pythonId).description).isEqualTo(newDescription)
+    }
+
+    @Test
+    fun submitCourseDescriptionChange_blank_fallsBackToDefault() {
+        val pythonId = pythonId
+
+        submitPutUpdateDescription(ChangeDescriptionRequest("   "), pythonId)
+
+        courseRepository.flush()
+
+        assertThat(testSnapshotService.buildCourseSnapshot(pythonId).description)
+            .isEqualTo(CatalogService.DEFAULT_COURSE_DESCRIPTION)
+    }
+
+    @Test
+    fun submitYamlChangeCourse_changesCourseAndModuleDescription() {
+        val courseToChangeId = pythonId
+        val newDescription = "Rewritten from the yaml editor"
+
+        submitPutUpdateCurriculumWithYaml(pythonYamlWithDescriptions(newDescription), courseToChangeId)
+
+        courseRepository.flush()
+
+        val changed = testSnapshotService.buildCourseSnapshot(courseToChangeId)
+        assertThat(changed.description).isEqualTo(newDescription)
+        assertThat(changed.modules.first().description).isEqualTo(MODULE_DESCRIPTION)
+
+        // An omitted description must leave the existing one alone rather than reset it.
+        submitPutUpdateCurriculumWithYaml(pythonYamlWithDescriptions(null), courseToChangeId)
+
+        courseRepository.flush()
+
+        assertThat(testSnapshotService.buildCourseSnapshot(courseToChangeId).description)
+            .isEqualTo(newDescription)
     }
 
     @Test
@@ -616,6 +669,45 @@ ___("Hello world")
             ApiPaths.SNAPSHOTS.byCourseAdminTitle(courseId), user1.id, req,
             Array<CourseResponse>::class.java
         ).toList()
+
+    private fun submitPutUpdateDescription(req: ChangeDescriptionRequest, courseId: UUID): List<CourseResponse> =
+        TestRestClient.putOk(
+            ApiPaths.SNAPSHOTS.byCourseAdminDescription(courseId), user1.id, req,
+            Array<CourseResponse>::class.java
+        ).toList()
+
+    private fun pythonYamlWithDescriptions(courseDescription: String?): CurriculumYamlRoot =
+        CurriculumYamlRoot(
+            title = "Python",
+            description = courseDescription,
+            courseIcon = "STAR",
+            language = pythonLanguage,
+            courseType = CourseType.COURSE,
+            modules = listOf(
+                CurriculumYamlModule(
+                    id = null,
+                    title = "Printing stuff to the console",
+                    description = MODULE_DESCRIPTION,
+                    lessons = listOf(
+                        CurriculumYamlLesson(
+                            id = null,
+                            title = "Print Statements",
+                            lessonType = LessonType.NORMAL,
+                            exercises = listOf(
+                                ExerciseSnap(
+                                    exerciseId = UUID.randomUUID(),
+                                    blocks = listOf(
+                                        HeaderBlock("Printing in Python"),
+                                        ParagraphBlock("Use the print() function to output text to the console.")
+                                    ),
+                                    interaction = null
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
 
     private fun submitPutUpdateCurriculumWithYaml(
         req: CurriculumYamlRoot,
