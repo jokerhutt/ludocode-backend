@@ -6,6 +6,7 @@ import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.CurriculumDraftSnap
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.LessonDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.app.mapper.CourseMapper
+import com.ludocode.ludocodebackend.catalog.app.service.CatalogService
 import com.ludocode.ludocodebackend.catalog.domain.entity.Course
 import com.ludocode.ludocodebackend.catalog.domain.entity.Module
 import com.ludocode.ludocodebackend.catalog.domain.entity.ModuleLesson
@@ -87,6 +88,7 @@ class CurriculumSnapshotService(
             val module = Module(
                 id = moduleSnapshot.id,
                 title = moduleSnapshot.title,
+                description = moduleSnapshot.description,
                 courseId = courseId,
                 orderIndex = moduleIndex + 1,
                 isDeleted = false
@@ -248,7 +250,8 @@ class CurriculumSnapshotService(
         val newCourseName = request.courseTitle
         val newCourseHash = request.requestHash
         val newCourseType = request.courseType
-        val newCourseDescription = request.description ?: "No description"
+        val newCourseDescription = request.description?.takeIf { it.isNotBlank() }
+            ?: CatalogService.DEFAULT_COURSE_DESCRIPTION
         val newCourseIcon = request.courseIcon
 
         val newCourseId = UUID.randomUUID()
@@ -356,7 +359,12 @@ class CurriculumSnapshotService(
             )
         }
 
-        return ModuleDraftSnapshot(id = moduleId, title = module.title, lessons = lessonDraftSnapshots)
+        return ModuleDraftSnapshot(
+            id = moduleId,
+            title = module.title,
+            description = module.description,
+            lessons = lessonDraftSnapshots
+        )
     }
 
 

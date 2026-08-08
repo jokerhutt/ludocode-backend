@@ -18,6 +18,9 @@ class Module(
     @Column(name = "title")
     var title: String,
 
+    @Column(name = "description")
+    var description: String? = null,
+
     @Column(name = "course_id")
     val courseId: UUID,
 

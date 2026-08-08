@@ -24,7 +24,7 @@ class Course(
     val courseType: CourseType,
 
     @Column(name = "description")
-    val description: String,
+    var description: String,
 
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "course_status")

@@ -43,7 +43,8 @@ class TestSnapshotService(
             courseType = course.courseType,
             courseIcon = course.courseIcon,
             codeLanguage,
-            moduleSnapshots
+            moduleSnapshots,
+            description = course.description
         )
 
 
@@ -81,7 +82,8 @@ class TestSnapshotService(
         return ModuleSnap(
             moduleId = module!!.id,
             title = module.title,
-            lessons = lessonSnapshots
+            lessons = lessonSnapshots,
+            description = module.description
         )
     }
 

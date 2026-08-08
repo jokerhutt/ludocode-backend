@@ -15,8 +15,11 @@ import com.ludocode.ludocodebackend.catalog.api.dto.snapshot.ModuleDraftSnapshot
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlLesson
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlModule
 import com.ludocode.ludocodebackend.catalog.api.dto.yaml.CurriculumYamlRoot
+import com.ludocode.ludocodebackend.catalog.app.service.CatalogService
 import com.ludocode.ludocodebackend.catalog.infra.repository.CourseRepository
 import com.ludocode.ludocodebackend.commons.configuration.web.YamlProperties
+import com.ludocode.ludocodebackend.commons.exception.ApiException
+import com.ludocode.ludocodebackend.commons.exception.ErrorCode
 import com.ludocode.ludocodebackend.lesson.app.service.admin.LessonSnapshotService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -27,6 +30,7 @@ class CurriculumYamlService(
     private val curriculumSnapshotService: CurriculumSnapshotService,
     private val lessonSnapshotService: LessonSnapshotService,
     private val courseRepository: CourseRepository,
+    private val catalogService: CatalogService,
     private val yamlProperties: YamlProperties,
 ) {
 
@@ -46,7 +50,10 @@ class CurriculumYamlService(
     @Transactional
     fun importYaml(courseId: UUID? = null, root: CurriculumYamlRoot) {
 
-        val resolvedCourseId = courseId ?:
+        val resolvedCourseId = if (courseId != null) {
+            applyCourseMetadata(courseId, root)
+            courseId
+        } else {
             curriculumSnapshotService.createCourse(CreateCourseRequest(
                 courseTitle = root.title,
                 requestHash = UUID.randomUUID(),
@@ -55,6 +62,7 @@ class CurriculumYamlService(
                 courseIcon = root.courseIcon,
                 language = root.language
             ))
+        }
 
         val lessonIdMap = mutableMapOf<CurriculumYamlLesson, UUID>()
 
@@ -63,6 +71,7 @@ class CurriculumYamlService(
                 ModuleDraftSnapshot(
                     id = module.id ?: UUID.randomUUID(),
                     title = module.title,
+                    description = module.description,
                     lessons = module.lessons.map { lesson ->
 
                         val lessonId = lesson.id ?: UUID.randomUUID()
@@ -97,6 +106,21 @@ class CurriculumYamlService(
         }
     }
 
+    private fun applyCourseMetadata(courseId: UUID, root: CurriculumYamlRoot) {
+
+        val course = courseRepository.findById(courseId)
+            .orElseThrow { ApiException(ErrorCode.COURSE_NOT_FOUND) }
+
+        if (root.courseType != course.courseType) {
+            throw ApiException(ErrorCode.NO_CHANGING_COURSE_TYPE)
+        }
+
+        catalogService.updateCourseTitle(courseId, root.title)
+        catalogService.updateCourseIcon(courseId, root.courseIcon)
+        root.description?.let { catalogService.updateCourseDescription(courseId, it) }
+        root.language?.let { catalogService.updateCourseLanguage(courseId, it) }
+    }
+
     fun exportYaml(courseId: UUID): String {
 
         val course = courseRepository.findById(courseId)
@@ -123,6 +147,7 @@ class CurriculumYamlService(
             CurriculumYamlModule(
                 id = module.id,
                 title = module.title,
+                description = module.description,
                 lessons = lessons
             )
         }

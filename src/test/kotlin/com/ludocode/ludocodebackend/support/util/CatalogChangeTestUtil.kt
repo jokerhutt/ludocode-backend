@@ -30,6 +30,7 @@ object CatalogChangeTestUtil {
                 ModuleDraftSnapshot(
                     id = module.moduleId,
                     title = module.title,
+                    description = module.description,
 
                     lessons = module.lessons.map { lesson ->
                         LessonDraftSnapshot(

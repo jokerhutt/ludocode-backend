@@ -55,6 +55,7 @@
     <include file="/db/changelog/048-create-user-xp-and-xp-transaction.xml"/>
     <include file="/db/changelog/049-add-is-guest-column.xml"/>
     <include file="/db/changelog/050-add-project-description.xml"/>
+    <include file="/db/changelog/051-add-module-description.xml"/>
 
     <!-- ===== SEED DATA (dev fixture, mutable, runs last against the final schema) ===== -->
     <include file="/db/changelog/seed/dev-seed.xml"/>

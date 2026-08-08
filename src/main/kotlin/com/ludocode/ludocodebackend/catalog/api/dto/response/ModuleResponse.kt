@@ -6,5 +6,6 @@ data class ModuleResponse(
     val id: UUID,
     val title: String,
     val courseId: UUID,
-    val orderIndex: Int
+    val orderIndex: Int,
+    val description: String?
 )

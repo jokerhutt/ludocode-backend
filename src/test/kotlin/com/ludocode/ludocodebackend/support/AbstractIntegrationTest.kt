@@ -275,6 +275,7 @@ abstract class AbstractIntegrationTest {
                     Module(
                         id = ms.moduleId,
                         title = ms.title,
+                        description = ms.description,
                         courseId = cs.courseId,
                         orderIndex = mIdx + 1,
                         isDeleted = false
@@ -574,11 +575,11 @@ abstract class AbstractIntegrationTest {
 
 
         val pythonModules = listOf(
-            ModuleSnap(moduleId = pyMod1Id, title = "Variables", lessons = pyMod1Lessons),
-            ModuleSnap(moduleId = pyMod2Id, title = "Conditionals", lessons = pyMod2Lessons)
+            ModuleSnap(moduleId = pyMod1Id, title = "Variables", description = "Cool variable stuff", lessons = pyMod1Lessons),
+            ModuleSnap(moduleId = pyMod2Id, title = "Conditionals", description = null, lessons = pyMod2Lessons)
         )
         val swiftModules = listOf(
-            ModuleSnap(moduleId = swMod1Id, title = "Variables", lessons = swMod1Lessons),
+            ModuleSnap(moduleId = swMod1Id, title = "Variables", description = "Arent swift variables awesome", lessons = swMod1Lessons),
         )
 
         val snaps = listOf(
