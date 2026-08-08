@@ -49,6 +49,10 @@
           "type": "string"
         },
 
+        "description": {
+          "type": ["string", "null"]
+        },
+
         "lessons": {
           "type": "array",
           "minItems": 1,

@@ -14,7 +14,8 @@ class ModuleMapper(private val basicMapper: BasicMapper) {
                 id = it.id!!,
                 title = it.title!!,
                 courseId = it.courseId!!,
-                orderIndex = it.orderIndex!!
+                orderIndex = it.orderIndex!!,
+                description = it.description
             )
         }
 

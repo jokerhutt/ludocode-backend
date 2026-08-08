@@ -18,6 +18,7 @@ data class CurriculumYamlRoot (
 data class CurriculumYamlModule (
     val id: UUID?,
     val title: String,
+    val description: String? = null,
     val lessons: List<CurriculumYamlLesson>
 )
 

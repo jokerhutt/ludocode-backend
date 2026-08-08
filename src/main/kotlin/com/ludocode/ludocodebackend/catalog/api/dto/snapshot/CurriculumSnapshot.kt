@@ -13,6 +13,7 @@ data class ModuleDraftSnapshot(
     val id: UUID,
     val title: String,
     var lessons: List<LessonDraftSnapshot>,
+    var description: String? = null
 )
 
 data class LessonDraftSnapshot(

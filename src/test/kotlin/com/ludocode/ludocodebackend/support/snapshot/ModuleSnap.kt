@@ -6,5 +6,6 @@ import java.util.*
 data class ModuleSnap(
     val moduleId: UUID,
     val title: String,
-    val lessons: List<LessonSnap>
+    val lessons: List<LessonSnap>,
+    val description: String?,
 )

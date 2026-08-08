@@ -81,7 +81,8 @@ class TestSnapshotService(
         return ModuleSnap(
             moduleId = module!!.id,
             title = module.title,
-            lessons = lessonSnapshots
+            lessons = lessonSnapshots,
+            description = module.description
         )
     }
 

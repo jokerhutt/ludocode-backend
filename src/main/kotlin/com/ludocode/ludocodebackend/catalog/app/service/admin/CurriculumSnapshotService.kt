@@ -87,6 +87,7 @@ class CurriculumSnapshotService(
             val module = Module(
                 id = moduleSnapshot.id,
                 title = moduleSnapshot.title,
+                description = moduleSnapshot.description,
                 courseId = courseId,
                 orderIndex = moduleIndex + 1,
                 isDeleted = false
@@ -356,7 +357,12 @@ class CurriculumSnapshotService(
             )
         }
 
-        return ModuleDraftSnapshot(id = moduleId, title = module.title, lessons = lessonDraftSnapshots)
+        return ModuleDraftSnapshot(
+            id = moduleId,
+            title = module.title,
+            description = module.description,
+            lessons = lessonDraftSnapshots
+        )
     }
 
 

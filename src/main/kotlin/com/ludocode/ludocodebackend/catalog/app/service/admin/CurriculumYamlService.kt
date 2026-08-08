@@ -63,6 +63,7 @@ class CurriculumYamlService(
                 ModuleDraftSnapshot(
                     id = module.id ?: UUID.randomUUID(),
                     title = module.title,
+                    description = module.description,
                     lessons = module.lessons.map { lesson ->
 
                         val lessonId = lesson.id ?: UUID.randomUUID()
@@ -123,6 +124,7 @@ class CurriculumYamlService(
             CurriculumYamlModule(
                 id = module.id,
                 title = module.title,
+                description = module.description,
                 lessons = lessons
             )
         }
